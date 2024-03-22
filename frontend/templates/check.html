@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<button class="btn btn-primary" id="logout-submit">Logout</button>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static '/js/loading.js' %}"></script>
+    <script src="{% static '/js/account/account_manajement.js' %}"></script>
+{% endblock %}

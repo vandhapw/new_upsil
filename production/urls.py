@@ -15,14 +15,21 @@ Including another URLconf
 """
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from .views import print_example
-from account.views import login_page
+from account.views import login_page, dashboard_page
+from functools import partial 
+from klaen.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('testing/',print_example, name='testing' ),
-    path('', login_page, name='login')
+    path('', login_page, name='login'),
+    path('account/', include('account.urls')),
+    path('dashboard/', dashboard_page, name='dashboard'),
+    path('klaen/', include('klaen.urls'))
+    # path('/api/login/', partial(login_api, running=None), name='api-login')
+    
     
 ]
 

@@ -1,0 +1,247 @@
+{% extends 'base-.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<link href="{% static 'css/dashboard/tabler.min.css' %}" rel="stylesheet">
+<style>
+    .deck-card {
+        height:120px;
+        margin-bottom: 30px;
+    }
+</style>
+
+
+
+
+<!-- Page Heading -->
+<!-- Dropdown No Arrow -->
+
+<div class="d-sm-flex align-items-center justify-content-between mt-3">
+    <h3 class="h3 mb-3 text-gray-800">New Dashboard</h3>
+    <div class="dropdown no-arrow mb-3">
+            <button class="btn btn-info dropdown-toggle" type="button"
+                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                aria-expanded="false">
+                Sensors Location
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="#">PKNU</a>
+                <a class="dropdown-item" href="#">JungRok</a>
+                <a class="dropdown-item" href="#">Something else</a>
+            </div>
+    </div>
+
+
+</div>
+<div class="row row-deck row-cards">
+  <div class="col-md-6 col-xl-3">
+    <div class="deck-card card">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="subheader">Indoor Airquality (Sensor Devices)</div>
+        </div>
+        <div class="mb-2">
+            <label class="form-label">Arduino Sensor</label>
+            <div class="form-selectgroup">
+              <label class="form-selectgroup-item">
+                <input type="radio" name="hum-icon" value="hum-on" class="form-selectgroup-input" checked>
+                <span id="arduino_row" class="form-selectgroup-label"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                  <!-- <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="5 12 3 12 12 3 21 12 19 12" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg> -->
+                  Unknown</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="radio" name="hum-icon" value="hum-off" class="form-selectgroup-input">
+                <span id="arduino_size" class="form-selectgroup-label"><!-- Download SVG icon from http://tabler-icons.io/i/user -->
+                  <!-- <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="7" r="4" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg> -->
+                  Unknown</span>
+              </label>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-xl-3 mb-4">
+    <div class="deck-card card">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="subheader">Indoor Air Quality (Buildthing Sensor Devices)</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Buildthing Device</label>
+            <div class="form-selectgroup">
+              <label class="form-selectgroup-item">
+                <input type="radio" name="temp-icon" value="temp-on" class="form-selectgroup-input" checked>
+                <span id="buildthing_row" class="form-selectgroup-label"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                  <!-- <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="5 12 3 12 12 3 21 12 19 12" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg> -->
+                  Unknown</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="radio" name="temp-icon" value="temp-off" class="form-selectgroup-input">
+                <span id="buildthing_size" class="form-selectgroup-label"><!-- Download SVG icon from http://tabler-icons.io/i/user -->
+                  <!-- <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="7" r="4" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg> -->
+                  Unknown</span>
+              </label>
+            </div>
+        </div>
+      </div>
+      <div id="chart-revenue-bg" class="chart-sm"></div>
+    </div>
+  </div>
+  <div class="col-md-6 col-xl-2 mb-4">
+    <div class="deck-card card">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="subheader">Indoor Air Quality (Sensor Devices)</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Klaen Sensor Devices</label>
+            <div class="form-selectgroup">
+              <label class="form-selectgroup-item">
+                <input type="radio" name="dust-icons" value="dust-on" class="form-selectgroup-input" checked>
+                <span id="klaen_row" class="form-selectgroup-label"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                  <!-- <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="5 12 3 12 12 3 21 12 19 12" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg> -->
+                  Unknown</span>
+              </label>
+              <label class="form-selectgroup-item form-selectgroup-item-danger">
+                <input type="radio" name="dust-icons" value="dust-off" class="form-selectgroup-input ">
+                <span id="klaen_size" class="form-selectgroup-label"><!-- Download SVG icon from http://tabler-icons.io/i/user -->
+                  <!-- <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="7" r="4" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg> -->
+                  Unknown</span>
+              </label>
+            </div>
+        </div>
+        <div id="chart-new-clients" class="chart-sm"></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-xl-2 mb-4">
+    <div class="deck-card card">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="subheader">Indoor Air Quality (Sensor Devices)</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Klaen Sensor Devices (Company API)</label>
+            <div class="form-selectgroup">
+              <label class="form-selectgroup-item">
+                <input type="radio" name="dust-icons" value="dust-on" class="form-selectgroup-input" checked>
+                <span id="klaen_company_row" class="form-selectgroup-label"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                  <!-- <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="5 12 3 12 12 3 21 12 19 12" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg> -->
+                  Unknown</span>
+              </label>
+              <label class="form-selectgroup-item form-selectgroup-item-danger">
+                <input type="radio" name="dust-icons" value="dust-off" class="form-selectgroup-input ">
+                <span id="klaen_company_size" class="form-selectgroup-label"><!-- Download SVG icon from http://tabler-icons.io/i/user -->
+                  <!-- <svg xmlns="http://www.w3.org/2000/svg" class="icon me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="7" r="4" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg> -->
+                  Unknown</span>
+              </label>
+            </div>
+        </div>
+        <div id="chart-new-clients" class="chart-sm"></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-xl-2 mb-4">
+    <div class="deck-card card">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="subheader">Outdoor Air Quality (Weather API)</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Weather API</label>
+            <div class="form-selectgroup">
+              <label class="form-selectgroup-item">
+                     <input type="radio" name="light-icons" value="light-1" class="form-selectgroup-input" checked>
+              <span id="weather_row" class="form-selectgroup-label"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                  
+                Unknown</span>
+              </label>
+              <label class="form-selector-item form-selectgroup-item-danger">
+                <input type="radio" name="light-icons" value="light-2" class="form-selectgroup-input ">
+                <span id="weather_size" class="form-selectgroup-label"><!-- Download SVG icon from http://tabler-icons.io/i/user -->
+
+                  Unknown</span>
+              </label>
+            </div>
+        </div>
+<!--        <div id="chart-new-clients" class="chart-sm"></div>-->
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Content Row -->
+<div class="row">
+    <!-- Area Chart -->
+    <div class="col-12">
+        <div class="card shadow" style="height:618px">
+            <!-- Card Header - Dropdown -->
+            <div class="card-header py-1 d-flex flex-row align-items-center justify-content-between">
+                <h4 class="m-0 font-weight-bold text-primary">Real-time Dataset </h4>
+                <div class="dropdown no-arrow mb-3 ">
+                  <select type="text" class="form-select chartSource" placeholder="Select Data Chart" id="select-tags-advanced" value="">
+                    <option value="arduino">Arduino Sensor Chart</option>
+                    <option value="buildthing">Buildthing Chart</option>
+                    <option value="weather">Weather Chart</option>
+                    <option value="klaen">Klaen Chart</option>
+                    <option value="klaen_company">Klaen Company Chart</option>
+                  </select>
+              </div>
+                <div class="dropdown no-arrow mb-3 ">
+                    <select type="text" class="form-select chartSelect" placeholder="Select a date" id="select-tags-advanced" value="">
+                      <option value="bar">Bar</option>
+                      <option value="line">Line</option>
+                      <option value="combo">Combo</option>
+                      <option value="scatter">Scatter</option>
+                      <option value="bubble">Bubble</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Card Body -->
+            <div class="card-body">
+                <div class="chart-area">
+                    <div class="chartjs-size-monitor chart-selections">
+                        <div class="chartjs-size-monitor-expand">
+                            <div class="">
+                            </div>
+                        </div>
+                        <div class="chartjs-size-monitor-shrink"><div class="">
+                        </div>
+                    </div>
+                    </div>
+                    <canvas id="myAreaChart" class="chartjs-render-monitor" width="1606px" height="418px"></canvas>
+                    <!-- <canvas id="myComboChart" width="400" height="200"></canvas> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+   $(function(){
+    //pm10Chart("bar");
+   //   pm10Pie();
+           //comboChart();
+           updateChart()
+           //buildthingSensor('combo');
+           dataCapacity().then(capacity => {
+             $('#arduino_row').text(capacity.arduino_row + ' row');
+             $('#arduino_size').text(parseFloat(capacity.arduino_size).toFixed(2) + ' MB');
+             $('#buildthing_row').text(capacity.buildthing_row + ' row');
+             $('#buildthing_size').text(parseFloat(capacity.buildthing_size).toFixed(2) + ' MB');
+             $('#weather_row').text(capacity.weather_row + ' row');
+             $('#weather_size').text(parseFloat(capacity.weather_size).toFixed(2) + ' MB');
+             $('#klaen_row').text(capacity.klaen_row + ' row');
+             $('#klaen_size').text(parseFloat(capacity.weather_size).toFixed(2) + ' MB');
+             $('#klaen_company_row').text(capacity.klaen_company_row + ' row');
+             $('#klaen_company_size').text(parseFloat(capacity.klaen_company_size).toFixed(2) + ' MB');
+         });
+   
+           //outdoorSensor('combo');
+       });
+    </script>
+
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'base-.html' %}
+{% block content %}
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Exploratory Data Analysis</h6>
+        <div>
+            <!-- <a href="#" class="btn btn-primary" type="button">Create Settings</a> -->
+            <!-- Button to trigger modal -->
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#uploadModal">
+              Upload File
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if data %}
+    <table id="example" class="display" style="width:100%">
+        <thead>
+            <tr>
+                {% if columns %}
+                {% for column in columns %}
+                    <th>{{ column }}</th>
+                {% endfor %}
+            {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% if data %}
+            {% for row in data %}
+                <tr>
+                    {% for key, value in row.items %}
+                        <td>{{ value }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No data to display.</p>
+{% endif %}
+
+{% for figure in figures %}
+    <div>
+        <img src="data:image/png;base64,{{ figure }}" alt="Figure">
+    </div>
+{% endfor %}
+
+<script>
+$(document).ready(function() {
+    $('#example').DataTable();
+});
+</script>
+        <!-- Existing content -->
+    </div>
+</div>
+
+<!-- Modal for file upload -->
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="uploadModalLabel">Upload Excel/CSV File</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="{% url 'eda-process'%}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="file-upload">Choose file</label>
+            <input type="file" class="form-control-file" id="file-upload" name="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Upload</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

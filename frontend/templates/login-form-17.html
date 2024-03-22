@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+
 {% load static %}
 
 <!DOCTYPE html>
@@ -9,6 +11,8 @@
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
+  
+    {% block extra_css %}
     <link
       href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900&display=swap"
       rel="stylesheet"
@@ -18,6 +22,7 @@
       href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
     />
     <link rel="stylesheet" href="{% static 'css/login-form-17.css' %}" />
+    {% endblock %}
     <style>
         
 .custom-card {
@@ -170,7 +175,9 @@
       }
     </script>
   </head>
+  
   <body>
+    {% block content %}
     <section class="ftco-section">
       <div class="container">
         <div class="row justify-content-center">
@@ -191,7 +198,7 @@
                     >Sign Up</a
                   >
 
-                  <div class="card custom-card">
+                  <!-- <div class="card custom-card">
                     <div class="img-container">
                       <img src="https://cdn.pixabay.com/photo/2016/11/29/12/13/fence-1869401_960_720.jpg"/>
                     </div>
@@ -206,14 +213,15 @@
                          Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
                       </div>
                     </div>
-                  </div>
+                  </div> -->
                 </div>
               </div>
 
               
 
               <!-- signin-form -->
-
+              <pre id="error_alert" class="p-4 p-lg-5"></pre>
+              
               <div class="login-wrap p-4 p-lg-5" id="signin-form">
                 <div class="d-flex">
                   <div class="w-100">
@@ -241,6 +249,7 @@
                       type="text"
                       class="form-control"
                       placeholder="Username"
+                      id="login-username"
                       required
                     />
                   </div>
@@ -250,12 +259,14 @@
                       type="password"
                       class="form-control"
                       placeholder="Password"
+                      id="login-password"
                       required
                     />
                   </div>
                   <div class="form-group">
                     <button
-                      type="submit"
+                      type="button"
+                      id="login-submit"
                       class="form-control btn btn-primary submit px-3"
                     >
                       Sign In
@@ -295,7 +306,7 @@
                       </p>
                     </div>
                     </div>
-                    <form action="#" id="signin-form">
+                    <form action="#" id="signup-form">
                       <div class="form-group
                         mb-3">
                         <label class="label" for="name">Username</label>
@@ -303,6 +314,7 @@
                           type="text"
                           class="form-control"
                           placeholder="Username"
+                          id="signup-username"
                           required
                         />
                         </div>
@@ -312,6 +324,7 @@
                             type="email"
                             class="form-control"
                             placeholder="Email Address"
+                            id="signup-email"
                             required
                           />
                           </div>
@@ -321,6 +334,7 @@
                               type="password"
                               class="form-control"
                               placeholder="Password"
+                              id="signup-password"
                               required
                             />
                             </div>
@@ -330,13 +344,15 @@
                                 type="password"
                                 class="form-control"
                                 placeholder="Confirm Password"
+                                id="signup-confirm-password"
                                 required
                               />
                               </div>
                               <div class="form-group">
                                 <button
-                                  type="submit"
+                                  type="button"
                                   class="form-control btn btn-primary submit px-3"
+                                  id="register-submit"
                                 >
                                   Sign Up
                                 </button>
@@ -352,23 +368,17 @@
                       </div>
                 </div>
             </div>
-
-            <!-- end of signin-form -->
-
-              
-                                
-
-
-            </div>
           </div>
         </div>
       </div>
     </section>
-    <!-- {% static 'css/login-form-17.css' %} -->
-    <script src="{% static js/jquery.min.js %}"></script>
-    <script src="{% static js/popper.js %}"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/main.js"></script>
+    {% endblock %}
+   
+    {% block extra_js %}
+    <script src="{% static '/js/loading.js' %}"></script>
+    <script src="{% static '/js/account/account_management.js' %}"></script>
+    
+    <!-- <script src="{% static '/js/main.js' %}"></script> -->
     <script
       defer
       src="https://static.cloudflareinsights.com/beacon.min.js/v84a3a4012de94ce1a686ba8c167c359c1696973893317"
@@ -411,6 +421,9 @@
               showSignInForm();
             });
           });
+
+
         </script>
+        {% endblock %}
   </body>
 </html>

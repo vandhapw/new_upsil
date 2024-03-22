@@ -1,0 +1,552 @@
+{% load static %} <!-- Load the static tag library -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Line Chart</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+
+             <!-- Sidebar -->
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <!-- Toggle button for Submenu 1 -->
+                            <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#submenu1">
+                                Menu 1
+                            </a>
+                            <!-- Submenu 1 -->
+                            <div class="collapse" id="submenu1">
+                                <ul class="nav flex-column">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#">Submenu 1.1</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#">Submenu 1.2</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <li class="nav-item">
+                            <!-- Toggle button for Submenu 2 -->
+                            <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#submenu2">
+                                Menu 2
+                            </a>
+                            <!-- Submenu 2 -->
+                            <div class="collapse" id="submenu2">
+                                <ul class="nav flex-column">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#">Submenu 2.1</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#">Submenu 2.2</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <li class="nav-item">
+                            <!-- Toggle button for Submenu 3 -->
+                            <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#submenu3">
+                                Menu 3
+                            </a>
+                            <!-- Submenu 3 -->
+                            <div class="collapse" id="submenu3">
+                                <ul class="nav flex-column">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#">Submenu 3.1</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#">Submenu 3.2</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+
+                <h2 class="mt-4">Real-Time Line Chart</h2>
+                 <div class="mb-3">
+                    <select id="device-selector" class="form-select">
+                        <option value="0">All Devices</option>
+                        <option value="1">Device 1</option>
+                        <option value="2">Device 2</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <select id="time-range-selector" class="form-select">
+                        <option value="hourly">Hourly</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <select id="chart-combination-selector" class="form-select">
+                        <option value="temp-humid">Ozone with Temperature and Humidity</option>
+                        <option value="dust">Ozone with Dust Density</option>
+                        <option value="all">All Data (Ozone, Temperature, Humidity, Dust Density)</option>
+                        <option value="ozone-only">Ozone Only</option>
+                        <option value="ozone-outdoor">Ozone with Outdoor Value</option>
+                        <option value="ozone-inout">Ozone Indoor and Outdoor Value</option>
+                    </select>
+                </div>
+                <canvas id="line-chart"></canvas>
+            </main>
+
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const canvas = document.getElementById('line-chart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+
+            const data = {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Ozone - Device 1',
+                        data: [],
+                        borderColor: 'blue',
+                        fill: false,
+                    },
+                     {
+                        label: 'Temperature - Device 1',
+                        data: [],
+                        borderColor: 'purple',
+                        fill: false,
+                    },
+                     {
+                        label: 'Humidity - Device 1',
+                        data: [],
+                        borderColor: 'grey',
+                        fill: false,
+                    },
+                     {
+                        label: 'Dust - Device 1',
+                        data: [],
+                        borderColor: 'brown',
+                        fill: false,
+                    },
+                    {
+                        label: 'Ozone - Device 2',
+                        data: [],
+                        borderColor: 'green',
+                        fill: false,
+                    },
+                    {
+                        label: 'Temperature - Device 2',
+                        data: [],
+                        borderColor: 'orange',
+                        fill: false,
+                    },
+                    {
+                        label: 'Humidity - Device 2',
+                        data: [],
+                        borderColor: 'yellow',
+                        fill: false,
+                    },
+                    {
+                        label: 'Dust - Device 2',
+                        data: [],
+                        borderColor: 'pink',
+                        fill: false,
+                    },
+                      {
+                        label: 'Outdoor Ozone',
+                        data: [],
+                        borderColor: 'cyan',
+                        fill: false,
+                    },
+                    {
+                        label: 'Outdoor CO',
+                        data: [],
+                        borderColor: 'violet',
+                        fill: false,
+                    },
+                    {
+                        label: 'Outdoor PM 25',
+                        data: [],
+                        borderColor: 'DarkMagenta',
+                        fill: false,
+                    },
+                    {
+                        label: 'Outdoor PM 10',
+                        data: [],
+                        borderColor: 'ForestGreen',
+                        fill: false,
+                    },
+                    {
+                        label: 'Outdoor NO2',
+                        data: [],
+                        borderColor: 'Teal',
+                        fill: false,
+                    },
+                    {
+                        label: 'Outdoor So2',
+                        data: [],
+                        borderColor: 'Goldenrod',
+                        fill: false,
+                    }
+                ]
+            };
+
+            const options = {
+                responsive: true,
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'minute',
+                            displayFormats: {
+                                //minute: 'HH:mm'
+                                 hour: 'HH:mm',
+                                 day: 'MMM DD',
+                                 week: 'MMM DD',
+                                 month: 'MMM YYYY',
+                            },
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
+                        }
+                    }],
+                    yAxes: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Ozone'
+                        }
+                    }]
+                }
+            };
+
+            document.getElementById('device-selector').addEventListener('change', fetchData);
+            document.getElementById('time-range-selector').addEventListener('change', fetchData);
+
+
+            const lineChart = new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: options
+            });
+
+             function updateTimeUnit(timeRange) {
+                 let unit;
+                    let stepSize;
+
+                    switch (timeRange) {
+                        case 'hourly':
+                            unit = 'hour';
+                            stepSize = 1; // 1 hour stepSize
+                            break;
+                        case 'daily':
+                            unit = 'day';
+                            stepSize = 1; // 1 day stepSize
+                            break;
+                        case 'weekly':
+                            unit = 'week';
+                            stepSize = 1; // 1 week stepSize
+                            break;
+                        case 'monthly':
+                            unit = 'month';
+                            stepSize = 1; // 1 month stepSize
+                            break;
+                    }
+
+                    lineChart.options.scales.xAxes[0].time.unit = unit;
+                    lineChart.options.scales.xAxes[0].time.stepSize = stepSize;
+
+                    // Prevent the "too far apart" error by setting maxTicksLimit to a suitable value
+                    lineChart.options.scales.xAxes[0].time.maxTicksLimit = 10; // Adjust this value as needed
+
+            }
+
+            function convertugToPPM(value){
+               let x = value / 1000; // Convert ug/m3 to mg/m3
+               let ppm = x / 48; // Convert mg/m3 to ppm
+               console.log('value', value, ' ppm ', ppm);
+               return ppm;
+            }
+
+          function fetchData() {
+            const selectedDevice = parseInt(document.getElementById('device-selector').value);
+            const timeRange = document.getElementById('time-range-selector').value;
+            const chartCombination = document.getElementById('chart-combination-selector').value;
+
+           switch (chartCombination) {
+                case 'temp-humid':
+                    // Hide dust datasets, show temperature and humidity datasets
+                    lineChart.data.datasets[3].hidden = true; // Dust device 1
+                    lineChart.data.datasets[7].hidden = true; // Dust device 2
+                    break;
+                case 'dust':
+                    // Hide temperature and humidity datasets, show dust datasets
+                    lineChart.data.datasets[0].hidden = false; // Ozone device 1
+                    lineChart.data.datasets[1].hidden = true; // Temperature device 1
+                    lineChart.data.datasets[2].hidden = true; // Humidity device 1
+                    lineChart.data.datasets[4].hidden = false; // Ozone device 2
+                    lineChart.data.datasets[5].hidden = true; // Temperature device 2
+                    lineChart.data.datasets[6].hidden = true; // Humidity device 2
+                    lineChart.data.datasets[3].hidden = false; // Dust device 1
+                    lineChart.data.datasets[7].hidden = false; // Dust device 2
+                    break;
+                case 'all':
+                    // Show all datasets
+                    lineChart.data.datasets.forEach(dataset => dataset.hidden = false);
+                    break;
+                case 'ozone-only':
+                    // Show only ozone datasets
+                    lineChart.data.datasets.forEach((dataset, index) => {
+                        if (index === 0 || index === 4) {
+                            dataset.hidden = false;
+                        } else {
+                            dataset.hidden = true;
+                        }
+                    });
+                    break;
+                  case 'ozone-outdoor':
+                    // Hide temperature and humidity datasets, show dust datasets
+                    lineChart.data.datasets[0].hidden = false; // Ozone device 1
+                    lineChart.data.datasets[1].hidden = true; // Temperature device 1
+                    lineChart.data.datasets[2].hidden = true; // Humidity device 1
+                    lineChart.data.datasets[3].hidden = true; // Humidity device 1
+                    lineChart.data.datasets[4].hidden = false; // Ozone device 2
+                    lineChart.data.datasets[5].hidden = true; // Temperature device 2
+                    lineChart.data.datasets[6].hidden = true; // Humidity device 2
+                    lineChart.data.datasets[7].hidden = true; // Dust device 2
+                    lineChart.data.datasets[8].hidden = false; // Dust device 2
+                    lineChart.data.datasets[9].hidden = false; // Dust device 2
+                    lineChart.data.datasets[10].hidden = false; // Dust device 2
+                    lineChart.data.datasets[11].hidden = false; // Dust device 2
+                    lineChart.data.datasets[12].hidden = false; // Dust device 2
+                    break;
+                case 'ozone-inout':
+                    // Hide temperature and humidity datasets, show dust datasets
+                    lineChart.data.datasets[0].hidden = false; // Ozone device 1
+                    lineChart.data.datasets[1].hidden = true; // Temperature device 1
+                    lineChart.data.datasets[2].hidden = true; // Humidity device 1
+                    lineChart.data.datasets[3].hidden = true; // Humidity device 1
+                    lineChart.data.datasets[4].hidden = false; // Ozone device 2
+                    lineChart.data.datasets[5].hidden = true; // Temperature device 2
+                    lineChart.data.datasets[6].hidden = true; // Humidity device 2
+                    lineChart.data.datasets[7].hidden = true; // Dust device 2
+                    lineChart.data.datasets[8].hidden = false; // Dust device 2
+                    lineChart.data.datasets[9].hidden = true; // Dust device 2
+                    lineChart.data.datasets[10].hidden = true; // Dust device 2
+                    lineChart.data.datasets[11].hidden = true; // Dust device 2
+                    lineChart.data.datasets[12].hidden = true; // Dust device 2
+                    lineChart.data.datasets[13].hidden = true; // Dust device 2
+                    break;
+                }
+
+            updateTimeUnit(timeRange);
+
+            // Set the duration for filtering data based on the selected time range
+            const now = new Date();
+           let pastTime;
+
+            switch (timeRange) {
+                case 'hourly':
+                    pastTime = new Date(now.getTime() - (60 * 60 * 1000)); // 1 hour in milliseconds
+                    break;
+                case 'daily':
+                    pastTime = new Date(now.getTime() - (24 * 60 * 60 * 1000)); // 24 hours in milliseconds
+                    break;
+                case 'weekly':
+                    pastTime = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)); // 7 days in milliseconds
+                    break;
+                case 'monthly':
+                    pastTime = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000)); // Assuming 30 days in a month for simplicity
+                    break;
+            }
+
+             Promise.all([
+                    fetch('/api/get-sensor-data/'),
+                    fetch('/api/lighting/display-weather')
+                    //fetch('https://vpw.my.id/klaen/weatherapi.json')
+                ])
+                  .then(responses => Promise.all(responses.map(response => response.json())))
+                    .then(([sensorData, weatherData]) => {
+
+                    const weatherEntry = weatherData;
+
+                    const filteredData = sensorData.map(entry => {
+                        const entryTimestamp = new Date(entry.timestamp);
+
+                        return {
+                        ...entry,
+                        entryTimestamp: entryTimestamp
+                        }
+
+                      }).filter(entry => entry.entryTimestamp >= pastTime && (selectedDevice === 0 || entry.device === selectedDevice));
+
+
+                      const weatherEntries = weatherData.map(entry => JSON.parse(entry));
+
+                        // Assuming you want to access the air_quality for the first entry in the weatherEntries array
+                        const coData = weatherEntries.map(entry => entry.current.air_quality.co);
+                        const o3Data = weatherEntries.map(entry => entry.current.air_quality.o3);
+                        const pm25Data = weatherEntries.map(entry => entry.current.air_quality.pm2_5);
+                        const pm10Data = weatherEntries.map(entry => entry.current.air_quality.pm10);
+                        const no2Data = weatherEntries.map(entry => entry.current.air_quality.no2);
+                        const so2Data = weatherEntries.map(entry => entry.current.air_quality.so2);
+                        const outdoor_timestamp = weatherEntries.map(entry => entry.current.last_updated);
+
+                     lineChart.data.labels = filteredData.map(entry => entry.entryTimestamp);
+
+                    lineChart.data.datasets[0].data = filteredData
+                        .filter(entry => entry.device === 1)
+                        .map((entry, index) => ({
+                            x: outdoor_timestamp[index],
+                            y: entry.ozone
+                        }));
+
+                    lineChart.data.datasets[1].data = filteredData
+                        .filter(entry => entry.device === 1)
+                        .map((entry, index) => ({
+                            x: outdoor_timestamp[index],
+                            y: entry.temperature
+                        }));
+
+                    lineChart.data.datasets[2].data = filteredData
+                        .filter(entry => entry.device === 1)
+                        .map((entry, index) => ({
+                            x: outdoor_timestamp[index],
+                            y: entry.humidity
+                        }));
+
+                    lineChart.data.datasets[3].data = filteredData
+                        .filter(entry => entry.device === 1)
+                        .map((entry, index) => ({
+                            x: outdoor_timestamp[index],
+                            y: entry.dust
+                        }));
+
+                    lineChart.data.datasets[4].data = filteredData
+                        .filter(entry => entry.device === 2)
+                        .map((entry, index) => ({
+                            x: outdoor_timestamp[index],
+                            y: entry.ozone
+                        }));
+
+                    lineChart.data.datasets[5].data = filteredData
+                        .filter(entry => entry.device === 2)
+                        .map((entry, index) => ({
+                            x: outdoor_timestamp[index],
+                            y: entry.temperature
+                        }));
+
+                    lineChart.data.datasets[6].data = filteredData
+                        .filter(entry => entry.device === 2)
+                        .map((entry, index) => ({
+                            x: outdoor_timestamp[index],
+                            y: entry.humidity
+                        }));
+
+                    lineChart.data.datasets[7].data = filteredData
+                        .filter(entry => entry.device === 2)
+                        .map((entry, index) => ({
+                            x: outdoor_timestamp[index],
+                            y: entry.dust
+                        }));
+
+                      lineChart.data.datasets[8].data = filteredData
+                        .map((entry, index) => ({
+                            x: outdoor_timestamp[index],
+                            y: convertugToPPM(o3Data[index])
+                        }));
+
+                        lineChart.data.datasets[9].data = filteredData
+                        .map((entry, index) => ({
+                            x: outdoor_timestamp[index],
+                            y: coData[index]
+                        }));
+
+                        lineChart.data.datasets[10].data = filteredData
+                        .map((entry, index) => ({
+                            x: outdoor_timestamp[index],
+                            y: pm25Data[index]
+                        }));
+
+                         lineChart.data.datasets[11].data = filteredData
+                        .map((entry, index) => ({
+                            x: outdoor_timestamp[index],
+                            y: pm10Data[index]
+                        }));
+
+                          lineChart.data.datasets[12].data = filteredData
+                        .map((entry, index) => ({
+                            x: outdoor_timestamp[index],
+                            y: no2Data[index]
+                        }));
+
+                          lineChart.data.datasets[13].data = filteredData
+                        .map((entry, index) => ({
+                            x: outdoor_timestamp[index],
+                            y: so2Data[index]
+                        }));
+
+
+
+                    // Ensure both datasets are visible when "All Devices" is selected
+<!--                    lineChart.data.datasets[0].hidden = selectedDevice !== 0 && selectedDevice !== 1;-->
+<!--                    lineChart.data.datasets[1].hidden = selectedDevice !== 0 && selectedDevice !== 2;-->
+
+<!--                    document.getElementById('chart-combination-selector').addEventListener('change', fetchData);-->
+
+                        document.getElementById('device-selector').addEventListener('change', fetchData);
+                        document.getElementById('time-range-selector').addEventListener('change', fetchData);
+                        document.getElementById('chart-combination-selector').addEventListener('change', function() {
+                            fetchData();
+<!--                            updateDatasetVisibility();-->
+                        });
+
+
+                    lineChart.update();
+                });
+        }
+
+            // Initial data fetch
+            fetchData();
+
+            // Fetch data every minute
+            setInterval(fetchData, 60000);
+        }
+    });
+</script>
+    <!-- Include Moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+    <!-- Include the Chart.js adapter for Moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/0.1.1/chartjs-adapter-moment.min.js"></script>
+
+    <!-- Finally, include Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+
+    <!-- Include Bootstrap JS (Optional if you want Bootstrap's JS-based components) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+
+
+</body>
+</html>

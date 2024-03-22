@@ -1,0 +1,210 @@
+{% extends 'base-.html' %}
+{% block content %}
+<style>
+  /* Style the table header */
+  #sensorDataTable thead {
+    background-color: #e9e9e9; /* Slightly darker shade for the header */
+}
+
+/* Style the table header cells */
+#sensorDataTable thead th {
+    text-align: left;
+    padding: 12px;
+}
+
+/* Style the table body rows */
+#sensorDataTable tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+/* Style the table body cells */
+#sensorDataTable tbody td {
+    padding: 10px;
+    text-align: left;
+}
+
+/* Hover state for table rows */
+#sensorDataTable tbody tr:hover {
+    background-color: #f7f7f7; /* Slightly lighter on hover for interactivity */
+}
+</style>
+<!-- DataTales Example -->
+<div class="container-fluid py-4">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Arduino Indoor Sensor</h6>
+            <button type="button" class="btn btn-disabled fw-bold" id="initial_date">Initial Date : {{arduino_initial}}</button>
+            <button type="button" class="btn btn-disabled fw-bold" id="latest_date">Last Date : {{arduino_last}}</button>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="start-date">Start Date:</label>
+                        <input type="text" class="form-control datepicker" id="start-date" name="start-date">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="end-date">End Date:</label>
+                        <input type="text" class="form-control datepicker" id="end-date" name="end-date">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="data-interval">Data Interval:</label>
+                        <select id="data-interval" class="form-control">
+                            <option value="minutely">Minutely</option>
+                            <option value="hourly">Hourly</option>
+                            <option value="daily" selected>Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="form-group">
+                      <button type="button" id="filter-button" class="btn btn-success mt-4 mr-2 float-left w-35">Filter</button>
+                      <button type="button" id="download-button" class="btn btn-info mt-4 float-left w-35">Download</button>
+                  </div>
+                </div>
+               
+
+              <div class="chart-area mt-5 mb-5">
+                <div class="chartjs-size-monitor chart-selections">
+                    <div class="chartjs-size-monitor-expand">
+                        <div class="">
+                        </div>
+                    </div>
+                    <div class="chartjs-size-monitor-shrink"><div class="">
+                    </div>
+                </div>
+                </div>
+                <h6 style="text-align: center;font-weight:bold"><u>Charts</u></h6>
+                <canvas id="myAreaChart" class="chartjs-render-monitor pb-5" width="1606px" height="318px"></canvas>
+                <!-- <canvas id="myComboChart" width="400" height="200"></canvas> -->
+            </div>
+                
+            </div>
+            <h6 style="text-align: center;font-weight:bold;" class="pt-5 text-decoration-underline"><u>Data Table</u></h6>
+            <table id="sensorDataTable" class="cell-border compact stripe display" width="100%">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Temperature</th>
+                        <th>Humidity</th>
+                        <th>Dust</th>
+                        <th>Ozone</th>
+                        <th>Device</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be displayed here -->
+                </tbody>
+            </table>
+
+           
+        </div>
+    </div>
+</div>
+
+<!-- Modal for file upload -->
+<!-- (Modal content unchanged) -->
+
+<script>
+$(document).ready(function() {
+  showLoading('Loading...')
+
+ 
+  let dataStore = null
+  $("#download-button").prop("disabled", true);
+
+  dataCapacity()
+  .then(data => {
+    $('#initial_date').text('Initial Date: ' + data.arduino_initial);
+    $('#latest_date').text('Latest Date: ' + data.arduino_last);
+    Swal.close()
+  }).catch(error => {
+    console.error('Error fetching data:', error);
+  });
+
+
+    $('.datepicker, #start-date, #end-date').datepicker({
+        format: "yyyy-mm-dd",
+        autoclose: true,
+        todayHighlight: true,
+        changeYear:true,
+    }).on('change', function() {
+        console.log('selected date:', $(this).val());
+        $("#download-button").prop("disabled", true);
+      
+    });
+
+    $('#data-interval').change(function() {
+        var dataInterval = $(this).val();
+        var startDates = $('#start-date').val();
+        var endDates = $('#end-date').val();
+        });
+    
+    $('#filter-button').off().click(function() {
+        var dataInterval = $('#data-interval').val();
+        var startDates = $('#start-date').val();
+        var endDates = $('#end-date').val();
+        // Format using moment.js
+        var startDate = moment(startDates, "MM/DD/YYYY").format("YYYY-MM-DDT00:00");
+        var endDate = moment(endDates, "MM/DD/YYYY").format("YYYY-MM-DDT23:59");
+
+        console.log(startDate, endDate, dataInterval, 'chart')
+
+        fetchArduinoSensorData(startDate, endDate, dataInterval)
+        .then(data => {
+          dataStore = data
+             // Check if DataTable instance exists
+            var table = $('#sensorDataTable').DataTable();
+            if ($.fn.DataTable.isDataTable('#sensorDataTable')) {
+                // Clear and destroy the existing table before reinitializing
+                table.clear().destroy();
+            }
+            
+            // Reinitialize DataTable with new data
+            $('#sensorDataTable').DataTable({
+                paging: true,  // Retain your initial DataTable configuration
+                searching: true,
+                ordering:true,
+                pageLength: 10,
+                autoWidth: false,
+                data: data,
+                columns: [
+                    { data: 'timestamp' },
+                    { data: 'temperature' },
+                    { data: 'humidity' },
+                    { data: 'dust' },
+                    { data: 'ozone' },
+                    { data: 'device' }
+                ]
+            });
+        
+            arduinoSensor('combo',startDate,endDate,dataInterval);
+       
+            $("#download-button").prop("disabled", false);
+        }).catch(error => {
+            console.error('Error fetching data:', error);
+        });
+        
+
+        // Add logic here to fetch and update data based on the selected interval and dates
+    });
+
+    $("#download-button").click(function() {
+      var dataInterval = $('#data-interval').val();
+     //const json_data = JSON.stringify(dataStore);
+     downloadExcelFromJson(dataStore, `arduino_sensor_data_${dataInterval}.xlsx`)
+     .then(message => console.log(message)) // Success message
+     .catch(error => console.error(error)); // Error message
+    });
+
+    console.log('Document ready', dataStore);
+    
+});
+</script>
+{% endblock %}
