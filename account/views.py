@@ -48,9 +48,9 @@ def login(request):
 
 def login_page(request):
     user = request.session.get('user')
-    print('user',user)
+    appid = request.session.get('appid')
     if user is not None:
-        return redirect('/dashboard/')
+        return redirect('dashboard_page')
     return render(request,'login-form-17.html')
 
 
@@ -85,7 +85,6 @@ def login_api(request):
             if(check_password(password, user['password'])):
                 request.session['user'] = username  # Simplified session creation
                 request.session['appid'] = user['appid']
-                print('request.session',request.session)
                 return JsonResponse({'message': 'Login successful'})
             else:
                 return JsonResponse({'message': 'Incorrect password'}, status=401)
@@ -99,10 +98,6 @@ def logout_api(request):
         user_in_session = request.session.pop('user', None)
         print('user_in_session',user_in_session)
         
-        # You can log the logout action here if needed
-        if user_in_session:
-            print(f"User {user_in_session} logged out.")
-            
         return JsonResponse({'message':'success!','redirect_url':'/'})
     
 @csrf_exempt
