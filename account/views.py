@@ -58,7 +58,8 @@ def check_page(request):
     return render(request,'check.html')
 
 def dashboard_page(request):
-    return render(request,'dashboard/dashboard.html')
+    appid = request.session.get('appid')
+    return render(request,'dashboard/dashboard.html', {'appid':appid})
 
 
 @csrf_exempt
@@ -83,11 +84,13 @@ def login_api(request):
         if user:
             if(check_password(password, user['password'])):
                 request.session['user'] = username  # Simplified session creation
+                request.session['appid'] = user['appid']
+                print('request.session',request.session)
                 return JsonResponse({'message': 'Login successful'})
             else:
-                return JsonResponse({'error': 'Incorrect password'}, status=401)
+                return JsonResponse({'message': 'Incorrect password'}, status=401)
         else:
-            return JsonResponse({'error': 'User not found'}, status=404)
+            return JsonResponse({'message': 'User not found'}, status=404)
         
 @csrf_exempt
 def logout_api(request):

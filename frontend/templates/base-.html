@@ -73,8 +73,12 @@
                 </a>
                 <div id="collapseDashboard" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
+                        {% if '2' in appid  %}
                         <a class="collapse-item " href="/home/">Old Dashboard</a>
+                        {% endif %}
+                        {% if '1' in appid %}
                         <a class="collapse-item " href="/dashboard_new/">New Dashboard</a>
+                        {% endif %}
                     </div>
                 </div>
             </li>
@@ -89,7 +93,7 @@
              </div>
  
              <!-- Nav Item - Pages Collapse Menu -->
- 
+             {% if '1' in appid %}
              <li class="nav-item">
                  <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseIndoor"
                      aria-expanded="true" aria-controls="collapseIndoor">
@@ -105,7 +109,9 @@
                        </div>
                  </div>
              </li>
- 
+             {% endif %}
+                    
+             {% if '1' in appid %}
               <li class="nav-item">
                  <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOutdoor"
                      aria-expanded="true" aria-controls="collapseOutdoor">
@@ -118,7 +124,9 @@
                      </div>
                  </div>
              </li>
+             {% endif %}
 
+             {% if '1' in appid %}
              <!-- Exploratory Data Analysis  -->
               <!-- Divider -->
             <hr class="sidebar-divider">
@@ -133,6 +141,9 @@
                 <span>EDA</span>
             </a>
             </li>
+            {% endif %}
+
+            {% if '3' in appid %}
 
             <!-- Divider -->
             <hr class="sidebar-divider">
@@ -219,6 +230,8 @@
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Boardss</span></a>
             </li>
+
+            {% endif %}
             
 
 
