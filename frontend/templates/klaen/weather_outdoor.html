@@ -92,7 +92,8 @@
                 
             </div>
             <h6 style="text-align: center;font-weight:bold;" class="pt-5 text-decoration-underline"><u>Data Table</u></h6>
-            <table id="sensorDataTable" class="cell-border compact stripe display" width="100%">
+            <div style="width: 100%;overflow-x: auto" class="cell-border compact stripe display">
+            <table id="sensorDataTable" style="width: 100%;">
                 <thead>
                     <tr>
                         <th>Timestamp</th>
@@ -113,6 +114,7 @@
                     <!-- Data will be displayed here -->
                 </tbody>
             </table>
+            </div>
 
            
         </div>
@@ -156,6 +158,52 @@ $(document).ready(function() {
         var dataInterval = $(this).val();
         var startDates = $('#start-date').val();
         var endDates = $('#end-date').val();
+        var startDate = moment(startDates, "MM/DD/YYYY").format("YYYY-MM-DDT00:00");
+        var endDate = moment(endDates, "MM/DD/YYYY").format("YYYY-MM-DDT23:59");
+
+        fetchOutdoorSensorData(startDate, endDate,null,dataInterval)
+        .then(data => {
+          dataStore = data
+             // Check if DataTable instance exists
+            var table = $('#sensorDataTable').DataTable();
+            if ($.fn.DataTable.isDataTable('#sensorDataTable')) {
+                // Clear and destroy the existing table before reinitializing
+                table.clear().destroy();
+            }
+            
+            // Reinitialize DataTable with new data
+            $('#sensorDataTable').DataTable({
+                paging: true,  // Retain your initial DataTable configuration
+                searching: true,
+                ordering:true,
+                pageLength: 10,
+                autoWidth: false,
+                responsive:true,
+                scrollX:true,
+                data: data,
+                columns: [
+                    { data: 'timestamp' },
+                    { data: 'temperature_c' },
+                    { data: 'humidity_o' },
+                    { data: 'co' },
+                    { data: 'no2' },
+                    { data: 'o3_ppm' },
+                    { data: 'so2' },
+                    { data: 'pm2_5' },
+                    { data: 'pm10' },
+                    { data: 'cloud' },
+                    { data: 'uv_index' },
+                    { data: 'wind' }
+                ]
+            });
+        
+            outdoorSensor('combo',startDate,endDate,null,dataInterval);
+       
+            $("#download-button").prop("disabled", false);
+        }).catch(error => {
+            console.error('Error fetching data:', error);
+        });
+        
         });
     
     $('#filter-button').off().click(function() {
@@ -186,6 +234,8 @@ $(document).ready(function() {
                 ordering:true,
                 pageLength: 10,
                 autoWidth: false,
+                responsive:true,
+                scrollX:true,
                 data: data,
                 columns: [
                     { data: 'timestamp' },

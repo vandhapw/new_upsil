@@ -46,7 +46,7 @@
           },
           success: function(response) {
               showLoading(response.message, autoclose=true);
-              window.location.href = response.redirect_url;
+              window.location.href = '/';
             // Handle success - maybe redirect to a dashboard or show a success message
             // console.log('Logout successfully', response);
           },

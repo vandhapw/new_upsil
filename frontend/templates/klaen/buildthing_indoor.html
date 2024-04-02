@@ -150,9 +150,50 @@ $(document).ready(function() {
     });
 
     $('#data-interval').change(function() {
+        console.log('selected interval:', $(this).val());
         var dataInterval = $(this).val();
         var startDates = $('#start-date').val();
         var endDates = $('#end-date').val();
+        var startDate = moment(startDates, "MM/DD/YYYY").format("YYYY-MM-DDT00:00:00");
+        var endDate = moment(endDates, "MM/DD/YYYY").format("YYYY-MM-DDT23:59:59");
+        fetchBuildthingSensorData(startDate, endDate, null,dataInterval)
+        .then(data => {
+          dataStore = data
+             // Check if DataTable instance exists
+            var table = $('#sensorDataTable').DataTable();
+            if ($.fn.DataTable.isDataTable('#sensorDataTable')) {
+                // Clear and destroy the existing table before reinitializing
+                table.clear().destroy();
+            }
+            
+            // Reinitialize DataTable with new data
+            $('#sensorDataTable').DataTable({
+                paging: true,  // Retain your initial DataTable configuration
+                searching: true,
+                ordering:true,
+                pageLength: 10,
+                autoWidth: false,
+                data: data,
+                columns: [
+                    { data: 'Time' },
+                    { data: 'Temperature' },
+                    { data: 'Humidity' },
+                    { data: 'PM1' },
+                    { data: 'PM10' },
+                    { data: 'PM25' },
+                    { data: 'CO2' },
+                    { data: 'TVOC' },
+                    { data: 'iaq' }
+                ]
+            });
+        
+            buildthingSensor('combo',startDate,endDate,null,dataInterval);
+       
+            $("#download-button").prop("disabled", false);
+        }).catch(error => {
+            console.error('Error fetching data:', error);
+        });
+        
         });
     
     $('#filter-button').off().click(function() {
@@ -187,9 +228,9 @@ $(document).ready(function() {
                     { data: 'Time' },
                     { data: 'Temperature' },
                     { data: 'Humidity' },
-                    { data: 'pm1' },
-                    { data: 'pm10' },
-                    { data: 'pm25' },
+                    { data: 'PM1' },
+                    { data: 'PM10' },
+                    { data: 'PM25' },
                     { data: 'CO2' },
                     { data: 'TVOC' },
                     { data: 'iaq' }

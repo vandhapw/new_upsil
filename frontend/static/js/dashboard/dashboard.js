@@ -226,7 +226,7 @@ let isLoading = true;
     }
     
     async function fetchBuildthingSensorData(start_date,end_date,array_filter,resample) {
-        console.log('buildthing')
+        console.log('buildthing--', start_date, end_date)
         statusLabel = 'Loading for Buildthing Chart';
         showLoading(statusLabel);
         const apiUrl = `${API_URL}/klaen/api/indoor-buildthing-updated/?start_date=${start_date}&end_date=${end_date}&array_filter=${array_filter}&resample=${resample}`;
@@ -1050,7 +1050,7 @@ async function dataCapacity(){
         }
         const data = await response.json();
         // Swal.close();
-        loadingAlert = false;
+        // loadingAlert = false;
         // console.log('data', data)
         return data; // Adjust according to the actual structure of your response
     } catch (error) {
@@ -1168,7 +1168,7 @@ function updateChart() {
             arduinoSensor(chartType,'','','daily');
             break;
         case 'buildthing':
-            buildthingSensor(chartType,'2023-12-04T00:00:00','2024-01-04T23:59:59',null,'daily');
+            buildthingSensor(chartType,'2023-09-20T00:00:00','2023-10-20T23:59:59',null,'daily');
             break;
         case 'weather':
             outdoorSensor(chartType,'','',null,'daily');
@@ -1196,11 +1196,11 @@ $('.chartSource').on('change', function(e) {
     updateChart();
 });
 
-if(loadingAlert){
-    showLoading('Loading Content');
-}else {
-    Swal.close();
-}
+// if(loadingAlert){
+//     showLoading('Loading Content');
+// }else {
+//     Swal.close();
+// }
 
 // setInterval(function () {
 //     var type = $('.chartSelect').val();

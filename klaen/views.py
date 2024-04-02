@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
-from production.utils import get_database_client
+# from production.utils import get_database_client
+from production.utils import dbLocation
 import pandas as pd 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -8,7 +9,7 @@ import json
 import io
 import base64
 from datetime import datetime, timedelta
-from pymongo import DESCENDING
+from pymongo import DESCENDING, MongoClient
 from plotly.subplots import make_subplots
 import plotly.express as px
 import plotly.graph_objects as go
@@ -17,11 +18,11 @@ from django.conf import settings
 from .forms import UploadFileForm
 
 
-client, ssh_tunnel = get_database_client()
-
+# client, ssh_tunnel = get_database_client()
+client = MongoClient(dbLocation)
 db = client.server_db
 buildthing_data_collection = db.klaen_buildthing
-sensor_data_collection = db.klaen_arduinoSensor
+sensor_data_collection = db.klaen_arduino_sensor
 weather_data_collection = db.weather_api
 plalion_data_collection = db.plalion_klaen_sensor
 plalion_company_data_collection = db.plalion_company_sensor
@@ -105,33 +106,50 @@ def dataCapacity(request):
         return JsonResponse({'error': str(e)}, status=500)
     
 def indoor_arduino_index(request):
-    context = {'arduino_initial': None,"arduino_last":None}
+    context = {'arduino_initial': None,"arduino_last":None, 'user': None, 'appid': None}
+    if 'user' in request.session:
+        user = request.session['user']
+        appid = request.session['appid']
     data_capacity = dataCapacity(request)
-    context = {'arduino_initial': data_capacity.get('arduino_initial'),"arduino_last":data_capacity.get('arduino_last')}
+    context = {'arduino_initial': data_capacity.get('arduino_initial'),"arduino_last":data_capacity.get('arduino_last'), 'user': user, 'appid': appid}
+    print('context',context)
+    
     return render(request, 'klaen/arduino_indoor.html', context)
 
 def indoor_buildthing_index(request):
-    context = {'buildthing_initial': None,"buildthing_last":None}
+    context = {'buildthing_initial': None,"buildthing_last":None, 'user': None, 'appid': None}
+    if 'user' in request.session:
+        user = request.session['user']
+        appid = request.session['appid']
     data_capacity = dataCapacity(request)
-    context = {'buildthing_initial': data_capacity.get('buildthing_initial'),"buildthing_last":data_capacity.get('buildthing_last')}
+    context = {'buildthing_initial': data_capacity.get('buildthing_initial'),"buildthing_last":data_capacity.get('buildthing_last'), 'user': user, 'appid': appid}
     return render(request, 'klaen/buildthing_indoor.html', context)
 
 def indoor_klaen_index(request):
-    context = {'klaen_initial': None,"klaen_last":None}
+    context = {'klaen_initial': None,"klaen_last":None, 'user': None, 'appid': None}
+    if 'user' in request.session:
+        user = request.session['user']
+        appid = request.session['appid']
     data_capacity = dataCapacity(request)
-    context = {'klaen_initial': data_capacity.get('klaen_initial'),"klaen_last":data_capacity.get('klaen_last')}
+    context = {'klaen_initial': data_capacity.get('klaen_initial'),"klaen_last":data_capacity.get('klaen_last'), 'user': user, 'appid': appid}
     return render(request, 'klaen/klaen_indoor.html', context)
 
 def indoor_klaen_company_index(request):
-    context = {'klaen_company_initial': None,"klaen_company_last":None}
+    context = {'klaen_company_initial': None,"klaen_company_last":None, 'user': None, 'appid': None}
     data_capacity = dataCapacity(request)
-    context = {'klaen_company_initial': data_capacity.get('klaen_company_initial'),"klaen_company_last":data_capacity.get('klaen_company_last')}
+    if 'user' in request.session:
+        user = request.session['user']
+        appid = request.session['appid']
+    context = {'klaen_company_initial': data_capacity.get('klaen_company_initial'),"klaen_company_last":data_capacity.get('klaen_company_last'), 'user': user, 'appid': appid}
     return render(request, 'klaen/klaen_company_indoor.html', context)
 
 def outdoor_weather_index(request):
-    context = {'weather_initial': None,"weather_last":None}
+    context = {'weather_initial': None,"weather_last":None, 'user': None, 'appid': None}
+    if 'user' in request.session:
+        user = request.session['user']
+        appid = request.session['appid']
     data_capacity = dataCapacity(request)
-    context = {'weather_initial': data_capacity.get('weather_initial'),"weather_last":data_capacity.get('weather_last')}
+    context = {'weather_initial': data_capacity.get('weather_initial'),"weather_last":data_capacity.get('weather_last'), 'user': user, 'appid': appid}
     return render(request, 'klaen/weather_outdoor.html', context)
 
 # Exploratory Data Analysis 
@@ -316,49 +334,40 @@ def indoorBuildthingUpdated(request, start_date=None, end_date=None, array_filte
         documents = list(buildthing_data_collection.find(
             # {"Time": {"$gte": start_date, "$lte": end_date} if start_date and end_date else {}},
             query,
-            {'_id':0}
             # skip_Nan
             # projection=projection
-        ).sort("Time", -1).limit(32))
+        ).sort("Time", -1))
         
-        df = pd.DataFrame(documents)
-        # df['Time'] = pd.to_datetime(df['Time'])
-        # df = df[['Time','PM 10','PM 2.5','PM 1.0','iaq','CO2','TVOC','Temperature','Humidity','status']]
-        # df = df.dropna(subset=['IAQ Score', 'PM 10', 'PM 2.5', 'PM 1.0', 'CO2', 'TVOC', 'Temperature', 'Humidity', 'status'])
-        df = df.rename(columns={'PM 10': 'pm10','PM 2.5':'pm25','PM 1.0':'pm1','IAQ Score':'iaq'})  # Rename 'Time' to 'timestamp'
+        if documents:
         
-        # df['Time'] = pd.to_datetime(df['Time'])
-        # df = df.fillna(method='ffill')
-         # Drop rows with NaN values in specific columns
-        # df['Time'] = pd.to_datetime(df['Time'])
-        df.set_index('Time', inplace=True)
-        df.index = pd.to_datetime(df.index)
+            df = pd.DataFrame(documents)
+            # df = df.dropna(subset=['IAQ Score', 'PM 10', 'PM 2.5', 'PM 1.0', 'CO2', 'TVOC', 'Temperature', 'Humidity', 'status'])
+            df = df.rename(columns={'IAQ Score':'iaq'})  # Rename 'Time' to 'timestamp'
+            df = df[['Time', 'iaq', 'PM10', 'PM25', 'PM10', 'PM1','CO2', 'TVOC', 'Temperature', 'Humidity']]
+            # df = df.fillna(method='ffill')
+            # Drop rows with NaN values in specific columns
+            df.set_index('Time', inplace=True)
+            df.index = pd.to_datetime(df.index)
 
         
         # Resample data if needed
         if resample:
             # Resample data
             if resample == 'yearly':
-                df = df.resample('Y').mean()
+                df = df.resample('Y').mean().round(2)
             elif resample == 'monthly':
-                df = df.resample('M').mean()
+                df = df.resample('M').mean().round(2)
             elif resample == 'weekly':
-                df = df.resample('W').mean()
+                df = df.resample('W').mean().round(2)
             elif resample == 'daily':
-                df = df.resample('D').mean()
+                df = df.resample('D').mean().round(2)
             elif resample == 'hourly':
-                df = df.resample('H').mean()
+                df = df.resample('H').mean().round(2)
             
             df.dropna(inplace=True)
 
-            # Convert DataFrame back to list of dictionaries
             documents = df.reset_index().to_dict('records')
-            
-
-        # Close the MongoDB connection
-        client.close()
-       
-         # Create a response dictionary with data and count
+     
         response_data = {
             # 'total_rows': num_documents,
             # 'size_in_mb':size_in_mb,
@@ -368,7 +377,6 @@ def indoorBuildthingUpdated(request, start_date=None, end_date=None, array_filte
         # Pass the response_data to JsonResponse
         return JsonResponse(response_data, safe=False)
     except Exception as e:
-        print(start_date,end_date)
         # Handle any exceptions that may occur
         return JsonResponse({'error': str(e)}, status=500) 
     
@@ -418,7 +426,7 @@ def indoorPlalionData(request, start_date=None, end_date=None, resample=None):
         # Dictionary to map resampling frequency to pandas offset aliases
         resample_frequencies = {
             'minute': 'T',
-            'hourly': 'H',
+            'hourly': 'h',
             'daily': 'D',
             'weekly': 'W',
             'monthly': 'M'
@@ -427,16 +435,16 @@ def indoorPlalionData(request, start_date=None, end_date=None, resample=None):
         # Check if resample parameter is provided and valid
         if resample and resample in resample_frequencies:
             # Resample DataFrame based on the specified frequency
-            resampled_df = df.resample(resample_frequencies[resample]).mean()  # Adjust aggregation method if needed
+            resampled_df = df.resample(resample_frequencies[resample]).mean().round(2)  # Adjust aggregation method if needed
             
-            resampled_df.dropna(inplace=True)
+            # resampled_df.dropna(inplace=True)
 
             # Convert resampled DataFrame back to list of dictionaries
-            resampled_data_list = resampled_df.reset_index().to_dict(orient='records')
+            # resampled_data_list = resampled_df.reset_index().to_dict(orient='records')
+            resampled_data_list_dropna = resampled_df.dropna().reset_index().to_dict(orient='records')
         else:
-            resampled_data_list = df.reset_index().to_dict(orient='records')
-
-        response_data = {'data' : resampled_data_list}  # Update response data with resampled data
+             resampled_data_list_dropna = resampled_df.dropna().reset_index().to_dict(orient='records')
+        response_data = {'data' : resampled_data_list_dropna}  # Update response data with resampled data
     else:
         # No documents found, return an appropriate response
         return JsonResponse({"message": "No documents found"}, status=404)
@@ -490,7 +498,7 @@ def indoorPlalionDataCompany(request, start_date=None, end_date=None, resample=N
         # Dictionary to map resampling frequency to pandas offset aliases
         resample_frequencies = {
             'minute': 'T',
-            'hourly': 'H',
+            'hourly': 'h',
             'daily': 'D',
             'weekly': 'W',
             'monthly': 'M'
@@ -499,7 +507,7 @@ def indoorPlalionDataCompany(request, start_date=None, end_date=None, resample=N
         # Check if resample parameter is provided and valid
         if resample and resample in resample_frequencies:
             # Resample DataFrame based on the specified frequency
-            resampled_df = df.resample(resample_frequencies[resample]).mean()  # Adjust aggregation method if needed
+            resampled_df = df.resample(resample_frequencies[resample]).mean().round(2)  # Adjust aggregation method if needed
             
             resampled_df.dropna(inplace=True)
 
@@ -546,21 +554,23 @@ def get_sensor_data_updated(request, start_date=None, end_date=None, resample=No
             query['timestamp'] = {'$gte': start_date}
         elif end_date:
             query['timestamp'] = {'$lte': end_date}
-            
+        
         documents = sensor_data_collection.find(query, {'_id':0}).sort('timestamp', DESCENDING)
         # Convert data_list to a pandas DataFrame for resampling
     if documents:
         df = pd.DataFrame(documents)
-        # Ensure 'timestamp' column is in datetime format for resampling
-        df['timestamp'] = pd.to_datetime(df['timestamp'])
+        df_filter = df.dropna()
+       # Ensure 'timestamp' column is in datetime format for resampling
+        df_filter['timestamp'] = pd.to_datetime(df_filter['timestamp'])
+        
 
         # Set 'timestamp' as the index
-        df.set_index('timestamp', inplace=True)
-
+        df_filter.set_index('timestamp', inplace=True)
+        
         # Dictionary to map resampling frequency to pandas offset aliases
         resample_frequencies = {
             'minute': 'T',
-            'hourly': 'H',
+            'hourly': 'h',
             'daily': 'D',
             'weekly': 'W',
             'monthly': 'M'
@@ -569,14 +579,16 @@ def get_sensor_data_updated(request, start_date=None, end_date=None, resample=No
         # Check if resample parameter is provided and valid
         if resample and resample in resample_frequencies:
             # Resample DataFrame based on the specified frequency
-            resampled_df = df.resample(resample_frequencies[resample]).mean()  # Adjust aggregation method if needed
+            resampled_df = df_filter.resample(resample_frequencies[resample]).mean().round(2)  # Adjust aggregation method if needed
 
             # Convert resampled DataFrame back to list of dictionaries
-            resampled_data_list = resampled_df.reset_index().to_dict(orient='records')
+            # resampled_data_list = resampled_df.reset_index().to_dict(orient='records')
+            resampled_data_list_dropna = resampled_df.dropna().reset_index().to_dict(orient='records')
+            
         else:
-            resampled_data_list = df.reset_index().to_dict(orient='records')
+            resampled_data_list = df_filter.reset_index().to_dict(orient='records')
 
-        response_data = {'data' : resampled_data_list}  # Update response data with resampled data
+        response_data = {'data' : resampled_data_list_dropna}  # Update response data with resampled data
     else:
         # No documents found, return an appropriate response
         return JsonResponse({"message": "No documents found"}, status=404)
@@ -712,7 +724,7 @@ def displayDataFromAPIUpdated(request, start_date=None, end_date=None, resample=
         # Dictionary to map resampling frequency to pandas offset aliases
         resample_frequencies = {
             'minute': 'T',
-            'hourly': 'H',
+            'hourly': 'h',
             'daily': 'D',
             'weekly': 'W',
             'monthly': 'M'
@@ -721,14 +733,15 @@ def displayDataFromAPIUpdated(request, start_date=None, end_date=None, resample=
         # Check if resample parameter is provided and valid
         if resample and resample in resample_frequencies:
             # Resample DataFrame based on the specified frequency
-            resampled_df = df.resample(resample_frequencies[resample]).mean()  # Adjust aggregation method if needed
+            resampled_df = df.resample(resample_frequencies[resample]).mean().round(2)  # Adjust aggregation method if needed
 
             # Convert resampled DataFrame back to list of dictionaries
-            resampled_data_list = resampled_df.reset_index().to_dict(orient='records')
+            # resampled_data_list = resampled_df.reset_index().to_dict(orient='records')
+            resampled_data_list_dropna = resampled_df.dropna().reset_index().to_dict(orient='records')
         else:
-            resampled_data_list = df.reset_index().to_dict(orient='records')
+            resampled_data_list_dropna = resampled_df.dropna().reset_index().to_dict(orient='records')
             
-        response_data['data'] = resampled_data_list  # Update response data with resampled data
+        response_data['data'] = resampled_data_list_dropna  # Update response data with resampled data
     else:
         # No documents found, return an appropriate response
         return JsonResponse({"message": "No documents found"}, status=404)

@@ -6,32 +6,68 @@ import json, datetime
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import check_password, make_password
-from production.utils import get_database_client, MONGO_DB
+# from production.utils import get_database_client, MONGO_DB
+from production.utils import dbLocation
 from pymongo import MongoClient
 import pytz
 from django.utils import timezone
+import logging
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
 
 
-client, ssh_tunnel = get_database_client()
+# client, ssh_tunnel = get_database_client()
 
-def home(request):
-    # login을 통해서 확인된 user는 session을 통해 user.id를 넘겨 받았다.
-    user_id = request.session.get('user')
+def login_page(request):
+    if 'user' in request.session:
+    #     appid = request.session.get('appid')
+    #     user = request.session.get('user')
+    # context = {'appid':appid, 'user':user}
+    # print(context)
+        return dashboard_page(request)
+    # user = request.session.get('user')
+    # appid = request.session.get('appid')
+    # if user is not None:
+    #     return redirect('/dashboard/')
+    return render(request,'login-form-17.html')
 
-    # user_id유무를 통해 login판단
-    if user_id:
-        user = User.objects.get(pk=user_id)
-        return HttpResponse(f'{user} login success')
+@login_required
+def check_page(request):
+    return render(request,'check.html')
 
-    return HttpResponse('Home')
+def dashboard_page(request):
+    context = {}
+    if 'user' in request.session:
+        appid = request.session.get('appid')
+        user = request.session.get('user')
+    context = {'appid':appid, 'user':user}
+    print('context', context)
+    return render(request,'dashboard/dashboard.html', context)
+        
+    
 
-def login(request):
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
 
-        if form.is_valid():
-            request.session['user'] = form.user_id
-            userinfo = UserLog.objects.get(username=form.user_id)
+@csrf_exempt
+def login_api(request):
+
+   if request.method == 'POST':
+       
+        data = json.loads(request.body)
+       
+        username = data.get('username')
+        password = data.get('password')
+       
+        request.session['user'] = username
+        
+        try:
+            user = User.objects.get(username=username)
+        except:
+            return HttpResponse('incorrect id')
+
+        userinfo = UserLog.objects.get(username=user.id)
+        request.session['appid'] = user.appid
+       
+        if check_password(password, user.password):
             if userinfo.visitcount == None:
                 cnt = 1
             else:
@@ -39,66 +75,57 @@ def login(request):
             userinfo.visitcount = cnt
             userinfo.login_at = datetime.datetime.utcnow()
             userinfo.save()
-            return redirect('/home/')
-
-    else:
-        form = LoginForm()
-
-    return render(request, 'login.html', {'form': form})
-
-def login_page(request):
-    user = request.session.get('user')
-    appid = request.session.get('appid')
-    if user is not None:
-        return redirect('dashboard_page')
-    return render(request,'login-form-17.html')
-
-
-def check_page(request):
-    return render(request,'check.html')
-
-def dashboard_page(request):
-    appid = request.session.get('appid')
-    return render(request,'dashboard/dashboard.html', {'appid':appid})
-
-
-@csrf_exempt
-def login_api(request):
-
-    if request.method == 'POST':
-        # data = JSONParser().parse(request)
-        data = json.loads(request.body)
-        username = data['username']
-        password = data['password']
-        print('usernames',username, 'password',password)
-
-        # Connect to MongoDB (adjust connection details accordingly)
-        db = client[MONGO_DB]  # Use your actual MongoDB database name
-        users_collection = db['user']  # Use your actual collection name for users
-
-        # Find user by username
-        user = users_collection.find_one({'username': username})
-        
-        # print('user',user)
-
-        if user:
-            if(check_password(password, user['password'])):
-                request.session['user'] = username  # Simplified session creation
-                request.session['appid'] = user['appid']
-                return JsonResponse({'message': 'Login successful'})
-            else:
-                return JsonResponse({'message': 'Incorrect password'}, status=401)
+            return JsonResponse({'message': 'Login successful'})
         else:
-            return JsonResponse({'message': 'User not found'}, status=404)
+            return JsonResponse({'message': 'Username and password are required'}, status=400)
+       
+       
+        # if request.content_type != 'application/json':
+        #     return JsonResponse({'message': 'Invalid Content-Type, expected application/json'}, status=415)
+        # try:
+        #     data = json.loads(request.body)
+        #     username = data.get('username')
+        #     password = data.get('password')
+
+        #     if not username or not password:
+        #         return JsonResponse({'message': 'Username and password are required'}, status=400)
+        #     db = client[MONGO_DB]
+        #     user_collection = db['user']
+        #     user = user_collection.find_one({'username': username})
+        #     print('user', user)
+            
+        #     session_data = {key: value for key, value in request.session.items()}
+        #     logger.debug(f'Session data: {session_data}')
+
+        #     if user and check_password(password, user['password']):
+        #         request.session['user'] = username
+        #         request.session['appid'] = user.get('appid')  # Default appid if not present
+        #         session_data = {"user_session":request.session['user'], "appid_session":request.session['appid']}
+        #         print('session_data', session_data)
+        #         return JsonResponse({'message': 'Login successful'})
+        #     return JsonResponse({'message': 'Incorrect username or password'}, status=401)
+        # except json.JSONDecodeError:
+        #     return JsonResponse({'message': 'Invalid JSON'}, status=400)
+        # except Exception as e:
+        #     logger.error(e, exc_info=True)
+        #     print(logger.error())
+        #     return JsonResponse({'message': 'An error occurred during login'}, status=500)
         
 @csrf_exempt
 def logout_api(request):
     if request.method == 'POST':
-    # Check if 'user' is in session and delete it
-        user_in_session = request.session.pop('user', None)
-        print('user_in_session',user_in_session)
+        username = request.session.get('user')
+        if username:
+            try:
+                userinfo = UserLog.objects.get(username__username=username)
+                userinfo.logout_at = timezone.now()
+                userinfo.save()
+            except UserLog.DoesNotExist:
+                pass  # Handle the case where the UserLog does not exist
+            logout(request)
+        return JsonResponse({'message': 'Logout successful', 'redirect_url':'/'})
         
-        return JsonResponse({'message':'success!','redirect_url':'/'})
+    
     
 @csrf_exempt
 def register_api(request):

@@ -92,6 +92,7 @@
                 
             </div>
             <h6 style="text-align: center;font-weight:bold;" class="pt-5 text-decoration-underline"><u>Data Table</u></h6>
+            <div style="overflow-x: auto; width:100">
             <table id="sensorDataTable" class="cell-border compact stripe display" width="100%">
                 <thead>
                     <tr>
@@ -108,7 +109,7 @@
                     <!-- Data will be displayed here -->
                 </tbody>
             </table>
-
+        </div>
            
         </div>
     </div>
@@ -151,6 +152,44 @@ $(document).ready(function() {
         var dataInterval = $(this).val();
         var startDates = $('#start-date').val();
         var endDates = $('#end-date').val();
+        var startDate = moment(startDates, "MM/DD/YYYY").format("YYYY-MM-DDT00:00");
+        var endDate = moment(endDates, "MM/DD/YYYY").format("YYYY-MM-DDT23:59");
+
+        fetchPlalionSensorData(startDate, endDate,dataInterval)
+        .then(data => {
+          dataStore = data
+             // Check if DataTable instance exists
+            var table = $('#sensorDataTable').DataTable();
+            if ($.fn.DataTable.isDataTable('#sensorDataTable')) {
+                // Clear and destroy the existing table before reinitializing
+                table.clear().destroy();
+            }
+            
+            // Reinitialize DataTable with new data
+            $('#sensorDataTable').DataTable({
+                paging: true,  // Retain your initial DataTable configuration
+                searching: true,
+                ordering:true,
+                pageLength: 10,
+                autoWidth: false,
+                data: data,
+                columns: [
+                    { data: 'timestamp' },
+                    { data: 'temperature' },
+                    { data: 'humidity' },
+                    { data: 'ozone' },
+                    { data: 'dust' },
+                    { data: 'co2' },
+                    { data: 'voc' },
+                ]
+            });
+        
+            klaenSensor('combo',startDate,endDate,dataInterval);
+       
+            $("#download-button").prop("disabled", false);
+        }).catch(error => {
+            console.error('Error fetching data:', error);
+        });
         });
     
     $('#filter-button').off().click(function() {

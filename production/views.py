@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from .utils import get_database_client, MONGO_DB
+from .utils import dbLocation
 from django.http import JsonResponse, HttpResponse
 from pymongo import MongoClient
 
@@ -10,19 +10,23 @@ from pymongo import MongoClient
 
 
 
-client, ssh_tunnel = get_database_client()
+# client, ssh_tunnel = get_database_client()
+
+client2 = MongoClient(dbLocation)
 
 def print_example(request):
     
     # print('databases',databases)
     
-    db = client[MONGO_DB]
+    # db = client[MONGO_DB]
+    db2 = client2.server_db
+    user_collection = db2['user']
     
-    x = db.user.find({},{ "_id": 0})
+    x = user_collection.find({},{ "_id": 0})
     documents_list = list(x)  # Convert cursor to list
     
-    if ssh_tunnel:
-        ssh_tunnel.stop()
+    # if ssh_tunnel:
+    #     ssh_tunnel.stop()
         
     # Return the documents as JSON response
     if documents_list:

@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
-from sshtunnel import SSHTunnelForwarder
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -99,54 +98,56 @@ WSGI_APPLICATION = 'production.wsgi.application'
 #     'default': {
 #         'ENGINE': 'djongo',
 #         'NAME': 'server_db',
-#         # 'HOST': '10.12.179.2',
-#         'HOST': '127.0.0.1',
+#         'HOST': '10.12.179.2',
+#         # 'HOST': '127.0.0.1',
 #         'PORT': 27017,
 #     }
 # }
 
-MONGO_HOST = "10.12.179.2"
-MONGO_DB = "server_db"
-MONGO_USER = ""
-MONGO_PASS = ""
-
-SERVER_HOST = "139.150.73.211"
-SERVER_USER = "root"
-SERVER_PASS = "upsil@1302"
-SSH_TUNNEL_LOCAL_BIND_PORT = 27018  # Example local port to bind the forwarded connection
-
 if CURRENT_ENVIRONMENT == 'local':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'djongo',
+            'NAME': 'server_db',
+            'ENFORCE_SCHEMA': False,
+            'CLIENT': {
+                'host': 'localhost',
+                'port': 27017,  # Use the local port you've chosen for the SSH tunnel
+                # 'username': 'your_mongodb_username',
+                # 'password': 'your_mongodb_password',
+                # 'authSource': 'admin',  # or your database name, if it's different
+                # 'authMechanism': 'SCRAM-SHA-1'  # Default mechanism, change if needed
+            }
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+           'ENGINE': 'djongo',
+        'NAME': 'server_db',
+        'HOST': '10.12.179.2',
+#         # 'HOST': '127.0.0.1',
+        'PORT': 27017,
+    }
+}
     
-    # Start SSH tunnel
-    server = SSHTunnelForwarder(
-            (SERVER_HOST, 22),
-            ssh_username=SERVER_USER,
-            ssh_password=SERVER_PASS,
-            remote_bind_address=('127.0.0.1', 27017),
-            local_bind_address=('127.0.0.1', SSH_TUNNEL_LOCAL_BIND_PORT)
-        )
-    server.start()
+LOGIN_URL = '/account/login/'
 
-    DATABASES = {
-        'default': {
-            'ENGINE': 'djongo',
-            'NAME': 'server_db',
-            # 'HOST': SERVER_HOST,  # Connect to the local end of the tunnel
-            'HOST': '127.0.0.1',
-            'PORT': server.local_bind_port,  # Use the dynamically assigned local port
-        }
-    }
-else:  # cloud
-    DATABASES = {
-        'default': {
-            'ENGINE': 'djongo',
-            'NAME': 'server_db',
-            'HOST': '10.12.179.2',  # Example for MongoDB Atlas
-            # 'USER': 'your_cloud_db_user',
-            # 'PASSWORD': 'your_cloud_db_password',
-            # 'AUTH_SOURCE': 'admin',
-        }
-    }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'djongo',
+#         'NAME': 'server_db',
+#         'ENFORCE_SCHEMA': False,
+#         'CLIENT': {
+#             'host': 'localhost',
+#             'port': 27017,  # Use the local port you've chosen for the SSH tunnel
+            # 'username': 'your_mongodb_username',
+            # 'password': 'your_mongodb_password',
+            # 'authSource': 'admin',  # or your database name, if it's different
+            # 'authMechanism': 'SCRAM-SHA-1'  # Default mechanism, change if needed
+    #     }
+    # }
+# }
 
 
 # DATABASES = {
