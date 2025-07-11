@@ -38,8 +38,21 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3 justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">Klaen Company Indoor Sensor</h6>
-            <button type="button" class="btn btn-disabled fw-bold" id="initial_date">Initial Date : {{klaen_company_initial}}</button>
-            <button type="button" class="btn btn-disabled fw-bold" id="latest_date">Last Date : {{klaen_company_last}}</button>
+            <!-- {{date_range}} -->
+            <ul class="list-group mt-3">
+                <!-- <li class="list-group-item">asd</li> -->
+                <!-- Loop through the data and create list items -->
+                {% for item in date_range %}
+                <li class="list-group-item">
+                  <strong>Serial Number:</strong> {{ item.serial_number }} <br>
+                  <strong>Start Date:</strong> {{ item.start_date }}
+                  <strong>End Date:</strong> {{ item.end_date }}<br>
+                </li>
+                {% endfor %}
+              </ul>
+            <!-- {{date_range}} -->
+            <!-- <button type="button" class="btn btn-disabled fw-bold" id="initial_date">Initial Date : {{klaen_company_initial}}</button>
+            <button type="button" class="btn btn-disabled fw-bold" id="latest_date">Last Date : {{klaen_company_last}}</button> -->
         </div>
         <div class="card-body">
             <div class="row">
@@ -55,7 +68,7 @@
                         <input type="text" class="form-control datepicker" id="end-date" name="end-date">
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-2">
                     <div class="form-group">
                         <label for="data-interval">Data Interval:</label>
                         <select id="data-interval" class="form-control">
@@ -64,6 +77,16 @@
                             <option value="daily" selected>Daily</option>
                             <option value="weekly">Weekly</option>
                             <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="data-sn">Serial Number </label>
+                        <select id="data-sn" class="form-control">
+                            {% for item in serial_numbers %}
+                            <option value="{{item}}">{{ item }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
@@ -148,16 +171,22 @@ $(document).ready(function() {
       
     });
 
+    $('#data-sn').change(function() {
+        var data_sn = $(this).val();
+        console.log(data_sn, 'data_sn')
+    });
+
     $('#data-interval').change(function() {
         var dataInterval = $(this).val();
+        var data_sn = $('#data-sn').val();
         var startDates = $('#start-date').val();
         var endDates = $('#end-date').val();
         var startDate = moment(startDates, "MM/DD/YYYY").format("YYYY-MM-DDT00:00");
         var endDate = moment(endDates, "MM/DD/YYYY").format("YYYY-MM-DDT23:59");
 
-        fetchPlalionSensorData(startDate, endDate,dataInterval)
+        fetchPlalionCompanySensorDataPerSN(startDate, endDate,dataInterval,data_sn)
         .then(data => {
-          dataStore = data
+          dataStore = data.data
              // Check if DataTable instance exists
             var table = $('#sensorDataTable').DataTable();
             if ($.fn.DataTable.isDataTable('#sensorDataTable')) {
@@ -172,7 +201,7 @@ $(document).ready(function() {
                 ordering:true,
                 pageLength: 10,
                 autoWidth: false,
-                data: data,
+                data: data.data,
                 columns: [
                     { data: 'timestamp' },
                     { data: 'temperature' },
@@ -184,7 +213,7 @@ $(document).ready(function() {
                 ]
             });
         
-            klaenSensor('combo',startDate,endDate,dataInterval);
+            klaenCompanySensorperSN('combo',startDate,endDate,dataInterval, data_sn, true);
        
             $("#download-button").prop("disabled", false);
         }).catch(error => {
@@ -194,6 +223,7 @@ $(document).ready(function() {
     
     $('#filter-button').off().click(function() {
         var dataInterval = $('#data-interval').val();
+        var data_sn = $('#data-sn').val();
         var startDates = $('#start-date').val();
         var endDates = $('#end-date').val();
         // Format using moment.js
@@ -202,9 +232,10 @@ $(document).ready(function() {
 
         console.log(startDate, endDate, dataInterval, 'chart')
 
-        fetchPlalionSensorData(startDate, endDate,dataInterval)
+        fetchPlalionCompanySensorDataPerSN(startDate, endDate,dataInterval, data_sn)
         .then(data => {
-          dataStore = data
+
+          dataStore = data.data
              // Check if DataTable instance exists
             var table = $('#sensorDataTable').DataTable();
             if ($.fn.DataTable.isDataTable('#sensorDataTable')) {
@@ -219,7 +250,7 @@ $(document).ready(function() {
                 ordering:true,
                 pageLength: 10,
                 autoWidth: false,
-                data: data,
+                data: data.data,
                 columns: [
                     { data: 'timestamp' },
                     { data: 'temperature' },
@@ -230,9 +261,10 @@ $(document).ready(function() {
                     { data: 'voc' },
                 ]
             });
+
+            klaenCompanySensorperSN('combo',startDate,endDate,dataInterval, data_sn, true);
         
-            klaenSensor('combo',startDate,endDate,dataInterval);
-       
+            
             $("#download-button").prop("disabled", false);
         }).catch(error => {
             console.error('Error fetching data:', error);
@@ -244,8 +276,9 @@ $(document).ready(function() {
 
     $("#download-button").click(function() {
       var dataInterval = $('#data-interval').val();
+      var data_sn = $('#data-sn').val();
      //const json_data = JSON.stringify(dataStore);
-     downloadExcelFromJson(dataStore, `klaen_sensor_company_data_${dataInterval}.xlsx`)
+     downloadExcelFromJson(dataStore, `klaen_sensor_company_data_${data_sn}_${dataInterval}.xlsx`)
      .then(message => console.log(message)) // Success message
      .catch(error => console.error(error)); // Error message
     });

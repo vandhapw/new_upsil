@@ -29,7 +29,10 @@ def login_page(request):
     # appid = request.session.get('appid')
     # if user is not None:
     #     return redirect('/dashboard/')
-    return render(request,'login-form-17.html')
+    return render(request,'landingPage/landingPage.html')
+
+def testing_dashboard(request):
+    return render(request, 'dashboard/kaiadmin/index.html')
 
 @login_required
 def check_page(request):
@@ -64,7 +67,10 @@ def login_api(request):
         except:
             return HttpResponse('incorrect id')
 
-        userinfo = UserLog.objects.get(username=user.id)
+        try:
+            userinfo = UserLog.objects.get(username=user.id)
+        except UserLog.DoesNotExist:
+            return JsonResponse({'message': 'UserLog does not exist for this user'}, status=400)
         request.session['appid'] = user.appid
        
         if check_password(password, user.password):
@@ -79,37 +85,6 @@ def login_api(request):
         else:
             return JsonResponse({'message': 'Username and password are required'}, status=400)
        
-       
-        # if request.content_type != 'application/json':
-        #     return JsonResponse({'message': 'Invalid Content-Type, expected application/json'}, status=415)
-        # try:
-        #     data = json.loads(request.body)
-        #     username = data.get('username')
-        #     password = data.get('password')
-
-        #     if not username or not password:
-        #         return JsonResponse({'message': 'Username and password are required'}, status=400)
-        #     db = client[MONGO_DB]
-        #     user_collection = db['user']
-        #     user = user_collection.find_one({'username': username})
-        #     print('user', user)
-            
-        #     session_data = {key: value for key, value in request.session.items()}
-        #     logger.debug(f'Session data: {session_data}')
-
-        #     if user and check_password(password, user['password']):
-        #         request.session['user'] = username
-        #         request.session['appid'] = user.get('appid')  # Default appid if not present
-        #         session_data = {"user_session":request.session['user'], "appid_session":request.session['appid']}
-        #         print('session_data', session_data)
-        #         return JsonResponse({'message': 'Login successful'})
-        #     return JsonResponse({'message': 'Incorrect username or password'}, status=401)
-        # except json.JSONDecodeError:
-        #     return JsonResponse({'message': 'Invalid JSON'}, status=400)
-        # except Exception as e:
-        #     logger.error(e, exc_info=True)
-        #     print(logger.error())
-        #     return JsonResponse({'message': 'An error occurred during login'}, status=500)
         
 @csrf_exempt
 def logout_api(request):

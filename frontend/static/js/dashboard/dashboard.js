@@ -303,6 +303,25 @@ let isLoading = true;
         }
     }
 
+    async function fetchPlalionCompanySensorDataPerSN(start_date,end_date,resample, serial_number) {
+        statusLabel = 'Loading for Klaen Company Sensor Chart';
+        showLoading(statusLabel);
+        const apiUrl = `${API_URL}/klaen/api/indoor-plalion-company-data-sn/?start_date=${start_date}&end_date=${end_date}&resample=${resample}&serial_number=${serial_number}`;
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            Swal.close();
+            return data; // Adjust according to the actual structure of your response
+        } catch (error) {
+            console.error("Could not fetch sensor data: ", error);
+            errorAlert('No Data!');
+            return 'No Data';
+        }
+    }
+
     let sensorChart = null;
     async function arduinoSensor(chartType,start_date,end_date,resample) {
         console.log(chartType, resample);
@@ -703,7 +722,192 @@ let isLoading = true;
         });
     }
 
-    let chart = null;
+    var chart = null;
+    async function klaenCompanySensorperSN(chartType,start_date,end_date,resample, serialNumber, fromjs) {
+        console.log(chartType, resample);
+        var ctx = document.getElementById("myAreaChart").getContext('2d');
+
+        // console.log('initial serialNumber', serialNumber)
+    
+        // Fetch sensor data from the API
+        var sensorDatas =  await fetchPlalionCompanySensorDataPerSN(start_date,end_date,resample, serialNumber);
+        if (!sensorDatas) {
+            console.error("Failed to load sensor data");
+            return; // Exit if no data could be fetched
+        }
+        var sensorData = sensorDatas.data;
+        
+        if (fromjs == false) {
+            var serialNumbers = []; // Initialize serialNumbers variable
+
+            // Check if sensorData.serial_numbers exists and assign it to serialNumbers
+            if (sensorDatas.serial_number && sensorDatas.serial_number.length > 0) {
+                serialNumbers = sensorDatas.serial_number;
+            }
+
+            // Check if sensorDatas.serial_number is not null
+            if (sensorDatas.serial_number != null && sensorDatas.serial_number.length > 0) {
+                var selectElement = document.getElementById("select-serial");
+                // Clear existing options before adding new ones
+                selectElement.innerHTML = '';
+            
+                // Loop through serialNumbers to populate the dropdown list
+                for (var i = 0; i < sensorDatas.serial_number.length; i++) {
+                    var option = document.createElement("option");
+                    option.value = sensorDatas.serial_number[i];
+                    option.text = sensorDatas.serial_number[i];
+                    // Set the default selected option if serialNumber matches
+                    if (serialNumber != null && sensorDatas.serial_number[i] === serialNumber) {
+                        option.selected = true;
+                    }
+                    selectElement.appendChild(option);
+                }
+            }
+        }
+
+       
+        // console.log('sensorData', sensorData.data)
+        // console.log('sensorData', sensorData.serial_number)
+    
+        // Example of processing the fetched sensor data
+        // You need to adjust this part based on the actual structure of your data and what you want to display
+        var labels = sensorData.map(data => data.timestamp);
+        var humidityData = sensorData.map(data => data.humidity);
+        var temperatureData = sensorData.map(data => data.temperature);
+        var ozoneData = sensorData.map(data => data.ozone);
+        var dustData = sensorData.map(data => data.dust);
+        var co2Data = sensorData.map(data => data.co2);
+        var vocData = sensorData.map(data => data.voc);
+
+        console.log('vocData',vocData)
+    
+        // Create an empty array to hold the datasets
+        var datasets = [];
+       
+          // Clear existing chart instance before creating a new one
+        if (chart) {
+            chart.destroy();
+        }
+        
+        // Assuming you want to display humidity and temperature data
+        if(chartType === 'line' || chartType === 'combo') {
+            datasets.push({
+                label: "Humidity",
+                data: humidityData,
+                borderColor: getRandomColor(),
+                backgroundColor: getRandomColor(),
+                borderWidth: 3,
+                fill: true,
+                yAxisID: 'y',
+                type: chartType === 'combo' ? 'line' : chartType,
+            });
+            datasets.push({
+                label: "Temperature",
+                data: temperatureData,
+                borderColor: getRandomColor(),
+                backgroundColor: getRandomColor(),
+                borderWidth: 3,
+                fill: true,
+                yAxisID: 'y',
+                type: chartType === 'combo' ? 'line' : chartType,
+            });
+            datasets.push({
+                label: "Dust Density",
+                data: dustData,
+                borderColor: getRandomColor(),
+                backgroundColor: getRandomColor(),
+                borderWidth: 3,
+                fill: true,
+                yAxisID: 'y',
+                type: chartType === 'combo' ? 'line' : chartType,
+            });
+            datasets.push({
+                label: "Ozone",
+                data: ozoneData,
+                borderColor: getRandomColor(),
+                backgroundColor: getRandomColor(),
+                borderWidth: 3,
+                fill: true,
+                yAxisID: 'y',
+                type: chartType === 'combo' ? 'line' : chartType,
+            });
+            datasets.push({
+                label: "CO2",
+                data: co2Data,
+                borderColor: getRandomColor(),
+                backgroundColor: getRandomColor(),
+                borderWidth: 3,
+                fill: true,
+                yAxisID: 'y',
+                type: chartType === 'combo' ? 'line' : chartType,
+            });
+            datasets.push({
+                label: "VOC",
+                data: vocData,
+                borderColor: getRandomColor(),
+                backgroundColor: getRandomColor(),
+                borderWidth: 3,
+                fill: true,
+                yAxisID: 'y',
+                type: chartType === 'combo' ? 'line' : chartType,
+            });
+        }
+    
+        // More chart configurations...
+        // Update the rest of your chart setup here
+    
+        // Create the chart with the specified type and dataset
+        chart = new Chart(ctx, {
+            type: chartType === 'combo' ? 'bar' : chartType, // Use 'bar' for combo, otherwise use the chartType
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Value'
+                        }
+                    },
+                    x: {
+                        beginAtZero: true,
+                        position: 'bottom',
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    }
+                },
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        display: true
+                    },
+                    title: {
+                        display: true,
+                        text: 'Sensor Data Over Time'
+                    }
+                }
+            },
+        });
+    }
+
+ 
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    // let chart = null;
     async function buildthingSensor(chartType,start_date,end_date, array_filter,resample) {
         console.log(chartType, resample);
         var ctx = document.getElementById("myAreaChart").getContext('2d');
@@ -1156,6 +1360,15 @@ function downloadExcelFromJson(data, filename = 'data.xlsx') {
 
 var chartType = 'combo';
 var chartSource = 'arduino';
+var resample = 'daily';
+$('#select-serial').on('change', function(event) {
+    event.preventDefault(); // Prevent the default behavior of the event (e.g., form submission or link navigation)
+    var selectedSerialNumber = $(this).val();
+    console.log('Selected Serial Number:', selectedSerialNumber);
+    resample = 'daily';
+    klaenCompanySensorperSN('combo', '', '', resample, selectedSerialNumber, false);
+});
+
 
 function updateChart() {
     // Remove the existing canvas and add a new one
@@ -1177,7 +1390,7 @@ function updateChart() {
             klaenSensor(chartType,'','','daily');
             break;
         case 'klaen_company':
-            klaenCompanySensor(chartType,'','','daily');
+            klaenCompanySensorperSN(chartType,'','',resample,'', false);
             break;
         default:
             console.error('Invalid chart source');

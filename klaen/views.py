@@ -1,5 +1,8 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import status
 # from production.utils import get_database_client
 from production.utils import dbLocation
 import pandas as pd 
@@ -16,6 +19,14 @@ import plotly.graph_objects as go
 from plotly.offline import plot
 from django.conf import settings
 from .forms import UploadFileForm
+import pytz
+from django.utils import timezone
+
+import threading
+import time
+import requests
+
+from .models import SensorData, PlalionSensorData, PlalionSensorCompanyData
 
 
 # client, ssh_tunnel = get_database_client()
@@ -26,6 +37,17 @@ sensor_data_collection = db.klaen_arduino_sensor
 weather_data_collection = db.weather_api
 plalion_data_collection = db.plalion_klaen_sensor
 plalion_company_data_collection = db.plalion_company_sensor
+
+# REST API - Jungrok Company 
+jungrok_url = "http://54.180.153.12:3000/plalion/"
+
+for document in plalion_company_data_collection.find({"serial_number": {"$type": "int"}}):
+    # Convert serial_number to string and update the document
+    plalion_company_data_collection.update_one(
+        {"_id": document["_id"]},
+        {"$set": {"serial_number": str(document["serial_number"])}}
+    )
+
 
 
 # Create your views here.
@@ -135,12 +157,20 @@ def indoor_klaen_index(request):
     return render(request, 'klaen/klaen_indoor.html', context)
 
 def indoor_klaen_company_index(request):
-    context = {'klaen_company_initial': None,"klaen_company_last":None, 'user': None, 'appid': None}
-    data_capacity = dataCapacity(request)
+    context = {'klaen_company_initial': None,"klaen_company_last":None, 'user': None, 'appid': None, 'date_range':None}
+    # data_capacity = dataCapacity(request)
+    data_company_sn = indoorPlalionDataCompanyPerSN(request)
+    json_content = json.loads(data_company_sn.content)
+
+    date_range = json_content.get('date_range', None)
+    serial_numbers = json_content.get('serial_number', None)
+    # print('data_company_sn',data_company_sn)
     if 'user' in request.session:
         user = request.session['user']
         appid = request.session['appid']
-    context = {'klaen_company_initial': data_capacity.get('klaen_company_initial'),"klaen_company_last":data_capacity.get('klaen_company_last'), 'user': user, 'appid': appid}
+    context = {
+        # 'klaen_company_initial': data_capacity.get('klaen_company_initial'),"klaen_company_last":data_capacity.get('klaen_company_last'), 
+               'user': user, 'appid': appid, 'date_range':date_range, 'serial_numbers':serial_numbers}
     return render(request, 'klaen/klaen_company_indoor.html', context)
 
 def outdoor_weather_index(request):
@@ -488,10 +518,14 @@ def indoorPlalionDataCompany(request, start_date=None, end_date=None, resample=N
         # Convert data_list to a pandas DataFrame for resampling
     if documents:
         df = pd.DataFrame(documents)
+        
+        df = df[['timestamp', 'ozone', 'dust', 'co2', 'voc', 'temperature', 'humidity', 'serial_number', 'last_time']]
+        df_serial_number = df['serial_number'].unique().tolist()
+        
         # Ensure 'timestamp' column is in datetime format for resampling
         df['timestamp'] = pd.to_datetime(df['timestamp'])
         df['last_time'] = pd.to_datetime(df['last_time'])
-
+        
         # Set 'timestamp' as the index
         df.set_index('timestamp', inplace=True)
 
@@ -503,26 +537,228 @@ def indoorPlalionDataCompany(request, start_date=None, end_date=None, resample=N
             'weekly': 'W',
             'monthly': 'M'
         }
+        
+        resampled_data_by_serial_number = {}
+        
+        for serial_number in df_serial_number:
+            df_serial = df[df['serial_number'] == serial_number]
+            if resample and resample in resample_frequencies:
+                df_serial_numeric = df_serial.drop(columns=['serial_number', 'last_time'])
+                # Resample DataFrame based on the specified frequency
+                resampled_df = df_serial_numeric.resample(resample_frequencies[resample]).mean().round(2) 
+                # resampled_df.dropna()
+                # resampled_data_list = resampled_df.reset_index().to_dict(orient='records')
+                resampled_data_list_dropna = resampled_df.dropna().reset_index().to_dict(orient='records')
+                
+                resampled_data_by_serial_number[serial_number] = resampled_data_list_dropna
 
         # Check if resample parameter is provided and valid
-        if resample and resample in resample_frequencies:
-            # Resample DataFrame based on the specified frequency
-            resampled_df = df.resample(resample_frequencies[resample]).mean().round(2)  # Adjust aggregation method if needed
+        # if resample and resample in resample_frequencies:
+          
+        #     resampled_df = df.resample(resample_frequencies[resample]).mean()  # Adjust aggregation method if needed
             
-            resampled_df.dropna(inplace=True)
+        #     resampled_df.dropna(inplace=True)
 
-            # Convert resampled DataFrame back to list of dictionaries
-            resampled_data_list = resampled_df.reset_index().to_dict(orient='records')
-        else:
-            resampled_data_list = df.reset_index().to_dict(orient='records')
+        #     # Convert resampled DataFrame back to list of dictionaries
+        #     resampled_data_list = resampled_df.reset_index().to_dict(orient='records')
+        # else:
+        #     resampled_data_list = df.reset_index().to_dict(orient='records')
 
-        response_data = {'data' : resampled_data_list}  # Update response data with resampled data
+        response_data = {'data' : resampled_data_by_serial_number, 'serial_number': df_serial_number}  # Update response data with resampled data
     else:
         # No documents found, return an appropriate response
         return JsonResponse({"message": "No documents found"}, status=404)
 
     # Return the data as a JSON response
     return JsonResponse(response_data, safe=False)
+
+def indoorPlalionDataCompanyPerSN(request):
+    if request.method == 'GET':
+        start_date = request.GET.get('start_date', None)
+        end_date = request.GET.get('end_date', None)
+        resample = request.GET.get('resample', 'daily')
+        serial_number = request.GET.get('serial_number', None)
+
+        try:
+            if start_date:
+                start_date = datetime.strptime(start_date, '%Y-%m-%dT%H:%M')
+            else:
+                start_date = datetime.now() - timedelta(days=30)
+
+            if end_date:
+                end_date = datetime.strptime(end_date, '%Y-%m-%dT%H:%M')
+            else:
+                end_date = datetime.now()
+        except ValueError as e:
+            return JsonResponse({"message": "Invalid date format", "error": str(e)}, status=400)
+
+        query = {}
+        query2 = {}
+        if start_date and end_date:
+            query['timestamp'] = {'$gte': start_date, '$lte': end_date}
+            query2['timestamp'] = {'$gte': start_date, '$lte': end_date}
+        
+        if serial_number is not None and serial_number != '':
+            print('serial_number',serial_number, type(serial_number))
+            query['serial_number'] = serial_number
+            documents = plalion_company_data_collection.find(query, {'_id': 0}).sort('timestamp', DESCENDING)
+
+        else:
+            print('call all of data', serial_number)
+            documents = plalion_company_data_collection.find(query, {'_id': 0}).sort('timestamp', DESCENDING)
+
+
+        documents2 = plalion_company_data_collection.find(query2, {'_id': 0}).sort('timestamp', DESCENDING)
+        # Convert the cursor to a pandas DataFrame
+        
+        if documents.count() > 0:
+            df = pd.DataFrame(list(documents))
+            df2 = pd.DataFrame(list(documents2)) 
+             # Group by serial number and aggregate the minimum and maximum timestamps
+            serial_number_date_ranges = df2.groupby('serial_number')['timestamp'].agg(['min', 'max']).reset_index()
+
+            # Rename columns for clarity
+            serial_number_date_ranges.columns = ['serial_number', 'start_date', 'end_date']
+
+            # Convert timestamps to datetime objects if necessary
+            serial_number_date_ranges['start_date'] = pd.to_datetime(serial_number_date_ranges['start_date'])
+            serial_number_date_ranges['end_date'] = pd.to_datetime(serial_number_date_ranges['end_date'])
+
+            # Convert DataFrame to a list of dictionaries
+            serial_number_date_ranges = serial_number_date_ranges.to_dict('records')
+            
+            df2 = df2.dropna(subset=['serial_number'])   
+            df_serial_number = df2['serial_number'].unique().tolist()
+
+            # Ensure columns exist to avoid KeyError
+            required_columns = ['timestamp', 'ozone', 'dust', 'co2', 'voc', 'temperature', 'humidity', 'serial_number', 'last_time']
+            for column in required_columns:
+                if column not in df.columns:
+                    df[column] = None
+
+            df = df.dropna(subset=required_columns)
+           
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+            df['last_time'] = pd.to_datetime(df['last_time'])
+            df.set_index('timestamp', inplace=True)
+
+             # Dictionary to map resampling frequency to pandas offset aliases
+            resample_frequencies = {
+                'minute': 'T',
+                'hourly': 'h',
+                'daily': 'D',
+                'weekly': 'W',
+                'monthly': 'M'
+            }
+            
+            # Check if resample parameter is provided and valid
+            if resample and resample in resample_frequencies:
+                # Resample DataFrame based on the specified frequency
+                if serial_number is not None and serial_number != '':
+                    df_numerical = df.drop(columns=['serial_number','last_time'])
+                else :
+                    df_numerical = df.drop(columns=['serial_number','last_time', 'serial_num'])
+                print('df_numerical',df_numerical)
+                resampled_df = df_numerical.resample(resample_frequencies[resample]).mean().round(2)  # Adjust aggregation method if needed
+                resampled_df.dropna(inplace=True)
+                # Convert resampled DataFrame back to list of dictionaries
+                resampled_data_list = resampled_df.reset_index().to_dict(orient='records')
+            else:
+                resampled_data_list = df.reset_index().to_dict(orient='records')
+
+            response_data = {'data' : resampled_data_list, 'serial_number':df_serial_number, 'date_range':serial_number_date_ranges}  # Update response data with resampled data
+        else:
+            # No documents found, return an appropriate response
+            return JsonResponse({"message": "No documents found"}, status=404)
+
+        # Return the data as a JSON response
+        return JsonResponse(response_data, safe=False)
+
+# def indoorPlalionDataCompanyPerSN(request, start_date=None, end_date=None, resample=None, serial_number=None):
+#     if request.method == 'GET':
+#         # Extract parameters from request
+#         start_date = request.GET.get('start_date')
+#         end_date = request.GET.get('end_date')
+#         resample = request.GET.get('resample', None)
+
+#         # Convert start_date and end_date to datetime objects
+#         if start_date:
+#             start_date = datetime.strptime(start_date, '%Y-%m-%dT%H:%M')
+#         else :
+#             date_start = datetime.now() - timedelta(days=30)
+#             date_start = date_start.strftime("%Y-%m-%dT%H:%M")
+#             start_date = datetime.strptime(date_start, '%Y-%m-%dT%H:%M')
+#         if end_date:
+#             end_date = datetime.strptime(end_date, '%Y-%m-%dT%H:%M')
+#         else :
+#             date_end = datetime.now()
+#             date_end = date_end.strftime("%Y-%m-%dT%H:%M")
+#             end_date = datetime.strptime(date_end, '%Y-%m-%dT%H:%M')
+
+
+#         # Create a query dictionary
+#         query = {}
+#         if start_date and end_date:
+#             query['timestamp'] = {'$gte': start_date, '$lte': end_date}
+#         elif start_date:
+#             query['timestamp'] = {'$gte': start_date}
+#         elif end_date:
+#             query['timestamp'] = {'$lte': end_date}
+        
+#         if serial_number is not None:
+#             query['serial_num'] = serial_number
+#             print('query',query)
+#         # query['serial_num'] = serial_number
+            
+#         documents = plalion_company_data_collection.find(query,{'_id':0}).sort('timestamp', DESCENDING)
+
+#         # Convert data_list to a pandas DataFrame for resampling
+#     if documents:
+#         df = pd.DataFrame(documents)
+        
+#         df = df[['timestamp', 'ozone', 'dust', 'co2', 'voc', 'temperature', 'humidity', 'serial_number', 'last_time']]
+#         ## Filter by serial number
+#         df = df.dropna()
+        
+#         df_serial_number = df['serial_number'].unique().tolist()
+#         # df = df[df['serial_number'] == serial_number]
+       
+#         # Ensure 'timestamp' column is in datetime format for resampling
+#         df['timestamp'] = pd.to_datetime(df['timestamp'])
+#         df['last_time'] = pd.to_datetime(df['last_time'])
+        
+#         # Set 'timestamp' as the index
+#         df.set_index('timestamp', inplace=True)
+
+#         # Dictionary to map resampling frequency to pandas offset aliases
+#         resample_frequencies = {
+#             'minute': 'T',
+#             'hourly': 'h',
+#             'daily': 'D',
+#             'weekly': 'W',
+#             'monthly': 'M'
+#         }
+        
+#          # Check if resample parameter is provided and valid
+#         if resample and resample in resample_frequencies:
+#             # Resample DataFrame based on the specified frequency
+#             df_numerical = df.drop(columns=['serial_number', 'last_time'])
+#             resampled_df = df_numerical.resample(resample_frequencies[resample]).mean().round(2)  # Adjust aggregation method if needed
+            
+#             resampled_df.dropna(inplace=True)
+
+#             # Convert resampled DataFrame back to list of dictionaries
+#             resampled_data_list = resampled_df.reset_index().to_dict(orient='records')
+#         else:
+#             resampled_data_list = df.reset_index().to_dict(orient='records')
+
+#         response_data = {'data' : resampled_data_list, 'serial_number':df_serial_number}  # Update response data with resampled data
+#     else:
+#         # No documents found, return an appropriate response
+#         return JsonResponse({"message": "No documents found"}, status=404)
+
+#     # Return the data as a JSON response
+#     return JsonResponse(response_data, safe=False)
 
 def get_sensor_data_updated(request, start_date=None, end_date=None, resample=None):
     if request.method == 'GET':
@@ -776,5 +1012,150 @@ def downloadDataByType(request):
         return response
     else:
         return HttpResponse(f"No {type} data to export", content_type='text/plain')
-    
 
+# Plalion Klaen Sensor 
+class PlalionSensorDataView(APIView):
+    def post(self, request, format=None):
+        data = request.data
+
+        # Create a new SensorData instance
+        sensor_data = PlalionSensorData.objects.create(
+            temperature=data['temp'],
+            humidity=data['hum'],
+            ozone=data['ozone'],
+            dust=data['dust'],
+            co2=data['co2'],
+            voc = data['voc'],
+            timestamp=timezone.now()  # Use timezone-aware datetime
+        )
+
+        # Convert to the desired timezone (UTC+9 for South Korea)
+        target_timezone = pytz.timezone('Asia/Seoul')
+        converted_datetime = sensor_data.timestamp.astimezone(target_timezone)
+        converted_datetime = converted_datetime.replace(tzinfo=None)
+
+        # Convert Django model instance to a dictionary
+        data_dict = {
+            'temperature': sensor_data.temperature,
+            'humidity': sensor_data.humidity,
+            'ozone': sensor_data.ozone,
+            'dust': sensor_data.dust,
+            'co2': sensor_data.co2,
+            'voc': sensor_data.voc,
+            'timestamp': converted_datetime
+        }
+
+        plalion_data_collection.insert_one(data_dict)
+
+        return Response(data, status=status.HTTP_201_CREATED)
+
+def plalion_fromRESTAPI(serial_number):
+
+    print('serial_number',serial_number)
+
+    REST_API = jungrok_url+'status/get'
+    
+    data = {
+        "serial_num": serial_number,
+    }
+    
+    headers = {
+        "Content-Type":"application/json"
+    }
+    
+    # latest_datas = PlalionSensorCompanyData.objects.all()
+    # print('latest_data', latest_datas)
+
+    try:
+        latest_data = PlalionSensorCompanyData.objects.filter(serial_num=serial_number).latest('timestamp')
+        print('latest_data', latest_data.serial_num)
+        if latest_data is not None:
+            latest_timestamp = latest_data.last_time
+            print('latest_timestamp of', serial_number, latest_timestamp)
+        else :
+            print('new timestamp')
+            latest_timestamp = timezone.now()
+    except Exception as e:
+        print('No existing data, storing new entry')
+        # latest_data_dict = {field.name: getattr(latest_data, field.name) for field in
+        #                     PlalionSensorCompanyData._meta.fields}
+        # plalion_company_data_collection.insert_one(latest_data_dict)
+        latest_timestamp = timezone.now()
+
+    response = requests.post(REST_API, data=json.dumps(data), headers=headers)
+    # print('response',response.status_code)
+    
+    if response.status_code == 200:
+        response_data = response.json()
+        rows = response_data.get("rows",[])
+        
+        if rows:
+            row = rows[0]
+        # Create a new SensorData instance
+            sensor_data = PlalionSensorCompanyData.objects.create(
+                temperature=row['temp_val'],
+                humidity=row['humi_val'],
+                ozone=row['ozone_val'],
+                dust=row['dust_val'],
+                co2=row['co2_val'],
+                voc = row['voc_val'],
+                serial_num = row['serial_num'],
+                active = row['active'],
+                m_enable = row['m_enable'],
+                s_enable = row['s_enable'],
+                last_time = row['last_time'],
+                timestamp=timezone.now()  # Use timezone-aware datetime
+            )
+
+                # Convert to the desired timezone (UTC+9 for South Korea)
+            target_timezone = pytz.timezone('Asia/Seoul')
+            converted_datetime = sensor_data.timestamp.astimezone(target_timezone)
+            converted_datetime = converted_datetime.replace(tzinfo=None)
+
+        # Convert Django model instance to a dictionary
+            data_dict = {
+                'temperature': sensor_data.temperature,
+                'humidity': sensor_data.humidity,
+                'ozone': sensor_data.ozone,
+                'dust': sensor_data.dust,
+                'co2': sensor_data.co2,
+                'voc': sensor_data.voc,
+                'serial_number':serial_number,
+                'active': sensor_data.active,
+                'm_enable': sensor_data.m_enable,
+                's_enable': sensor_data.s_enable,
+                'last_time': sensor_data.last_time,
+                'timestamp': converted_datetime
+            }
+
+            if latest_timestamp != row['last_time']:
+                print('data inserted',serial_number)
+                plalion_company_data_collection.insert_one(data_dict)
+            else :
+                print('data is not inserted', serial_number)
+
+            return Response(data, status=status.HTTP_201_CREATED)
+        
+        else:
+            return Response("No data from the REST API", status=status.HTTP_404_NOT_FOUND)
+    
+    else:
+        return Response("Failed to fetch data from the REST API", status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+
+
+# ============================= Schedule / Real Time =======================================
+def schedule_data_fetch():
+    
+    while True:
+        print('fetching data')
+        for serial_number in ['8551576','8546512','8545944','8546492', '8545932']:
+
+            plalion_fromRESTAPI(serial_number)
+        # plalion_fromRESTAPI("8546512")
+        # print('print out')
+        time.sleep(60*1)
+      
+
+# Start a new thread to run the schedule_data_fetch function
+data_fetch_thread = threading.Thread(target=schedule_data_fetch)
+data_fetch_thread.start()

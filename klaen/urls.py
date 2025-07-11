@@ -16,9 +16,15 @@ urlpatterns = [
     path('api/download-data-type/', downloadDataByType, name='download-data-type'),
     path('api/klaen-index/', indoor_klaen_index, name='klaen-index'),
     path('api/indoor-plalion-company-data/', indoorPlalionDataCompany, name='indoor-plalion-company-data'),
+    path('api/indoor-plalion-company-data-sn/', indoorPlalionDataCompanyPerSN, name='indoor-plalion-company-data-sn'),
     path('api/klaen-company-index/', indoor_klaen_company_index, name='klaen-company-index'),
     path('api/get-sensor-data-updated/',  get_sensor_data_updated, name='get-sensor-data-updated'),
     path('api/display-weather-updated/', displayDataFromAPIUpdated, name='display-weather-updated'),
+    path('api/plalion-sensor-data/', PlalionSensorDataView.as_view(), name='plalion-sensor-data'),
+    path('api/plalion-rest-api/', plalion_fromRESTAPI, name='plalion-rest-api'),
+    
+    
+    
     
     
    
