@@ -19,7 +19,8 @@ from django.urls import path, include
 from .views import print_example
 from account.views import login_page, dashboard_page, testing_dashboard
 from functools import partial 
-from klaen.views import *
+# from klaen.views import *
+from monitoringapps.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,8 +28,9 @@ urlpatterns = [
     path('', login_page, name='login'),
     path('account/', include('account.urls')),
     path('dashboard/', dashboard_page, name='dashboard'),
-    path('dashboard/kaidashboard',testing_dashboard, name='kaidashboard' ),
-    path('klaen/', include('klaen.urls'))
+    path('dashboard/kaidashboard/',testing_dashboard, name='kaidashboard' ),
+    # path('klaen/', include('klaen.urls')),
+    path('dashboard/kaidashboard/monitoringapps/', include('monitoringapps.urls'))
     # path('/api/login/', partial(login_api, running=None), name='api-login')
     
     

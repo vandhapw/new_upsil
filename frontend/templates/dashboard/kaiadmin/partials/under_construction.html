@@ -1,0 +1,96 @@
+<div class="container text-center py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8"></div>
+            <h1 class="mb-4 fw-bold text-primary construction-title"></h1>
+                <i class="fas fa-hard-hat me-2"></i>Under Construction<i class="fas fa-tools ms-2"></i>
+            </h1>
+            
+            <div class="construction-image-container mb-4"></div>
+                <img src="https://cdn.pixabay.com/photo/2017/06/16/07/26/under-construction-2408062_1280.png" 
+                         alt="Under Construction" 
+                         class="img-fluid construction-image">
+            </div>
+            
+            <div class="alert alert-warning construction-message p-4"></div>
+                <h3 class="mb-3"><i class="fas fa-exclamation-triangle me-2"></i>We're Working On It!</h3>
+                <p class="lead">This sensor monitoring dashboard is currently being developed.</p>
+                <p>Our team is hard at work implementing new features and improvements. Please check back soon!</p>
+                <div class="progress mt-3"></div>
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" 
+                             style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">75% Complete</div>
+                </div>
+            </div>
+            
+            <p class="text-muted mt-4 construction-footer"></p>
+                <i class="fas fa-calendar-alt me-1"></i> Expected completion: Coming Soon
+                <br>
+                <a href="#" class="btn btn-outline-primary mt-3 floating-btn"></a>
+                    <i class="fas fa-bell me-1"></i> Notify Me When Ready
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .construction-title {
+        animation: bounce 2s infinite alternate;
+    }
+    
+    .construction-image {
+        max-height: 300px;
+        animation: pulse 3s infinite;
+    }
+    
+    .construction-message {
+        animation: fadeIn 1s;
+    }
+    
+    .construction-footer {
+        animation: slideUp 1s;
+    }
+    
+    .floating-btn {
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes bounce {
+        from { transform: translateY(0); }
+        to { transform: translateY(-10px); }
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 0.8; transform: scale(0.98); }
+        50% { opacity: 1; transform: scale(1); }
+        100% { opacity: 0.8; transform: scale(0.98); }
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    
+    @keyframes float {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+        100% { transform: translateY(0); }
+    }
+</style>
+
+<script>
+    // Simple script to show when the page might be ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add rotating gear animation to tools icon
+        const toolsIcons = document.querySelectorAll('.fa-tools');
+        toolsIcons.forEach(icon => {
+            setInterval(() => {
+                icon.style.transform = `rotate(${Math.floor(Date.now()/100) % 360}deg)`;
+            }, 100);
+        });
+    });
+</script>

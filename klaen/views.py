@@ -41,6 +41,25 @@ plalion_company_data_collection = db.plalion_company_sensor
 # REST API - Jungrok Company 
 jungrok_url = "http://54.180.153.12:3000/plalion/"
 
+# Mock data to use when the database is unavailable
+MOCK_DATA = [
+    {"serial_number": 1, "name": "Mock Company 1"},
+    {"serial_number": 2, "name": "Mock Company 2"},
+]
+
+try:
+    if settings.CURRENT_ENVIRONMENT == 'server':
+        # Skip database queries in the 'server' environment
+        print("Running in 'server' environment. Skipping database queries.")
+        plalion_company_data = MOCK_DATA
+    else:
+        # Skip database queries in the 'local' environment
+        print("Running in 'local' environment. Skipping database queries.")
+        plalion_company_data = MOCK_DATA
+except Exception as e:
+    print(f"An error occurred while fetching data: {e}")
+    plalion_company_data = MOCK_DATA
+
 for document in plalion_company_data_collection.find({"serial_number": {"$type": "int"}}):
     # Convert serial_number to string and update the document
     plalion_company_data_collection.update_one(

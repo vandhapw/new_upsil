@@ -1,0 +1,589 @@
+<!-- <div>
+    <h3>Indoor Air Quality</h3>
+    <canvas id="iaqChart"></canvas>
+    <script>
+      // Render your Chart.js chart here
+      var ctx = document.getElementById('iaqChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+          datasets: [{
+            label: 'CO2 (ppm)',
+            data: [400, 420, 410, 430, 415],
+            borderColor: '#177dff',
+            backgroundColor: 'rgba(23, 125, 255, 0.14)',
+          }]
+        }
+      });
+    </script>
+  </div>
+   -->
+
+
+   <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+    <div>
+      <h3 class="fw-bold mb-3">Sensor Monitoring</h3>
+    </div>
+    <div class="ms-md-auto py-2 py-md-0">
+      <!-- <a href="#" class="btn btn-label-info btn-round me-2">Manage</a>
+      <a href="#" class="btn btn-primary btn-round">Add Customer</a> -->
+    </div>
+  </div>
+  
+  <div class="row justify-content-center">
+    <div class="col-sm-6 col-md-2">
+      <div class="card card-stats card-round">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-icon">
+              <div class="icon-big text-center icon-primary bubble-shadow-small">
+                <i class="fas fa-cloud"></i>
+              </div>
+            </div>
+            <div class="col col-stats ms-3 ms-sm-0">
+              <div class="numbers">
+                <p class="card-category">CO2</p>
+                <h4 class="card-title" id="co2-value">420</h4>
+                <small class="text-muted">ppm</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="col-sm-6 col-md-2">
+      <div class="card card-stats card-round">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-icon">
+              <div class="icon-big text-center icon-info bubble-shadow-small">
+                <i class="fas fa-smog"></i>
+              </div>
+            </div>
+            <div class="col col-stats ms-3 ms-sm-0">
+              <div class="numbers">
+                <p class="card-category">VOC</p>
+                <h4 class="card-title" id="voc-value">45</h4>
+                <small class="text-muted">ppb</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="col-sm-6 col-md-2">
+      <div class="card card-stats card-round">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-icon">
+              <div class="icon-big text-center icon-success bubble-shadow-small">
+                <i class="fas fa-industry"></i>
+              </div>
+            </div>
+            <div class="col col-stats ms-3 ms-sm-0">
+              <div class="numbers">
+                <p class="card-category">Dust</p>
+                <h4 class="card-title" id="dust-value">12</h4>
+                <small class="text-muted">μg/m³</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="col-sm-6 col-md-2">
+      <div class="card card-stats card-round">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-icon">
+              <div class="icon-big text-center icon-warning bubble-shadow-small">
+                <i class="fas fa-thermometer-half"></i>
+              </div>
+            </div>
+            <div class="col col-stats ms-3 ms-sm-0">
+              <div class="numbers">
+                <p class="card-category">Temperature</p>
+                <h4 class="card-title" id="temp-value">24</h4>
+                <small class="text-muted">°C</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="col-sm-6 col-md-2">
+      <div class="card card-stats card-round">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-icon">
+              <div class="icon-big text-center icon-secondary bubble-shadow-small">
+                <i class="fas fa-tint"></i>
+              </div>
+            </div>
+            <div class="col col-stats ms-3 ms-sm-0">
+              <div class="numbers">
+                <p class="card-category">Humidity</p>
+                <h4 class="card-title" id="humidity-value">65</h4>
+                <small class="text-muted">%</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Charts Section -->
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card card-round">
+        <div class="card-header">
+          <div class="card-head-row">
+            <div class="card-title">Sensor Data Trends <span id="realtime-clock" class="ms-2 text-muted small"></span></div>
+            <script>
+              function updateClock() {
+              const now = new Date();
+              const month = String(now.getMonth() + 1).padStart(2, '0');
+              const day = String(now.getDate()).padStart(2, '0');
+              const hours = String(now.getHours()).padStart(2, '0');
+              const minutes = String(now.getMinutes()).padStart(2, '0');
+              const seconds = String(now.getSeconds()).padStart(2, '0');
+              document.getElementById('realtime-clock').textContent = month + '/' + day + ' ' + hours + ':' + minutes+ ': '+seconds;
+              }
+              updateClock(); // Initial call
+              setInterval(updateClock, 1000); // Update every second
+            </script>
+            <div class="card-tools">
+              <button id="refresh-chart" class="btn btn-label-success btn-round btn-sm me-2">
+                <span class="btn-label">
+                  <i class="fa fa-sync"></i>
+                </span>
+                Refresh
+              </button>
+              <a href="#" class="btn btn-label-info btn-round btn-sm">
+                <span class="btn-label">
+                  <i class="fa fa-download"></i>
+                </span>
+                Export
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-container" style="min-height: 375px">
+            <canvas id="statisticsChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="col-md-4">
+      <div class="card card-primary card-round">
+        <div class="card-header">
+          <div class="card-head-row">
+        <div class="card-title">Anomaly Detection</div>
+        <div class="card-tools"></div>
+          <span class="badge bg-danger blink" id="anomaly-indicator">Live</span>
+        </div>
+          </div>
+          <div class="card-category">Real-time AQI</div>
+        </div>
+        <div class="card-body pb-0">
+          <div class="mb-4 mt-2">
+        <h1 id="aqi-value">42</h1>
+        <span class="badge badge-success" id="aqi-status">Good</span>
+          </div>
+          <div class="pull-in">
+        <canvas id="aqiChart"></canvas>
+          </div>
+          <div class="mt-3 anomaly-alerts">
+        <h5>Detected Anomalies</h5>
+        <div class="alert alert-warning" id="anomaly-container">
+          <div id="no-anomalies">No anomalies detected</div>
+          <ul id="anomaly-list" class="mb-0 ps-3" style="display:none;">
+            <!-- Anomalies will be populated here by JavaScript -->
+          </ul>
+        </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-round">
+        <div class="card-header">
+          <div class="card-head-row">
+            <div class="card-title">Sliding Window Analysis <span id="window-info" class="ms-2 text-muted small"></span>
+             <div>
+                <small class="text-muted">Feature: 
+                  <select id="feature-selector" class="form-select form-select-sm d-inline-block w-auto">
+                    <option value="co2" selected>CO2 (ppm)</option>
+                    <option value="voc">VOC (ppb)</option>
+                    <option value="dust">Dust (μg/m³)</option>
+                    <option value="temperature">Temperature (°C)</option>
+                    <option value="humidity">Humidity (%)</option>
+                  </select>
+                </small><br>
+                <small class="text-muted">Analysis: <strong>Real-time</strong></small>
+              </div>
+            </div>
+            <div class="card-tools">
+              <button id="play-pause-btn" class="btn btn-label-primary btn-round btn-sm me-2">
+                <span class="btn-label">
+                  <i class="fa fa-play" id="play-pause-icon"></i>
+                </span>
+                <span id="play-pause-text">Play</span>
+              </button>
+              <button id="reset-window" class="btn btn-label-secondary btn-round btn-sm">
+                <span class="btn-label">
+                  <i class="fa fa-refresh"></i>
+                </span>
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-container" style="min-height: 300px">
+            <canvas id="slidingWindowChart"></canvas>            
+          </div>
+          <div class="mt-3">
+            <div class="row">
+              <div class="col-md-6">
+                <small class="text-muted">Window Size: <strong>60 timesteps</strong></small><br>
+                <small class="text-muted">Overlap: <strong>10 timesteps</strong></small>
+              </div>
+              <div class="col-md-6 text-end">
+                <small class="text-muted">Current Window: <span id="current-window-index">1</span>/<span id="total-windows">1</span></small><br>
+                <small class="text-muted">Step Size: <strong>50 timesteps</strong></small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+  
+      <div class="card card-round">
+        <div class="card-header"></div>
+          <div class="card-head-row"></div>
+        <div class="card-title">Sensor Fault Detection</div>
+        <div class="card-tools"></div>
+          <div class="h1 fw-bold text-primary" id="status-indicator">●</div>
+          <div class="table-responsive">
+            <table class="table table-sm table-hover" id="fault-detection-table">
+              <thead>
+                <tr>
+              <th>Feature</th>
+              <th>Window Index</th>
+              <th>Timestamp</th>
+              <th>Anomalous</th>
+              <th>Fault Type</th>
+              <th>Causes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Table rows will be populated by JavaScript -->
+              </tbody>
+            </table>
+              </div>
+            </div>
+            <div class="card-footer">
+              <small class="text-muted">Updated <span id="fault-last-updated">just now</span></small>
+            </div>
+        </div>
+          </div>
+        </div>
+        <!-- <div class="card-body"></div>
+          <div class="d-flex justify-content-between mb-3"> -->
+        <!-- <h2 class="mb-0" id="active-sensors">5</h2> -->
+        <!-- <div id="sensor-status">
+          <small class="text-success">● CO2 Online</small>
+          <small class="text-success ms-2">● VOC Online</small>
+          <small class="text-success ms-2">● PM2.5 Online</small>
+          <small class="text-success ms-2">● Temp Online</small>
+          <small class="text-success ms-2">● Humidity Online</small>
+        </div> -->
+          <!-- </div> -->
+          
+        
+      </div>
+      
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          // Function to populate fault detection table
+          function populateFaultTable() {
+        const sensorDataElement = document.getElementById('my-data');
+        if (!sensorDataElement) return;
+        
+        try {
+          const sensorData = JSON.parse(sensorDataElement.textContent);
+          const tableBody = document.querySelector('#fault-detection-table tbody');
+          tableBody.innerHTML = ''; // Clear existing rows
+          
+          // If no faults, show a message
+          if (!sensorData || sensorData.length === 0) {
+            const row = document.createElement('tr');
+            row.innerHTML = '<td colspan="6" class="text-center">No fault detection data available</td>';
+            tableBody.appendChild(row);
+            return;
+          }
+          
+          // Process data and add rows
+          // This is a simplified example - you'll need to adjust based on your actual data structure
+          sensorData.slice(0, 5).forEach((reading, index) => {
+            // Check if there are anomalies in the reading
+            const hasAnomaly = reading.co2 > 1000 || reading.voc > 200 || reading.dust > 50;
+            if (hasAnomaly) {
+          const row = document.createElement('tr');
+          
+          // Determine which feature has anomaly
+          let feature = 'Unknown';
+          let faultType = 'Unknown';
+          let causes = 'Under investigation';
+          
+          if (reading.co2 > 1000) {
+            feature = 'CO2';
+            faultType = 'High CO2 Level';
+            causes = 'Poor ventilation, high occupancy';
+          } else if (reading.voc > 200) {
+            feature = 'VOC';
+            faultType = 'Elevated VOC';
+            causes = 'Chemical exposure, sensor drift';
+          } else if (reading.dust > 50) {
+            feature = 'PM2.5';
+            faultType = 'High Particulate';
+            causes = 'Pollution, dust accumulation';
+          }
+          
+          const timestamp = new Date(reading.timestamp);
+          
+          row.innerHTML = `
+            <td>${feature}</td>
+            <td>${index + 1}</td>
+            <td>${timestamp.toLocaleString()}</td>
+            <td><span class="badge bg-warning">Yes</span></td>
+            <td>${faultType}</td>
+            <td>${causes}</td>
+          `;
+          tableBody.appendChild(row);
+            }
+          });
+          
+          // If no anomalies were found
+          if (tableBody.children.length === 0) {
+            const row = document.createElement('tr');
+            row.innerHTML = '<td colspan="6" class="text-center">No anomalies detected</td>';
+            tableBody.appendChild(row);
+          }
+          
+          // Update last updated time
+          document.getElementById('fault-last-updated').textContent = new Date().toLocaleTimeString();
+        } catch (error) {
+          console.error('Error processing sensor data for fault table:', error);
+        }
+          }
+          
+          // Initial population
+          populateFaultTable();
+          
+          // Listen for chart updates to refresh table
+          document.addEventListener('chartInitialized', populateFaultTable);
+          
+          // Refresh when the refresh button is clicked
+          document.getElementById('refresh-chart')?.addEventListener('click', populateFaultTable);
+        });
+      </script></div>
+    </div>
+  </div>
+
+  <!-- {{sensor_data}} -->
+
+  {{ sensor_data|json_script:"my-data" }}
+
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <script src="{% load static %}{% static 'kaiadmin/sensor/sensor_data.js' %}"></script>
+
+  <script src="{% load static %}{% static 'kaiadmin/sensor/sliding_window.js'%}"></script>
+
+    <script>
+    (function() {
+    'use strict';
+    
+    // Enhanced feature selector initialization
+    function initializeFeatureSelector() {
+      console.log("Initializing feature selector for sliding window");
+      
+      const featureSelector = document.getElementById('feature-selector');
+      if (featureSelector) {
+        featureSelector.addEventListener('change', function(e) {
+          console.log('Feature selected:', e.target.value);
+          const selectedFeature = e.target.value;
+          
+          // Update sliding window with new feature
+          if (window.updateSlidingWindowWithFeature) {
+            window.updateSlidingWindowWithFeature(window.currentSlidingWindowIndex || 0, selectedFeature);
+          }
+        });
+        console.log('Feature selector event listener added');
+      }
+    }
+    
+    // Enhanced sliding window update function that accepts feature parameter
+    window.updateSlidingWindowWithFeature = function(windowIndex, feature = 'co2') {
+      if (!window.slidingWindowChart || !window.allSlidingData) {
+        console.warn('Sliding window chart or data not available');
+        return;
+      }
+      
+      console.log(`Updating sliding window - Window: ${windowIndex}, Feature: ${feature}`);
+      
+      const windowSize = 60;
+      const overlap = 10;
+      const stepSize = windowSize - overlap;
+      
+      window.currentSlidingWindowIndex = Math.max(0, Math.min(windowIndex, window.totalSlidingWindows - 1));
+      
+      // Calculate window boundaries
+      const currentStart = window.currentSlidingWindowIndex * stepSize;
+      const currentEnd = Math.min(currentStart + windowSize, window.allSlidingData.length);
+      
+      const prevStart = Math.max(0, (window.currentSlidingWindowIndex - 1) * stepSize);
+      const prevEnd = Math.min(prevStart + windowSize, window.allSlidingData.length);
+      
+      const nextStart = (window.currentSlidingWindowIndex + 1) * stepSize;
+      const nextEnd = Math.min(nextStart + windowSize, window.allSlidingData.length);
+      
+      // Clear all window datasets
+      window.slidingWindowChart.data.datasets[1].data = new Array(window.allSlidingData.length).fill(null);
+      window.slidingWindowChart.data.datasets[2].data = new Array(window.allSlidingData.length).fill(null);
+      window.slidingWindowChart.data.datasets[3].data = new Array(window.allSlidingData.length).fill(null);
+      
+      // Get feature data based on selection
+      const getFeatureValue = (item) => {
+        switch(feature) {
+          case 'co2': return item.co2 || 0;
+          case 'voc': return item.voc || 0;
+          case 'dust': return item.dust || 0;
+          case 'temperature': return item.temperature || 0;
+          case 'humidity': return item.humidity || 0;
+          default: return item.co2 || 0;
+        }
+      };
+      
+      // Update the base dataset with selected feature
+      const featureData = window.allSlidingData.map(getFeatureValue);
+      window.slidingWindowChart.data.datasets[0].data = featureData;
+      
+      // Update chart labels based on feature
+      const featureLabels = {
+        'co2': 'CO2 (ppm)',
+        'voc': 'VOC (ppb)', 
+        'dust': 'Dust (μg/m³)',
+        'temperature': 'Temperature (°C)',
+        'humidity': 'Humidity (%)'
+      };
+      
+      window.slidingWindowChart.data.datasets[0].label = `${featureLabels[feature]} - All Data`;
+      window.slidingWindowChart.options.scales.y.title.text = featureLabels[feature];
+      
+      // Fill current window (red with border)
+      for (let i = currentStart; i < currentEnd; i++) {
+        window.slidingWindowChart.data.datasets[1].data[i] = getFeatureValue(window.allSlidingData[i]);
+      }
+      
+      // Fill previous window (gray dashed) if exists
+      if (window.currentSlidingWindowIndex > 0) {
+        for (let i = prevStart; i < prevEnd; i++) {
+          window.slidingWindowChart.data.datasets[2].data[i] = getFeatureValue(window.allSlidingData[i]);
+        }
+      }
+      
+      // Fill next window (blue dashed) if exists
+      if (nextStart < window.allSlidingData.length && window.currentSlidingWindowIndex < window.totalSlidingWindows - 1) {
+        for (let i = nextStart; i < nextEnd; i++) {
+          window.slidingWindowChart.data.datasets[3].data[i] = getFeatureValue(window.allSlidingData[i]);
+        }
+      }
+      
+      window.slidingWindowChart.update('active');
+      
+      // Update info displays
+      document.getElementById('current-window-index').textContent = window.currentSlidingWindowIndex + 1;
+      document.getElementById('window-info').textContent = 
+        `Window ${window.currentSlidingWindowIndex + 1}: Steps ${currentStart + 1}-${currentEnd} (${feature.toUpperCase()})`;
+    };
+    
+    // Wait for sliding window chart to be initialized
+    function waitForSlidingWindow() {
+      const maxAttempts = 50; // 5 seconds max wait
+      let attempts = 0;
+      
+      const checkInterval = setInterval(function() {
+        attempts++;
+        
+        if (window.slidingWindowChart && window.allData) {
+          // Store references globally for compatibility
+          window.allSlidingData = window.allData;
+          window.totalSlidingWindows = window.totalWindows;
+          window.currentSlidingWindowIndex = window.currentWindowIndex;
+          
+          // Initialize feature selector
+          initializeFeatureSelector();
+          
+          // Override the original updateSlidingWindow function
+          const originalUpdateSlidingWindow = window.updateSlidingWindow;
+          window.updateSlidingWindow = function(windowIndex) {
+            const selectedFeature = document.getElementById('feature-selector')?.value || 'co2';
+            window.updateSlidingWindowWithFeature(windowIndex, selectedFeature);
+          };
+          
+          clearInterval(checkInterval);
+          console.log('✅ Sliding window enhanced with feature selector and auto-update');
+          
+          // Trigger initial update with current feature
+          const currentFeature = document.getElementById('feature-selector')?.value || 'co2';
+          window.updateSlidingWindowWithFeature(window.currentSlidingWindowIndex || 0, currentFeature);
+          
+        } else if (attempts >= maxAttempts) {
+          clearInterval(checkInterval);
+          // console.warn('⚠️ Sliding window chart not found after maximum attempts');
+        }
+      }, 100);
+    } 
+    
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(waitForSlidingWindow, 500);
+      });
+    } else {
+      setTimeout(waitForSlidingWindow, 500);
+    }
+    
+    // Listen for chart initialization events
+    document.addEventListener('chartInitialized', function() {
+      console.log('Chart initialized event received, setting up sliding window...');
+      setTimeout(waitForSlidingWindow, 200);
+    });
+    
+  })();
+    </script>
+
+    <script>
+// Debug sliding window auto-update
+setInterval(function() {
+  console.log('=== Sliding Window Debug ===');
+  console.log('slidingWindowChart exists:', !!window.slidingWindowChart);
+  console.log('allData length:', window.allData?.length || 'undefined');
+  console.log('currentWindowIndex:', window.currentWindowIndex);
+  console.log('stepsSinceLastUpdate:', window.stepsSinceLastUpdate);
+  console.log('updateInterval active:', !!window.updateInterval);
+}, 30000); // Log every 30 seconds
+</script>

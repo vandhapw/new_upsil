@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+import socket
+import pymongo
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -45,7 +47,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'account',
     'frontend',
-    'klaen'
+    'klaen',
+    'monitoringapps'
 ]
 
 MIDDLEWARE = [
@@ -83,53 +86,55 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'production.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'djongo',
-#         'NAME': 'server_db',
-#         'HOST': '10.12.179.2',
-#         # 'HOST': '127.0.0.1',
-#         'PORT': 27017,
-#     }
-# }
-
-if CURRENT_ENVIRONMENT == 'local':
-    DATABASES = {
-        'default': {
-            'ENGINE': 'djongo',
-            'NAME': 'server_db',
-            'ENFORCE_SCHEMA': False,
-            'CLIENT': {
-                'host': 'localhost',
-                'port': 27017,  # Use the local port you've chosen for the SSH tunnel
-                # 'username': 'your_mongodb_username',
-                # 'password': 'your_mongodb_password',
-                # 'authSource': 'admin',  # or your database name, if it's different
-                # 'authMechanism': 'SCRAM-SHA-1'  # Default mechanism, change if needed
-            }
-        }
-    }
-else:
-    DATABASES = {
-        'default': {
-           'ENGINE': 'djongo',
-        'NAME': 'server_db',
-        'HOST': '10.12.179.2',
-#         # 'HOST': '127.0.0.1',
-        'PORT': 27017,
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.dummy',
     }
 }
+
+# def is_server():
+#     hostname = socket.gethostname()
+#     server_indicators = ["vps","server","host","node"]
+#     return any(indicator in hostname.lower() for indicator in server_indicators)
+
+# if is_server(): #server is true 
+#     DATABASES = {
+#         'default': {
+#            'ENGINE': 'djongo',
+#             'NAME': 'server_db',
+#             'CLIENT':{
+#                 'host': '127.0.0.1',
+#                 'port': 27017,
+#                 'authSource': 'admin',
+#                 }
+#         # 'HOST': '10.12.179.2',
+#             # 'HOST': '127.0.0.1',
+#             # 'PORT': 27017,
+#         }
+#     }
+# else:  # running in local computer
+#     try:
+#         client = pymongo.MongoClient('localhost', 27019)
+#         client.admin.command('ping')  # Check if the database is reachable
+#         DATABASES = {
+#             'default': {
+#                 'ENGINE': 'djongo',
+#                 'NAME': 'server_db',
+#                 'CLIENT': {
+#                     'host': 'localhost',
+#                     'port': 27019,
+#                     'authSource': 'admin',
+#                 }
+#             }
+#         }
+#     except Exception as e:
+#         print("No local database detected. Falling back to SQLite.")
+#         DATABASES = {
+#             'default': {
+#                 'ENGINE': 'django.db.backends.sqlite3',
+#                 'NAME': BASE_DIR / 'db.sqlite3',
+#             }
+#         }
     
 LOGIN_URL = '/account/login/'
 
@@ -195,11 +200,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / "static"
+# STATIC_ROOT = '/var/www/production/frontend/static'
 
 #adding this command below
 STATICFILES_DIRS=(
-    os.path.join(BASE_DIR,'static'),
+    # os.path.join(BASE_DIR,'static'),
+    BASE_DIR / "frontend" / "static",
 )
+
+#adding this command below
+# STATICFILES_DIRS=(
+#     os.path.join(BASE_DIR,'static'),
+# )
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 

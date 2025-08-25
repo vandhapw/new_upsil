@@ -18,21 +18,40 @@ from django.contrib.auth.decorators import login_required
 
 # client, ssh_tunnel = get_database_client()
 
+from pymongo import MongoClient
+from django.http import JsonResponse
+
+def test_mongo_connection(request):
+    try:
+        client = MongoClient('mongodb://127.0.0.1:27017/')
+        db = client['server_db']
+        # Coba akses koleksi
+        collections = db.list_collection_names()
+        return JsonResponse({'status': 'connected', 'collections': collections})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
 def login_page(request):
     if 'user' in request.session:
-    #     appid = request.session.get('appid')
-    #     user = request.session.get('user')
-    # context = {'appid':appid, 'user':user}
-    # print(context)
         return dashboard_page(request)
-    # user = request.session.get('user')
-    # appid = request.session.get('appid')
-    # if user is not None:
-    #     return redirect('/dashboard/')
-    return render(request,'landingPage/landingPage.html')
+    # Render the result of test_mongo_connection for demonstration
+    mongo_status = test_mongo_connection(request)
+    # If you want to show the status on the landing page, pass it to the template
+    if hasattr(mongo_status, 'content'):
+        mongo_data = json.loads(mongo_status.content)
+    else:
+        mongo_data = {"Error": "Could not connect to MongoDB"}
+    return render(request, 'landingPage/landingPage.html', {'mongo_status': mongo_data})
+    # return JsonResponse(mongo_data)
 
 def testing_dashboard(request):
-    return render(request, 'dashboard/kaiadmin/index.html')
+    mongo_status = test_mongo_connection(request)
+    # If you want to show the status on the landing page, pass it to the template
+    if hasattr(mongo_status, 'content'):
+        mongo_data = json.loads(mongo_status.content)
+    else:
+        mongo_data = {"Error": "Could not connect to MongoDB"}
+    return render(request, 'dashboard/kaiadmin/index.html', {'mongo_status': mongo_data})
 
 @login_required
 def check_page(request):
@@ -40,12 +59,8 @@ def check_page(request):
 
 def dashboard_page(request):
     context = {}
-    if 'user' in request.session:
-        appid = request.session.get('appid')
-        user = request.session.get('user')
-    context = {'appid':appid, 'user':user}
-    print('context', context)
-    return render(request,'dashboard/dashboard.html', context)
+    
+    return render(request,'dashboard/kaiadmin/index.html', context)
         
     
 

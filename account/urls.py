@@ -12,5 +12,5 @@ urlpatterns = [
     path('api/check/', check_page, name='check'),
     path('api/register/', register_api, name='register_api'),
     
-    # path('api/dashboard_page/', dashboard_page, name='dashboard_page'),
+    path('api/dashboard_page/', dashboard_page, name='dashboard_page'),
 ]
