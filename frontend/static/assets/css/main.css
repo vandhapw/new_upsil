@@ -1938,8 +1938,7 @@ input, select, textarea {
 	}
 
 		#logo h1 {
-			/* background: #ff4486; */
-			background: transparent;
+			background: #ff4486;
 			color: #fff;
 			border-radius: 6px;
 			font-family: 'Oleo Script', serif;
