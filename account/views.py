@@ -14,12 +14,49 @@ from django.utils import timezone
 import logging
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-
-
-# client, ssh_tunnel = get_database_client()
+from production.utils import get_mongo_client
 
 from pymongo import MongoClient
 from django.http import JsonResponse
+
+client = get_mongo_client()
+db = client['server_db']
+user_collection = db['user']
+
+@csrf_exempt
+def login_function(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        username = data.get('username')
+        password = data.get('password')
+
+        print(f"Received login attempt for username: {username}")        
+
+        if not username or not password:
+            return JsonResponse({'error': 'Username and password are required'}, status=400)
+
+        user = user_collection.find_one({'username': username})
+        if not user:
+            return JsonResponse({'error': 'User not found'}, status=404)
+
+        if check_password(password, user['password']):
+            request.session['user'] = username
+            return JsonResponse({'message': 'success'})
+        else:
+            return JsonResponse({'error': 'Incorrect password'}, status=401)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+@csrf_exempt
+def logout_function(request):
+    if request.method == 'POST':
+        if 'user' in request.session:
+            del request.session['user']
+            return JsonResponse({'message': 'Logout successful'})
+        else:
+            return JsonResponse({'error': 'No user is logged in'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 def test_mongo_connection(request):
     try:
@@ -67,7 +104,7 @@ def dashboard_page(request):
 
 @csrf_exempt
 def login_api(request):
-
+   
    if request.method == 'POST':
        
         data = json.loads(request.body)

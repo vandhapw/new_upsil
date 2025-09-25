@@ -369,7 +369,7 @@
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="#">Account Setting</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="#">Logout</a>
+                  <a class="dropdown-item" href="#" id="logoutBtn">Logout</a>
                 </li>
               </div>
             </ul>
@@ -379,3 +379,43 @@
     </nav>
     <!-- End Navbar -->
   </div>
+
+  <script>
+    const protocol = window.location.protocol; // http: atau https:
+    const host = window.location.host;         // contoh: localhost:8000 atau mysite.com
+    const baseUrl = `${protocol}//${host}`;
+
+    // console.log("Base URL:", baseUrl);
+
+    // Redirect ke path tertentu
+    // window.location.href = `${baseUrl}/dashboard`;
+
+
+    document.getElementById('logoutBtn').addEventListener('click', function (event) {
+      alert('Logout button clicked');
+      event.preventDefault();
+      // Perform logout logic here
+      console.log('Logout button clicked');
+      // Example: Redirect to logout endpoint
+      // const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+      // if (!csrfTokenElement) {
+      //   console.error('CSRF token not found');
+      //   return;
+      // }
+      fetch('/account/api/logout/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // 'X-CSRFToken': csrfTokenElement.value
+      }
+      })
+      .then(response => {
+        if (response.ok) {
+        window.location.href = baseUrl;
+        } else {
+        console.error('Logout failed');
+        }
+      })
+      .catch(error => console.error('Error:', error));
+    });
+  </script>
