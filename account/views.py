@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .forms import *
-from .models import User, UserLog, UserGroup
+from .models import User, UserLog
 from datetime import timedelta
 import json, datetime
 from django.http import HttpResponse, JsonResponse
@@ -18,45 +18,46 @@ from production.utils import get_mongo_client
 
 from pymongo import MongoClient
 from django.http import JsonResponse
+import uuid
 
 client = get_mongo_client()
 db = client['server_db']
 user_collection = db['user']
 
-@csrf_exempt
-def login_function(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        username = data.get('username')
-        password = data.get('password')
+# @csrf_exempt
+# def login_function(request):
+#     if request.method == 'POST':
+#         data = json.loads(request.body)
+#         username = data.get('username')
+#         password = data.get('password')
 
-        print(f"Received login attempt for username: {username}")        
+#         print(f"Received login attempt for username: {username}")        
 
-        if not username or not password:
-            return JsonResponse({'error': 'Username and password are required'}, status=400)
+#         if not username or not password:
+#             return JsonResponse({'error': 'Username and password are required'}, status=400)
 
-        user = user_collection.find_one({'username': username})
-        if not user:
-            return JsonResponse({'error': 'User not found'}, status=404)
+#         user = user_collection.find_one({'username': username})
+#         if not user:
+#             return JsonResponse({'error': 'User not found'}, status=404)
 
-        if check_password(password, user['password']):
-            request.session['user'] = username
-            return JsonResponse({'message': 'success'})
-        else:
-            return JsonResponse({'error': 'Incorrect password'}, status=401)
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=405)
+#         if check_password(password, user['password']):
+#             request.session['user'] = username
+#             return JsonResponse({'message': 'success'})
+#         else:
+#             return JsonResponse({'error': 'Incorrect password'}, status=401)
+#     else:
+#         return JsonResponse({'error': 'Invalid request method'}, status=405)
     
-@csrf_exempt
-def logout_function(request):
-    if request.method == 'POST':
-        if 'user' in request.session:
-            del request.session['user']
-            return JsonResponse({'message': 'Logout successful'})
-        else:
-            return JsonResponse({'error': 'No user is logged in'}, status=400)
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=405)
+# @csrf_exempt
+# def logout_function(request):
+#     if request.method == 'POST':
+#         if 'user' in request.session:
+#             del request.session['user']
+#             return JsonResponse({'message': 'Logout successful'})
+#         else:
+#             return JsonResponse({'error': 'No user is logged in'}, status=400)
+#     else:
+#         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 def test_mongo_connection(request):
     try:
@@ -69,16 +70,16 @@ def test_mongo_connection(request):
         return JsonResponse({'status': 'error', 'message': str(e)})
 
 def login_page(request):
-    if 'user' in request.session:
-        return dashboard_page(request)
+    # if 'user' in request.session:
+    #     return dashboard_page(request)
     # Render the result of test_mongo_connection for demonstration
-    mongo_status = test_mongo_connection(request)
+    # mongo_status = test_mongo_connection(request)
     # If you want to show the status on the landing page, pass it to the template
-    if hasattr(mongo_status, 'content'):
-        mongo_data = json.loads(mongo_status.content)
-    else:
-        mongo_data = {"Error": "Could not connect to MongoDB"}
-    return render(request, 'landingPage/landingPage.html', {'mongo_status': mongo_data})
+    # if hasattr(mongo_status, 'content'):
+    #     mongo_data = json.loads(mongo_status.content)
+    # else:
+    #     mongo_data = {"Error": "Could not connect to MongoDB"}
+    return render(request, 'landingPage/landingPage.html')
     # return JsonResponse(mongo_data)
 
 def testing_dashboard(request):
@@ -90,14 +91,14 @@ def testing_dashboard(request):
         mongo_data = {"Error": "Could not connect to MongoDB"}
     return render(request, 'dashboard/kaiadmin/index.html', {'mongo_status': mongo_data})
 
-@login_required
-def check_page(request):
-    return render(request,'check.html')
+# @login_required
+# def check_page(request):
+#     return render(request,'check.html')
 
-def dashboard_page(request):
-    context = {}
+# def dashboard_page(request):
+#     context = {}
     
-    return render(request,'dashboard/kaiadmin/index.html', context)
+#     return render(request,'dashboard/kaiadmin/index.html', context)
         
     
 
@@ -156,43 +157,63 @@ def logout_api(request):
     
 @csrf_exempt
 def register_api(request):
-    
     if request.method == 'POST':
-        # data = JSONParser().parse(request)
-        data = json.loads(request.body)
-        username = data['username']
-        password = data['password']
-        re_password = data['re_password']
-        email = data['email']
-        
-        res_data = {}
-        
-        if not (username and password and re_password and email):
-            res_data['error'] = '모든 값을 입력해야 합니다.'
-        elif password != re_password:
-            res_data['error'] = '비밀번호가 다릅니다.'
-        else:
-            hash_password = make_password(password)
-           
-            data = {
-                'username': username,
-                'password': hash_password,
-                'email': email,
-                'registered_at': datetime.datetime.now()
-            }
-            
-            # Connect to MongoDB (adjust connection details accordingly)
-            db = client[MONGO_DB]  # Use your actual MongoDB database name
-            users_collection = db['user']  # Use your actual collection name for users
+        try:
+            # Parse the incoming JSON data
+            data = json.loads(request.body)
 
-            # Find user by username
-            user = users_collection.insert_one(data)
-        
-        if user:
-            return JsonResponse({'message': 'Register successful! Please Login', 'redirect_url':'/'})
-        else:
-            return JsonResponse({'error': 'Incorrect password'}, status=401)
-    else:
-        return JsonResponse({'error': 'User not found'}, status=404)
+            firstName = data.get('firstName')
+            lastName = data.get('lastName')
+            username = data.get('username')  # This can also be used as the email
+            email = data.get('email')
+            password = data.get('password')
+            re_password = data.get('re_password')
             
-# Create your views here.
+            res_data = {}
+
+            # Validate input fields
+            if not (username and password and re_password and email):
+                res_data['error'] = '모든 값을 입력해야 합니다.'  # "All fields must be filled"
+            elif password != re_password:
+                res_data['error'] = '비밀번호가 다릅니다.'  # "Passwords do not match"
+            else:
+                # Connect to MongoDB
+                # Check if the username or email already exists in the database
+                if user_collection.find_one({'username': username}):
+                    res_data['error'] = 'Username already exists.'
+                elif user_collection.find_one({'email': email}):
+                    res_data['error'] = 'Email already registered.'
+                else:
+                    # Hash the password for security
+                    hash_password = make_password(password)
+
+                    # Prepare the data to be inserted
+                    user_data = {
+                        'id': str(uuid.uuid4()),
+                        'firstName': firstName,
+                        'lastName': lastName,
+                        'username': username,
+                        'password': hash_password,
+                        'email': email,
+                        'photo': None,
+                        'created_at': datetime.datetime.now(),
+                        'updated_at': datetime.datetime.now(),
+                        'registered_at': datetime.datetime.now()
+                    }
+
+                    # Insert data into MongoDB
+                    result = user_collection.insert_one(user_data)
+
+                    if result.acknowledged:
+                        return JsonResponse({'message': 'Register successful! Please Login', 'redirect_url': '/dashboard/kaidashboard/'})
+                    else:
+                        return JsonResponse({'error': 'User registration failed'}, status=500)
+
+        except Exception as e:
+            # Handle any exceptions and provide error details
+            return JsonResponse({'error': f'Error occurred: {str(e)}'}, status=500)
+
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+# # Create your views here.

@@ -17,23 +17,30 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib import admin
 from django.urls import path, include
 from .views import print_example
-from account.views import login_page, dashboard_page, testing_dashboard
+from account.views import login_page
 from functools import partial 
+from django.conf import settings
+from django.conf.urls.static import static
+from account.views import testing_dashboard
+
 # from klaen.views import *
-from monitoringapps.views import *
+# from monitoringapps.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('testing/',print_example, name='testing' ),
     path('', login_page, name='login'),
     path('account/', include('account.urls')),
-    path('dashboard/', dashboard_page, name='dashboard'),
+    # path('dashboard/', dashboard_page, name='dashboard'),
     path('dashboard/kaidashboard/',testing_dashboard, name='kaidashboard' ),
     # path('klaen/', include('klaen.urls')),
-    path('dashboard/kaidashboard/monitoringapps/', include('monitoringapps.urls'))
+    # path('dashboard/kaidashboard/monitoringapps/', include('monitoringapps.urls'))
     # path('/api/login/', partial(login_api, running=None), name='api-login')
     
     
 ]
 
-urlpatterns += staticfiles_urlpatterns()
+if settings.DEBUG:  # Only in development mode
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# urlpatterns += staticfiles_urlpatterns()

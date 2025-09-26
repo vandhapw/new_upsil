@@ -1,6 +1,8 @@
 from django.db import models
 
 class User(models.Model):
+    firstName = models.CharField(max_length=64, verbose_name='이름', null=True)
+    lastName = models.CharField(max_length=64, verbose_name='성', null=True)
     username = models.CharField(max_length=64, verbose_name='아이디')
     user_group = models.CharField(max_length=64, verbose_name='사용자 그룹')
     password = models.CharField(max_length=64, verbose_name='비밀번호')
@@ -16,28 +18,21 @@ class User(models.Model):
 
     def __str__(self):
         return self.username
-    
-    def get_appid_list(self):
-        return self.appid.split(',')
-    
-    def set_appid_list(self, appid_list):
-        self.appid = ','.join(appid_list)
 
-    appid_list = property(get_appid_list, set_appid_list)
 
-class UserGroup(models.Model):
-    user_group_id = models.CharField(max_length=64, verbose_name='사용자 그룹 아이디')
-    user_group = models.CharField(max_length=64, verbose_name='사용자 그룹')
-    registered_at = models.DateTimeField(auto_now_add=True, verbose_name='가입일자')
+# class UserGroup(models.Model):
+#     user_group_id = models.CharField(max_length=64, verbose_name='사용자 그룹 아이디')
+#     user_group = models.CharField(max_length=64, verbose_name='사용자 그룹')
+#     registered_at = models.DateTimeField(auto_now_add=True, verbose_name='가입일자')
 
-    class Meta:
-        db_table = 'user_group'
-        ordering = ['-registered_at']
-        verbose_name = '사용자 그룹'
-        verbose_name_plural = '사용자 그룹'
+#     class Meta:
+#         db_table = 'user_group'
+#         ordering = ['-registered_at']
+#         verbose_name = '사용자 그룹'
+#         verbose_name_plural = '사용자 그룹'
 
-    def __str__(self):
-        return self.username
+#     def __str__(self):
+#         return self.username
 
 class UserLog(models.Model):
     username = models.ForeignKey("User", on_delete=models.CASCADE, db_column="username", verbose_name='아이디')

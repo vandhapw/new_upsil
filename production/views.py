@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from .utils import dbLocation
+# from .utils import dbLocation
 from django.http import JsonResponse, HttpResponse
 from pymongo import MongoClient
 
@@ -12,7 +12,7 @@ from pymongo import MongoClient
 
 # client, ssh_tunnel = get_database_client()
 
-client2 = MongoClient(dbLocation)
+client2 = MongoClient(None)
 
 def print_example(request):
     

@@ -14,10 +14,12 @@ from pathlib import Path
 import os
 import socket
 import pymongo
+from pymongo import MongoClient
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+print("BASE_DIR:", BASE_DIR)
 
 # work with local and cloud environment 
 CURRENT_ENVIRONMENT = os.environ.get('ENVIRONMENT', 'local')
@@ -31,6 +33,8 @@ SECRET_KEY = 'django-insecure-m43s@rg)pb8%rhy__&t$#8g6%b!==73$^%5c6kwieaaxvum2cl
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
+
 
 ALLOWED_HOSTS = ['*']
 
@@ -48,7 +52,7 @@ INSTALLED_APPS = [
     'account',
     'frontend',
     'klaen',
-    'monitoringapps'
+    'monitoringapps',
 ]
 
 MIDDLEWARE = [
@@ -65,6 +69,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
 ]
+
 
 ROOT_URLCONF = 'production.urls'
 
@@ -92,49 +97,44 @@ DATABASES = {
     }
 }
 
-# def is_server():
-#     hostname = socket.gethostname()
-#     server_indicators = ["vps","server","host","node"]
-#     return any(indicator in hostname.lower() for indicator in server_indicators)
+def is_server():
+    hostname = socket.gethostname()
+    server_indicators = ["vps", "server", "host", "node"]
+    return any(indicator in hostname.lower() for indicator in server_indicators)
 
-# if is_server(): #server is true 
-#     DATABASES = {
-#         'default': {
-#            'ENGINE': 'djongo',
-#             'NAME': 'server_db',
-#             'CLIENT':{
-#                 'host': '127.0.0.1',
-#                 'port': 27017,
-#                 'authSource': 'admin',
-#                 }
-#         # 'HOST': '10.12.179.2',
-#             # 'HOST': '127.0.0.1',
-#             # 'PORT': 27017,
-#         }
-#     }
-# else:  # running in local computer
-#     try:
-#         client = pymongo.MongoClient('localhost', 27019)
-#         client.admin.command('ping')  # Check if the database is reachable
-#         DATABASES = {
-#             'default': {
-#                 'ENGINE': 'djongo',
-#                 'NAME': 'server_db',
-#                 'CLIENT': {
-#                     'host': 'localhost',
-#                     'port': 27019,
-#                     'authSource': 'admin',
-#                 }
-#             }
-#         }
-#     except Exception as e:
-#         print("No local database detected. Falling back to SQLite.")
-#         DATABASES = {
-#             'default': {
-#                 'ENGINE': 'django.db.backends.sqlite3',
-#                 'NAME': BASE_DIR / 'db.sqlite3',
-#             }
-#         }
+if is_server():
+    DATABASES['default'] = {
+        'ENGINE': 'djongo',
+        'NAME': 'server_db',
+        'CLIENT': {
+            'host': '127.0.0.1',
+            'port': 27017,
+            'authSource': 'admin',
+        }
+    }
+else:
+
+    client = MongoClient('mongodb://localhost:27017')  # Adjust the URL and port as needed
+
+    try:
+        # Ping the MongoDB server
+        client.admin.command('ping')  # This command checks if the connection is successful
+        print("MongoDB connection successful!")
+        DATABASES['default'] = {
+            'ENGINE': 'djongo',
+            'NAME': 'server_db',
+            'CLIENT': {
+                'host': '127.0.0.1',
+                'port': 27017,
+                'authSource': 'admin',
+            }
+        }
+    except Exception as e:
+        print(f"No local database detected: {e}. Falling back to SQLite.")
+        DATABASES['default'] = {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     
 LOGIN_URL = '/account/login/'
 
@@ -187,7 +187,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'utc'
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
@@ -200,14 +200,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / "static"
-# STATIC_ROOT = '/var/www/production/frontend/static'
-
 #adding this command below
 STATICFILES_DIRS=(
     # os.path.join(BASE_DIR,'static'),
-    BASE_DIR / "frontend" / "static",
+    BASE_DIR / 'frontend' / 'static',
+    # BASE_DIR / "static",
 )
+# STATIC_ROOT = BASE_DIR / "static"
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+# STATIC_ROOT = '/var/www/production/frontend/static'
+
+
 
 #adding this command below
 # STATICFILES_DIRS=(

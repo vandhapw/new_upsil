@@ -15,11 +15,19 @@ def get_mongo_client():
             return None
         else:
             print("Running in 'local' environment. Connecting to MongoDB.")
-            client = pymongo.MongoClient(
-                host='127.0.0.1',
-                port=27017,
-                authSource='admin'
-            )
+            client = pymongo.MongoClient('localhost', 27017)
+            client.admin.command('ping')  # Check if the database is reachable
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'djongo',
+                    'NAME': 'server_db',
+                    'CLIENT': {
+                        'host': '127.0.0.1',
+                        'port': 27017,
+                        'authSource': 'admin',
+                    }
+                }
+            }
             return client
     except Exception as e:
         print(f"An error occurred while connecting to MongoDB: {e}")

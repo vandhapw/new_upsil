@@ -62,12 +62,14 @@
 
     // Handle Registration
     $('#register-submit').click(function(e) {
-        alert('register')
+        // alert('register')
       e.preventDefault();
-      var username = $('#signup-username').val();
-      var email = $('#signup-email').val();
-      var password = $('#signup-password').val();
-      var confirmPassword = $('#signup-confirm-password').val();
+      var firstName = $('#registerFirstName').val();
+      var lastName = $('#registerLastName').val();
+      var username = $('#registerEmail').val();
+      var email = $('#registerEmail').val();
+      var password = $('#registerPassword').val();
+      var confirmPassword = $('#confirmPassword').val();
       if(password !== confirmPassword) {
         // Passwords do not match, handle error
         alert('Passwords do not match.');
@@ -77,11 +79,9 @@
         url: '/account/api/register/',
         type: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ username: username, email: email, password: password, re_password: confirmPassword}),
+        data: JSON.stringify({ firstName: firstName, lastName: lastName, username: username, email: email, password: password, re_password: confirmPassword}),
         success: function(response) {
             showLoading(response.message, autoclose=true);
-            window.location.href = response.redirect_url+"?message=Please re-login";
-            // $('#error_alert').text('Please re-login').addClass('alert alert-info').show();
           // Handle success - maybe redirect to login page or show a success message
           console.log('Registration successful', response);
         },
