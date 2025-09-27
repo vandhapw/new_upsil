@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .forms import *
 from .models import User, UserLog
 from datetime import timedelta
+import time
 import json, datetime
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -19,6 +20,16 @@ from production.utils import get_mongo_client
 from pymongo import MongoClient
 from django.http import JsonResponse
 import uuid
+from .tokens import generate_verification_link
+from django.core.mail import send_mail
+
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth.tokens import default_token_generator
+
+from django.shortcuts import redirect
+from django.contrib import messages
+
+
 
 client = get_mongo_client()
 db = client['server_db']
@@ -162,6 +173,8 @@ def register_api(request):
             # Parse the incoming JSON data
             data = json.loads(request.body)
 
+            # print("Received registration data:", data)  # Debugging line
+
             firstName = data.get('firstName')
             lastName = data.get('lastName')
             username = data.get('username')  # This can also be used as the email
@@ -174,16 +187,21 @@ def register_api(request):
             # Validate input fields
             if not (username and password and re_password and email):
                 res_data['error'] = '모든 값을 입력해야 합니다.'  # "All fields must be filled"
+                return JsonResponse({'error': res_data['error']}, status=400)
             elif password != re_password:
                 res_data['error'] = '비밀번호가 다릅니다.'  # "Passwords do not match"
+                return JsonResponse({'error': res_data['error']}, status=400)
             else:
                 # Connect to MongoDB
                 # Check if the username or email already exists in the database
                 if user_collection.find_one({'username': username}):
                     res_data['error'] = 'Username already exists.'
+                    return JsonResponse({'error': res_data['error']}, status=400)
                 elif user_collection.find_one({'email': email}):
                     res_data['error'] = 'Email already registered.'
+                    return JsonResponse({'error': res_data['error']}, status=400)
                 else:
+                    
                     # Hash the password for security
                     hash_password = make_password(password)
 
@@ -196,24 +214,79 @@ def register_api(request):
                         'password': hash_password,
                         'email': email,
                         'photo': None,
+                        'user_group': 'user',
+                        'type':'manual',
+                        'is_active': False,
                         'created_at': datetime.datetime.now(),
                         'updated_at': datetime.datetime.now(),
                         'registered_at': datetime.datetime.now()
                     }
 
+                    # print(user_data)
+
                     # Insert data into MongoDB
                     result = user_collection.insert_one(user_data)
+                    # result = user_data
 
-                    if result.acknowledged:
-                        return JsonResponse({'message': 'Register successful! Please Login', 'redirect_url': '/dashboard/kaidashboard/'})
+                    verification_link = generate_verification_link(user_data, request)
+
+                    send_mail(
+                        'Verify your email',
+                        f'Please click the following link to verify your email: {verification_link}',
+                        'upsil@mail.com',
+                        [email],
+                        fail_silently=False,
+                    )
+
+                    if result.inserted_id:
+                        return JsonResponse({'message': 'Register successful! Please Check your email to verify your account.!'})
                     else:
                         return JsonResponse({'error': 'User registration failed'}, status=500)
 
         except Exception as e:
             # Handle any exceptions and provide error details
-            return JsonResponse({'error': f'Error occurred: {str(e)}'}, status=500)
+            return JsonResponse({'error': f'Error occurred : {str(e)}'}, status=500)
 
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+    
+
+def verify_email(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = user_collection.find_one({'id': uid})  # Use 'id' field instead of 'username'
+        
+        if user is None:
+            return JsonResponse({'error': 'User not found!'}, status=400)
+            
+        # Check if the token matches and is still valid (within 24 hours)
+        stored_token = user.get('verification_token')
+        token_created_at = user.get('token_created_at', 0)
+        current_time = time.time()
+        
+        # Token expires after 24 hours (86400 seconds)
+        if (stored_token == token and 
+            current_time - token_created_at < 86400):
+            
+            # Activate the user and remove the verification token
+            user_collection.update_one(
+                {'id': uid}, 
+                {
+                    '$set': {'is_active': True},
+                    '$unset': {'verification_token': '', 'token_created_at': ''}
+                }
+            )
+            # return JsonResponse({
+                # 'message': 'Email verified successfully! You can now log in.', 
+                # 'redirect_url': '/',
+                # 'success': True
+            messages.success(request, 'Email verified successfully! You can now log in.')
+            return redirect('/')
+            # })
+        else:
+            return JsonResponse({'error': 'Verification link is invalid or expired!'}, status=400)
+            
+    except (TypeError, ValueError, OverflowError) as e:
+        return JsonResponse({'error': 'Invalid verification link!'}, status=400)
 
 # # Create your views here.

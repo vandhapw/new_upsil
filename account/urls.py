@@ -13,6 +13,7 @@ urlpatterns = [
     # path('api/logout/', logout_function, name='logout_function'),
     # path('api/check/', check_page, name='check'),
     path('api/register/', register_api, name='register_api'),
+    path('api/verify_email/<str:uidb64>/<str:token>/', verify_email, name='verify_email'),
     
     # path('api/dashboard_page/', dashboard_page, name='dashboard_page'),
 ]

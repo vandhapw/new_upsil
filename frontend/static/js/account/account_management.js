@@ -81,13 +81,15 @@
         contentType: 'application/json',
         data: JSON.stringify({ firstName: firstName, lastName: lastName, username: username, email: email, password: password, re_password: confirmPassword}),
         success: function(response) {
+          console.log(response.message)
             showLoading(response.message, autoclose=true);
           // Handle success - maybe redirect to login page or show a success message
           console.log('Registration successful', response);
         },
         error: function(error) {
+          showLoading(error.responseJSON.error, autoclose=true);
           // Handle error - show error message to the user
-          console.log('Registration failed', error);
+          console.log('Registration failed information', error.responseJSON.error);
         }
       });
     });

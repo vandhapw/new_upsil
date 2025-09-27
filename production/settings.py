@@ -223,3 +223,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 SESSION_FILE_PATH = '/tmp/django_sessions'  # Or any directory where Django can write session files
+
+# Email configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'pknubrother@gmail.com'
+EMAIL_HOST_PASSWORD = 'd w f s v b r t w h o t y x c o'  # Use an app password if 2FA is enabled
+DEFAULT_FROM_EMAIL = 'pknubrother@gmail.com'
