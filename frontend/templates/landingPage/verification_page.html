@@ -1,0 +1,159 @@
+{% load static %}
+<!DOCTYPE HTML>
+<!--
+	Verti by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Verti by HTML5 UP</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+        {% block extra_css %}
+        <style>
+           :root {
+               --color-primary1: #736efe;
+               --color-primary2: #5999ff;
+               --color-primary3: #44b9ff;
+               --color-primary4: #31d8ff;
+               --color-primary5: #18ffff;
+           }
+
+            *,
+            *::before,
+            *::after {
+                margin: 0;
+                padding: 0;
+                box-sizing: inherit;
+            }
+
+            html {
+                box-sizing: border-box;
+            }
+
+            body {
+                background: #263238;
+                font-family: "Nunito", sans-serif;
+            }
+
+            .container {
+                margin: auto auto;
+                height: 90vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .tittle,
+            .subtitle {
+                margin-bottom: 40px;
+                color: #44b9ff;
+                letter-spacing: 4px;
+                text-transform: uppercase;
+            }
+
+            .square-container {
+                list-style-type: none;
+                display: flex;
+                position: relative;
+            }
+
+            .square {
+                margin: 4px;
+                width: 30px;
+                height: 30px;
+                border-radius: 7px;
+                animation: rotating 2.5s ease infinite;
+            }
+
+            .square1 {
+                background: var(--color-primary1);
+                animation-delay: 0.2s;
+            }
+            .square2 {
+                background: var(--color-primary2);
+                animation-delay: 0.4s;
+            }
+            .square3 {
+                background: var(--color-primary3);
+                animation-delay: 0.6s;
+            }
+            .square4 {
+                background: var(--color-primary4);
+                animation-delay: 0.8s;
+            }
+            .square5 {
+                background: var(--color-primary5);
+                animation-delay: 1s;
+            }
+
+            @keyframes rotating {
+                0% {
+                    transform: rotate(0) scale(1);
+                }
+                50% {
+                    transform: rotate(90deg) scale(0.6);
+                }
+                100% {
+                    transform: rotate(90deg) scale(1);
+                }
+            }
+
+            footer {
+                margin: auto auto;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 10px;
+                color: var(--color-primary4);
+            }
+
+            footer a {
+                color: var(--color-primary1);
+            }
+
+        </style>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        {% endblock %}
+	</head>
+	<body>
+	<section class="container">
+		<div class="tittle">
+			<h2>Redirecting...</h2>
+		</div>
+		<div class="subtitle">
+			<h3>This page has been moved permanently.</h3>
+		</div>
+		<div class="square-container">
+			<div class="square square1">&nbsp;</div>
+			<div class="square square2">&nbsp;</div>
+			<div class="square square3">&nbsp;</div>
+			<div class="square square4">&nbsp;</div>
+			<div class="square square5">&nbsp;</div>
+		</div>
+	</section>
+	<footer>
+		<h4>You should be redirected in the next 5 seconds.</h4>
+		<p>If you are not redirected, please follow <a href="[URL]">this link</a>.</p>
+	</footer>
+
+
+		<!-- Scripts -->
+        {% block extra_js %}
+			
+			<!-- <script src="{% static '/js/landingpage.js' %}"></script>
+			<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+			<script  src="https://code.jquery.com/jquery-3.7.1.js"  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="  crossorigin="anonymous"></script>
+			<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+			<script src="{% static '/js/account/account_management.js' %}"></script>
+			<script src="{% static '/js/loading.js' %}"></script> -->
+
+        {% endblock %}
+
+	</body>
+</html>
+
+

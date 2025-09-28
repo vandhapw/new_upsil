@@ -65,6 +65,17 @@
         <div class="container">
           <div class="page-inner">
             <div id="main-content">
+              <div class="card">
+                <div class="card-header">
+                  <h4 class="card-title">Session Data</h4>
+                </div>
+                <div class="card-body">
+                  <pre>
+                    <!-- {{ request.session|safe|default:"No session data available." }} -->
+                    {{ user_data|safe|default:"No username available." }}
+                  </pre>
+                </div>
+              </div>
             {% include 'dashboard/kaiadmin/partials/dashboard_content.html' %}
           </div>
         </div>

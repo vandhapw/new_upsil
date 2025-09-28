@@ -329,14 +329,14 @@
             >
               <div class="avatar-sm">
                 <img
-                  src="assets/img/profile.jpg"
+                  src="{{ user_data.photo|default:'assets/img/default_profile.jpg' }}"
                   alt="..."
                   class="avatar-img rounded-circle"
                 />
               </div>
               <span class="profile-username">
                 <span class="op-7">Hi,</span>
-                <span class="fw-bold">Hizrian</span>
+                <span class="fw-bold">{{ user_data.lastName }}</span>
               </span>
             </a>
             <ul class="dropdown-menu dropdown-user animated fadeIn">
@@ -345,14 +345,14 @@
                   <div class="user-box">
                     <div class="avatar-lg">
                       <img
-                        src="assets/img/profile.jpg"
+                        src="{{ user_data.photo|default:'assets/img/default_profile.jpg' }}"
                         alt="image profile"
                         class="avatar-img rounded"
                       />
                     </div>
                     <div class="u-text">
-                      <h4>Hizrian</h4>
-                      <p class="text-muted">hello@example.com</p>
+                      <h4>{{user_data.firstName }} {{user_data.lastName}}</h4>
+                      <p class="text-muted">{{ user_data.username|default:"No username available." }}</p>
                       <a
                         href="profile.html"
                         class="btn btn-xs btn-secondary btn-sm"

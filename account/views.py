@@ -34,6 +34,7 @@ from django.contrib import messages
 client = get_mongo_client()
 db = client['server_db']
 user_collection = db['user']
+user_log_collection = db['userlog']
 
 # @csrf_exempt
 # def login_function(request):
@@ -81,26 +82,36 @@ def test_mongo_connection(request):
         return JsonResponse({'status': 'error', 'message': str(e)})
 
 def login_page(request):
-    # if 'user' in request.session:
-    #     return dashboard_page(request)
-    # Render the result of test_mongo_connection for demonstration
-    # mongo_status = test_mongo_connection(request)
-    # If you want to show the status on the landing page, pass it to the template
-    # if hasattr(mongo_status, 'content'):
-    #     mongo_data = json.loads(mongo_status.content)
-    # else:
-    #     mongo_data = {"Error": "Could not connect to MongoDB"}
+    id = request.session.get('id')
+    if id:
+        return redirect('/dashboard/kaidashboard/')
+    
     return render(request, 'landingPage/landingPage.html')
     # return JsonResponse(mongo_data)
 
+# @login_required
 def testing_dashboard(request):
-    mongo_status = test_mongo_connection(request)
-    # If you want to show the status on the landing page, pass it to the template
-    if hasattr(mongo_status, 'content'):
-        mongo_data = json.loads(mongo_status.content)
+    username = request.session.get('username')
+    id = request.session.get('id')
+    print('Session username:', username)  # Debugging line
+    print('Session id:', id)  # Debugging line
+    if username:
+        user_data = user_collection.find_one({'id': id})
+        print(user_data)
+        if user_data and user_data.get('is_active'):
+            mongo_status = test_mongo_connection(request)
+            # If you want to show the status on the landing page, pass it to the template
+            if hasattr(mongo_status, 'content'):
+                mongo_data = json.loads(mongo_status.content)
+            else:
+                mongo_data = {"Error": "Could not connect to MongoDB"}
+            return render(request, 'dashboard/kaiadmin/index.html', {'mongo_status': mongo_data, 'user_data': user_data})
+        else:
+            messages.error(request, 'Your account is not activated. Please verify your email.')
+            return redirect('/')
     else:
-        mongo_data = {"Error": "Could not connect to MongoDB"}
-    return render(request, 'dashboard/kaiadmin/index.html', {'mongo_status': mongo_data})
+        messages.error(request, 'You need to log in to access the dashboard.')
+        return redirect('/')
 
 # @login_required
 # def check_page(request):
@@ -124,28 +135,43 @@ def login_api(request):
         username = data.get('username')
         password = data.get('password')
        
-        request.session['user'] = username
+        request.session['username'] = username
+        print(f"Received login attempt for username: {username}")
         
         try:
-            user = User.objects.get(username=username)
+            userinfo = user_collection.find_one({'username': username})
+            if not userinfo:
+                return JsonResponse({'message': 'User not found'}, status=404)
         except:
             return HttpResponse('incorrect id')
 
-        try:
-            userinfo = UserLog.objects.get(username=user.id)
-        except UserLog.DoesNotExist:
-            return JsonResponse({'message': 'UserLog does not exist for this user'}, status=400)
-        request.session['appid'] = user.appid
-       
-        if check_password(password, user.password):
-            if userinfo.visitcount == None:
-                cnt = 1
+        request.session['id'] = userinfo['id']
+        if check_password(password, userinfo['password']):
+            visit_count = userinfo.get('visitcount', 0) + 1
+            userLog = user_log_collection.find_one({'id': userinfo['id']})
+            if not userLog:
+                new_log = {
+                    'id': userinfo['id'],
+                    'visitcount': 1,
+                    'activity': 'login',
+                    'time_at': datetime.datetime.now(),
+                    'logout_at': None
+                }
+                user_log_collection.insert_one(new_log)
             else:
-                cnt = userinfo.visitcount + 1
-            userinfo.visitcount = cnt
-            userinfo.login_at = datetime.datetime.utcnow()
-            userinfo.save()
-            return JsonResponse({'message': 'Login successful'})
+                visit_count = userLog['visitcount'] + 1
+                user_log_collection.update_one(
+                {'username': username},
+                {
+                    '$set': {
+                    'visitcount': visit_count,
+                    'activity': 'login',
+                    'time_at': datetime.datetime.now(),
+                    # 'login_at': datetime.datetime.now()
+                    }
+                }
+                )
+            return JsonResponse({'message': 'Login successful', 'redirect_url':'/dashboard/kaidashboard/'})
         else:
             return JsonResponse({'message': 'Username and password are required'}, status=400)
        
@@ -153,12 +179,13 @@ def login_api(request):
 @csrf_exempt
 def logout_api(request):
     if request.method == 'POST':
-        username = request.session.get('user')
+        username = request.session.get('username')
         if username:
             try:
-                userinfo = UserLog.objects.get(username__username=username)
-                userinfo.logout_at = timezone.now()
-                userinfo.save()
+                userLog = user_log_collection.find_one({'id': request.session.get('id')})
+                if userLog:
+                    userLog['logout_at'] = datetime.datetime.now()
+                    user_log_collection.update_one({'id': userLog['id']}, {'$set': userLog})
             except UserLog.DoesNotExist:
                 pass  # Handle the case where the UserLog does not exist
             logout(request)
@@ -213,7 +240,7 @@ def register_api(request):
                         'username': username,
                         'password': hash_password,
                         'email': email,
-                        'photo': None,
+                        'photo': "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIf4R5qPKHPNMyAqV-FjS_OTBB8pfUV29Phg&s",
                         'user_group': 'user',
                         'type':'manual',
                         'is_active': False,
@@ -238,8 +265,8 @@ def register_api(request):
                         fail_silently=False,
                     )
 
-                    if result.inserted_id:
-                        return JsonResponse({'message': 'Register successful! Please Check your email to verify your account.!'})
+                    if result:
+                        return JsonResponse({'message': 'Register successful! Please Check your email to verify your account.!', 'redirect_url':'account/verification_page/'})
                     else:
                         return JsonResponse({'error': 'User registration failed'}, status=500)
 
@@ -276,17 +303,19 @@ def verify_email(request, uidb64, token):
                     '$unset': {'verification_token': '', 'token_created_at': ''}
                 }
             )
-            # return JsonResponse({
-                # 'message': 'Email verified successfully! You can now log in.', 
-                # 'redirect_url': '/',
-                # 'success': True
+
+            request.session['username'] = user.get('username')
+            request.session['id'] = user.get('id')
             messages.success(request, 'Email verified successfully! You can now log in.')
-            return redirect('/')
+            return redirect('/dashboard/kaidashboard/')
             # })
         else:
             return JsonResponse({'error': 'Verification link is invalid or expired!'}, status=400)
             
     except (TypeError, ValueError, OverflowError) as e:
         return JsonResponse({'error': 'Invalid verification link!'}, status=400)
+
+def verification_page(request):
+    return render(request, 'landingPage/verification_page.html')
 
 # # Create your views here.

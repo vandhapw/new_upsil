@@ -4,8 +4,8 @@
     // Handle Login
     $('#login-submit').click(function(e) {
       e.preventDefault();
-      var username = $('#login-username').val();
-      var password = $('#login-password').val();
+      var username = $('#loginUsername').val();
+      var password = $('#loginPassword').val();
 
       showLoading('Logging in...', autoclose=false);
       
@@ -19,8 +19,10 @@
         },
         success: function(response) {
             showLoading(response.message, autoclose=true);
-            window.location.href = '/dashboard/';
-          // Handle success - maybe redirect to a dashboard or show a success message
+            if (response.redirect_url) {
+                window.location.href = response.redirect_url;
+            }
+           // Handle success - maybe redirect to a dashboard or show a success message
           console.log('Login successfully', response);
         },
         error: function(error) {
@@ -66,8 +68,15 @@
       e.preventDefault();
       var firstName = $('#registerFirstName').val();
       var lastName = $('#registerLastName').val();
-      var username = $('#registerEmail').val();
+      var username = $('#registerUsername').val();
       var email = $('#registerEmail').val();
+      // Validate email format
+      var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showLoading('Invalid email format.', autoclose=true);
+        $('#registerEmail').css('border', '2px solid red');
+        return;
+      }
       var password = $('#registerPassword').val();
       var confirmPassword = $('#confirmPassword').val();
       if(password !== confirmPassword) {
@@ -75,6 +84,7 @@
         alert('Passwords do not match.');
         return;
       }
+      showLoading('Loading...', autoclose=false);
       $.ajax({
         url: '/account/api/register/',
         type: 'POST',
@@ -82,8 +92,9 @@
         data: JSON.stringify({ firstName: firstName, lastName: lastName, username: username, email: email, password: password, re_password: confirmPassword}),
         success: function(response) {
           console.log(response.message)
-            showLoading(response.message, autoclose=true);
-          // Handle success - maybe redirect to login page or show a success message
+            // showLoading(response.message, autoclose=true);
+            showLoadingRegister(response.message, autoclose=true, redirect_url=response.redirect_url);
+           // Handle success - maybe redirect to login page or show a success message
           console.log('Registration successful', response);
         },
         error: function(error) {
@@ -105,3 +116,15 @@
         $('#error_alert').text(message).addClass('alert alert-info').show();
     }
   });
+
+  $('.forgot-password').click(function(e) {
+      e.preventDefault();
+      showLoading('Be patient still in progress...', autoclose=true);
+    })
+
+  $('#googleSignUpBtn').click(function(e) {
+      e.preventDefault();
+      showLoading('Be patient still in progress...', autoclose=true);
+      // window.location.href = '/account/google/login/';
+    });
+
