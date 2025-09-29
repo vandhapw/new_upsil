@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'frontend',
     'klaen',
     'monitoringapps',
+    'tourism',
 ]
 
 MIDDLEWARE = [

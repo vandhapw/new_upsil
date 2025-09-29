@@ -133,13 +133,14 @@ def login_api(request):
         data = json.loads(request.body)
        
         username = data.get('username')
+        email = data.get('username')
         password = data.get('password')
        
         request.session['username'] = username
         print(f"Received login attempt for username: {username}")
         
         try:
-            userinfo = user_collection.find_one({'username': username})
+            userinfo = user_collection.find_one({'username': username}) or user_collection.find_one({'email': email})
             if not userinfo:
                 return JsonResponse({'message': 'User not found'}, status=404)
         except:

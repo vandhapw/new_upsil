@@ -1,0 +1,621 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>South Korea Interactive Map</title>
+                           <div class="info-item">
+                        <strong>Budget:</strong>
+                        <span id="selectedBudget">₩100,000</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Current Location:</strong>
+                        <span id="currentLocationStatus">Not detected</span>
+                    </div>
+                    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin=""/>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/tourism/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tourism/modalTripSummary.css' %}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-map-marked-alt"></i>
+                <h1>South Korea Interactive Map</h1>
+            </div>
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-filter"></i> <span></span>Options Selected</span></h2>
+                <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="close-sidebar" id="closeSidebar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- Region Selection -->
+                <div class="filter-section">
+                    <h3><i class="fas fa-map-marker-alt"></i> <span>Region Selection</span></h3>
+                    
+                    <div class="form-group">
+                        <label for="provinceSelect">
+                            <i class="fas fa-flag"></i> Province (시도)
+                        </label>
+                        <select id="provinceSelect" class="form-select">
+                            <option value="">Select Province...</option>
+                        </select>
+                    </div>
+                </div> 
+                
+                <div class="filter-section">
+                    <h3><i class="fas fa-calendar-day"></i> <span>Date & Time Selection</span></h3>
+                    
+                    <!-- Date Selection -->
+                <div class="form-group">
+                    <div class="form-group-horizontal">
+                        <div class="form-group-inline">
+                            <label for="startDate">
+                                <i class="fas fa-calendar-alt"></i> Start Date
+                            </label>
+                            <input type="date" id="startDate" class="form-date" min="">
+                        </div>
+                        <div class="form-group-inline">
+                            <label class="startTime">
+                                <i class="fas fa-clock"></i> Start Time
+                            </label>
+                            <input type="time" id="startTime" class="form-date" value="00:00">
+                        </div>
+                    </div>
+                    <div class="form-group-horizontal">
+                        <div class="form-group-inline">
+                            <label for="endDate">
+                                <i class="fas fa-calendar-alt"></i> End Date
+                            </label>
+                            <input type="date" id="endDate" class="form-date time" min="">
+                        </div>
+                        <div class="form-group-inline">
+                            <label class="endTime">
+                                <i class="fas fa-clock"></i> End Time
+                            </label>
+                            <input type="time" id="endTime" class="form-date time" value="00:00">
+                        </div>
+                    </div>
+                    <!-- <style>
+                        .form-group-horizontal {
+                            display: flex;
+                            align-items: center;
+                            gap: 5px;
+                        }
+                        .form-group-inline {
+                            display: flex;
+                            flex-direction: column;
+                        }
+                        #startDate, #endDate, .startTime, .endTime {
+                            width: 85%;
+
+                        }
+                    </style> -->
+                </div>
+                <div class="form-group">
+                    <button id="optimizeButton" class="btn btn-primary">
+                        <i class="fas fa-cogs"></i> Optimize
+                    </button>
+                </div>
+                <div class="form-group">
+                    <button id="clearHistoryButton" class="btn btn-outline-secondary">
+                        <i class="fas fa-eraser"></i> Clear History
+                    </button>
+                </div>
+            </div>
+
+            
+
+                    <!-- <div class="btn-group-vertical" style="margin-top: 20px;">
+                        <button type="button" class="btn btn-info" id="showTripSummary">
+                            <i class="fas fa-eye"></i> View Trip Summary
+                        </button>
+                    </div>     -->
+
+                    <!-- <div class="form-group">
+                        <button id="applyFilters" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                            Apply Filters
+                        </button>
+                        <button id="resetFilters" class="btn btn-secondary">
+                            <i class="fas fa-undo"></i>
+                            Reset
+                        </button>
+                    </div> -->
+                    
+
+                    <!-- <div class="form-group">
+                        <label for="sourceAirport">
+                            <i class="fas fa-plane-departure"></i> Source Airport
+                        </label>
+                        <input type="text" id="sourceAirport" class="form-input" placeholder="Enter source airport">
+                    </div>
+                     
+
+                    <div class="form-group">
+                        <label for="targetAirport">
+                            <i class="fas fa-plane-arrival"></i> Target Airport
+                        </label>
+                        <input type="text" id="targetAirport" class="form-input" placeholder="Enter target airport">
+                    </div>
+
+                    <div class="form-group">
+                        <button id="findFlights" class="btn btn-primary">
+                            <i class="fas fa-plane"></i> Find Flights
+                        </button>
+                    </div> -->
+
+                    <!-- <div class="form-group">
+                        <button id="findHotel" class="btn btn-primary">
+                            <i class="fas fa-hotel"></i> Find Hotel based on Province
+                        </button>
+                    </div> -->
+
+                    <div class="form-group">
+                        <button id="findTourismVillage" class="btn btn-secondary">
+                            <i class="fas fa-tree"></i> Find Tourism Attractions
+                        </button>
+                    </div>
+
+                    <!-- <div class="form-group">
+                        <button id="viewBookings" class="btn btn-info">
+                            <i class="fas fa-list"></i> View Hotel Bookings
+                        </button>
+                    </div> -->
+                    
+
+                <!-- </div> -->
+
+                <!-- Budget Section -->
+                <!-- <div class="filter-section">
+                    <h3><i class="fas fa-dollar-sign"></i> <span>Budget Range</span></h3>
+                    
+                    <div class="form-group">
+                        <label for="budgetRange">
+                            <i class="fas fa-money-bill-wave"></i> Daily Budget (USD)
+                        </label>
+                        <div class="budget-container">
+                            <input type="range" id="budgetRange" class="budget-slider" 
+                                   min="100" max="10000" value="1000" step="100">
+                            <div class="budget-display">
+                                <span id="budgetValue">$1,000</span>
+                            </div>
+                        </div>
+                        <div class="budget-labels">
+                            <span>$100</span>
+                            <span>$10K</span>
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- Location Services -->
+                <!-- <div class="filter-section">
+                    <h3><i class="fas fa-location-arrow"></i> <span>Location Services</span></h3>
+                    
+                    <div class="form-group">
+                        <button id="getCurrentLocation" class="btn btn-location">
+                            <i class="fas fa-crosshairs"></i>
+                            Use My Location
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <button id="useCurrentAsDestination" class="btn btn-location" disabled>
+                            <i class="fas fa-map-pin"></i>
+                            Set Current as Destination
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <button id="manualLocationMode" class="btn btn-location">
+                            <i class="fas fa-mouse-pointer"></i>
+                            Set Location Manually
+                        </button>
+                    </div>
+
+                    <div class="form-group" id="saveLocationGroup" style="display: none;">
+                        <div class="save-location-container">
+                            <input type="text" id="locationName" class="form-input" placeholder="Enter location name (optional)">
+                            <button id="saveLocation" class="btn btn-success">
+                                <i class="fas fa-save"></i>
+                                Save Location
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button id="viewSavedLocations" class="btn btn-info">
+                            <i class="fas fa-list"></i>
+                            View Saved Locations
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="searchRadius">
+                            <i class="fas fa-search-location"></i> Search Radius (km)
+                        </label>
+                        <select id="searchRadius" class="form-select">
+                            <option value="5">5 km</option>
+                            <option value="10" selected>10 km</option>
+                            <option value="20">20 km</option>
+                            <option value="50">50 km</option>
+                        </select>
+                    </div>
+                </div> -->
+
+                <!-- Action Buttons -->
+                <!-- <div class="action-buttons">
+                    <button id="applyFilters" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                        Apply Filters
+                    </button>
+                    <button id="resetFilters" class="btn btn-secondary">
+                        <i class="fas fa-undo"></i>
+                        Reset
+                    </button>
+                </div> -->
+            <!-- </div> -->
+
+            <!-- Selected Information Panel -->
+            <!-- <div class="info-panel">
+                <h3><i class="fas fa-info-circle"></i> Selected Information</h3>
+                <div class="info-content">
+                    <div class="info-item">
+                        <strong>Province:</strong>
+                        <span id="selectedProvince">Select Province...</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Start Date:</strong>
+                        <span id="selectedStartDate">Select Start Date...</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>End Date:</strong>
+                        <span id="selectedEndDate">Select End Date...</span>
+                    </div>
+                  <div class="info-item">
+                        <strong>Budget:</strong>
+                        <span id="selectedBudget">₩100,000</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Current Location:</strong>
+                        <span id="currentLocationStatus">Not detected</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Location Mode:</strong>
+                        <span id="locationMode">GPS Detection</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Destination Mode:</strong>
+                        <span id="destinationMode">Province Selection</span>
+                    </div>
+                </div>
+            </div> -->
+        </aside>
+
+        <!-- Map Container -->
+        <main class="map-container">
+            <div id="map" class="map"></div>
+            
+            <!-- Map Controls -->
+            <div class="map-controls">
+                <button id="zoomToKorea" class="map-control-btn" title="Zoom to South Korea">
+                    <i class="fas fa-globe-asia"></i>
+                </button>
+                <button id="toggleSatellite" class="map-control-btn" title="Toggle Satellite View">
+                    <i class="fas fa-satellite"></i>
+                </button>
+                <button id="fullscreenMap" class="map-control-btn" title="Fullscreen">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="results-panel" id="resultsPanel">
+                <div class="results-header">
+                    <h3><i class="fas fa-list"></i> Search Results</h3>
+                    <button id="closeResults" class="close-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="results-content" id="resultsContent">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading map data...</p>
+        </div>
+    </div>
+
+    <!-- Trip Summary Modal -->
+<!-- <div class="modal fade" id="tripSummaryModal" tabindex="-1" aria-labelledby="tripSummaryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tripSummaryModalLabel">
+                    <i class="fas fa-map-marker-alt"></i> Trip Summary
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="trip-summary-content">
+                     Province Information
+                    <div class="summary-section">
+                        <h6><i class="fas fa-map"></i> Destination</h6>
+                        <div class="summary-item">
+                            <span class="label">Province:</span>
+                            <span class="value" id="modalProvince">Not selected</span>
+                        </div>
+                    </div>
+
+                     Date Information 
+                    <div class="summary-section">
+                        <h6><i class="fas fa-calendar-alt"></i> Travel Dates</h6>
+                        <div class="summary-item">
+                            <span class="label">Start Date:</span>
+                            <span class="value" id="modalStartDate">Not selected</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">End Date:</span>
+                            <span class="value" id="modalEndDate">Not selected</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Duration:</span>
+                            <span class="value" id="modalDuration">Not calculated</span>
+                        </div>
+                    </div>
+
+                    Current Location (if available) 
+                    <div class="summary-section" id="locationSection" style="display: none;">
+                        <h6><i class="fas fa-crosshairs"></i> Current Location</h6>
+                        <div class="summary-item">
+                            <span class="label">Coordinates:</span>
+                            <span class="value" id="modalCurrentLocation">Not available</span>
+                        </div>
+                    </div>
+
+                   Trip Statistics 
+                    <div class="summary-section">
+                        <h6><i class="fas fa-chart-bar"></i> Trip Overview</h6>
+                        <div class="summary-stats">
+                            <div class="stat-item">
+                                <div class="stat-number" id="attractionsCount">0</div>
+                                <div class="stat-label">Attractions Found</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" id="hotelsCount">0</div>
+                                <div class="stat-label">Hotels Available</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" id="restaurantsCount">0</div>
+                                <div class="stat-label">Restaurants</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Close
+                </button>
+                <button type="button" class="btn btn-primary" id="saveTripSummary">
+                    <i class="fas fa-save"></i> Save Trip
+                </button>
+                <button type="button" class="btn btn-success" id="shareTripSummary">
+                    <i class="fas fa-share"></i> Share Trip
+                </button>
+            </div>
+        </div>
+    </div>
+</div> -->
+
+<!-- <div id="contentModalFlight"></div>
+
+<script>
+  fetch('html/modalFlightSearch.html')
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('contentModalFlight').innerHTML = data;
+    });
+</script> -->
+
+
+<!-- Trigger Button (add this to your existing sidebar or controls) -->
+<!-- <button type="button" class="btn btn-info" id="showTripSummary">
+    <i class="fas fa-eye"></i> View Trip Summary
+</button> -->
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#"><i class="fas fa-info-circle"></i> About</a>
+                <a href="#"><i class="fas fa-database"></i> Data Sources</a>
+                <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+            </div>
+            <div class="footer-text">
+                <p>&copy; 2025 South Korea Interactive Map. Data source: Scraping methods</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+            crossorigin=""></script>
+    
+    <!-- TopoJSON Client for proper TopoJSON to GeoJSON conversion -->
+    <script src="https://unpkg.com/topojson-client@3"></script>
+    
+    <!-- Custom JavaScript -->
+        <!-- MapLibre GL JS CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" />
+    
+    <!-- Remove Leaflet CSS and replace with MapLibre -->
+    
+    <!-- MapLibre GL JS -->
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Before closing body tag, add: -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    
+    <!-- Custom JavaScript -->
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script  src="https://code.jquery.com/jquery-3.7.1.js"  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="  crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+			
+    <!-- <script src="js/app.js"></script> -->
+    <script src="{% static 'js/tourism/app.js' %}"></script>
+    <script src="{% static 'js/tourism/displayMap.js' %}"></script>
+    <script src="{% static 'js/tourism/displayAreaProvinces.js' %}"></script>
+    <script src="{% static 'js/tourism/dateChosen.js' %}"></script>
+    <script src="{% static 'js/tourism/displayhotel.js' %}"></script>
+    <script src="{% static 'js/tourism/displayAttraction.js' %}"></script>
+    <script src="{% static 'js/tourism/tripSummary.js' %}"></script>
+    <script src="{% static 'js/tourism/flightOption.js' %}"></script>
+    <!-- <script src="js/uiController.js"></script> -->
+    <script src="{% static 'js/tourism/main.js' %}"></script>
+    <script src="{% static 'js/loading.js' %}"></script>
+    
+    <!-- Sidebar Toggle JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const menuToggle = document.getElementById('menuToggle');
+            const closeSidebar = document.getElementById('closeSidebar');
+            
+            let isCollapsed = false;
+            let isHidden = false;
+            
+            // Toggle collapsed/expanded state
+            function toggleCollapse() {
+                isCollapsed = !isCollapsed;
+                sidebar.classList.toggle('collapsed', isCollapsed);
+                
+                // Update toggle button icon
+                const icon = sidebarToggle.querySelector('i');
+                if (isCollapsed) {
+                    icon.className = 'fas fa-chevron-right';
+                    sidebarToggle.title = 'Expand Sidebar';
+                } else {
+                    icon.className = 'fas fa-chevron-left';
+                    sidebarToggle.title = 'Collapse Sidebar';
+                }
+            }
+            
+            // Toggle hidden/visible state (for mobile)
+            function toggleVisibility() {
+                isHidden = !isHidden;
+                sidebar.classList.toggle('hidden', isHidden);
+                
+                if (isHidden) {
+                    // Reset to expanded state when hiding
+                    isCollapsed = false;
+                    sidebar.classList.remove('collapsed');
+                    const icon = sidebarToggle.querySelector('i');
+                    icon.className = 'fas fa-chevron-left';
+                    sidebarToggle.title = 'Collapse Sidebar';
+                }
+            }
+            
+            // Event listeners
+            sidebarToggle?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleCollapse();
+            });
+            
+            menuToggle?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (window.innerWidth <= 768) {
+                    toggleVisibility();
+                } else {
+                    toggleCollapse();
+                }
+            });
+            
+            closeSidebar?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (window.innerWidth <= 768) {
+                    toggleVisibility();
+                }
+            });
+            
+            // Click outside to close on mobile
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768 && !isHidden) {
+                    const isClickInsideSidebar = sidebar.contains(e.target);
+                    const isMenuButton = menuToggle.contains(e.target);
+                    
+                    if (!isClickInsideSidebar && !isMenuButton) {
+                        toggleVisibility();
+                    }
+                }
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    // Show sidebar on desktop
+                    isHidden = false;
+                    sidebar.classList.remove('hidden');
+                } else {
+                    // Hide sidebar on mobile by default
+                    if (!isHidden) {
+                        isHidden = true;
+                        sidebar.classList.add('hidden');
+                    }
+                    // Reset collapsed state on mobile
+                    isCollapsed = false;
+                    sidebar.classList.remove('collapsed');
+                }
+            });
+            
+            // Initialize based on screen size
+            if (window.innerWidth <= 768) {
+                isHidden = true;
+                sidebar.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
+

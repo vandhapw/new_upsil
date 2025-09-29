@@ -22,6 +22,7 @@ from functools import partial
 from django.conf import settings
 from django.conf.urls.static import static
 from account.views import testing_dashboard
+from tourism.views import *
 
 # from klaen.views import *
 # from monitoringapps.views import *
@@ -36,8 +37,8 @@ urlpatterns = [
     # path('klaen/', include('klaen.urls')),
     # path('dashboard/kaidashboard/monitoringapps/', include('monitoringapps.urls'))
     # path('/api/login/', partial(login_api, running=None), name='api-login')
-    
-    
+    path('dashboard/kaidashboard/tourism/', include('tourism.urls')),
+
 ]
 
 if settings.DEBUG:  # Only in development mode

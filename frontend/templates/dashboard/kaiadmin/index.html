@@ -65,17 +65,17 @@
         <div class="container">
           <div class="page-inner">
             <div id="main-content">
-              <div class="card">
+              <!-- <div class="card">
                 <div class="card-header">
                   <h4 class="card-title">Session Data</h4>
                 </div>
                 <div class="card-body">
-                  <pre>
+                  <pre> -->
                     <!-- {{ request.session|safe|default:"No session data available." }} -->
-                    {{ user_data|safe|default:"No username available." }}
-                  </pre>
+                    <!-- {{ user_data|safe|default:"No username available." }} -->
+                  <!-- </pre>
                 </div>
-              </div>
+              </div> -->
             {% include 'dashboard/kaiadmin/partials/dashboard_content.html' %}
           </div>
         </div>
@@ -375,7 +375,28 @@
             $('#main-content').html('<div class="alert alert-danger">Failed to load content.</div>');
           }
         });
-      } else {
+      }
+      
+      else if (contentType === 'busan-tourism') {
+        // Fetch new content from the server
+        $.ajax({
+          url: '/dashboard/kaidashboard/tourism/korean-tourism/', // Django URL pattern
+          method: 'GET',
+          success: function(data) {
+            // $('#main-content').html(data);
+            window.open('/dashboard/kaidashboard/tourism/korean-tourism/', '_blank');
+            // if (typeof initializeSensorChart === 'function') {
+            //   initializeSensorChart(); // ✅ This now works
+            // }
+          },
+          error: function() {
+            $('#main-content').html('<div class="alert alert-danger">Failed to load content.</div>');
+          }
+        });
+      }
+
+      
+      else {
         // For all other content types, show under construction page
         $.ajax({
           url: '/dashboard/kaidashboard/monitoringapps/api/under-construction'+ '/', // Django URL pattern
