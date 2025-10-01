@@ -71,6 +71,19 @@ def get_provinces_geojson_api(request):
             'error': str(e)
         }, status=500)
     
+def get_provinces_by_code(request):
+    code = request.GET.get('code')
+    if not code:
+        return JsonResponse({'error': 'Province code is required'}, status=400)
+
+    province = korean_provinces_collection.find_one({'code': code}, {'_id': 0, 'geometry': 1})
+    if not province:
+        return JsonResponse({'error': 'Province not found'}, status=404)
+
+    return JsonResponse(province)
+
+
+    
 
 def get_hotel_list(request):
     try:
@@ -114,20 +127,20 @@ def get_hotel_list(request):
 def get_attraction_list(request):
     try:
         # Extract province ID from request parameters
-        # province_id = request.GET.get('province_id')
+        province_id = request.GET.get('province_id')
 
         # Validate province ID
-        # if not province_id:
-        #     return JsonResponse({
-        #         'success': False,
-        #         'error': 'Missing or invalid province_id parameter'
-        #     }, status=400)
+        if not province_id:
+            return JsonResponse({
+                'success': False,
+                'error': 'Missing or invalid province_id parameter'
+            }, status=400)
 
         # Query attractions based on the selected province
-        attractions_cursor = korean_attractions_collection.find()
-        # print(attractions_cursor.attractions)
-        
-        print(attractions_cursor)
+        elif province_id:
+            attractions_cursor = korean_attractions_collection.find({"province_id": int(province_id)})
+        else:
+            attractions_cursor = korean_attractions_collection.find()
         attractions_list = []
 
         for attraction in attractions_cursor:

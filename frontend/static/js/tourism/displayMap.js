@@ -101,8 +101,11 @@ const AttractionControl = L.Control.extend({
         container.title = 'Search Attractions';
 
         container.onclick = function() {
-            // Show attraction search modal instead of triggering sidebar button
-            window.attractionOption.showAttractionSearchModal();
+            if (window.displayAttractionInstance) {
+                window.displayAttractionInstance.searchAttractions();
+            } else {
+                alert('Please select a province first to search for attractions');
+            }
         };
 
         return container;

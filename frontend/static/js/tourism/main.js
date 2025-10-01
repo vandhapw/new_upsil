@@ -173,6 +173,14 @@ try{
         console.log("Hotel Booking Info:", hotelBookingInfo);
     }
     
+    // Store attraction data for optimization and get attraction info
+    // Store attraction data for optimization and get attraction info
+    let attractionOptimizationData = null;
+    if (window.displayAttractionInstance) {
+        attractionOptimizationData = window.displayAttractionInstance.storeAttractionDataForOptimization();
+        console.log("Attraction data stored for optimization:", attractionOptimizationData);
+    }
+    
         // Display optimization results with hotel information
         setTimeout(() => {
             // Validate coordinates before displaying results
@@ -181,7 +189,8 @@ try{
                 console.log('Pre-export coordinate validation:', coordinateReport);
             }
             
-            displayOptimizationResults(selectedProvince, dateTimeInfo, hotelBookingInfo);
+            // Pass attractionOptimizationData as a parameter
+            displayOptimizationResults(selectedProvince, dateTimeInfo, hotelBookingInfo, attractionOptimizationData);
             
             // Focus map on selected province and hotels
             if (window.displayHotelInstance) {
@@ -266,6 +275,8 @@ function handleClearHistory() {
             localStorage.removeItem('selectedProvince');
             localStorage.removeItem('selectedDates');
             localStorage.removeItem('attractionSelections');
+            localStorage.removeItem('selectedAttractions');
+            localStorage.removeItem('tripAttractionData'); // Clear optimization attraction data
             
             // Reset map view to Korea center
             if (window.mapInstance) {
@@ -284,13 +295,18 @@ function handleClearHistory() {
     }
 }
 
-// Display optimization results with hotel booking information
-function displayOptimizationResults(selectedProvince, dateTimeInfo, hotelBookingInfo) {
+// Update the displayOptimizationResults function to accept attractionOptimizationData parameter
+function displayOptimizationResults(selectedProvince, dateTimeInfo, hotelBookingInfo, attractionOptimizationData) {
     const tripDuration = calculateTripDuration(dateTimeInfo.startDate, dateTimeInfo.endDate);
     
     // Get coordinate information
     const coordinateInfo = window.displayHotelInstance ? 
         window.displayHotelInstance.getHotelCoordinates() : [];
+        
+    // Get attraction information
+    const attractionInfo = window.displayAttractionInstance ? 
+        window.displayAttractionInstance.getAttractionDisplayInfo() : 
+        { title: "No Attractions", content: "No attractions available", html: "<p>No attractions available</p>" };
     
     let coordinateSection = '';
     if (coordinateInfo.length > 0) {
@@ -321,12 +337,16 @@ function displayOptimizationResults(selectedProvince, dateTimeInfo, hotelBooking
                     <p><strong><i class="fas fa-time"></i> Daily Hours:</strong> ${dateTimeInfo.startTime} - ${dateTimeInfo.endTime}</p>
                 </div>
                 <div class="map-status">
-                    <p><i class="fas fa-map"></i> <strong>Map View:</strong> Focused on your selected province and booked hotels</p>
+                    <p><i class="fas fa-map"></i> <strong>Map View:</strong> Focused on your selected province, hotels, and attractions</p>
                 </div>
             </div>
             
             <div class="accommodation-section">
                 ${hotelBookingInfo.html}
+            </div>
+            
+            <div class="attraction-section">
+                ${attractionInfo.html}
             </div>
             
             ${coordinateSection}
@@ -353,10 +373,17 @@ function displayOptimizationResults(selectedProvince, dateTimeInfo, hotelBooking
         province: selectedProvince,
         dates: dateTimeInfo,
         hotels: hotelBookingInfo.summary,
+        attractions: attractionInfo.summary,
+        attractionOptimization: attractionOptimizationData?.summary || 'No data stored',
         coordinates: coordinateInfo,
         tripDuration: tripDuration,
         mapFocused: coordinateInfo.length > 0 || selectedProvince ? 'Yes' : 'No',
-        historyPreserved: 'Yes - selections remain visible on map'
+        historyPreserved: 'Yes - selections remain visible on map',
+        dataStorage: {
+            attractions: 'Stored in localStorage as tripAttractionData',
+            hotels: 'Stored via hotel display instance',
+            province: 'Stored in province display instance'
+        }
     });
 }
 
@@ -464,6 +491,10 @@ function exportTripDetails() {
     const dateInfo = window.dateChosenInstance ? window.dateChosenInstance.getAllDateTimeInfo() : null;
     const provinceInfo = window.provinceDisplayInstance?.selectedRegion?.province || null;
     
+    // Get stored attraction optimization data
+    const attractionData = window.displayAttractionInstance ? 
+        window.displayAttractionInstance.getStoredOptimizationData() : null;
+    
     // Enhanced trip data with coordinates and detailed hotel information
     const tripData = {
         trip: {
@@ -477,6 +508,14 @@ function exportTripDetails() {
             totalDays: hotelInfo?.totalDays || 0,
             hotelCount: hotelInfo?.hotelCount || 0
         },
+        attractions: {
+            summary: attractionData?.summary || 'No attractions selected',
+            detailed: attractionData?.selectedAttractions || [],
+            totalSelected: attractionData?.attractionCount || 0,
+            byProvince: attractionData?.summary?.byProvince || {},
+            byType: attractionData?.summary?.byType || {},
+            optimizationTimestamp: attractionData?.optimizationTimestamp || null
+        },
         coordinates: {
             hotels: window.displayHotelInstance ? 
                 window.displayHotelInstance.getSelectedHotels().map(hotel => ({
@@ -486,12 +525,19 @@ function exportTripDetails() {
                     province: hotel.province,
                     days: hotel.days
                 })) : [],
+            attractions: attractionData?.selectedAttractions?.map(attraction => ({
+                name: attraction.name,
+                province: attraction.province,
+                coordinates: attraction.coordinates,
+                type: attraction.type,
+                rating: attraction.rating
+            })) || [],
             province: provinceInfo?.geometry?.coordinates || null
         },
         metadata: {
             exportDate: new Date().toISOString(),
-            version: '2.0',
-            format: 'korea-trip-planner'
+            version: '2.1',
+            format: 'korea-trip-planner-with-attractions'
         }
     };
     
@@ -506,10 +552,10 @@ function exportTripDetails() {
     linkElement.setAttribute('download', exportFileDefaultName);
     linkElement.click();
     
-    showLoading('Trip details with coordinates exported successfully!', true);
+    showLoading('Trip details with hotels and attractions exported successfully!', true);
     
     // Log detailed export info
-    console.log('Exported trip data:', tripData);
+    console.log('Exported trip data with attractions:', tripData);
 }
 
 // Clear all prior information after optimization
@@ -568,6 +614,9 @@ function clearAllPriorInformation() {
         localStorage.removeItem('tripData');
         localStorage.removeItem('selectedProvince');
         localStorage.removeItem('selectedDates');
+        localStorage.removeItem('selectedAttractions');
+        localStorage.removeItem('attractionSelections');
+        localStorage.removeItem('tripAttractionData'); // Clear optimization attraction data
         
         // Reset map view to Korea center
         if (window.mapInstance) {
