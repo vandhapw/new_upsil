@@ -8,6 +8,7 @@ client = MongoClient("mongodb://localhost:27017/")
 db = client["server_db"]
 korean_provinces_collection = db["korean_provinces"]
 korean_attractions_collection = db["tourism_attraction"]
+trip_optimization_collection = db["trip_optimization"]
 
 geopify_api_key = "a5edd953082d4f209e8ef29fdeedb0a1"
 limit = 100
@@ -152,6 +153,27 @@ def get_attraction_list(request):
         return JsonResponse({
             'success': True,
             'attractions': attractions_list
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+    
+def get_trip_optimization_data(request):
+    try:
+        # Fetch all trip optimization data from the collection
+        trip_data_cursor = trip_optimization_collection.find()
+        trip_data_list = []
+
+        for trip in trip_data_cursor:
+            # Convert MongoDB ObjectId to string for JSON serialization
+            trip['_id'] = str(trip['_id'])
+            trip_data_list.append(trip)
+
+        return JsonResponse({
+            'success': True,
+            'trip_optimization_data': trip_data_list
         })
     except Exception as e:
         return JsonResponse({

@@ -11,6 +11,8 @@ urlpatterns = [
     path('api/provinces/geojson/', get_provinces_geojson_api, name='get_provinces_geojson_api'),
     path('api/hotels/', get_hotel_list, name='get_hotel_list'),
     path('api/attractions/', get_attraction_list, name='get_attraction_list'),
+    path('api/trip-page/', get_trip_optimization_data, name='trip_optimization_page'),
+    
 
 
 ]

@@ -4011,25 +4011,229 @@ html, body {
     padding: 20px;
 }
 
-/* Responsive design for attraction booking summary */
+/* API Response Modal Styles */
+.api-response-modal {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.api-response-modal h3 {
+    color: var(--primary-color);
+    margin-bottom: 24px;
+    text-align: center;
+    font-size: 24px;
+}
+
+.response-section {
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.response-section h4 {
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.response-section h4 i {
+    color: var(--primary-color);
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--bg-primary);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.summary-item .label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.summary-item .value {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.recommendations {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.budget-estimate, .optimization-score, .travel-tips {
+    background: var(--bg-primary);
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.budget-estimate h5, .optimization-score h5, .travel-tips h5 {
+    margin-bottom: 12px;
+    color: var(--accent-color);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.score-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.score-number {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.score-level {
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.score-level.excellent {
+    background: var(--success-color);
+    color: var(--text-white);
+}
+
+.score-level.good {
+    background: var(--primary-color);
+    color: var(--text-white);
+}
+
+.score-level.fair {
+    background: var(--accent-color);
+    color: var(--text-white);
+}
+
+.score-level.needs.improvement {
+    background: var(--danger-color);
+    color: var(--text-white);
+}
+
+.score-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.score-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--danger-color), var(--accent-color), var(--success-color));
+    border-radius: 4px;
+    transition: width 0.6s ease;
+}
+
+.travel-tips ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.travel-tips li {
+    margin-bottom: 8px;
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.insight-item {
+    background: var(--bg-primary);
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.insight-item h6 {
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.insight-item p {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.insight-item small {
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.response-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.text-success {
+    color: var(--success-color) !important;
+}
+
+/* Responsive design for API response modal */
 @media (max-width: 768px) {
-    .attraction-booking-summary {
+    .api-response-modal {
         padding: 16px;
-        margin: 12px 0;
     }
     
-    .attraction-header {
+    .response-section {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+    
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .response-actions {
         flex-direction: column;
-        align-items: flex-start;
+    }
+    
+    .score-display {
+        flex-direction: column;
         gap: 8px;
-    }
-    
-    .attraction-type {
-        align-self: flex-start;
-    }
-    
-    .attraction-booking-summary h4 {
-        font-size: 16px;
+        text-align: center;
     }
 }
 

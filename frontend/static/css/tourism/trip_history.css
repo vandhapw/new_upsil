@@ -1,0 +1,373 @@
+/* Trip History DataTable Styles */
+.trip-history-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-primary);
+    border-top: 2px solid var(--primary-color);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    max-height: 40vh;
+    overflow: hidden;
+    transition: var(--transition);
+    transform: translateY(calc(100% - 60px));
+}
+
+.trip-history-container.expanded {
+    transform: translateY(0);
+    max-height: 60vh;
+}
+
+.trip-history-container.hidden {
+    transform: translateY(100%);
+}
+
+.trip-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: var(--primary-color);
+    color: var(--text-white);
+    cursor: pointer;
+    user-select: none;
+}
+
+.trip-history-header h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.trip-history-header h4 i {
+    margin-right: 8px;
+}
+
+.current-entry-badge {
+    display: inline-block;
+    background: var(--success-color);
+    color: var(--text-white);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 500;
+    margin-left: 12px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+.trip-history-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.trip-history-controls .btn {
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-white);
+    transition: var(--transition);
+}
+
+.trip-history-controls .btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.trip-history-table-container {
+    height: calc(60vh - 60px);
+    overflow: auto;
+    background: var(--bg-primary);
+}
+
+.trip-history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    background: var(--bg-primary);
+}
+
+.trip-history-table th {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: 12px 8px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.trip-history-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    vertical-align: top;
+}
+
+.trip-history-table tbody tr:hover {
+    background: var(--bg-hover);
+}
+
+.trip-history-table tbody tr:nth-child(even) {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.trip-history-table tbody tr:nth-child(even):hover {
+    background: var(--bg-hover);
+}
+
+/* Column specific styles */
+.trip-history-table .row-number {
+    width: 40px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.trip-history-table .province-cell {
+    font-weight: 600;
+    color: var(--primary-color);
+    min-width: 120px;
+}
+
+.trip-history-table .date-cell {
+    white-space: nowrap;
+    min-width: 100px;
+    font-family: 'Courier New', monospace;
+}
+
+.trip-history-table .time-cell {
+    white-space: nowrap;
+    min-width: 80px;
+    font-family: 'Courier New', monospace;
+}
+
+.trip-history-table .duration-cell {
+    text-align: center;
+    font-weight: 600;
+    color: var(--success-color);
+    min-width: 80px;
+}
+
+.trip-history-table .hotels-cell,
+.trip-history-table .attractions-cell {
+    max-width: 200px;
+    min-width: 150px;
+}
+
+.trip-history-table .timestamp-cell {
+    font-size: 11px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    min-width: 120px;
+}
+
+.trip-history-table .actions-cell {
+    width: 100px;
+    text-align: center;
+}
+
+/* Item lists in cells */
+.item-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.item-list li {
+    background: var(--bg-tag);
+    color: var(--text-white);
+    padding: 2px 6px;
+    margin: 2px 0;
+    border-radius: 3px;
+    font-size: 11px;
+    display: inline-block;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.item-list.hotels li {
+    background: var(--success-color);
+}
+
+.item-list.attractions li {
+    background: var(--accent-color);
+}
+
+.item-count {
+    display: inline-block;
+    background: var(--primary-color);
+    color: var(--text-white);
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-left: 4px;
+}
+
+/* Action buttons */
+.action-btn {
+    padding: 4px 8px;
+    margin: 0 2px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: var(--transition);
+}
+
+.action-btn.view {
+    background: var(--primary-color);
+    color: var(--text-white);
+}
+
+.action-btn.delete {
+    background: var(--danger-color);
+    color: var(--text-white);
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .trip-history-table th,
+    .trip-history-table td {
+        padding: 8px 6px;
+        font-size: 12px;
+    }
+    
+    .trip-history-table .hotels-cell,
+    .trip-history-table .attractions-cell {
+        max-width: 150px;
+    }
+}
+
+@media (max-width: 768px) {
+    .trip-history-container {
+        transform: translateY(calc(100% - 50px));
+    }
+    
+    .trip-history-header {
+        padding: 10px 15px;
+    }
+    
+    .trip-history-header h4 {
+        font-size: 14px;
+    }
+    
+    .trip-history-controls .btn {
+        padding: 3px 6px;
+        font-size: 11px;
+    }
+    
+    .trip-history-table-container {
+        height: calc(50vh - 50px);
+    }
+    
+    .trip-history-table th,
+    .trip-history-table td {
+        padding: 6px 4px;
+        font-size: 11px;
+    }
+    
+    /* Hide some columns on mobile */
+    .trip-history-table .time-cell,
+    .trip-history-table .timestamp-cell {
+        display: none;
+    }
+}
+
+/* Loading state */
+.trip-history-table.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.trip-history-table.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+/* Empty state */
+.trip-history-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+}
+
+.trip-history-empty i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+/* Animation for new rows */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.trip-history-table tbody tr.new-row {
+    animation: slideInUp 0.3s ease-out;
+}
+
+.trip-history-table tbody tr.new-row td {
+    background: rgba(37, 99, 235, 0.1);
+}
+
+/* Animation for updating rows */
+@keyframes updatePulse {
+    0% {
+        background: rgba(16, 185, 129, 0.1);
+        transform: scale(1);
+    }
+    50% {
+        background: rgba(16, 185, 129, 0.3);
+        transform: scale(1.01);
+    }
+    100% {
+        background: rgba(16, 185, 129, 0.1);
+        transform: scale(1);
+    }
+}
+
+.trip-history-table tbody tr.updating-row {
+    animation: updatePulse 0.6s ease-in-out;
+}
+
+.trip-history-table tbody tr.updating-row td {
+    background: rgba(16, 185, 129, 0.2);
+    transition: all 0.3s ease;
+}

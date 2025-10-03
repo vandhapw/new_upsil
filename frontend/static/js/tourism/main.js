@@ -77,6 +77,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         //     window.flightOptionInstance = flightOptionInstance;
         // }
 
+        // Initialize trip history manager
+        if (typeof TripHistoryManager !== 'undefined') {
+            const tripHistoryManager = new TripHistoryManager();
+            window.tripHistoryManager = tripHistoryManager;
+            console.log("Trip history manager initialized");
+        } else {
+            console.log("TripHistoryManager class not found, skipping trip history initialization");
+        }
+
         // Optimize Button 
         const optimizeButton = document.getElementById("optimizeButton");
 
@@ -102,6 +111,29 @@ document.addEventListener("DOMContentLoaded", async () => {
         else {
             console.error("Clear history button not found");
         }
+
+        // Save to History Button
+        const saveToHistoryButton = document.getElementById("saveToHistoryButton");
+
+        if(saveToHistoryButton){
+            saveToHistoryButton.addEventListener('click',() => {
+                if (window.manualCreateNewTrip) {
+                    window.manualCreateNewTrip();
+                } else {
+                    console.error("Manual create new trip function not available");
+                }
+            });
+        }
+        else {
+            console.error("Save to history button not found");
+        }
+
+        // Setup automatic form data capture
+        setTimeout(() => {
+            if (window.setupFormDataCapture) {
+                window.setupFormDataCapture();
+            }
+        }, 1000); // Wait 1 second for all components to initialize
  
 
         console.log("Application initialized successfully");
@@ -174,12 +206,55 @@ try{
     }
     
     // Store attraction data for optimization and get attraction info
-    // Store attraction data for optimization and get attraction info
     let attractionOptimizationData = null;
     if (window.displayAttractionInstance) {
         attractionOptimizationData = window.displayAttractionInstance.storeAttractionDataForOptimization();
         console.log("Attraction data stored for optimization:", attractionOptimizationData);
     }
+    
+    // Capture trip data for history table
+    const tripData = {
+        province: selectedProvince?.name || 'Not selected',
+        startDate: dateTimeInfo?.startDate || 'Not set',
+        startTime: dateTimeInfo?.startTime || 'Not set', 
+        endDate: dateTimeInfo?.endDate || 'Not set',
+        endTime: dateTimeInfo?.endTime || 'Not set',
+        hotels: window.displayHotelInstance ? 
+            window.displayHotelInstance.getSelectedHotels().map(hotel => hotel.name) : [],
+        attractions: window.displayAttractionInstance ? 
+            window.displayAttractionInstance.getSelectedAttractions().map(attraction => attraction.name) : []
+    };
+    
+    // Add to trip history table immediately (update existing row)
+    if (window.tripHistoryManager) {
+        window.tripHistoryManager.updateTripEntry(tripData);
+        console.log('Trip data updated in history table:', tripData);
+    }
+    
+    // Get coordinate information for API
+    const hotelCoordinates = window.displayHotelInstance ? window.displayHotelInstance.getHotelCoordinates() : [];
+    
+    // Send optimization data to API
+    sendOptimizationToAPI({
+        province: selectedProvince,
+        dateTimeInfo: dateTimeInfo,
+        tripDuration: calculateTripDuration(dateTimeInfo.startDate, dateTimeInfo.endDate),
+        hotels: window.displayHotelInstance ? window.displayHotelInstance.getSelectedHotels() : [],
+        hotelCoordinates: hotelCoordinates,
+        attractions: window.displayAttractionInstance ? window.displayAttractionInstance.getSelectedAttractions() : [],
+        attractionOptimizationData: attractionOptimizationData,
+        mapFocused: hotelCoordinates.length > 0 || selectedProvince ? true : false,
+        historyPreserved: true,
+        validationStatus: isValidDateTime ? 'valid' : 'partial',
+        dataStorage: {
+            attractions: 'Stored in localStorage as tripAttractionData',
+            hotels: 'Stored via hotel display instance',
+            province: 'Stored in province display instance'
+        },
+        isComplete: selectedProvince && dateTimeInfo.startDate && dateTimeInfo.endDate && 
+                   (window.displayHotelInstance?.getSelectedHotels()?.length > 0 || 
+                    window.displayAttractionInstance?.getSelectedAttractions()?.length > 0)
+    });
     
         // Display optimization results with hotel information
         setTimeout(() => {
@@ -230,6 +305,15 @@ function handleClearHistory() {
             if (window.displayAttractionInstance) {
                 window.displayAttractionInstance.clearSelectedAttractions();
                 console.log('All attraction data cleared');
+            }
+            
+            // Clear trip history table
+            if (window.tripHistoryManager) {
+                window.tripHistoryManager.historyData = [];
+                window.tripHistoryManager.currentRowId = 1;
+                window.tripHistoryManager.saveHistoryData();
+                window.tripHistoryManager.renderHistoryTable();
+                console.log('Trip history table cleared');
             }
             
             // Clear province selection
@@ -609,16 +693,15 @@ function clearAllPriorInformation() {
             console.log('Province selection cleared');
         }
         
-        // Clear localStorage data
-        localStorage.removeItem('hotelBookings');
-        localStorage.removeItem('tripData');
-        localStorage.removeItem('selectedProvince');
-        localStorage.removeItem('selectedDates');
-        localStorage.removeItem('selectedAttractions');
-        localStorage.removeItem('attractionSelections');
-        localStorage.removeItem('tripAttractionData'); // Clear optimization attraction data
-        
-        // Reset map view to Korea center
+            // Clear localStorage data
+            localStorage.removeItem('hotelBookings');
+            localStorage.removeItem('tripData');
+            localStorage.removeItem('selectedProvince');
+            localStorage.removeItem('selectedDates');
+            localStorage.removeItem('selectedAttractions');
+            localStorage.removeItem('attractionSelections');
+            localStorage.removeItem('tripAttractionData'); // Clear optimization attraction data
+            localStorage.removeItem('tripHistoryData'); // Clear trip history table data        // Reset map view to Korea center
         if (window.mapInstance) {
             const map = window.mapInstance.getMap();
             if (map) {
@@ -633,5 +716,191 @@ function clearAllPriorInformation() {
         
     } catch (error) {
         console.error('Error clearing prior information:', error);
+    }
+}
+
+// Send optimization data to API
+async function sendOptimizationToAPI(optimizationData) {
+    try {
+        console.log('Sending optimization data to API:', optimizationData);
+        
+        const response = await fetch('/account/api/trip-optimization/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken() // Get CSRF token for Django
+            },
+            body: JSON.stringify(optimizationData)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+            console.log('Optimization data sent successfully:', result);
+            
+            // Show success message with API response
+            showOptimizationAPIResponse(result);
+            
+            // Log detailed API response
+            console.log('API Response Details:', {
+                optimizationId: result.optimization_id,
+                summary: result.summary,
+                recommendations: result.recommendations,
+                insights: result.data_insights
+            });
+            
+        } else {
+            console.error('API Error:', result);
+            alert(`API Error: ${result.error || 'Unknown error occurred'}`);
+        }
+        
+    } catch (error) {
+        console.error('Error sending optimization data:', error);
+        alert('Failed to send optimization data to server. Please check your connection.');
+    }
+}
+
+// Get CSRF token for Django requests
+function getCsrfToken() {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'csrftoken') {
+            return value;
+        }
+    }
+    
+    // Fallback: try to get from meta tag
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    if (csrfMeta) {
+        return csrfMeta.getAttribute('content');
+    }
+    
+    return '';
+}
+
+// Show API response in a modal
+function showOptimizationAPIResponse(apiResponse) {
+    const modalContent = `
+        <div class="api-response-modal">
+            <h3><i class="fas fa-server"></i> Optimization API Response</h3>
+            
+            <div class="response-section">
+                <h4><i class="fas fa-check-circle text-success"></i> Status</h4>
+                <p><strong>Optimization ID:</strong> ${apiResponse.optimization_id}</p>
+                <p><strong>Stored At:</strong> ${new Date(apiResponse.stored_at).toLocaleString()}</p>
+                <p class="text-success"><i class="fas fa-database"></i> Data successfully stored in database</p>
+            </div>
+            
+            <div class="response-section">
+                <h4><i class="fas fa-chart-pie"></i> Trip Summary</h4>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span class="label">Province:</span>
+                        <span class="value">${apiResponse.summary.province}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Duration:</span>
+                        <span class="value">${apiResponse.summary.duration} days</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Hotels:</span>
+                        <span class="value">${apiResponse.summary.hotels.count} hotels (${apiResponse.summary.hotels.total_days} days)</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Attractions:</span>
+                        <span class="value">${apiResponse.summary.attractions.count} places</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="response-section">
+                <h4><i class="fas fa-lightbulb"></i> AI Recommendations</h4>
+                <div class="recommendations">
+                    <div class="budget-estimate">
+                        <h5><i class="fas fa-money-bill-wave"></i> Budget Estimate</h5>
+                        <p><strong>Total:</strong> $${apiResponse.recommendations.budget_estimate.estimated_total_usd} USD 
+                        (₩${apiResponse.recommendations.budget_estimate.estimated_total_krw.toLocaleString()} KRW)</p>
+                        <p><strong>Daily Average:</strong> $${apiResponse.recommendations.budget_estimate.daily_average_usd} USD</p>
+                    </div>
+                    
+                    <div class="optimization-score">
+                        <h5><i class="fas fa-star"></i> Optimization Score</h5>
+                        <div class="score-display">
+                            <span class="score-number">${apiResponse.recommendations.optimization_score.score}/100</span>
+                            <span class="score-level ${apiResponse.recommendations.optimization_score.level.toLowerCase()}">${apiResponse.recommendations.optimization_score.level}</span>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: ${apiResponse.recommendations.optimization_score.percentage}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="travel-tips">
+                        <h5><i class="fas fa-compass"></i> Travel Tips</h5>
+                        <ul>
+                            ${apiResponse.recommendations.travel_tips.map(tip => `<li>${tip}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="response-section">
+                <h4><i class="fas fa-analytics"></i> Data Insights</h4>
+                <div class="insights-grid">
+                    <div class="insight-item">
+                        <h6>Trip Completeness</h6>
+                        <p>${apiResponse.data_insights.trip_completeness.percentage}% complete</p>
+                        <small>${apiResponse.data_insights.trip_completeness.completed_components}/${apiResponse.data_insights.trip_completeness.total_components} components</small>
+                    </div>
+                    <div class="insight-item">
+                        <h6>Geographical Spread</h6>
+                        <p>${apiResponse.data_insights.geographical_spread.concentration_level}</p>
+                        <small>${apiResponse.data_insights.geographical_spread.unique_provinces} province(s)</small>
+                    </div>
+                    <div class="insight-item">
+                        <h6>Travel Pace</h6>
+                        <p>${apiResponse.data_insights.time_optimization.pace}</p>
+                        <small>${apiResponse.data_insights.time_optimization.attractions_per_day} attractions/day</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="response-actions">
+                <button class="btn btn-primary" onclick="closeAPIResponseModal()">
+                    <i class="fas fa-check"></i> Continue Planning
+                </button>
+                <button class="btn btn-outline-info" onclick="exportAPIResponse()">
+                    <i class="fas fa-download"></i> Export Response
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Store API response for export
+    window.lastAPIResponse = apiResponse;
+    
+    // Show in modal
+    showOptimizationModal(modalContent);
+}
+
+// Close API response modal
+function closeAPIResponseModal() {
+    closeOptimizationResults();
+}
+
+// Export API response
+function exportAPIResponse() {
+    if (window.lastAPIResponse) {
+        const dataStr = JSON.stringify(window.lastAPIResponse, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+        
+        const exportFileDefaultName = `trip-optimization-response-${new Date().toISOString().split('T')[0]}.json`;
+        
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+        
+        console.log('API response exported successfully');
     }
 }
