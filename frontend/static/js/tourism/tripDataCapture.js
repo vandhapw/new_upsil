@@ -11,19 +11,44 @@ function captureAndAppendTripData() {
         let dateTimeInfo = null;
         if (window.dateChosenInstance && window.dateChosenInstance.hasValidDateTime()) {
             dateTimeInfo = window.dateChosenInstance.getAllDateTimeInfo();
-        } else {
-            // Fallback to direct input reading
-            const startDate = document.getElementById('startDate')?.value || 'Not set';
-            const endDate = document.getElementById('endDate')?.value || 'Not set';
-            const startTime = document.getElementById('startTime')?.value || 'Not set';
-            const endTime = document.getElementById('endTime')?.value || 'Not set';
             
-            dateTimeInfo = {
-                startDate: startDate,
-                endDate: endDate,
-                startTime: startTime,
-                endTime: endTime
-            };
+            // Handle new datetime picker format
+            if (dateTimeInfo && dateTimeInfo.startDateTime && dateTimeInfo.endDateTime) {
+                // Extract separate date and time components for backward compatibility
+                dateTimeInfo.startDate = dateTimeInfo.startDateTime.split(' ')[0];
+                dateTimeInfo.endDate = dateTimeInfo.endDateTime.split(' ')[0];
+                dateTimeInfo.startTime = dateTimeInfo.startDateTime.split(' ')[1] || '09:00';
+                dateTimeInfo.endTime = dateTimeInfo.endDateTime.split(' ')[1] || '18:00';
+            }
+        } else {
+            // Fallback to direct input reading (support both old and new formats)
+            const startDateTime = document.getElementById('startDateTime')?.value;
+            const endDateTime = document.getElementById('endDateTime')?.value;
+            
+            if (startDateTime && endDateTime) {
+                // New datetime picker format
+                dateTimeInfo = {
+                    startDateTime: startDateTime,
+                    endDateTime: endDateTime,
+                    startDate: startDateTime.split(' ')[0],
+                    endDate: endDateTime.split(' ')[0],
+                    startTime: startDateTime.split(' ')[1] || '09:00',
+                    endTime: endDateTime.split(' ')[1] || '18:00'
+                };
+            } else {
+                // Legacy format fallback
+                const startDate = document.getElementById('startDate')?.value || 'Not set';
+                const endDate = document.getElementById('endDate')?.value || 'Not set';
+                const startTime = document.getElementById('startTime')?.value || 'Not set';
+                const endTime = document.getElementById('endTime')?.value || 'Not set';
+                
+                dateTimeInfo = {
+                    startDate: startDate,
+                    endDate: endDate,
+                    startTime: startTime,
+                    endTime: endTime
+                };
+            }
         }
         
         // Get selected hotels

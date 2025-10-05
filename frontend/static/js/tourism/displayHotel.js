@@ -352,12 +352,25 @@ class displayHotel {
     getTripDuration() {
         if (window.dateChosenInstance) {
             const dateTimeInfo = window.dateChosenInstance.getAllDateTimeInfo();
-            if (dateTimeInfo.startDate && dateTimeInfo.endDate) {
-                const startDate = new Date(dateTimeInfo.startDate);
-                const endDate = new Date(dateTimeInfo.endDate);
-                const diffTime = Math.abs(endDate - startDate);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                return diffDays;
+            if (dateTimeInfo) {
+                let startDate, endDate;
+                
+                // Handle new datetime picker format
+                if (dateTimeInfo.startDateTime && dateTimeInfo.endDateTime) {
+                    startDate = dateTimeInfo.startDateTime.split(' ')[0];
+                    endDate = dateTimeInfo.endDateTime.split(' ')[0];
+                } else if (dateTimeInfo.startDate && dateTimeInfo.endDate) {
+                    // Handle legacy format
+                    startDate = dateTimeInfo.startDate;
+                    endDate = dateTimeInfo.endDate;
+                } else {
+                    return 0;
+                }
+                
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                const diffTime = Math.abs(end - start);
+                return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             }
         }
         return 0; // Return 0 if no dates selected
@@ -383,12 +396,25 @@ class displayHotel {
         let dateTimeInfo = null;
         if (window.dateChosenInstance) {
             dateTimeInfo = window.dateChosenInstance.getAllDateTimeInfo();
-            if (!dateTimeInfo.startDate || !dateTimeInfo.endDate) {
-                alert('Please select trip start and end dates before booking hotels.');
+            
+            // Check for new datetime picker format or legacy format
+            const hasNewFormat = dateTimeInfo && dateTimeInfo.startDateTime && dateTimeInfo.endDateTime;
+            const hasLegacyFormat = dateTimeInfo && dateTimeInfo.startDate && dateTimeInfo.endDate;
+            
+            if (!dateTimeInfo || (!hasNewFormat && !hasLegacyFormat)) {
+                alert('Please select trip dates before booking hotels.');
                 return;
             }
+            
+            // Ensure consistent format for processing
+            if (hasNewFormat && !hasLegacyFormat) {
+                dateTimeInfo.startDate = dateTimeInfo.startDateTime.split(' ')[0];
+                dateTimeInfo.endDate = dateTimeInfo.endDateTime.split(' ')[0];
+                dateTimeInfo.startTime = dateTimeInfo.startDateTime.split(' ')[1] || '09:00';
+                dateTimeInfo.endTime = dateTimeInfo.endDateTime.split(' ')[1] || '18:00';
+            }
         } else {
-            alert('Please select trip dates before booking hotels.');
+            alert('Date selection is not available. Please refresh the page.');
             return;
         }
 

@@ -175,23 +175,48 @@ try{
         }
         
         dateTimeInfo = window.dateChosenInstance.getAllDateTimeInfo();
-        console.log("Date/Time Info:", dateTimeInfo);
-    } else {
-        // Fallback if dateChosen instance is not available
-        const startDate = document.getElementById('startDate')?.value;
-        const endDate = document.getElementById('endDate')?.value;
         
-        if (!startDate || !endDate) {
-            alert("Please select start and end dates.");
-            return;
+        // Handle new datetime picker format
+        if (dateTimeInfo && dateTimeInfo.startDateTime && dateTimeInfo.endDateTime) {
+            // Extract separate date and time components for backward compatibility
+            dateTimeInfo.startDate = dateTimeInfo.startDateTime.split(' ')[0];
+            dateTimeInfo.endDate = dateTimeInfo.endDateTime.split(' ')[0];
+            dateTimeInfo.startTime = dateTimeInfo.startDateTime.split(' ')[1] || '09:00';
+            dateTimeInfo.endTime = dateTimeInfo.endDateTime.split(' ')[1] || '18:00';
         }
         
-        dateTimeInfo = {
-            startDate: startDate,
-            endDate: endDate,
-            startTime: document.getElementById('startTime')?.value || '09:00',
-            endTime: document.getElementById('endTime')?.value || '18:00'
-        };
+        console.log("Date/Time Info:", dateTimeInfo);
+    } else {
+        // Fallback if dateChosen instance is not available - try new format first
+        const startDateTime = document.getElementById('startDateTime')?.value;
+        const endDateTime = document.getElementById('endDateTime')?.value;
+        
+        if (startDateTime && endDateTime) {
+            dateTimeInfo = {
+                startDateTime: startDateTime,
+                endDateTime: endDateTime,
+                startDate: startDateTime.split(' ')[0],
+                endDate: endDateTime.split(' ')[0],
+                startTime: startDateTime.split(' ')[1] || '09:00',
+                endTime: endDateTime.split(' ')[1] || '18:00'
+            };
+        } else {
+            // Legacy format fallback
+            const startDate = document.getElementById('startDate')?.value;
+            const endDate = document.getElementById('endDate')?.value;
+            
+            if (!startDate || !endDate) {
+                alert("Please select start and end dates.");
+                return;
+            }
+            
+            dateTimeInfo = {
+                startDate: startDate,
+                endDate: endDate,
+                startTime: document.getElementById('startTime')?.value || '09:00',
+                endTime: document.getElementById('endTime')?.value || '18:00'
+            };
+        }
     }
     
     // Show optimization in progress
@@ -381,7 +406,10 @@ function handleClearHistory() {
 
 // Update the displayOptimizationResults function to accept attractionOptimizationData parameter
 function displayOptimizationResults(selectedProvince, dateTimeInfo, hotelBookingInfo, attractionOptimizationData) {
-    const tripDuration = calculateTripDuration(dateTimeInfo.startDate, dateTimeInfo.endDate);
+    // Extract date parts for duration calculation
+    const startDate = dateTimeInfo.startDateTime ? dateTimeInfo.startDateTime.split(' ')[0] : dateTimeInfo.startDate;
+    const endDate = dateTimeInfo.endDateTime ? dateTimeInfo.endDateTime.split(' ')[0] : dateTimeInfo.endDate;
+    const tripDuration = calculateTripDuration(startDate, endDate);
     
     // Get coordinate information
     const coordinateInfo = window.displayHotelInstance ? 
@@ -416,9 +444,11 @@ function displayOptimizationResults(selectedProvince, dateTimeInfo, hotelBooking
                 <h3><i class="fas fa-route"></i> Trip Optimization Results</h3>
                 <div class="trip-overview">
                     <p><strong><i class="fas fa-map-marker-alt"></i> Province:</strong> ${selectedProvince.name}</p>
-                    <p><strong><i class="fas fa-calendar"></i> Dates:</strong> ${dateTimeInfo.startDate} to ${dateTimeInfo.endDate}</p>
+                    <p><strong><i class="fas fa-calendar"></i> Dates:</strong> ${startDate} to ${endDate}</p>
                     <p><strong><i class="fas fa-clock"></i> Duration:</strong> ${tripDuration} days</p>
-                    <p><strong><i class="fas fa-time"></i> Daily Hours:</strong> ${dateTimeInfo.startTime} - ${dateTimeInfo.endTime}</p>
+                    <p><strong><i class="fas fa-time"></i> Daily Hours:</strong> ${dateTimeInfo.startTime || '09:00'} - ${dateTimeInfo.endTime || '18:00'}</p>
+                    ${dateTimeInfo.startDateTime ? `<p><strong><i class="fas fa-clock"></i> Start:</strong> ${dateTimeInfo.startDateTime}</p>` : ''}
+                    ${dateTimeInfo.endDateTime ? `<p><strong><i class="fas fa-clock"></i> End:</strong> ${dateTimeInfo.endDateTime}</p>` : ''}
                 </div>
                 <div class="map-status">
                     <p><i class="fas fa-map"></i> <strong>Map View:</strong> Focused on your selected province, hotels, and attractions</p>
@@ -473,8 +503,20 @@ function displayOptimizationResults(selectedProvince, dateTimeInfo, hotelBooking
 
 // Calculate trip duration in days
 function calculateTripDuration(startDate, endDate) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // Handle both datetime string format (YYYY-MM-DD HH:MM) and date format (YYYY-MM-DD)
+    let startDateOnly = startDate;
+    let endDateOnly = endDate;
+    
+    // Extract date part if datetime format is provided
+    if (startDate && startDate.includes(' ')) {
+        startDateOnly = startDate.split(' ')[0];
+    }
+    if (endDate && endDate.includes(' ')) {
+        endDateOnly = endDate.split(' ')[0];
+    }
+    
+    const start = new Date(startDateOnly);
+    const end = new Date(endDateOnly);
     const diffTime = Math.abs(end - start);
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }

@@ -6,48 +6,147 @@ class dateChosen {
 
     init() {
         console.log("Date Chosen functionality initialized");
-        // You can add date picker initialization or validation setup here if needed
+        this.initializeDateTimePickers();
     }
 
-    // Get start date
+    // Initialize datetime pickers with proper settings
+    initializeDateTimePickers() {
+        // Wait for jQuery and datetimepicker to be available
+        if (typeof $ !== 'undefined' && $.fn.datetimepicker) {
+            this.setupDateTimePickers();
+        } else {
+            // Retry after a short delay
+            setTimeout(() => this.initializeDateTimePickers(), 100);
+        }
+    }
+
+    // Setup datetime pickers
+    setupDateTimePickers() {
+        const self = this;
+        
+        // Initialize start datetime picker
+        $('#startDateTime').datetimepicker({
+            format: 'Y-m-d H:i',
+            minDate: 0,
+            step: 30,
+            onShow: function() {
+                const endValue = $('#endDateTime').val();
+                if (endValue) {
+                    this.setOptions({
+                        maxDate: endValue
+                    });
+                }
+            },
+            onChangeDateTime: function() {
+                self.validateAndUpdateEndDateMin();
+            }
+        });
+        
+        // Initialize end datetime picker
+        $('#endDateTime').datetimepicker({
+            format: 'Y-m-d H:i',
+            minDate: 0,
+            step: 30,
+            onShow: function() {
+                const startValue = $('#startDateTime').val();
+                if (startValue) {
+                    this.setOptions({
+                        minDate: startValue
+                    });
+                }
+            }
+        });
+    }
+
+    // Update end date minimum when start date changes
+    validateAndUpdateEndDateMin() {
+        const startDateTime = $('#startDateTime').val();
+        if (startDateTime) {
+            $('#endDateTime').datetimepicker('setOptions', {
+                minDate: startDateTime
+            });
+        }
+    }
+
+    // Set start datetime programmatically
+    setStartDateTime(dateTimeString) {
+        const startInput = document.getElementById('startDateTime');
+        if (startInput) {
+            startInput.value = dateTimeString;
+            $(startInput).trigger('change');
+        }
+    }
+
+    // Set end datetime programmatically
+    setEndDateTime(dateTimeString) {
+        const endInput = document.getElementById('endDateTime');
+        if (endInput) {
+            endInput.value = dateTimeString;
+            $(endInput).trigger('change');
+        }
+    }
+
+    // Get start date and time from datetime picker
+    getStartDateTime() {
+        const startDateTimeInput = document.getElementById('startDateTime');
+        if (!startDateTimeInput || !startDateTimeInput.value) {
+            return null;
+        }
+        return startDateTimeInput.value; // Returns in YYYY-MM-DD HH:MM format
+    }
+
+    // Get end date and time from datetime picker
+    getEndDateTime() {
+        const endDateTimeInput = document.getElementById('endDateTime');
+        if (!endDateTimeInput || !endDateTimeInput.value) {
+            return null;
+        }
+        return endDateTimeInput.value; // Returns in YYYY-MM-DD HH:MM format
+    }
+
+    // Get start date only (extracted from datetime)
     getStartDate() {
-        const startDateInput = document.getElementById('startDate');
-        if (!startDateInput || !startDateInput.value) {
+        const startDateTime = this.getStartDateTime();
+        if (!startDateTime) {
             return null;
         }
-        return startDateInput.value; // Returns in YYYY-MM-DD format
+        return startDateTime.split(' ')[0]; // Returns in YYYY-MM-DD format
     }
 
-    // Get end date
+    // Get end date only (extracted from datetime)
     getEndDate() {
-        const endDateInput = document.getElementById('endDate');
-        if (!endDateInput || !endDateInput.value) {
+        const endDateTime = this.getEndDateTime();
+        if (!endDateTime) {
             return null;
         }
-        return endDateInput.value; // Returns in YYYY-MM-DD format
+        return endDateTime.split(' ')[0]; // Returns in YYYY-MM-DD format
     }
 
-// Get start time
-getStartTime() {
-    const startTimeInput = document.getElementById('startTime');
-    if (!startTimeInput || !startTimeInput.value) {
-        return '09:00'; // Default start time
+    // Get start time only (extracted from datetime)
+    getStartTime() {
+        const startDateTime = this.getStartDateTime();
+        if (!startDateTime) {
+            return '09:00'; // Default start time
+        }
+        const timePart = startDateTime.split(' ')[1];
+        return timePart || '09:00'; // Returns in HH:MM format
     }
-    return startTimeInput.value; // Returns in HH:MM format
-}
 
-// Get end time
-getEndTime() {
-    const endTimeInput = document.getElementById('endTime');
-    if (!endTimeInput || !endTimeInput.value) {
-        return '18:00'; // Default end time
+    // Get end time only (extracted from datetime)
+    getEndTime() {
+        const endDateTime = this.getEndDateTime();
+        if (!endDateTime) {
+            return '18:00'; // Default end time
+        }
+        const timePart = endDateTime.split(' ')[1];
+        return timePart || '18:00'; // Returns in HH:MM format
     }
-    return endTimeInput.value; // Returns in HH:MM format
-}
 
 // Get all date and time information at once
 getAllDateTimeInfo() {
     return {
+        startDateTime: this.getStartDateTime(),
+        endDateTime: this.getEndDateTime(),
         startDate: this.getStartDate(),
         endDate: this.getEndDate(),
         startTime: this.getStartTime(),
@@ -81,36 +180,61 @@ getFormattedDateTimeInfo() {
 
 // Validate if all required fields are filled
 hasValidDateTime() {
-    const startDate = this.getStartDate();
-    const endDate = this.getEndDate();
+    const startDateTime = this.getStartDateTime();
+    const endDateTime = this.getEndDateTime();
     
-    if (!startDate || !endDate) {
+    // Check if both datetime fields have values
+    if (!startDateTime || !endDateTime) {
         return false;
     }
     
     return this.validateDateRange();
 }
 
+// Additional validation method for new datetime format
+isDateTimeValid() {
+    return this.hasValidDateTime();
+}
+
+// Get current date in YYYY-MM-DD format
+getCurrentDate() {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+}
+
+// Set minimum date for datetime pickers
+setMinimumDate() {
+    const today = this.getCurrentDate();
+    const startInput = document.getElementById('startDateTime');
+    const endInput = document.getElementById('endDateTime');
+    
+    if (startInput) {
+        startInput.setAttribute('min', today);
+    }
+    if (endInput) {
+        endInput.setAttribute('min', today);
+    }
+}
+
 // Validate date range
 validateDateRange() {
-    const startDate = this.getStartDate();
-    const endDate = this.getEndDate();
+    const startDateTime = this.getStartDateTime();
+    const endDateTime = this.getEndDateTime();
     
-    if (!startDate || !endDate) {
+    if (!startDateTime || !endDateTime) {
         return false;
     }
     
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const start = new Date(startDateTime);
+    const end = new Date(endDateTime);
+    const now = new Date();
     
-    // Check if start date is not in the past
-    if (start < today) {
+    // Check if start datetime is not in the past
+    if (start < now) {
         return false;
     }
     
-    // Check if end date is after start date
+    // Check if end datetime is after start datetime
     if (end <= start) {
         return false;
     }
@@ -118,4 +242,8 @@ validateDateRange() {
     return true;
 }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    window.dateChosenInstance = new dateChosen();
+});
 
