@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 # mongoclient 
 from pymongo import MongoClient
 import requests
@@ -12,17 +12,76 @@ db = client["server_db"]
 korean_provinces_collection = db["korean_provinces"]
 korean_attractions_collection = db["tourism_attraction"]
 trip_optimization_collection = db["trip_optimization"]
+graph_ml_collection = db["map_graph_ml"]
 
 geopify_api_key = "a5edd953082d4f209e8ef29fdeedb0a1"
 limit = 100
 categories = "accommodation.hotel"
 geopify_api_url = f"https://api.geoapify.com/v2/places?categories={categories}&filter=rect:${{bounds.minLng}},${{bounds.minLat}},${{bounds.maxLng}},${{bounds.maxLat}}&limit={limit}&apiKey={geopify_api_key}"
 
+from tourism.crud_api import crud_map
 
 # Create your views here.
 def korean_tourism_page(request):
     provinces = korean_provinces_collection.find()
     return render(request, 'dashboard/tourism/korean_tourism/index.html', {'provinces': provinces})
+
+# Insert GraphML file into MongoDB
+@csrf_exempt
+def api_insert_graphml(request):
+    if request.method == 'POST':
+        try:
+            # Parse the incoming JSON data
+            data = json.loads(request.body)
+            country = data.get('country')
+            province = data.get('province')
+            username = request.session.get('username', 'Guest')
+            user_id = request.session.get('id', None)
+
+            data = {
+                'username': username,
+                'user_id': user_id,
+                'country': country,
+                'province': province,
+                'created_at': datetime.datetime.now(),
+                'updated_at': datetime.datetime.now()
+            }
+            map_crud = crud_map.MapCRUD(data)
+
+            graphml_file_id = map_crud.insert_graphml()
+
+            return JsonResponse({"message": "GraphML file inserted successfully", "file_id": str(graphml_file_id)}, status=201)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+        
+
+# API endpoint to retrieve GraphML file
+@csrf_exempt
+def api_get_graphml(request, file_id):
+    """Retrieve a GraphML file from GridFS"""
+    try:
+        map_crud = crud_map.MapCRUD({})
+        
+        # Get file metadata first
+        metadata = map_crud.get_graphml_metadata(file_id)
+        if not metadata:
+            return JsonResponse({"error": "File not found"}, status=404)
+        
+        # Get the actual file data
+        file_data = map_crud.get_graphml_file(file_id)
+        
+        # Return the file as a download
+        response = HttpResponse(file_data, content_type='application/xml')
+        response['Content-Disposition'] = f'attachment; filename="{metadata["filename"]}"'
+        response['Content-Length'] = str(len(file_data))
+        
+        return response
+        
+    except ValueError as e:
+        return JsonResponse({"error": str(e)}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": f"Internal server error: {str(e)}"}, status=500)
+
 
 # New API endpoint for provinces data
 def get_provinces_api(request):
@@ -85,8 +144,6 @@ def get_provinces_by_code(request):
         return JsonResponse({'error': 'Province not found'}, status=404)
 
     return JsonResponse(province)
-
-
     
 
 def get_hotel_list(request):
@@ -275,7 +332,7 @@ def trip_optimization_api(request):
 
             return JsonResponse({
                 'success': True,
-                # 'final_data': final_data,
+                'final_data': final_data,
                 'trip_data': trip_data
             }, status=200)
             
@@ -529,115 +586,55 @@ def calculate_time_optimization(trip_data):
     }
 
 def final_data_used(data):
-    try:
-        start_date_str = data['schedule']['start_date']
-        end_date_str = data['schedule']['end_date']
-        duration_days = data['schedule']['duration_days']
-        start_time_str = data['schedule']['start_time']
-        end_time_str = data['schedule']['end_time']
+    final_data = {
+        'user_id': data.get('user_id', None),
+        'username': data.get('username', 'Guest'),
+        'timestamp': data.get('timestamp', datetime.datetime.now()),
+        'province': data.get('province', {
+            'name': 'Not selected',
+        }),
+        'schedule': data.get('schedule', {
+            'start_date': 'Not set',
+            'end_date': 'Not set',
+            'start_time': 'Not set',
+            'end_time': 'Not set',
+            'duration_days': 0
+        }),
+        'hotels': data.get('hotels', {
+            'count': 0,
+            'total_days': 0,
+            'bookings': [],
+            'coordinates': []
+        }),
+        'attractions': data.get('attractions', {
+            'count': 0,
+            'selections': [],
+            'by_type': {},
+            'by_province': {}
+        }),
+        # 'optimization_metadata': data.get('optimization_metadata', {
+        #     'map_focused': False,
+        #     'history_preserved': False,
+        #     'validation_status': 'unknown',
+        #     'data_storage': {}
+        # }),
+        'status': data.get('status', 'optimized'),
+        'is_complete': data.get('is_complete', False),
+        'created_at': data.get('created_at', datetime.datetime.now()),
+        'updated_at': data.get('updated_at', datetime.datetime.now()),
         
-        # Get province information
-        province_name = data.get('province', {}).get('name', 'Not selected')
-        
-        # Get hotels data
-        hotels_bookings = data.get('hotels', {}).get('bookings', [])
-        processed_hotels = []
-        
-        if isinstance(hotels_bookings, list):
-            for i, hotel in enumerate(hotels_bookings):
-                if isinstance(hotel, dict):
-                    # Extract coordinates properly
-                    coordinates = hotel.get('coordinates', {})
-                    if isinstance(coordinates, dict):
-                        lat = coordinates.get('lat', 0)
-                        lon = coordinates.get('lon', 0)
-                    else:
-                        lat, lon = 0, 0
-                    
-                    # Generate days array based on duration
-                    hotel_days = hotel.get('days', list(range(1, duration_days + 1)))
-                    if isinstance(hotel_days, int):
-                        hotel_days = list(range(1, hotel_days + 1))
-                    elif not isinstance(hotel_days, list):
-                        hotel_days = list(range(1, duration_days + 1))
-                    
-                    processed_hotel = {
-                        "id": hotel.get('id', f'hotel_{i}'),
-                        "name": hotel.get('name', f'Hotel {i+1}'),
-                        "coordinates": {
-                            "lat": lat,
-                            "lon": lon
-                        },
-                        "days": hotel_days
-                    }
-                    processed_hotels.append(processed_hotel)
-        
-        # Get attractions data
-        attractions_selections = data.get('attractions', {}).get('selections', [])
-        processed_attractions = []
-        
-        if isinstance(attractions_selections, list):
-            for i, attraction in enumerate(attractions_selections):
-                if isinstance(attraction, dict):
-                    # Extract coordinates properly
-                    coordinates = attraction.get('coordinates', {})
-                    if isinstance(coordinates, dict):
-                        lat = coordinates.get('lat', 0)
-                        lon = coordinates.get('lon', 0)
-                    else:
-                        lat, lon = 0, 0
-                    
-                    processed_attraction = {
-                        "id": attraction.get('id', f'attraction_{i}'),
-                        "name": attraction.get('name', f'Attraction {i+1}'),
-                        "coordinates": {
-                            "lat": lat,
-                            "lon": lon
-                        },
-                        "visitDuration": attraction.get('visitDuration', 60)
-                    }
-                    processed_attractions.append(processed_attraction)
-        
-        # Construct the final data structure
-        final_data = {
-            "province": {
-                "name": province_name
-            },
-            "schedule": {
-                "start_date": start_date_str,
-                "end_date": end_date_str,
-                "duration_days": duration_days,
-                "start_time": start_time_str,
-                "end_time": end_time_str
-            },
-            "hotels": {
-                "bookings": processed_hotels
-            },
-            "attractions": {
-                "selections": processed_attractions
-            }
-        }
-
-        return final_data
-        
-    except Exception as e:
-        print(f"Error in final_data_used: {str(e)}")
-        print(f"Data structure: {data}")
-        # Return a safe default structure matching the expected format
-        return {
-            "province": {
-                "name": "Not selected"
-            },
-            "schedule": {
-                "duration_days": 0,
-                "start_time": "09:00",
-                "end_time": "17:00"
-            },
-            "hotels": {
-                "bookings": []
-            },
-            "attractions": {
-                "selections": []
-            },
-            "error": str(e)
-        }
+        # New computed fields
+        'budget_estimate': calculate_budget_estimate(data),
+        'travel_tips': generate_travel_tips(data),
+        'optimization_score': calculate_optimization_score(data),
+        'trip_completeness': calculate_trip_completeness(data),
+        'geographical_spread': calculate_geographical_spread(data),
+        'time_optimization': calculate_time_optimization(data)
+    }
+    
+    # Store in MongoDB
+    result = trip_optimization_collection.insert_one(final_data)
+    if result.inserted_id:
+        final_data['_id'] = str(result.inserted_id)
+    
+    return final_data

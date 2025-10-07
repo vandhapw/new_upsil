@@ -79,7 +79,6 @@ class provinceDisplay {
 
 
     // Load region data from Django API instead of JSON files
-    // Load region data from Django API instead of JSON files
     async loadRegionDataFromDjango() {
         try {
             const response = await fetch("/dashboard/kaidashboard/tourism/api/provinces/");
@@ -252,6 +251,8 @@ class provinceDisplay {
      provinceSelect?.addEventListener("change", (e) => {
         const selectedOption = e.target.selectedOptions[0];
         const provinceName = e.target.value;
+
+        // this.insertKoreanGraphml();
         
         if (selectedOption && provinceName) {
             // Get additional data from the selected option
@@ -268,6 +269,7 @@ class provinceDisplay {
             };
             
             console.log("Selected province:", this.selectedRegion.province);
+            this.insertKoreanGraphml(provinceName);
             
             // Show selected province on map
             this.showProvince(provinceName);
@@ -586,6 +588,33 @@ class provinceDisplay {
     showError(message) {
         // Simple error display - could be enhanced with a proper modal
         alert(message);
+    }
+
+    async insertKoreanGraphml(province) {
+        try {
+            this.showLoading(true);
+        
+            const response = await fetch('/tourism/api/insert_graphml/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    country: 'South Korea',
+                    province: province
+                })
+            });
+
+            this.showLoading(false);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            console.log("Korean GraphML inserted successfully");
+        } catch (error) {
+            console.error('Error inserting Korean GraphML:', error);
+            this.showError('Error inserting Korean GraphML.');
+        }
     }
 
 }

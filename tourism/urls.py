@@ -13,7 +13,8 @@ urlpatterns = [
     path('api/attractions/', get_attraction_list, name='get_attraction_list'),
     path('api/trip-page/', get_trip_optimization_data, name='trip_optimization_page'),
     path('api/trip-optimization/', trip_optimization_api, name='trip_optimization_api'),
-    
+    path('api/insert_graphml/', api_insert_graphml, name='api_insert_graphml'),
+    path('api/get_graphml/<str:file_id>/', api_get_graphml, name='api_get_graphml'),
 
 
 ]
