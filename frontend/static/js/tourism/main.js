@@ -766,7 +766,7 @@ async function sendOptimizationToAPI(optimizationData) {
     try {
         console.log('Sending optimization data to API:', optimizationData);
         
-        const response = await fetch('/account/api/trip-optimization/', {
+        const response = await fetch('/tourism/api/trip-optimization/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

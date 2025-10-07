@@ -14,8 +14,7 @@ urlpatterns = [
     # path('api/check/', check_page, name='check'),
     path('api/register/', register_api, name='register_api'),
     path('api/verify_email/<str:uidb64>/<str:token>/', verify_email, name='verify_email'),
-    path('verification_page/', verification_page, name='verification_page'),
-    path('api/trip-optimization/', trip_optimization_api, name='trip_optimization_api'),
+    path('verification_page/', verification_page, name='verification_page')
     
     # path('api/dashboard_page/', dashboard_page, name='dashboard_page'),
 ]

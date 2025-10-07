@@ -32,6 +32,7 @@ urlpatterns = [
     path('testing/',print_example, name='testing' ),
     path('', login_page, name='login'),
     path('account/', include('account.urls')),
+    path('tourism/', include('tourism.urls')),
     # path('dashboard/', dashboard_page, name='dashboard'),
     path('dashboard/kaidashboard/',testing_dashboard, name='kaidashboard' ),
     # path('klaen/', include('klaen.urls')),

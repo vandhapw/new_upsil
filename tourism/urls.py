@@ -12,6 +12,7 @@ urlpatterns = [
     path('api/hotels/', get_hotel_list, name='get_hotel_list'),
     path('api/attractions/', get_attraction_list, name='get_attraction_list'),
     path('api/trip-page/', get_trip_optimization_data, name='trip_optimization_page'),
+    path('api/trip-optimization/', trip_optimization_api, name='trip_optimization_api'),
     
 
 

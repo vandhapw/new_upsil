@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'account',
     'frontend',
-    'klaen',
+    # 'klaen',
     'monitoringapps',
     'tourism',
 ]
@@ -223,7 +223,17 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.file'
-SESSION_FILE_PATH = '/tmp/django_sessions'  # Or any directory where Django can write session files
+# SESSION_FILE_PATH = '/tmp/django_sessions'  # Or any directory where Django can write session files
+SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+
+# Create session directory within project
+SESSION_FILE_PATH = BASE_DIR / 'tmp' / 'django_sessions'
+
+# Ensure the directory exists
+import os
+os.makedirs(SESSION_FILE_PATH, exist_ok=True)
+
+
 
 # Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
