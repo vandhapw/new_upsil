@@ -49,7 +49,7 @@ class DistanceMatrix:
         print(f"Graph loaded with {len(G.nodes)} nodes and {len(G.edges)} edges.")
 
         return G
-    
+
     def parsing_data(self):
         # Parse hotels
         hotels = []
@@ -442,9 +442,9 @@ class DistanceMatrix:
 
             # Optimize single-day route
             if optimization_method == 'nearest_neighbor':
-                route, travel_time = DistanceMatrix.nearest_neighbor_tsp(distance_matrix, hotel_id, attractions_today)
+                route, travel_time = self.nearest_neighbor_tsp(distance_matrix, hotel_id, attractions_today)
                 # Apply 2-opt improvement
-                route = DistanceMatrix.two_opt_improvement(route, distance_matrix)
+                route = self.two_opt_improvement(route, distance_matrix)
                 travel_time = sum(
                     distance_matrix.get(route[i], {}).get(route[i+1], 0)
                     for i in range(len(route) - 1)
@@ -452,11 +452,11 @@ class DistanceMatrix:
 
             elif optimization_method == 'simulated_annealing':
                 # Start with nearest neighbor
-                init_route, _ = DistanceMatrix.nearest_neighbor_tsp(distance_matrix, hotel_id, attractions_today)
-                route, travel_time = DistanceMatrix.simulated_annealing_tsp(distance_matrix, init_route)
+                init_route, _ = self.nearest_neighbor_tsp(distance_matrix, hotel_id, attractions_today)
+                route, travel_time = self.simulated_annealing_tsp(distance_matrix, init_route)
 
             else:  # Default to nearest neighbor
-                route, travel_time = DistanceMatrix.nearest_neighbor_tsp(distance_matrix, hotel_id, attractions_today)
+                route, travel_time = self.nearest_neighbor_tsp(distance_matrix, hotel_id, attractions_today)
 
             # Calculate metrics
             visit_time = sum(visit_durations.get(attr_id, 0) for attr_id in attractions_today)
@@ -498,8 +498,8 @@ class DistanceMatrix:
 
         # Step 1: Parse data
         print("\n[1/7] Parsing input data...")
-        hotels, attractions, schedule, daily_hours = DistanceMatrix.parsing_data()
-        day_hotels = DistanceMatrix.assign_hotels_to_days(hotels)
+        hotels, attractions, schedule, daily_hours = self.parsing_data()
+        day_hotels = self.assign_hotels_to_days(hotels)
 
         print(f"  Total days: {schedule['total_days']}")
         print(f"  Hotels: {len(hotels)}")
@@ -523,22 +523,22 @@ class DistanceMatrix:
 
         # Step 3: Download road network
         print("\n[3/7] Downloading road network...")
-        G = DistanceMatrix.get_road_network()
+        G = self.get_road_network()
         print(f"  Network: {len(G.nodes)} nodes, {len(G.edges)} edges")
 
         # Step 4: Find nearest nodes
         print("\n[4/7] Finding nearest road nodes...")
-        nearest_nodes = DistanceMatrix.find_nearest_node(G, all_locations)
+        nearest_nodes = self.find_nearest_node(G, all_locations)
 
         # Step 5: Calculate distance matrix
         print("\n[5/7] Calculating distance matrix...")
-        distance_matrix, path_matrix = DistanceMatrix.compute_matrices(
+        distance_matrix, path_matrix = self.compute_matrices(
             G, nearest_nodes, all_locations, avg_speed_kmh=40
         )
 
         # Step 6: Cluster attractions by days
         print("\n[6/7] Assigning attractions to days...")
-        daily_assignments = DistanceMatrix.cluster_attractions_by_days(
+        daily_assignments = self.cluster_attractions_by_days(
             attractions, hotels, day_hotels, distance_matrix, daily_hours
         )
 
@@ -547,7 +547,7 @@ class DistanceMatrix:
             print(f"    Day {day + 1}: {len(attrs)} attractions")
 
         # Balance workload
-        daily_assignments = DistanceMatrix.balance_daily_workload(
+        daily_assignments = self.balance_daily_workload(
             attractions, daily_assignments, daily_hours, visit_durations
         )
 
@@ -562,7 +562,7 @@ class DistanceMatrix:
 
         # Method 1: Nearest Neighbor + 2-Opt
         print("\n--- Method 1: Nearest Neighbor + 2-Opt ---")
-        daily_routes_nn, daily_metrics_nn, total_metrics_nn = DistanceMatrix.build_multi_day_solution(
+        daily_routes_nn, daily_metrics_nn, total_metrics_nn = self.build_multi_day_solution(
             hotels, attractions, day_hotels, daily_assignments,
             distance_matrix, visit_durations, daily_hours,
             optimization_method='nearest_neighbor'
@@ -575,7 +575,7 @@ class DistanceMatrix:
 
         # Method 2: Simulated Annealing
         print("\n--- Method 2: Simulated Annealing ---")
-        daily_routes_sa, daily_metrics_sa, total_metrics_sa = DistanceMatrix.build_multi_day_solution(
+        daily_routes_sa, daily_metrics_sa, total_metrics_sa = self.build_multi_day_solution(
             hotels, attractions, day_hotels, daily_assignments,
             distance_matrix, visit_durations, daily_hours,
             optimization_method='simulated_annealing'
