@@ -269,7 +269,7 @@ class provinceDisplay {
             };
             
             console.log("Selected province:", this.selectedRegion.province);
-            this.insertKoreanGraphml(provinceName);
+            // this.insertKoreanGraphml(provinceName);
             
             // Show selected province on map
             this.showProvince(provinceName);

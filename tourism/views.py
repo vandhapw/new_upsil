@@ -586,55 +586,68 @@ def calculate_time_optimization(trip_data):
     }
 
 def final_data_used(data):
+
     final_data = {
-        'user_id': data.get('user_id', None),
-        'username': data.get('username', 'Guest'),
-        'timestamp': data.get('timestamp', datetime.datetime.now()),
-        'province': data.get('province', {
-            'name': 'Not selected',
-        }),
-        'schedule': data.get('schedule', {
-            'start_date': 'Not set',
-            'end_date': 'Not set',
-            'start_time': 'Not set',
-            'end_time': 'Not set',
-            'duration_days': 0
-        }),
-        'hotels': data.get('hotels', {
-            'count': 0,
-            'total_days': 0,
-            'bookings': [],
-            'coordinates': []
-        }),
-        'attractions': data.get('attractions', {
-            'count': 0,
-            'selections': [],
-            'by_type': {},
-            'by_province': {}
-        }),
-        # 'optimization_metadata': data.get('optimization_metadata', {
-        #     'map_focused': False,
-        #     'history_preserved': False,
-        #     'validation_status': 'unknown',
-        #     'data_storage': {}
-        # }),
-        'status': data.get('status', 'optimized'),
-        'is_complete': data.get('is_complete', False),
-        'created_at': data.get('created_at', datetime.datetime.now()),
-        'updated_at': data.get('updated_at', datetime.datetime.now()),
-        
-        # New computed fields
-        'budget_estimate': calculate_budget_estimate(data),
-        'travel_tips': generate_travel_tips(data),
-        'optimization_score': calculate_optimization_score(data),
-        'trip_completeness': calculate_trip_completeness(data),
-        'geographical_spread': calculate_geographical_spread(data),
-        'time_optimization': calculate_time_optimization(data)
+        'user': {
+            'user_id': data['user_id'],
+            'username': data['username']
+        },
+        'schedule': {
+            'start_date': data['schedule']['start_date'],
+            'end_date': data['schedule']['end_date'],
+            'start_time': data['schedule']['start_time'],
+            'end_time': data['schedule']['end_time'],
+            'duration_days': data['schedule']['duration_days']
+        },
+        'province': {
+            'province_name': data['province']['name'],
+            'province_code': data['province']['code'],
+        },
+        'hotels': {
+            'bookings': [
+                {
+                    'hotel_id': booking['hotelId'],
+                    'hotel_name': booking['name'],
+                    'hotel_address': booking['address'],
+                    'hotel_coordinates': booking['coordinates'],
+                    'days': booking['days'],
+                } for booking in data['hotels']['bookings']
+            ]
+        },
+        'attractions': {
+            'selections': [
+                {
+                    'attraction_id': attraction['id'],
+                    'attraction_name': attraction['name'],
+                    'attraction_hours': attraction['hours'],
+                    'attraction_coordinates': attraction['coordinates']
+                } for attraction in data['attractions']['selections']
+            ]
+        },
     }
-    
-    # Store in MongoDB
-    result = trip_optimization_collection.insert_one(final_data)
-    if result.inserted_id:
-        final_data['_id'] = str(result.inserted_id)
-    
+
     return final_data
+
+def calculate_distance_matrix(request, data=None):
+    from tourism.optimization.distance_matrix import DistanceMatrix
+    from tourism.optimization.dummy_data import final_data 
+
+    dm = DistanceMatrix(final_data)
+
+    # Solve
+    results, G, distance_matrix, day_hotels, all_locations = dm.solve_multi_day_route_optimization()
+
+    # route_map, gantt_chart = complete_visualization_workflow(data_dict)
+
+    # Access best solution
+    best_result = min(results.items(), key=lambda x: x[1]['total_metrics']['total_time'])
+    print(f"\nBest method: {best_result[0]}")
+    print(f"Total optimization time: {best_result[1]['total_metrics']['total_time']:.2f} hours")
+    
+    return JsonResponse({
+        'success': True,
+        'message': 'Distance matrix calculation placeholder',
+        # 'final_data': final_data[0],
+        'best_method': best_result[0],
+        'total_optimization_time_hours': round(best_result[1]['total_metrics']['total_time'], 2)
+    })
