@@ -10,6 +10,8 @@ import math
 from itertools import permutations 
 from bson import ObjectId
 import tempfile
+import pickle
+from io import BytesIO
 
 ox.settings.use_cache = True
 ox.settings.log_console = False
@@ -22,14 +24,14 @@ map_graph_ml_collection = db["map_graph_ml"]
 class DistanceMatrix:
     def __init__(self, data):
         self.data = data
-        self.graph = self.load_graphml()
+        self.graph = self.load_graphml_pickle()
         self.distance_matrix = None
         self.time_matrix = None
 
     def load_graphml(self):
         # Fetch the latest graphml file for the specified country and province
         record = map_graph_ml_collection.find_one(
-            {"province": "all"},
+            {"province": "all", "file_type": "graphml"},
             sort=[("created_at", -1)]
         )
 
@@ -49,6 +51,27 @@ class DistanceMatrix:
         print(f"Graph loaded with {len(G.nodes)} nodes and {len(G.edges)} edges.")
 
         return G
+    
+    def load_graphml_pickle(self):
+        # Fetch the latest graphml file for the specified country and province
+        record = map_graph_ml_collection.find_one(
+            {"province": "all", "file_type": "pickle"},
+            sort=[("created_at", -1)]
+        )
+
+        if not record:
+            raise ValueError("No graphml file found for the specified country and province.")
+        
+        file_id = record['graphml_file_id']
+
+        file_obj = fs.get(ObjectId(file_id))
+
+        graph_data = BytesIO(file_obj.read())
+        G = pickle.load(graph_data)
+
+        print(f"Graph loaded with {len(G.nodes)} nodes and {len(G.edges)} edges.")
+        return G
+
 
     def parsing_data(self):
         # Parse hotels
@@ -608,4 +631,4 @@ class DistanceMatrix:
         print(f"BEST SOLUTION: {best_method[0]}")
         print(f"{'='*70}")
 
-        return results, G, distance_matrix, day_hotels, all_locations
+        return results, G, distance_matrix, day_hotels, all_locations, path_matrix

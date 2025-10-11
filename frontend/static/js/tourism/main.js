@@ -785,10 +785,11 @@ async function sendOptimizationToAPI(optimizationData) {
             
             // Log detailed API response
             console.log('API Response Details:', {
-                optimizationId: result.optimization_id,
-                summary: result.summary,
-                recommendations: result.recommendations,
-                insights: result.data_insights
+                // optimizationId: result.optimization_id,
+                // summary: result.summary,
+                // recommendations: result.recommendations,
+                // insights: result.data_insights
+                path_matrix: result.path_matrix,
             });
             
         } else {

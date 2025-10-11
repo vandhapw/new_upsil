@@ -330,10 +330,20 @@ def trip_optimization_api(request):
             # result = trip_optimization_collection.insert_one(trip_data)
             final_data = final_data_used(trip_data)
 
+            from tourism.optimization.distance_matrix import DistanceMatrix
+            # from tourism.optimization.dummy_data import final_data 
+
+            dm = DistanceMatrix(final_data)
+
+            # Solve
+            results, G, distance_matrix, day_hotels, all_locations, path_matrix = dm.solve_multi_day_route_optimization()
+
+
             return JsonResponse({
                 'success': True,
-                'final_data': final_data,
-                'trip_data': trip_data
+                # 'final_data': final_data,
+                # 'trip_data': trip_data,
+                'path_matrix': path_matrix,
             }, status=200)
             
         except json.JSONDecodeError as e:
@@ -635,7 +645,7 @@ def calculate_distance_matrix(request, data=None):
     dm = DistanceMatrix(final_data)
 
     # Solve
-    results, G, distance_matrix, day_hotels, all_locations = dm.solve_multi_day_route_optimization()
+    results, G, distance_matrix, day_hotels, all_locations, path_matrix = dm.solve_multi_day_route_optimization()
 
     # route_map, gantt_chart = complete_visualization_workflow(data_dict)
 
@@ -643,11 +653,38 @@ def calculate_distance_matrix(request, data=None):
     best_result = min(results.items(), key=lambda x: x[1]['total_metrics']['total_time'])
     print(f"\nBest method: {best_result[0]}")
     print(f"Total optimization time: {best_result[1]['total_metrics']['total_time']:.2f} hours")
-    
+    # print(f"distance matrix:", distance_matrix)
+    # print(f"all_locations:", all_locations)
+    print(f"path_matrix:", path_matrix)
+
     return JsonResponse({
         'success': True,
         'message': 'Distance matrix calculation placeholder',
         # 'final_data': final_data[0],
         'best_method': best_result[0],
-        'total_optimization_time_hours': round(best_result[1]['total_metrics']['total_time'], 2)
+        'total_optimization_time_hours': round(best_result[1]['total_metrics']['total_time'], 2),
+        'path_matrix': path_matrix,
+    })
+
+def calling_test_api(data=None):
+    from tourism.crud_api import crud_map
+    from tourism.optimization.dummy_data import final_data
+    from tourism.optimization.distance_matrix import DistanceMatrix
+
+    dm = DistanceMatrix(final_data)
+
+    results, G, distance_matrix, day_hotels, all_locations, path_matrix = dm.solve_multi_day_route_optimization()
+
+    # cm = crud_map.MapCRUD(final_data)
+    # cm.store_graphml_to_pickle()
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Test API called successfully',
+        'results': results,
+        # 'graph': G,
+        # 'distance_matrix': distance_matrix,
+        # 'day_hotels': day_hotels,
+        # 'all_locations': all_locations,
+        'path_matrix': path_matrix,
     })
