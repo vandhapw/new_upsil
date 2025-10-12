@@ -148,8 +148,14 @@
                     <button id="optimizeButton" class="btn btn-primary">
                         <i class="fas fa-cogs"></i> Optimize
                     </button>
+                    <button id="clearHistoryButton" class="btn btn-danger">
+                        <i class="fas fa-eraser"></i> Clear History
+                    </button>
+                    <!-- <button id="clearHistoryButton" class="btn btn-outline-secondary">
+                        <i class="fas fa-eraser"></i> Clear History
+                    </button> -->
                 </div>
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <button id="clearHistoryButton" class="btn btn-outline-secondary">
                         <i class="fas fa-eraser"></i> Clear History
                     </button>
@@ -158,15 +164,9 @@
                     <button id="saveToHistoryButton" class="btn btn-outline-success">
                         <i class="fas fa-save"></i> Save to History
                     </button>
-                </div>
+                </div> -->
             </div>
-
             
-            <div class="form-group">
-                <button id="findTourismVillage" class="btn btn-secondary">
-                    <i class="fas fa-tree"></i> Find Tourism Attractions
-                </button>
-            </div>
             
         </aside>
 
@@ -175,10 +175,10 @@
             <div id="map" class="map"></div>
 
              <!-- X and Y Buttons -->
-            <div class="xy-buttons-container">
+            <!-- <div class="xy-buttons-container">
                 <button id="xButton" class="xy-button" title="X Function">X</button>
                 <button id="yButton" class="xy-button" title="Y Function">Y</button>
-            </div>
+            </div> -->
 
             <!-- Map Controls -->
             <div class="map-controls">
@@ -221,7 +221,7 @@
         <div class="trip-history-container" id="tripHistoryContainer">
             <div class="trip-history-header">
                 <h4><i class="fas fa-history"></i> Trip Planning History <span id="currentEntryIndicator" class="current-entry-badge" style="display: none;">Updating Current Entry</span></h4>
-                <div class="trip-history-controls">
+                <!-- <div class="trip-history-controls">
                     <button id="createNewEntryButton" class="btn btn-sm btn-outline-info">
                         <i class="fas fa-plus"></i> New Entry
                     </button>
@@ -234,22 +234,20 @@
                     <button id="exportHistoryTable" class="btn btn-sm btn-outline-success">
                         <i class="fas fa-download"></i> Export
                     </button>
-                </div>
+                </div> -->
             </div>
             <div class="trip-history-table-container">
                 <table id="tripHistoryTable" class="trip-history-table">
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>Timestamp</th>
                             <th>Province</th>
-                            <th>Start Date</th>
-                            <th>Start Time</th>
-                            <th>End Date</th>
-                            <th>End Time</th>
+                            <th>Start Date & Time</th>
+                            <th>End Date & Time</th>
                             <th>Duration</th>
                             <th>Hotels</th>
-                            <th>Attractions</th>
-                            <th>Timestamp</th>
+                            <th>Attractions</th>                            
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -314,6 +312,8 @@
     <script src="{% static 'js/tourism/flightOption.js' %}"></script>
     <script src="{% static 'js/tourism/tripHistory.js' %}"></script>
     <script src="{% static 'js/tourism/tripDataCapture.js' %}"></script>
+    <script src="{% static 'js/tourism/display_routes.js' %}"></script>
+    <script src="{% static 'js/tourism/display_gantt_chart.js' %}"></script>
     <!-- <script src="js/uiController.js"></script> -->
     <script src="{% static 'js/tourism/main.js' %}"></script>
     <script src="{% static 'js/loading.js' %}"></script>

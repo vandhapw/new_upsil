@@ -549,6 +549,17 @@ class displayHotel {
         console.log("Cleared all hotel markers");
     }
 
+    // clear markers hotels only not booked hotels
+    clearMarkersOnly() {
+        if (this.hotelLayer) {
+            this.hotelLayer.clearLayers();
+        }
+        this.hotelMarkers = [];
+        this.isHotelsVisible = false;
+        console.log("Cleared hotel markers but preserved booked hotels");
+    } 
+
+
     // Cancel hotel booking
     cancelHotelBooking(hotelId) {
         const bookingIndex = this.selectedHotels.findIndex(hotel => hotel.hotelId === hotelId);
@@ -712,19 +723,19 @@ class displayHotel {
     }
 
     // Toggle history display visibility
-    toggleHistoryDisplay() {
-        if (!this.historyLayer) {
-            // Show history
-            this.displayUserHistoryOnMap();
-            console.log('History display enabled');
-            return true;
-        } else {
-            // Hide history
-            this.clearHistoryDisplay();
-            console.log('History display disabled');
-            return false;
-        }
-    }
+    // toggleHistoryDisplay() {
+    //     if (!this.historyLayer) {
+    //         // Show history
+    //         this.displayUserHistoryOnMap();
+    //         console.log('History display enabled');
+    //         return true;
+    //     } else {
+    //         // Hide history
+    //         this.clearHistoryDisplay();
+    //         console.log('History display disabled');
+    //         return false;
+    //     }
+    // }
 
     // Get history display status
     isHistoryDisplayActive() {
@@ -937,47 +948,47 @@ class displayHotel {
     }
 
     // Display user history on map with enhanced visualization
-    displayUserHistoryOnMap() {
-        try {
-            console.log('Displaying user selection history on map...');
+    // displayUserHistoryOnMap() {
+    //     try {
+    //         console.log('Displaying user selection history on map...');
             
-            // Ensure booked hotels are prominently displayed
-            this.displayBookedHotels();
+    //         // Ensure booked hotels are prominently displayed
+    //         this.displayBookedHotels();
             
-            // Add history tracking layer if it doesn't exist
-            if (!this.historyLayer) {
-                this.historyLayer = L.layerGroup().addTo(this.map);
-            } else {
-                this.historyLayer.clearLayers();
-            }
+    //         // Add history tracking layer if it doesn't exist
+    //         if (!this.historyLayer) {
+    //             this.historyLayer = L.layerGroup().addTo(this.map);
+    //         } else {
+    //             this.historyLayer.clearLayers();
+    //         }
             
-            // Get user selection history
-            const selectionHistory = this.getUserSelectionHistory();
+    //         // Get user selection history
+    //         const selectionHistory = this.getUserSelectionHistory();
             
-            // Display province outline with enhanced styling
-            if (this.provinceDisplayInstance && 
-                this.provinceDisplayInstance.selectedRegion && 
-                this.provinceDisplayInstance.selectedRegion.province) {
+    //         // Display province outline with enhanced styling
+    //         if (this.provinceDisplayInstance && 
+    //             this.provinceDisplayInstance.selectedRegion && 
+    //             this.provinceDisplayInstance.selectedRegion.province) {
                 
-                const selectedProvince = this.provinceDisplayInstance.selectedRegion.province;
-                this.addProvinceHistoryToMap(selectedProvince);
-            }
+    //             const selectedProvince = this.provinceDisplayInstance.selectedRegion.province;
+    //             this.addProvinceHistoryToMap(selectedProvince);
+    //         }
             
-            // Add hotel selection history markers
-            this.addHotelHistoryToMap(selectionHistory.hotels);
+    //         // Add hotel selection history markers
+    //         this.addHotelHistoryToMap(selectionHistory.hotels);
             
-            // Add date/time history information
-            this.addTripTimelineToMap(selectionHistory.timeline);
+    //         // Add date/time history information
+    //         this.addTripTimelineToMap(selectionHistory.timeline);
             
-            // Add summary popup
-            this.addHistorySummaryPopup(selectionHistory);
+    //         // Add summary popup
+    //         this.addHistorySummaryPopup(selectionHistory);
             
-            console.log('User history successfully displayed on map');
+    //         console.log('User history successfully displayed on map');
             
-        } catch (error) {
-            console.error('Error displaying user history on map:', error);
-        }
-    }
+    //     } catch (error) {
+    //         console.error('Error displaying user history on map:', error);
+    //     }
+    // }
 
     // Get comprehensive user selection history
     getUserSelectionHistory() {

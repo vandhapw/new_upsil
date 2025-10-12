@@ -17,5 +17,8 @@ urlpatterns = [
     path('api/get_graphml/<str:file_id>/', api_get_graphml, name='api_get_graphml'),
     path('api/test_graphml/', calling_test_api, name='test_graphml'),
 
+    path('api/test_api_call/', test_api_call, name='test_api_call'),
+    path('api/test_api_call_2/', test_api_call_2, name='test_api_call_2'),
+
 
 ]

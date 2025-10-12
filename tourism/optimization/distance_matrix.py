@@ -631,4 +631,488 @@ class DistanceMatrix:
         print(f"BEST SOLUTION: {best_method[0]}")
         print(f"{'='*70}")
 
-        return results, G, distance_matrix, day_hotels, all_locations, path_matrix
+        # Get optimize Route
+        optimized_routes = self.get_route_optimization_results(results, distance_matrix, day_hotels, all_locations, path_matrix, best_method)
+        optimized_gantt_chart = self.get_optimized_gantt_chart(results, schedule, day_hotels, all_locations, visit_durations, best_method)
+    
+
+        return results, distance_matrix, day_hotels, all_locations, optimized_routes, optimized_gantt_chart
+    
+    def get_route_optimization_results(self, results, distance_matrix, day_hotels, all_locations, path_matrix, best_method):
+        # results, G, distance_matrix, day_hotels, all_locations, path_matrix = self.solve_multi_day_route_optimization()
+        G = self.graph
+        # 1️⃣ Extract best solution
+        best_solution = results[best_method[0]]
+        daily_routes = best_solution['daily_routes']
+
+        # 2️⃣ Collect all route + hotel + stop details
+        route_details = []
+        for day, route in daily_routes.items():
+            day_info = {
+                "day": day + 1,
+                "color": None,
+                "hotel": None,
+                "stops": [],
+                "path_lines": []
+            }
+
+            # --- Get hotel info ---
+            if day in day_hotels:
+                hotel = day_hotels[day]
+                hotel_coords = all_locations[hotel['id']]
+                day_info["hotel"] = {
+                    "id": hotel["id"],
+                    "name": hotel["name"],
+                    "coordinates": {"lat": hotel_coords[0], "lon": hotel_coords[1]}
+                }
+
+            # --- Build routes (segments) ---
+            route_coords = []
+            for i in range(len(route) - 1):
+                start_id, end_id = route[i], route[i + 1]
+
+                if start_id in path_matrix and end_id in path_matrix[start_id]:
+                    path_nodes = path_matrix[start_id][end_id]
+                    if path_nodes:
+                        segment_coords = [
+                            {"lat": G.nodes[node]['y'], "lon": G.nodes[node]['x']}
+                            for node in path_nodes
+                        ]
+                        route_coords.extend(segment_coords)
+
+            if route_coords:
+                day_info["path_lines"].append(route_coords)
+
+            # --- Add attraction/stops ---
+            for i, location_id in enumerate(route[1:-1], 1):
+                if location_id in all_locations:
+                    coords = all_locations[location_id]
+                    day_info["stops"].append({
+                        "id": location_id,
+                        "stop_number": i,
+                        "coordinates": {"lat": coords[0], "lon": coords[1]},
+                    })
+
+            route_details.append(day_info)
+
+        # 3️⃣ Combine into response
+        response = {
+            "summary": {
+                "total_days": len(daily_routes),
+                "total_locations": len(all_locations),
+                "total_hotels": len(day_hotels),
+            },
+            "routes": route_details
+        }
+        return response
+    
+    def get_optimized_gantt_chart(self, results, schedule, day_hotels, all_locations, visit_durations, best_method):
+        
+        best_solution = results[best_method[0]]
+        daily_routes = best_solution['daily_routes']
+
+        gantt_data = []
+        start_value = schedule['start_date']
+        if isinstance(start_value, datetime):
+            start_date = start_value
+        else:
+            start_date = datetime.strptime(str(start_value), "%Y-%m-%d")
+
+
+        for day, route in daily_routes.items():
+            current_date = start_date + timedelta(days=day)
+            current_time = current_date.replace(hour=8, minute=0)
+
+            hotel = day_hotels[day]
+
+            for i, location_id in enumerate(route):
+                if i == 0:
+                    activity_name = f"Start at {hotel['name'][:20]}"
+                    duration = 0.5
+                    activity_type = "Hotel"
+                elif i == len(route) - 1:
+                    activity_name = f"Return to {hotel['name'][:20]}"
+                    duration = 0
+                    activity_type = "Hotel"
+                else:
+                    activity_name = f"Visit {location_id}"
+                    duration = visit_durations.get(location_id, 1)
+                    activity_type = "Attraction"
+
+                if duration > 0:
+                    end_time = current_time + timedelta(hours=duration)
+                    gantt_data.append({
+                        "day": day + 1,
+                        "activity": activity_name,
+                        "type": activity_type,
+                        "start": current_time.strftime("%Y-%m-%d %H:%M"),
+                        "finish": end_time.strftime("%Y-%m-%d %H:%M"),
+                        "duration_hours": duration,
+                        "location_id": location_id,
+                        "coordinates": all_locations.get(location_id, None)
+                    })
+                    current_time = end_time
+
+                # Travel to next location
+                if i < len(route) - 1:
+                    next_location = route[i + 1]
+                    travel_time = 0.5
+                    travel_end = current_time + timedelta(hours=travel_time)
+
+                    gantt_data.append({
+                        "day": day + 1,
+                        "activity": f"Travel to {next_location[:15]}",
+                        "type": "Travel",
+                        "start": current_time.strftime("%Y-%m-%d %H:%M"),
+                        "finish": travel_end.strftime("%Y-%m-%d %H:%M"),
+                        "duration_hours": travel_time,
+                        "location_id": f"Travel-{next_location}",
+                        "coordinates": all_locations.get(next_location, None)
+                    })
+                    current_time = travel_end
+
+        # Group data for easier frontend rendering
+        gantt_summary = {}
+        for item in gantt_data:
+            day = f"Day {item['day']}"
+            if day not in gantt_summary:
+                gantt_summary[day] = []
+            gantt_summary[day].append(item)
+
+        # Build response JSON
+        response = {
+            "method": 'Nearest Neighbor + 2-Opt',
+            "total_days": len(daily_routes),
+            "schedule_start": schedule["start_date"],
+            "schedule_end": schedule["end_date"],
+            "gantt_data": gantt_summary
+        }
+
+        return response 
+
+    def get_route_json_response(self):
+        """
+        Convert optimized route results into JSON-ready response structure.
+        """
+
+        """
+        Main function to solve multi-day route optimization
+        """
+        print("="*70)
+        print("MULTI-DAY TOURISM ROUTE OPTIMIZATION")
+        print("="*70)
+
+        # Step 1: Parse data
+        print("\n[1/7] Parsing input data...")
+        hotels, attractions, schedule, daily_hours = self.parsing_data()
+        day_hotels = self.assign_hotels_to_days(hotels)
+
+        print(f"  Total days: {schedule['total_days']}")
+        print(f"  Hotels: {len(hotels)}")
+        print(f"  Attractions: {len(attractions)}")
+        print(f"  Daily hours: {[f'{h:.1f}h' for h in daily_hours]}")
+
+        # Step 2: Prepare location data
+        print("\n[2/7] Preparing location data...")
+        all_locations = {}
+        visit_durations = {}
+
+        for hotel in hotels:
+            all_locations[hotel['id']] = hotel['coords']
+            visit_durations[hotel['id']] = 0
+
+        for attr in attractions:
+            all_locations[attr['id']] = attr['coords']
+            visit_durations[attr['id']] = attr['duration']
+
+        print(f"  Total locations: {len(all_locations)}")
+
+        # Step 3: Download road network
+        print("\n[3/7] Downloading road network...")
+        G = self.get_road_network()
+        print(f"  Network: {len(G.nodes)} nodes, {len(G.edges)} edges")
+
+        # Step 4: Find nearest nodes
+        print("\n[4/7] Finding nearest road nodes...")
+        nearest_nodes = self.find_nearest_node(G, all_locations)
+
+        # Step 5: Calculate distance matrix
+        print("\n[5/7] Calculating distance matrix...")
+        distance_matrix, path_matrix = self.compute_matrices(
+            G, nearest_nodes, all_locations, avg_speed_kmh=40
+        )
+
+         # Step 6: Cluster attractions by days
+        print("\n[6/7] Assigning attractions to days...")
+        daily_assignments = self.cluster_attractions_by_days(
+            attractions, hotels, day_hotels, distance_matrix, daily_hours
+        )
+
+        print("  Initial assignment:")
+        for day, attrs in daily_assignments.items():
+            print(f"    Day {day + 1}: {len(attrs)} attractions")
+
+        # Balance workload
+        daily_assignments = self.balance_daily_workload(
+            attractions, daily_assignments, daily_hours, visit_durations
+        )
+
+        print("  Balanced assignment:")
+        for day, attrs in daily_assignments.items():
+            print(f"    Day {day + 1}: {len(attrs)} attractions")
+
+        # Step 7: Optimize routes
+        print("\n[7/7] Optimizing routes...")
+
+        results = {}
+
+        # Method 1: Nearest Neighbor + 2-Opt
+        print("\n--- Method 1: Nearest Neighbor + 2-Opt ---")
+        daily_routes_nn, daily_metrics_nn, total_metrics_nn = self.build_multi_day_solution(
+            hotels, attractions, day_hotels, daily_assignments,
+            distance_matrix, visit_durations, daily_hours,
+            optimization_method='nearest_neighbor'
+        )
+        results['Nearest Neighbor + 2-Opt'] = {
+            'daily_routes': daily_routes_nn,
+            'daily_metrics': daily_metrics_nn,
+            'total_metrics': total_metrics_nn
+        }
+
+        # 1️⃣ Extract best solution
+        best_solution = results['Nearest Neighbor + 2-Opt']
+        daily_routes = best_solution['daily_routes']
+
+        # 2️⃣ Collect all route + hotel + stop details
+        route_details = []
+        for day, route in daily_routes.items():
+            day_info = {
+                "day": day + 1,
+                "color": None,
+                "hotel": None,
+                "stops": [],
+                "path_lines": []
+            }
+
+            # --- Get hotel info ---
+            if day in day_hotels:
+                hotel = day_hotels[day]
+                hotel_coords = all_locations[hotel['id']]
+                day_info["hotel"] = {
+                    "id": hotel["id"],
+                    "name": hotel["name"],
+                    "coordinates": {"lat": hotel_coords[0], "lon": hotel_coords[1]}
+                }
+
+            # --- Build routes (segments) ---
+            route_coords = []
+            for i in range(len(route) - 1):
+                start_id, end_id = route[i], route[i + 1]
+
+                if start_id in path_matrix and end_id in path_matrix[start_id]:
+                    path_nodes = path_matrix[start_id][end_id]
+                    if path_nodes:
+                        segment_coords = [
+                            {"lat": G.nodes[node]['y'], "lon": G.nodes[node]['x']}
+                            for node in path_nodes
+                        ]
+                        route_coords.extend(segment_coords)
+
+            if route_coords:
+                day_info["path_lines"].append(route_coords)
+
+            # --- Add attraction/stops ---
+            for i, location_id in enumerate(route[1:-1], 1):
+                if location_id in all_locations:
+                    coords = all_locations[location_id]
+                    day_info["stops"].append({
+                        "id": location_id,
+                        "stop_number": i,
+                        "coordinates": {"lat": coords[0], "lon": coords[1]},
+                    })
+
+            route_details.append(day_info)
+
+        # 3️⃣ Combine into response
+        response = {
+            "summary": {
+                "total_days": len(daily_routes),
+                "total_locations": len(all_locations),
+                "total_hotels": len(day_hotels),
+            },
+            "routes": route_details
+        }
+
+        return response
+    
+    from django.http import JsonResponse
+    import pandas as pd
+    from datetime import timedelta, datetime
+
+    def create_gantt_json(self):
+        """
+        Create Gantt chart schedule data (JSON version) for API response.
+        """
+        print("="*70)
+        print("MULTI-DAY TOURISM ROUTE OPTIMIZATION")
+        print("="*70)
+
+        # Step 1: Parse data
+        print("\n[1/7] Parsing input data...")
+        hotels, attractions, schedule, daily_hours = self.parsing_data()
+        day_hotels = self.assign_hotels_to_days(hotels)
+
+        print(f"  Total days: {schedule['total_days']}")
+        print(f"  Hotels: {len(hotels)}")
+        print(f"  Attractions: {len(attractions)}")
+        print(f"  Daily hours: {[f'{h:.1f}h' for h in daily_hours]}")
+
+        # Step 2: Prepare location data
+        print("\n[2/7] Preparing location data...")
+        all_locations = {}
+        visit_durations = {}
+
+        for hotel in hotels:
+            all_locations[hotel['id']] = hotel['coords']
+            visit_durations[hotel['id']] = 0
+
+        for attr in attractions:
+            all_locations[attr['id']] = attr['coords']
+            visit_durations[attr['id']] = attr['duration']
+
+        print(f"  Total locations: {len(all_locations)}")
+
+        # Step 3: Download road network
+        print("\n[3/7] Downloading road network...")
+        G = self.get_road_network()
+        print(f"  Network: {len(G.nodes)} nodes, {len(G.edges)} edges")
+
+        # Step 4: Find nearest nodes
+        print("\n[4/7] Finding nearest road nodes...")
+        nearest_nodes = self.find_nearest_node(G, all_locations)
+
+        # Step 5: Calculate distance matrix
+        print("\n[5/7] Calculating distance matrix...")
+        distance_matrix, path_matrix = self.compute_matrices(
+            G, nearest_nodes, all_locations, avg_speed_kmh=40
+        )
+
+         # Step 6: Cluster attractions by days
+        print("\n[6/7] Assigning attractions to days...")
+        daily_assignments = self.cluster_attractions_by_days(
+            attractions, hotels, day_hotels, distance_matrix, daily_hours
+        )
+
+        print("  Initial assignment:")
+        for day, attrs in daily_assignments.items():
+            print(f"    Day {day + 1}: {len(attrs)} attractions")
+
+        # Balance workload
+        daily_assignments = self.balance_daily_workload(
+            attractions, daily_assignments, daily_hours, visit_durations
+        )
+
+        print("  Balanced assignment:")
+        for day, attrs in daily_assignments.items():
+            print(f"    Day {day + 1}: {len(attrs)} attractions")
+
+        # Step 7: Optimize routes
+        print("\n[7/7] Optimizing routes...")
+
+        results = {}
+
+        # Method 1: Nearest Neighbor + 2-Opt
+        print("\n--- Method 1: Nearest Neighbor + 2-Opt ---")
+        daily_routes_nn, daily_metrics_nn, total_metrics_nn = self.build_multi_day_solution(
+            hotels, attractions, day_hotels, daily_assignments,
+            distance_matrix, visit_durations, daily_hours,
+            optimization_method='nearest_neighbor'
+        )
+        results['Nearest Neighbor + 2-Opt'] = {
+            'daily_routes': daily_routes_nn,
+            'daily_metrics': daily_metrics_nn,
+            'total_metrics': total_metrics_nn
+        }
+        
+        best_solution = results['Nearest Neighbor + 2-Opt']
+        daily_routes = best_solution['daily_routes']
+
+        gantt_data = []
+        start_value = schedule['start_date']
+        if isinstance(start_value, datetime):
+            start_date = start_value
+        else:
+            start_date = datetime.strptime(str(start_value), "%Y-%m-%d")
+
+
+        for day, route in daily_routes.items():
+            current_date = start_date + timedelta(days=day)
+            current_time = current_date.replace(hour=8, minute=0)
+
+            hotel = day_hotels[day]
+
+            for i, location_id in enumerate(route):
+                if i == 0:
+                    activity_name = f"Start at {hotel['name'][:20]}"
+                    duration = 0.5
+                    activity_type = "Hotel"
+                elif i == len(route) - 1:
+                    activity_name = f"Return to {hotel['name'][:20]}"
+                    duration = 0
+                    activity_type = "Hotel"
+                else:
+                    activity_name = f"Visit {location_id}"
+                    duration = visit_durations.get(location_id, 1)
+                    activity_type = "Attraction"
+
+                if duration > 0:
+                    end_time = current_time + timedelta(hours=duration)
+                    gantt_data.append({
+                        "day": day + 1,
+                        "activity": activity_name,
+                        "type": activity_type,
+                        "start": current_time.strftime("%Y-%m-%d %H:%M"),
+                        "finish": end_time.strftime("%Y-%m-%d %H:%M"),
+                        "duration_hours": duration,
+                        "location_id": location_id,
+                        "coordinates": all_locations.get(location_id, None)
+                    })
+                    current_time = end_time
+
+                # Travel to next location
+                if i < len(route) - 1:
+                    next_location = route[i + 1]
+                    travel_time = 0.5
+                    travel_end = current_time + timedelta(hours=travel_time)
+
+                    gantt_data.append({
+                        "day": day + 1,
+                        "activity": f"Travel to {next_location[:15]}",
+                        "type": "Travel",
+                        "start": current_time.strftime("%Y-%m-%d %H:%M"),
+                        "finish": travel_end.strftime("%Y-%m-%d %H:%M"),
+                        "duration_hours": travel_time,
+                        "location_id": f"Travel-{next_location}",
+                        "coordinates": all_locations.get(next_location, None)
+                    })
+                    current_time = travel_end
+
+        # Group data for easier frontend rendering
+        gantt_summary = {}
+        for item in gantt_data:
+            day = f"Day {item['day']}"
+            if day not in gantt_summary:
+                gantt_summary[day] = []
+            gantt_summary[day].append(item)
+
+        # Build response JSON
+        response = {
+            "method": 'Nearest Neighbor + 2-Opt',
+            "total_days": len(daily_routes),
+            "schedule_start": schedule["start_date"],
+            "schedule_end": schedule["end_date"],
+            "gantt_data": gantt_summary
+        }
+
+        return response
+

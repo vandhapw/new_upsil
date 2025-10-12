@@ -531,10 +531,10 @@ html, body {
 }
 
 /* Clear History Button Specific Styling */
-#clearHistoryButton {
+/* #clearHistoryButton {
     margin-top: 0.5rem;
-    width: 100%;
-}
+    width: 50%;
+} */
 
 #clearHistoryButton:hover {
     border-color: #f59e0b;
@@ -4300,7 +4300,7 @@ html, body {
     color: var(--text-white);
     border: none;
     position: relative;
-    top: 10em;
+    top: 11em;
     left: 1em;
 }
 
@@ -4531,4 +4531,140 @@ html, body {
     border-radius: 50%;
     border: 3px solid white;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Route Display Markers */
+.custom-route-marker {
+    border: none !important;
+    background: transparent !important;
+}
+
+.custom-route-marker div {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.custom-route-marker:hover div {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+.hotel-marker div {
+    animation: pulse 2s infinite;
+}
+
+.stop-marker div {
+    font-family: 'Inter', sans-serif;
+    font-weight: bold;
+}
+
+/* Route Control Panel */
+.route-control-panel {
+    background: white !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    padding: 12px !important;
+    max-width: 280px !important;
+    font-family: 'Inter', sans-serif !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.route-control-panel h4 {
+    margin: 0 0 12px 0 !important;
+    font-size: 14px !important;
+    color: #1e293b !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-weight: 600 !important;
+}
+
+.route-control-panel input[type="checkbox"] {
+    accent-color: var(--primary-color);
+    cursor: pointer;
+}
+
+.route-control-panel button {
+    transition: all 0.2s ease;
+}
+
+.route-control-panel button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+/* Route popup styles */
+.route-popup h4 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.route-popup p {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    margin: 4px 0;
+}
+
+/* Animation for route markers */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Route line hover effects */
+.leaflet-interactive {
+    cursor: pointer !important;
+}
+
+.leaflet-interactive:hover {
+    filter: brightness(1.1) saturate(1.2);
+}
+
+
+/* Add this to your CSS file */
+.action-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #fff !important;
+}
+
+.action-btn.disabled:hover {
+    opacity: 0.5;
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    transform: none;
+}
+
+.action-btn.disabled i {
+    color: #fff !important;
+}
+
+/* Optional: Add visual feedback for enabled buttons */
+.action-btn:not(.disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Success state for enabled buttons */
+.action-btn.view:not(.disabled) {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.action-btn.success:not(.disabled) {
+    background-color: #28a745;
+    border-color: #28a745;
 }

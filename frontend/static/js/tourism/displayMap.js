@@ -63,6 +63,7 @@ class displayMap {
         container.onclick = function() {
             if (window.displayHotelInstance) {
                 window.displayHotelInstance.searchHotels();
+                window.displayAttractionInstance.clearAttractions();
             } else {
                 alert('Please select a province first to search for hotels');
             }
@@ -73,23 +74,23 @@ class displayMap {
 });
 
 // Add custom flight control with responsive CSS classes
-const FlightControl = L.Control.extend({
-    options: {
-        position: 'topright'
-    },
-    onAdd: function(map) {
-        const container = L.DomUtil.create('div', 'custom-map-control flight-control');
-        container.innerHTML = '<i class="fas fa-plane" style="font-size: 16px; color: #333;"></i>';
-        container.title = 'Search Flights';
+// const FlightControl = L.Control.extend({
+//     options: {
+//         position: 'topright'
+//     },
+//     onAdd: function(map) {
+//         const container = L.DomUtil.create('div', 'custom-map-control flight-control');
+//         container.innerHTML = '<i class="fas fa-plane" style="font-size: 16px; color: #333;"></i>';
+//         container.title = 'Search Flights';
 
-        container.onclick = function() {
-            // Show flight search modal instead of triggering sidebar button
-            window.flightOption.showFlightSearchModal();
-        };
+//         container.onclick = function() {
+//             // Show flight search modal instead of triggering sidebar button
+//             window.flightOption.showFlightSearchModal();
+//         };
 
-        return container;
-    }
-});
+//         return container;
+//     }
+// });
 
 const AttractionControl = L.Control.extend({
     options: {
@@ -101,8 +102,10 @@ const AttractionControl = L.Control.extend({
         container.title = 'Search Attractions';
 
         container.onclick = function() {
+            console.log('Attraction control clicked');
             if (window.displayAttractionInstance) {
                 window.displayAttractionInstance.searchAttractions();
+                window.displayHotelInstance.clearMarkersOnly();
             } else {
                 alert('Please select a province first to search for attractions');
             }
@@ -114,7 +117,7 @@ const AttractionControl = L.Control.extend({
 
     // Add the controls to the map
     new HotelControl().addTo(this.map);
-    new FlightControl().addTo(this.map);
+    // new FlightControl().addTo(this.map);
     new AttractionControl().addTo(this.map);
 
         // Add OpenStreetMap tile layer

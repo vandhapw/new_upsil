@@ -3,11 +3,51 @@ class displayAttraction {
         this.map = map;
         this.provinceDisplayInstance = provinceDisplayInstance;
         this.attractionMarkers = [];
-        this.attractionLayer = L.layerGroup().addTo(this.map);
+        this.selectedAttractionMarkers = []; // Separate array for booked attractions
+        this.attractionLayer = null;
+        this.selectedAttractionLayer = null; // Separate layer for booked attractions
         this.selectedAttractions = []; // Array to store selected attractions
+        this.isAttractionVisible = false;
+
+         // Attraction marker icon (default - red)
+        this.AttractionIcon = L.divIcon({
+            className: 'custom-attraction-marker',
+            html: `<div style="background-color: #ff6b6b; width: 28px; height: 28px; border-radius: 50%; border: 3px solid white; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+                     <i class="fa-solid fa-street-view" style="color: white; font-size: 14px;"></i>
+                   </div>`,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14]
+        });
+
+        // selected Attraction marker icon (green)
+        this.selectedAttractionIcon = L.divIcon({
+            // className: isSelected ? 'custom-selected-attraction-marker' : 'custom-attraction-marker',
+            className: 'custom-attraction-marker selected-attraction',
+            html: `<div style="background-color: #10b981; width: 32px; height: 32px; border-radius: 50%; border: 3px solid white; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(0,0,0,0.4);">
+                     <i class="fas fa-check" style="color: white; font-size: 16px;"></i>
+                   </div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
         
         // Load saved attractions
+        this.init();
+    }
+
+    init() {
+        // Create a layer group for regular attractions
+        this.attractionLayer = L.layerGroup().addTo(this.map);
+        
+        // Create a separate layer group for selected attractions (always visible)
+        this.selectedAttractionLayer = L.layerGroup().addTo(this.map);
+        
+        // Load saved attraction selections
         this.loadSelectedAttractions();
+        
+        // Display selected attractions on map
+        this.displaySelectedAttractions();
+
+        console.log("Attraction display initialized");
     }
 
     async searchAttractions() {
@@ -79,31 +119,14 @@ class displayAttraction {
             // Check if the attraction is already selected
             const isSelected = this.isAttractionSelected(attraction.id);
 
-            // Create a custom marker style based on selection status
-            const markerIcon = L.divIcon({
-                className: isSelected ? 'custom-selected-attraction-marker' : 'custom-attraction-marker',
-                html: `
-                    <div style="background-color: ${isSelected ? '#10b981' : '#ffcc00'}; 
-                                width: 28px; 
-                                height: 28px; 
-                                border-radius: 50%; 
-                                border: 3px solid white; 
-                                display: flex; 
-                                align-items: center; 
-                                justify-content: center; 
-                                box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
-                        <i class="fas ${isSelected ? 'fa-check-circle' : 'fa-map-marker-alt'}" 
-                        style="color: white; font-size: 14px;"></i>
-                    </div>
-                `,
-                iconSize: [28, 28],
-                iconAnchor: [14, 14]
-            });
+            const icon = isSelected ? this.selectedAttractionIcon : this.AttractionIcon;
 
             // Create attraction marker
-            const marker = L.marker([lat, lng], { icon: markerIcon })
+            const marker = L.marker([lat, lng], { icon: icon })
                 .bindPopup(this.createAttractionPopup(attraction))
                 .addTo(this.attractionLayer);
+
+            marker.attractionData = attraction;
 
             this.attractionMarkers.push(marker);
         });
@@ -192,8 +215,8 @@ class displayAttraction {
         // Save to localStorage
         this.saveSelectedAttractions();
 
-        // Refresh attraction display
-        // this.refreshAttractionDisplay();
+        // Display selected attractions
+        this.displaySelectedAttractions();
        
         // alert(`Attraction "${attractionName}" selected for ${hours} hours.`);
     }
@@ -213,7 +236,8 @@ class displayAttraction {
             // Save updated selections
             this.saveSelectedAttractions();
 
-            // Refresh attraction display
+            // Update displays
+            this.displaySelectedAttractions();
             this.refreshAttractionDisplay();
 
             alert(`Selection for "${selection.name}" has been canceled.`);
@@ -221,9 +245,9 @@ class displayAttraction {
     }
 
     // Check if an attraction is already selected
-    isAttractionSelected(attractionId) {
-        return this.selectedAttractions.some(a => a.id === attractionId);
-    }
+    // isAttractionSelected(attractionId) {
+    //     return this.selectedAttractions.some(a => a.id === attractionId);
+    // }
 
     // Get total selected hours
     getTotalSelectedHours() {
@@ -355,30 +379,51 @@ class displayAttraction {
         `;
     }
 
+    // Check if an attraction is already selected
+    isAttractionSelected(attractionId) {
+        return this.selectedAttractions && this.selectedAttractions.some(attraction => attraction.id === attractionId);
+    }
+
     displaySelectedAttractions() {
-        if (this.selectedAttractions.length === 0) {
-            alert("No attractions selected.");
-            return;
-        }
+        if (!this.selectedAttractions || this.selectedAttractions.length === 0) return;
 
-        let attractionList = '<h3>Selected Attractions</h3><ul>';
-        this.selectedAttractions.forEach(attraction => {
-            attractionList += `<li>${attraction.name} (${attraction.province})</li>`;
-        });
-        attractionList += '</ul>';
+        // Clear existing selected attraction markers
+        this.selectedAttractionLayer.clearLayers();
+        this.selectedAttractionMarkers = [];
 
-        // change the marker selected shape with checked icon and green color
         this.selectedAttractions.forEach(attraction => {
-            const marker = this.getMarkerByAttractionId(attraction.id);
-            if (marker) {
-                marker.setIcon('checked-icon.png');
-                marker.setColor('green');
+            if (attraction.coordinates) {
+                const [lng, lat] = attraction.coordinates;
+
+                const marker = L.marker([lat, lng], { icon: this.selectedAttractionIcon })
+                    .bindPopup(this.createSelectedAttractionPopup(attraction))
+                    .addTo(this.selectedAttractionLayer);
+
+                marker.attractionData = attraction;
+                this.selectedAttractionMarkers.push(marker);
             }
         });
 
-        // Display the list in a modal or alert
-        alert(attractionList);
-        console.log("Selected attractions:", this.selectedAttractions);
+        console.log(`Displayed ${this.selectedAttractions.length} selected attractions on the map`);
+    }
+
+    // Create popup for selected attractions
+    createSelectedAttractionPopup(attraction) {
+        return `
+            <div class="popup-content selected-attraction-popup">
+                <h4><i class="fas fa-check-circle" style="color: #10b981;"></i> ${attraction.name}</h4>
+                <p><strong>Province:</strong> ${attraction.province}</p>
+                <p><strong>Selected Hours:</strong> ${attraction.hours}</p>
+                <p><strong>Selection Date:</strong> ${new Date(attraction.selectionDate).toLocaleDateString()}</p>
+                <p><strong>Status:</strong> <span style="color: #10b981; font-weight: bold;">SELECTED</span></p>
+
+                <div class="selected-attraction-actions">
+                    <button class="btn-cancel-selection" onclick="window.displayAttractionInstance.cancelAttractionSelection('${attraction.id}')">
+                        <i class="fas fa-times"></i> Cancel Selection
+                    </button>
+                </div>
+            </div>
+        `;
     }
 
     // Get selected attractions for optimization results
@@ -446,10 +491,32 @@ class displayAttraction {
         };
     }
 
+    clearSelectedAttractionIcons() {
+        // Clear the selected attraction layer (removes green icons)
+        if (this.selectedAttractionLayer) {
+            this.selectedAttractionLayer.clearLayers();
+        }
+        this.selectedAttractionMarkers = [];
+
+        // Reset all regular attraction markers back to default red icons
+        this.attractionMarkers.forEach(marker => {
+            if (marker.attractionData) {
+                // Update the marker icon back to default
+                marker.setIcon(this.AttractionIcon);
+                
+                // Update the popup to show unselected state
+                marker.setPopupContent(this.createAttractionPopup(marker.attractionData));
+            }
+        });
+
+        console.log("Cleared all selected attraction icons from map");
+    }
+
     // Clear selected attractions (for the clear history function)
     clearSelectedAttractions() {
         this.selectedAttractions = [];
         this.clearAttractions();
+        this.clearSelectedAttractionIcons();
         // Clear from localStorage
         localStorage.removeItem('selectedAttractions');
         localStorage.removeItem('attractionSelections');
@@ -528,4 +595,6 @@ class displayAttraction {
     getMarkerByAttractionId(attractionId) {
         return this.attractionMarkers.find(marker => marker.attractionData && marker.attractionData.id === attractionId);
     }
+
+    
 }

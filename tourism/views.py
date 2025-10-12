@@ -7,6 +7,8 @@ from django.views.decorators.csrf import csrf_exempt
 import json, datetime
 import uuid
 
+from tourism.optimization import dummy_schedule
+
 client = MongoClient("mongodb://localhost:27017/")
 db = client["server_db"]
 korean_provinces_collection = db["korean_provinces"]
@@ -241,6 +243,50 @@ def get_trip_optimization_data(request):
             'error': str(e)
         }, status=500)
     
+def convert_keys_to_strings(obj):
+    """
+    Recursively convert all dictionary keys to strings for MongoDB compatibility
+    """
+    if isinstance(obj, dict):
+        return {str(key): convert_keys_to_strings(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_keys_to_strings(item) for item in obj]
+    elif hasattr(obj, '__dict__'):
+        # Handle custom objects by converting to dict first
+        return convert_keys_to_strings(obj.__dict__)
+    else:
+        return obj
+
+def serialize_for_mongodb(data):
+    """
+    Convert data structure to be MongoDB-compatible
+    """
+    import json
+    from datetime import datetime
+    import numpy as np
+    
+    def json_serializer(obj):
+        """Handle non-serializable objects"""
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        elif isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif hasattr(obj, '__dict__'):
+            return obj.__dict__
+        else:
+            return str(obj)
+    
+    # First convert to JSON and back to handle non-serializable objects
+    json_str = json.dumps(data, default=json_serializer)
+    clean_data = json.loads(json_str)
+    
+    # Then convert all keys to strings
+    return convert_keys_to_strings(clean_data)
+    
 
 @csrf_exempt
 def trip_optimization_api(request):
@@ -253,14 +299,18 @@ def trip_optimization_api(request):
             data = json.loads(request.body)
             
             # Get user information from session
-            user_id = request.session.get('id')
-            username = request.session.get('username')
-            
+            # user_id = request.session.get('id')
+            # username = request.session.get('username')
+            user_id = "test"
+            username = "test"
+
             # if not user_id:
             #     return JsonResponse({'error': 'User not authenticated'}, status=401)
             
             # Extract trip optimization data
             trip_data = {
+                # 'user_id': user_id,
+                # 'username': username,
                 'user_id': user_id,
                 'username': username,
                 'optimization_id': str(uuid.uuid4()),
@@ -326,8 +376,6 @@ def trip_optimization_api(request):
                     attraction_province = attraction.get('province', 'unknown')
                     trip_data['attractions']['by_province'][attraction_province] = trip_data['attractions']['by_province'].get(attraction_province, 0) + 1
             
-            # Store in MongoDB
-            # result = trip_optimization_collection.insert_one(trip_data)
             final_data = final_data_used(trip_data)
 
             from tourism.optimization.distance_matrix import DistanceMatrix
@@ -336,28 +384,57 @@ def trip_optimization_api(request):
             dm = DistanceMatrix(final_data)
 
             # Solve
-            results, G, distance_matrix, day_hotels, all_locations, path_matrix = dm.solve_multi_day_route_optimization()
-
-
-            return JsonResponse({
-                'success': True,
-                # 'final_data': final_data,
-                # 'trip_data': trip_data,
-                'path_matrix': path_matrix,
-            }, status=200)
+            results, _, _, _, optimized_routes, optimized_gantt_chart = dm.solve_multi_day_route_optimization()
+            # Serialize the optimization results for MongoDB
+            mongodb_safe_results = serialize_for_mongodb(results)
+            mongodb_safe_routes = serialize_for_mongodb(optimized_routes)
+            mongodb_safe_gantt = serialize_for_mongodb(optimized_gantt_chart)
             
-        except json.JSONDecodeError as e:
-            return JsonResponse({
-                'success': False,
-                'error': f'Invalid JSON data: {str(e)}'
-            }, status=400)
+            # Add to trip data
+            trip_data['optimization_results'] = mongodb_safe_results
+            trip_data['optimized_routes'] = mongodb_safe_routes
+            trip_data['optimized_gantt_chart'] = mongodb_safe_gantt
+
+            # Store in MongoDB
+            result = trip_optimization_collection.insert_one(trip_data)
+
+            if result.inserted_id:
+                # Prepare response data
+                return JsonResponse({
+                    'success': True,
+                    # 'final_data': final_data,
+                    # 'trip_data': trip_data,
+                    'optimized_routes': optimized_routes,
+                    'optimized_gantt_chart': optimized_gantt_chart,
+                }, status=200)
+            else:
+                return JsonResponse({'error': 'Failed to store optimization data'}, status=500)
+                
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
         except Exception as e:
-            print(f"Error in trip_optimization_api: {str(e)}")
-            print(f"Request body: {request.body}")
-            return JsonResponse({
-                'success': False,
-                'error': f'Server error: {str(e)}'
-            }, status=500)
+            return JsonResponse({'error': f'Server error: {str(e)}'}, status=500)
+
+        #     return JsonResponse({
+        #         'success': True,
+        #         # 'final_data': final_data,
+        #         # 'trip_data': trip_data,
+        #         'optimized_routes': optimized_routes,
+        #         'optimized_gantt_chart': optimized_gantt_chart,
+        # #     }, status=200)
+            
+        # except json.JSONDecodeError as e:
+        #     return JsonResponse({
+        #         'success': False,
+        #         'error': f'Invalid JSON data: {str(e)}'
+        #     }, status=400)
+        # except Exception as e:
+        #     print(f"Error in trip_optimization_api: {str(e)}")
+        #     print(f"Request body: {request.body}")
+        #     return JsonResponse({
+        #         'success': False,
+        #         'error': f'Server error: {str(e)}'
+        #     }, status=500)
             
             # if result.inserted_id:
             #     # Prepare response data
@@ -645,7 +722,7 @@ def calculate_distance_matrix(request, data=None):
     dm = DistanceMatrix(final_data)
 
     # Solve
-    results, G, distance_matrix, day_hotels, all_locations, path_matrix = dm.solve_multi_day_route_optimization()
+    results, G, distance_matrix, day_hotels, all_locations, optimize_route = dm.solve_multi_day_route_optimization()
 
     # route_map, gantt_chart = complete_visualization_workflow(data_dict)
 
@@ -655,16 +732,15 @@ def calculate_distance_matrix(request, data=None):
     print(f"Total optimization time: {best_result[1]['total_metrics']['total_time']:.2f} hours")
     # print(f"distance matrix:", distance_matrix)
     # print(f"all_locations:", all_locations)
-    print(f"path_matrix:", path_matrix)
-
-    return JsonResponse({
-        'success': True,
-        'message': 'Distance matrix calculation placeholder',
-        # 'final_data': final_data[0],
-        'best_method': best_result[0],
-        'total_optimization_time_hours': round(best_result[1]['total_metrics']['total_time'], 2),
-        'path_matrix': path_matrix,
-    })
+    return results, G, distance_matrix, day_hotels, all_locations, optimize_route
+    # return JsonResponse({
+    #     'success': True,
+    #     'message': 'Distance matrix calculation placeholder',
+    #     # 'final_data': final_data[0],
+    #     'best_method': best_result[0],
+    #     'total_optimization_time_hours': round(best_result[1]['total_metrics']['total_time'], 2),
+    #     'optimize_route': optimize_route,
+    # })
 
 def calling_test_api(data=None):
     from tourism.crud_api import crud_map
@@ -673,7 +749,7 @@ def calling_test_api(data=None):
 
     dm = DistanceMatrix(final_data)
 
-    results, G, distance_matrix, day_hotels, all_locations, path_matrix = dm.solve_multi_day_route_optimization()
+    results = dm.create_gantt_json()
 
     # cm = crud_map.MapCRUD(final_data)
     # cm.store_graphml_to_pickle()
@@ -686,5 +762,25 @@ def calling_test_api(data=None):
         # 'distance_matrix': distance_matrix,
         # 'day_hotels': day_hotels,
         # 'all_locations': all_locations,
-        'path_matrix': path_matrix,
+        # 'path_matrix': path_matrix,
     })
+
+def test_api_call(request):
+    # from tourism.optimization.dummy_schedule import dummy_schedule
+    # call mongodb collection of trip_optimization based on user_id
+    user_id = "test"
+    # user_id = request.user.id if request.user.is_authenticated else "test"
+    result = trip_optimization_collection.find_one({'user_id': user_id}, sort=[('created_at', -1)])
+    gantt_chart = result.get('optimized_gantt_chart') if result else None
+
+    return JsonResponse(gantt_chart if gantt_chart else {"message": "No data found"})
+
+def test_api_call_2(request):
+    # from tourism.crud_api.call_route_example import call_route_api
+    # from tourism.optimization.dummy_route import dummy_route
+    # user_id = request.user.id if request.user.is_authenticated else "test"
+    user_id = "test"
+    result = trip_optimization_collection.find_one({'user_id': user_id}, sort=[('created_at', -1)])
+    routes = result.get('optimized_routes') if result else None
+
+    return JsonResponse(routes if routes else {"message": "No data found"})

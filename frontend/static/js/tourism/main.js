@@ -11,6 +11,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Step 1: Initialize the map first
         const mapInstance = new displayMap();
+        window.mapInstance = mapInstance;
+        window.displayMapInstance = mapInstance; // For compatibility with tripHistory.js
+        window.displayMap = mapInstance; // Also store as window.displayMap
         
         // Wait for map initialization to complete
         await new Promise(resolve => {
@@ -27,7 +30,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Step 2: Initialize province display with the map instance
         const map = mapInstance.getMap();
-        window.mapInstance = mapInstance;
+        console.log("Retrieved map for initialization:", map);
+       
 
         // Check if provinceDisplay class exists before initializing
         if (typeof provinceDisplay !== 'undefined') {
@@ -53,7 +57,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (typeof displayHotel !== 'undefined' && window.provinceDisplayInstance) {
             const displayHotelInstance = new displayHotel(map, window.provinceDisplayInstance);
             window.displayHotelInstance = displayHotelInstance;
-            console.log("Hotel display initialized");
+            // console.log("Hotel display initialized");
         } else {
             console.log("displayHotel class not found or provinceDisplay not available, skipping hotel initialization");
         }
@@ -62,7 +66,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (typeof displayAttraction !== 'undefined' && window.provinceDisplayInstance) {
             const displayAttractionInstance = new displayAttraction(map, window.provinceDisplayInstance);
             window.displayAttractionInstance = displayAttractionInstance;
-            console.log("Attraction display initialized");
+            // console.log("Attraction display initialized");
         } else {
             console.log("displayAttraction class not found or provinceDisplay not available, skipping attraction initialization");
         }
@@ -92,6 +96,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if(optimizeButton){
             optimizeButton.addEventListener('click',() => {
                 // alert("optimize button clicked");
+                // return; // Temporary return to prevent execution during testing
                 handleOptimize(provinceDisplayInstance);
                 
             });
@@ -112,21 +117,21 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.error("Clear history button not found");
         }
 
-        // Save to History Button
-        const saveToHistoryButton = document.getElementById("saveToHistoryButton");
+        // // Save to History Button
+        // const saveToHistoryButton = document.getElementById("saveToHistoryButton");
 
-        if(saveToHistoryButton){
-            saveToHistoryButton.addEventListener('click',() => {
-                if (window.manualCreateNewTrip) {
-                    window.manualCreateNewTrip();
-                } else {
-                    console.error("Manual create new trip function not available");
-                }
-            });
-        }
-        else {
-            console.error("Save to history button not found");
-        }
+        // if(saveToHistoryButton){
+        //     saveToHistoryButton.addEventListener('click',() => {
+        //         if (window.manualCreateNewTrip) {
+        //             window.manualCreateNewTrip();
+        //         } else {
+        //             console.error("Manual create new trip function not available");
+        //         }
+        //     });
+        // }
+        // else {
+        //     console.error("Save to history button not found");
+        // }
 
         // Setup automatic form data capture
         setTimeout(() => {
@@ -228,12 +233,20 @@ try{
     if (window.displayHotelInstance) {
         hotelBookingInfo = window.displayHotelInstance.getBookingDisplayInfo();
         console.log("Hotel Booking Info:", hotelBookingInfo);
+        if (!hotelBookingInfo || !hotelBookingInfo.summary || hotelBookingInfo.summary.hotelCount === 0) {
+            showLoading("No hotels booked. Please select at least one hotel to optimize your trip.", true);
+            return;
+        }
     }
     
     // Store attraction data for optimization and get attraction info
     let attractionOptimizationData = null;
     if (window.displayAttractionInstance) {
         attractionOptimizationData = window.displayAttractionInstance.storeAttractionDataForOptimization();
+        if (!attractionOptimizationData || !attractionOptimizationData.selectedAttractions || attractionOptimizationData.selectedAttractions.length === 0) {
+            showLoading("No attractions selected. Please select at least one attraction to optimize your trip.", true);
+            return;
+        }
         console.log("Attraction data stored for optimization:", attractionOptimizationData);
     }
     
@@ -255,12 +268,14 @@ try{
         window.tripHistoryManager.updateTripEntry(tripData);
         console.log('Trip data updated in history table:', tripData);
     }
+
+    // Add to
     
     // Get coordinate information for API
     const hotelCoordinates = window.displayHotelInstance ? window.displayHotelInstance.getHotelCoordinates() : [];
     
     // Send optimization data to API
-    sendOptimizationToAPI({
+    const optimizationPromise = sendOptimizationToAPI({
         province: selectedProvince,
         dateTimeInfo: dateTimeInfo,
         tripDuration: calculateTripDuration(dateTimeInfo.startDate, dateTimeInfo.endDate),
@@ -280,34 +295,119 @@ try{
                    (window.displayHotelInstance?.getSelectedHotels()?.length > 0 || 
                     window.displayAttractionInstance?.getSelectedAttractions()?.length > 0)
     });
-    
-        // Display optimization results with hotel information
-        setTimeout(() => {
-            // Validate coordinates before displaying results
-            if (window.displayHotelInstance) {
-                const coordinateReport = window.displayHotelInstance.validateCoordinateData();
-                console.log('Pre-export coordinate validation:', coordinateReport);
-            }
-            
-            // Pass attractionOptimizationData as a parameter
-            displayOptimizationResults(selectedProvince, dateTimeInfo, hotelBookingInfo, attractionOptimizationData);
-            
-            // Focus map on selected province and hotels
-            if (window.displayHotelInstance) {
-                console.log('Focusing map on selected province and booked hotels...');
-                window.displayHotelInstance.focusMapOnSelections();
-                window.displayHotelInstance.displayUserHistoryOnMap();
-                console.log('Map focused on user selections and history displayed');
-            } else {
-                console.log('Hotel display instance not available for map focusing');
-            }
-        }, 1500);
+
+    // Clear markers after optimization is sent
+    optimizationPromise.then(() => {
+        console.log('Optimization completed, clearing markers...');
         
-        // Note: Removed automatic clearing - user history is now preserved
+        // Clear hotel markers
+        if (window.displayHotelInstance && typeof window.displayHotelInstance.clearHotelMarkers === 'function') {
+            window.displayHotelInstance.clearHotelMarkers();
+            console.log('Hotel markers cleared');
+        } else if (window.displayHotelInstance && typeof window.displayHotelInstance.clearAllMarkersFromMap === 'function') {
+            window.displayHotelInstance.clearAllMarkersFromMap();
+            console.log('All hotel markers cleared from map');
+        } else {
+            console.log('Hotel marker clearing method not found');
+        }
+        
+        // Clear attraction markers
+        if (window.displayAttractionInstance && typeof window.displayAttractionInstance.clearAttractionMarkers === 'function') {
+            window.displayAttractionInstance.clearAttractionMarkers();
+            console.log('Attraction markers cleared');
+        } else if (window.displayAttractionInstance && typeof window.displayAttractionInstance.clearAllMarkersFromMap === 'function') {
+            window.displayAttractionInstance.clearAllMarkersFromMap();
+            console.log('All attraction markers cleared from map');
+        } else {
+            console.log('Attraction marker clearing method not found');
+        }
+        
+        // Clear any additional markers if there are other instances
+        clearAllMapMarkers();
+        
+        // Show success message
+        if (typeof showLoading === 'function') {
+            showLoading('✅ Optimization completed and markers cleared!', true);
+        }
+        
+    }).catch((error) => {
+        console.error('Optimization failed:', error);
+        // Don't clear markers if optimization failed
+    });
+    
+    // Display optimization results with hotel information
+    setTimeout(() => {
+        // Validate coordinates before displaying results
+        if (window.displayHotelInstance) {
+            const coordinateReport = window.displayHotelInstance.validateCoordinateData();
+            console.log('Pre-export coordinate validation:', coordinateReport);
+        }
+        
+        // Pass attractionOptimizationData as a parameter
+        displayOptimizationResults(selectedProvince, dateTimeInfo, hotelBookingInfo, attractionOptimizationData);
+        
+        // Focus map on selected province (but don't show hotel markers anymore)
+        if (window.mapInstance) {
+            const map = window.mapInstance.getMap();
+            if (map && selectedProvince?.geometry?.coordinates) {
+                // Focus on province only (without showing markers)
+                console.log('Focusing map on selected province without markers...');
+                map.setView([36.5, 127.5], 7); // Default to Korea center or province center
+            }
+        }
+        
+    }, 1500);
         
     } catch(error){
         console.error("Error in handleOptimize:", error);
         alert("An error occurred during optimization. Please try again.");
+    }
+}
+
+// NEW FUNCTION: Clear all map markers
+function clearAllMapMarkers() {
+    try {
+        console.log('Clearing all map markers...');
+        
+        if (window.mapInstance) {
+            const map = window.mapInstance.getMap();
+            
+            if (map) {
+                // Method 1: Clear all layers except base layer
+                map.eachLayer(function(layer) {
+                    // Keep base tile layers, remove marker layers
+                    if (layer instanceof L.Marker || 
+                        layer instanceof L.CircleMarker || 
+                        layer instanceof L.LayerGroup ||
+                        (layer.options && (layer.options.type === 'hotel' || layer.options.type === 'attraction'))) {
+                        map.removeLayer(layer);
+                    }
+                });
+                
+                // Method 2: Clear specific marker arrays if they exist
+                if (window.hotelMarkers && Array.isArray(window.hotelMarkers)) {
+                    window.hotelMarkers.forEach(marker => {
+                        if (marker && map.hasLayer(marker)) {
+                            map.removeLayer(marker);
+                        }
+                    });
+                    window.hotelMarkers = [];
+                }
+                
+                if (window.attractionMarkers && Array.isArray(window.attractionMarkers)) {
+                    window.attractionMarkers.forEach(marker => {
+                        if (marker && map.hasLayer(marker)) {
+                            map.removeLayer(marker);
+                        }
+                    });
+                    window.attractionMarkers = [];
+                }
+                
+                console.log('✅ All map markers cleared successfully');
+            }
+        }
+    } catch (error) {
+        console.error('Error clearing map markers:', error);
     }
 }
 
@@ -762,9 +862,33 @@ function clearAllPriorInformation() {
 }
 
 // Send optimization data to API
-async function sendOptimizationToAPI(optimizationData) {
+async function sendOptimizationToAPI(optimizationData, entryId = null) {
     try {
         console.log('Sending optimization data to API:', optimizationData);
+        
+        // Show progressive loading messages
+        const loadingMessages = [
+            '🚀 Starting optimization process...',
+            '📊 Processing trip data and preferences...',
+            '🗺️ Calculating optimal routes and schedules...',
+            '🔄 Analyzing attraction distances and travel times...',
+            'Optimizing process, it takes almost 5 minutes to load the routes...'
+        ];
+        
+        let messageIndex = 0;
+        
+        // Show first loading message
+        if (typeof showLoading === 'function') {
+            showLoading(loadingMessages[messageIndex], false);
+        }
+        
+        // Progress through loading messages
+        const progressInterval = setInterval(() => {
+            messageIndex++;
+            if (messageIndex < loadingMessages.length && typeof showLoading === 'function') {
+                showLoading(loadingMessages[messageIndex], false);
+            }
+        }, 1000);
         
         const response = await fetch('/tourism/api/trip-optimization/', {
             method: 'POST',
@@ -775,31 +899,105 @@ async function sendOptimizationToAPI(optimizationData) {
             body: JSON.stringify(optimizationData)
         });
         
+        // Clear the progress interval
+        clearInterval(progressInterval);
+        
+        // Update loading message for processing response
+        if (typeof showLoading === 'function') {
+            showLoading('⚙️ Processing optimization results...', false);
+        }
+        
         const result = await response.json();
         
-        if (response.ok && result.success) {
+        if (result.success) {
             console.log('Optimization data sent successfully:', result);
             
-            // Show success message with API response
-            showOptimizationAPIResponse(result);
+            // Show success loading message
+            if (typeof showLoading === 'function') {
+                showLoading('✅ Optimization completed successfully!', false);
+            }
             
+            // Store optimization results globally for route/gantt access
+            // if (!window.optimizationResults) {
+            //     window.optimizationResults = {};
+            // }
+            
+            // Get the current trip entry ID
+            // let currentEntryId = entryId;
+            // if (!currentEntryId && window.tripHistoryManager && window.tripHistoryManager.historyData.length > 0) {
+            //     // Use the most recent entry if no specific entryId provided
+            //     currentEntryId = window.tripHistoryManager.historyData[0].id;
+            // }
+            
+            // if (currentEntryId) {
+            //     // Store optimization results for this specific entry
+            //     window.optimizationResults[currentEntryId] = {
+            //         routes: result.optimized_routes || result.routes,
+            //         ganttChart: result.optimized_gantt_chart || result.gantt_data,
+            //         timestamp: new Date().toISOString(),
+            //         apiResponse: result
+            //     };
+                
+            //     // Enable buttons for this entry after successful optimization
+            //     if (window.tripHistoryManager) {
+            //         window.tripHistoryManager.enableButtonsForEntry(currentEntryId);
+                    
+            //         // Show final success message with button enablement info
+            //         if (typeof showLoading === 'function') {
+            //             showLoading(`🎉 Trip optimized successfully! Route and Gantt chart buttons are now enabled for Entry #${currentEntryId}`, true);
+            //         }
+            //     }
+                
+            //     console.log(`Optimization results stored for entry ${currentEntryId}:`, {
+            //         hasRoutes: !!(result.optimized_routes || result.routes),
+            //         hasGanttChart: !!(result.optimized_gantt_chart || result.gantt_data)
+            //     });
+            // } else {
+            //     // Show generic success message if no specific entry
+            //     if (typeof showLoading === 'function') {
+            //         showLoading('🎉 Optimization completed successfully!', true);
+            //     }
+            // }
+            
+            // Show success message with API response
+            // showOptimizationAPIResponse(result);
+
             // Log detailed API response
-            console.log('API Response Details:', {
-                // optimizationId: result.optimization_id,
-                // summary: result.summary,
-                // recommendations: result.recommendations,
-                // insights: result.data_insights
-                path_matrix: result.path_matrix,
-            });
+            // console.log('API Response Details:', {
+            //     optimized_routes: result.optimized_routes,
+            //     optimized_gantt_chart: result.optimized_gantt_chart,
+            //     stored_for_entry: currentEntryId
+            // });
             
         } else {
             console.error('API Error:', result);
-            alert(`API Error: ${result.error || 'Unknown error occurred'}`);
+            
+            // Clear the progress interval in case of error
+            clearInterval(progressInterval);
+            
+            // Show error loading message
+            if (typeof showLoading === 'function') {
+                showLoading(`❌ Optimization failed: ${result.error || 'Unknown error occurred'}`, true);
+            }
+            
+            // Also show alert for immediate user attention
+            setTimeout(() => {
+                alert(`API Error: ${result.error || 'Unknown error occurred'}`);
+            }, 2000);
         }
         
     } catch (error) {
         console.error('Error sending optimization data:', error);
-        alert('Failed to send optimization data to server. Please check your connection.');
+        
+        // Show error loading message
+        // if (typeof showLoading === 'function') {
+        //     showLoading('❌ Failed to connect to optimization server. Please check your connection.', true);
+        // }
+        
+        // // Also show alert for immediate user attention
+        // setTimeout(() => {
+        //     alert('Failed to send optimization data to server. Please check your connection.');
+        // }, 2000);
     }
 }
 
@@ -923,7 +1121,7 @@ function showOptimizationAPIResponse(apiResponse) {
     window.lastAPIResponse = apiResponse;
     
     // Show in modal
-    showOptimizationModal(modalContent);
+    // showOptimizationModal(modalContent);
 }
 
 // Close API response modal

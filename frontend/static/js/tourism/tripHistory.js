@@ -49,6 +49,115 @@ class TripHistoryManager {
             }
         });
     }
+
+    // Add this new method to the TripHistoryManager class
+    displayRoutes(entryId) {
+        const entry = this.historyData.find(e => e.id === entryId);
+        // if (!entry) {
+        //     alert('Trip entry not found!');
+        //     return;
+        // }
+
+        // Get the map instance using multiple fallback methods
+        let map = null;
+        
+        // Try multiple ways to get the map
+        if (window.mapInstance && window.mapInstance.getMap) {
+            map = window.mapInstance.getMap();
+        } else if (window.displayMapInstance && window.displayMapInstance.getMap) {
+            map = window.displayMapInstance.getMap();
+        } else if (window.displayMap && window.displayMap.getMap) {
+            map = window.displayMap.getMap();
+        } else if (window.map) {
+            map = window.map;
+        }
+        
+        if (!map) {
+            alert('Map not available. Please ensure the map is loaded.');
+            return;
+        }
+
+        // Check if display_routes.js is loaded
+        if (typeof displayRoutes === 'undefined') {
+            console.error('display_routes.js not loaded');
+            alert('Route display functionality not available. Please reload the page.');
+            return;
+        }
+
+        // Show loading message
+        if (typeof showLoading === 'function') {
+            showLoading(`Loading route details for Trip Entry #${entryId}...`);
+        }
+
+        // Call the display routes function
+        try {
+            displayRoutes(entryId, map);
+            
+            // Hide loading after a short delay
+            setTimeout(() => {
+                if (typeof showLoading === 'function') {
+                    showLoading(`Route details loaded for Trip Entry #${entryId}`, true);
+                }
+            }, 1000);
+
+            console.log(`Route display initiated for trip entry ${entryId}`);
+        } catch (error) {
+            console.error('Error displaying routes:', error);
+            alert('Failed to display routes. Please try again.');
+        }
+    }
+
+    // Add method to clear route displays
+    clearRouteDisplays() {
+        // Get the map instance using multiple fallback methods
+        let map = null;
+        
+        if (window.mapInstance && window.mapInstance.getMap) {
+            map = window.mapInstance.getMap();
+        } else if (window.displayMapInstance && window.displayMapInstance.getMap) {
+            map = window.displayMapInstance.getMap();
+        } else if (window.displayMap && window.displayMap.getMap) {
+            map = window.displayMap.getMap();
+        } else if (window.map) {
+            map = window.map;
+        }
+        
+        if (map && typeof clearRouteDisplay === 'function') {
+            clearRouteDisplay(map);
+        }
+    }
+
+    // Add method to display Gantt chart
+    async displayGanttChart(entryId) {
+        console.log(`Displaying Gantt chart for trip entry ID: ${entryId}`);
+        
+        // Check if gantt chart manager is available
+        if (typeof ganttChartManager === 'undefined') {
+            console.error('Gantt chart manager not loaded');
+            alert('Gantt chart functionality not available. Please reload the page.');
+            return;
+        }
+
+        // Show loading message
+        if (typeof showLoading === 'function') {
+            showLoading(`Loading Gantt chart for Trip Entry #${entryId}...`);
+        }
+
+        try {
+            // Call the Gantt chart display function (now async)
+            await ganttChartManager.displayGanttChart(entryId);
+            
+            console.log(`Gantt chart display completed for trip entry ${entryId}`);
+        } catch (error) {
+            console.error('Error displaying Gantt chart:', error);
+            alert('Failed to display Gantt chart. Please try again.');
+            
+            // Hide loading on error
+            if (typeof showLoading === 'function') {
+                showLoading('Failed to load Gantt chart', true);
+            }
+        }
+    }
     
     // Update or add trip entry (update existing row instead of creating new)
     updateTripEntry(tripData) {
@@ -100,12 +209,12 @@ class TripHistoryManager {
         }
         
         // Auto-show and expand table when entry is updated
-        if (!this.isVisible) {
-            this.showTable();
-        }
-        if (!this.isExpanded) {
-            this.expandTable();
-        }
+        // if (!this.isVisible) {
+        //     this.showTable();
+        // }
+        // if (!this.isExpanded) {
+        //     this.expandTable();
+        // }
         
         console.log('Trip entry updated:', entry);
         return entry;
@@ -188,11 +297,10 @@ class TripHistoryManager {
         
         row.innerHTML = `
             <td class="row-number">${entry.id}</td>
+            <td class="timestamp-cell">${entry.formattedTimestamp}</td>            
             <td class="province-cell">${entry.province}</td>
-            <td class="date-cell">${entry.startDate}</td>
-            <td class="time-cell">${entry.startTime}</td>
-            <td class="date-cell">${entry.endDate}</td>
-            <td class="time-cell">${entry.endTime}</td>
+            <td class="date-cell">${entry.startDate} & ${entry.startTime}</td>
+            <td class="date-cell">${entry.endDate} & ${entry.endTime}</td>
             <td class="duration-cell">${entry.duration}</td>
             <td class="hotels-cell">
                 ${this.renderItemList(entry.hotels, 'hotels')}
@@ -200,14 +308,16 @@ class TripHistoryManager {
             <td class="attractions-cell">
                 ${this.renderItemList(entry.attractions, 'attractions')}
             </td>
-            <td class="timestamp-cell">${entry.formattedTimestamp}</td>
-            <td class="actions-cell">
-                <button class="action-btn view" onclick="tripHistoryManager.viewEntry(${entry.id})" title="View Details">
-                    <i class="fas fa-eye"></i>
-                </button>
-                <button class="action-btn delete" onclick="tripHistoryManager.deleteEntry(${entry.id})" title="Delete Entry">
-                    <i class="fas fa-trash"></i>
-                </button>
+            <td class="actions-cell" style="width: 25%;">
+                    <button class="action-btn view" onclick="tripHistoryManager.displayRoutes(${entry.id})" title="View Route Details">
+                        <i class="fa-solid fa-route"> Details Route</i>
+                    </button>
+                    <button class="action-btn success" onclick="tripHistoryManager.displayGanttChart(${entry.id})" title="View Gantt Chart">
+                        <i class="fa-solid fa-chart-gantt"> Gantt-Chart</i>
+                    </button>
+                    <button class="action-btn delete" onclick="tripHistoryManager.deleteEntry(${entry.id})" title="Delete Entry">
+                        <i class="fa-solid fa-trash"> Delete</i>
+                    </button>
             </td>
         `;
         
@@ -247,11 +357,10 @@ class TripHistoryManager {
             // Update row content
             targetRow.innerHTML = `
                 <td class="row-number">${entry.id}</td>
+                <td class="timestamp-cell">${entry.formattedTimestamp}</td>
                 <td class="province-cell">${entry.province}</td>
-                <td class="date-cell">${entry.startDate}</td>
-                <td class="time-cell">${entry.startTime}</td>
-                <td class="date-cell">${entry.endDate}</td>
-                <td class="time-cell">${entry.endTime}</td>
+                <td class="date-cell">${entry.startDate} & ${entry.startTime}</td>
+                <td class="date-cell">${entry.endDate} & ${entry.endTime}</td>
                 <td class="duration-cell">${entry.duration}</td>
                 <td class="hotels-cell">
                     ${this.renderItemList(entry.hotels, 'hotels')}
@@ -261,11 +370,14 @@ class TripHistoryManager {
                 </td>
                 <td class="timestamp-cell">${entry.formattedTimestamp}</td>
                 <td class="actions-cell">
-                    <button class="action-btn view" onclick="tripHistoryManager.viewEntry(${entry.id})" title="View Details">
-                        <i class="fas fa-eye"></i>
+                    <button class="action-btn view" onclick="tripHistoryManager.displayRoutes(${entry.id})" title="View Route Details">
+                        <i class="fa-solid fa-route"> Details Route</i>
+                    </button>
+                    <button class="action-btn success" onclick="tripHistoryManager.displayGanttChart(${entry.id})" title="View Gantt Chart">
+                        <i class="fa-solid fa-chart-gantt"> Gantt-Chart</i>
                     </button>
                     <button class="action-btn delete" onclick="tripHistoryManager.deleteEntry(${entry.id})" title="Delete Entry">
-                        <i class="fas fa-trash"></i>
+                        <i class="fa-solid fa-trash"> Delete</i>
                     </button>
                 </td>
             `;
