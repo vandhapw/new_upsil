@@ -344,7 +344,7 @@ try{
         }
         
         // Pass attractionOptimizationData as a parameter
-        displayOptimizationResults(selectedProvince, dateTimeInfo, hotelBookingInfo, attractionOptimizationData);
+        // displayOptimizationResults(selectedProvince, dateTimeInfo, hotelBookingInfo, attractionOptimizationData);
         
         // Focus map on selected province (but don't show hotel markers anymore)
         if (window.mapInstance) {
@@ -872,7 +872,7 @@ async function sendOptimizationToAPI(optimizationData, entryId = null) {
             '📊 Processing trip data and preferences...',
             '🗺️ Calculating optimal routes and schedules...',
             '🔄 Analyzing attraction distances and travel times...',
-            'Optimizing process, it takes almost 5 minutes to load the routes...'
+            'Optimizing process, it takes several minutes to load the routes...'
         ];
         
         let messageIndex = 0;
@@ -918,56 +918,46 @@ async function sendOptimizationToAPI(optimizationData, entryId = null) {
             }
             
             // Store optimization results globally for route/gantt access
-            // if (!window.optimizationResults) {
-            //     window.optimizationResults = {};
-            // }
+            if (!window.optimizationResults) {
+                window.optimizationResults = {};
+            }
             
             // Get the current trip entry ID
-            // let currentEntryId = entryId;
-            // if (!currentEntryId && window.tripHistoryManager && window.tripHistoryManager.historyData.length > 0) {
-            //     // Use the most recent entry if no specific entryId provided
-            //     currentEntryId = window.tripHistoryManager.historyData[0].id;
-            // }
+            let currentEntryId = entryId;
+            if (!currentEntryId && window.tripHistoryManager && window.tripHistoryManager.historyData.length > 0) {
+                // Use the most recent entry if no specific entryId provided
+                currentEntryId = window.tripHistoryManager.historyData[0].id;
+            }
             
-            // if (currentEntryId) {
-            //     // Store optimization results for this specific entry
-            //     window.optimizationResults[currentEntryId] = {
-            //         routes: result.optimized_routes || result.routes,
-            //         ganttChart: result.optimized_gantt_chart || result.gantt_data,
-            //         timestamp: new Date().toISOString(),
-            //         apiResponse: result
-            //     };
+            if (currentEntryId) {
+                // Store optimization results for this specific entry
+                window.optimizationResults[currentEntryId] = {
+                    routes: result.optimized_routes || result.routes,
+                    ganttChart: result.optimized_gantt_chart || result.gantt_data,
+                    timestamp: new Date().toISOString(),
+                    apiResponse: result
+                };
                 
-            //     // Enable buttons for this entry after successful optimization
-            //     if (window.tripHistoryManager) {
-            //         window.tripHistoryManager.enableButtonsForEntry(currentEntryId);
+                // Enable buttons for this entry after successful optimization
+                if (window.tripHistoryManager) {
+                    window.tripHistoryManager.enableButtonsForEntry(currentEntryId);
                     
-            //         // Show final success message with button enablement info
-            //         if (typeof showLoading === 'function') {
-            //             showLoading(`🎉 Trip optimized successfully! Route and Gantt chart buttons are now enabled for Entry #${currentEntryId}`, true);
-            //         }
-            //     }
+                    // Show final success message with button enablement info
+                    if (typeof showLoading === 'function') {
+                        showLoading(`🎉 Trip optimized successfully! Route and Gantt chart buttons are now enabled for Entry #${currentEntryId}`, true);
+                    }
+                }
                 
-            //     console.log(`Optimization results stored for entry ${currentEntryId}:`, {
-            //         hasRoutes: !!(result.optimized_routes || result.routes),
-            //         hasGanttChart: !!(result.optimized_gantt_chart || result.gantt_data)
-            //     });
-            // } else {
-            //     // Show generic success message if no specific entry
-            //     if (typeof showLoading === 'function') {
-            //         showLoading('🎉 Optimization completed successfully!', true);
-            //     }
-            // }
-            
-            // Show success message with API response
-            // showOptimizationAPIResponse(result);
-
-            // Log detailed API response
-            // console.log('API Response Details:', {
-            //     optimized_routes: result.optimized_routes,
-            //     optimized_gantt_chart: result.optimized_gantt_chart,
-            //     stored_for_entry: currentEntryId
-            // });
+                console.log(`Optimization results stored for entry ${currentEntryId}:`, {
+                    hasRoutes: !!(result.optimized_routes || result.routes),
+                    hasGanttChart: !!(result.optimized_gantt_chart || result.gantt_data)
+                });
+            } else {
+                // Show generic success message if no specific entry
+                if (typeof showLoading === 'function') {
+                    showLoading('🎉 Optimization completed successfully!', true);
+                }
+            }
             
         } else {
             console.error('API Error:', result);
@@ -990,14 +980,9 @@ async function sendOptimizationToAPI(optimizationData, entryId = null) {
         console.error('Error sending optimization data:', error);
         
         // Show error loading message
-        // if (typeof showLoading === 'function') {
-        //     showLoading('❌ Failed to connect to optimization server. Please check your connection.', true);
-        // }
-        
-        // // Also show alert for immediate user attention
-        // setTimeout(() => {
-        //     alert('Failed to send optimization data to server. Please check your connection.');
-        // }, 2000);
+        if (typeof showLoading === 'function') {
+            showLoading('❌ Failed to connect to optimization server. Please check your connection.', true);
+        }
     }
 }
 

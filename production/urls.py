@@ -23,6 +23,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from account.views import testing_dashboard
 from tourism.views import *
+from production.views import *
 
 # from klaen.views import *
 # from monitoringapps.views import *
@@ -39,6 +40,8 @@ urlpatterns = [
     # path('dashboard/kaidashboard/monitoringapps/', include('monitoringapps.urls'))
     # path('/api/login/', partial(login_api, running=None), name='api-login')
     path('dashboard/kaidashboard/tourism/', include('tourism.urls')),
+
+    path('testing_page/', test_page, name='testing_page' ),
 
 ]
 

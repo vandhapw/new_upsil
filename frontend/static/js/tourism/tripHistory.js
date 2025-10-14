@@ -295,6 +295,9 @@ class TripHistoryManager {
             row.classList.add('new-row');
         }
         
+        // Check if this entry has been optimized
+        const isOptimized = this.isEntryOptimized(entry.id);
+        
         row.innerHTML = `
             <td class="row-number">${entry.id}</td>
             <td class="timestamp-cell">${entry.formattedTimestamp}</td>            
@@ -309,10 +312,20 @@ class TripHistoryManager {
                 ${this.renderItemList(entry.attractions, 'attractions')}
             </td>
             <td class="actions-cell" style="width: 25%;">
-                    <button class="action-btn view" onclick="tripHistoryManager.displayRoutes(${entry.id})" title="View Route Details">
+                    <button class="action-btn view ${isOptimized ? '' : 'disabled'}" 
+                            onclick="tripHistoryManager.displayRoutes(${entry.id})" 
+                            title="${isOptimized ? 'View Route Details' : 'Optimize trip first to view routes'}"
+                            data-entry-id="${entry.id}"
+                            data-button-type="route"
+                            ${isOptimized ? '' : 'disabled style="pointer-events: none;"'}>
                         <i class="fa-solid fa-route"> Details Route</i>
                     </button>
-                    <button class="action-btn success" onclick="tripHistoryManager.displayGanttChart(${entry.id})" title="View Gantt Chart">
+                    <button class="action-btn success ${isOptimized ? '' : 'disabled'}" 
+                            onclick="tripHistoryManager.displayGanttChart(${entry.id})" 
+                            title="${isOptimized ? 'View Gantt Chart' : 'Optimize trip first to view Gantt chart'}"
+                            data-entry-id="${entry.id}"
+                            data-button-type="gantt"
+                            ${isOptimized ? '' : 'disabled style="pointer-events: none;"'}>
                         <i class="fa-solid fa-chart-gantt"> Gantt-Chart</i>
                     </button>
                     <button class="action-btn delete" onclick="tripHistoryManager.deleteEntry(${entry.id})" title="Delete Entry">
@@ -354,6 +367,9 @@ class TripHistoryManager {
             // Add update animation class
             targetRow.classList.add('updating-row');
             
+            // Check if this entry has been optimized
+            const isOptimized = this.isEntryOptimized(entry.id);
+            
             // Update row content
             targetRow.innerHTML = `
                 <td class="row-number">${entry.id}</td>
@@ -368,12 +384,21 @@ class TripHistoryManager {
                 <td class="attractions-cell">
                     ${this.renderItemList(entry.attractions, 'attractions')}
                 </td>
-                <td class="timestamp-cell">${entry.formattedTimestamp}</td>
                 <td class="actions-cell">
-                    <button class="action-btn view" onclick="tripHistoryManager.displayRoutes(${entry.id})" title="View Route Details">
+                    <button class="action-btn view ${isOptimized ? '' : 'disabled'}" 
+                            onclick="tripHistoryManager.displayRoutes(${entry.id})" 
+                            title="${isOptimized ? 'View Route Details' : 'Optimize trip first to view routes'}"
+                            data-entry-id="${entry.id}"
+                            data-button-type="route"
+                            ${isOptimized ? '' : 'disabled style="pointer-events: none;"'}>
                         <i class="fa-solid fa-route"> Details Route</i>
                     </button>
-                    <button class="action-btn success" onclick="tripHistoryManager.displayGanttChart(${entry.id})" title="View Gantt Chart">
+                    <button class="action-btn success ${isOptimized ? '' : 'disabled'}" 
+                            onclick="tripHistoryManager.displayGanttChart(${entry.id})" 
+                            title="${isOptimized ? 'View Gantt Chart' : 'Optimize trip first to view Gantt chart'}"
+                            data-entry-id="${entry.id}"
+                            data-button-type="gantt"
+                            ${isOptimized ? '' : 'disabled style="pointer-events: none;"'}>
                         <i class="fa-solid fa-chart-gantt"> Gantt-Chart</i>
                     </button>
                     <button class="action-btn delete" onclick="tripHistoryManager.deleteEntry(${entry.id})" title="Delete Entry">
@@ -557,6 +582,15 @@ class TripHistoryManager {
         if (confirm('Are you sure you want to clear all trip history? This action cannot be undone.')) {
             this.historyData = [];
             this.currentRowId = 1;
+            
+            // Clear optimized entries tracking
+            localStorage.removeItem('optimizedEntries');
+            
+            // Clear optimization results
+            if (window.optimizationResults) {
+                window.optimizationResults = {};
+            }
+            
             this.saveHistoryData();
             this.renderHistoryTable();
             console.log('All trip history cleared');
@@ -747,6 +781,70 @@ class TripHistoryManager {
         const indicator = document.getElementById('currentEntryIndicator');
         if (indicator) {
             indicator.style.display = 'none';
+        }
+    }
+
+    // Check if an entry has been optimized
+    isEntryOptimized(entryId) {
+        // Check if optimization results exist for this entry
+        if (window.optimizationResults && window.optimizationResults[entryId]) {
+            return true;
+        }
+        
+        // Also check if entry is marked as optimized in localStorage
+        const optimizedEntries = JSON.parse(localStorage.getItem('optimizedEntries') || '[]');
+        return optimizedEntries.includes(entryId);
+    }
+
+    // Enable buttons for a specific entry after optimization
+    enableButtonsForEntry(entryId) {
+        // Mark entry as optimized in localStorage
+        const optimizedEntries = JSON.parse(localStorage.getItem('optimizedEntries') || '[]');
+        if (!optimizedEntries.includes(entryId)) {
+            optimizedEntries.push(entryId);
+            localStorage.setItem('optimizedEntries', JSON.stringify(optimizedEntries));
+        }
+        
+        // Find and enable buttons for this entry
+        const routeButton = document.querySelector(`[data-entry-id="${entryId}"][data-button-type="route"]`);
+        const ganttButton = document.querySelector(`[data-entry-id="${entryId}"][data-button-type="gantt"]`);
+        
+        if (routeButton) {
+            routeButton.classList.remove('disabled');
+            routeButton.disabled = false;
+            routeButton.style.pointerEvents = 'auto';
+        }
+        
+        if (ganttButton) {
+            ganttButton.classList.remove('disabled');
+            ganttButton.disabled = false;
+            ganttButton.style.pointerEvents = 'auto';
+        }
+        
+        console.log(`Buttons enabled for entry ${entryId}`);
+    }
+
+    // Disable buttons for a specific entry
+    disableButtonsForEntry(entryId) {
+        // Remove from optimized entries
+        const optimizedEntries = JSON.parse(localStorage.getItem('optimizedEntries') || '[]');
+        const updatedEntries = optimizedEntries.filter(id => id !== entryId);
+        localStorage.setItem('optimizedEntries', JSON.stringify(updatedEntries));
+        
+        // Find and disable buttons for this entry
+        const routeButton = document.querySelector(`[data-entry-id="${entryId}"][data-button-type="route"]`);
+        const ganttButton = document.querySelector(`[data-entry-id="${entryId}"][data-button-type="gantt"]`);
+        
+        if (routeButton) {
+            routeButton.classList.add('disabled');
+            routeButton.disabled = true;
+            routeButton.style.pointerEvents = 'none';
+        }
+        
+        if (ganttButton) {
+            ganttButton.classList.add('disabled');
+            ganttButton.disabled = true;
+            ganttButton.style.pointerEvents = 'none';
         }
     }
 }

@@ -25,6 +25,8 @@
     <link rel="stylesheet" href="{% static 'css/tourism/trip_history.css' %}">
     <link rel="stylesheet" href="{% static 'css/tourism/modalTripSummary.css' %}">
 
+    <link rel="stylesheet" href="{% static 'css/tourism/scroll_images.css' %}">
+
    <style>
         .xy-buttons-container {
             position: absolute;
@@ -173,8 +175,73 @@
         <!-- Map Container -->
         <main class="map-container">
             <div id="map" class="map"></div>
+            <div class="overlay-container">
+                <h1>Horizontal scroll progress</h1>
+                <div id="scroll-progress"></div>
+                <ul id="scroller">
+                    <li>1</li>
+                    <li>2</li>
+                    <li>3</li>
+                    <li>4</li>
+                    <li>5</li>
+                    <li>6</li>
+                    <li>7</li>
+                    <li>8</li>
+                    <li>9</li>
+                    <li>10</li>
+                    <li>11</li>
+                    <li>12</li>
+                    <li>13</li>
+                    <li>14</li>
+                    <li>15</li>
+                </ul>
+            </div>
 
-             <!-- X and Y Buttons -->
+            <style>
+                .overlay-container {
+                    position: absolute;
+                    bottom: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    z-index: 1000;
+                    background: rgba(255, 255, 255, 0.9);
+                    padding: 10px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                    max-width: 90%;
+                    overflow-x: auto;
+                }
+
+                #scroll-progress {
+                    height: 5px;
+                    background: #3498db;
+                    margin-bottom: 10px;
+                    border-radius: 3px;
+                }
+
+                #scroller {
+                    display: flex;
+                    gap: 10px;
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                }
+
+                #scroller li {
+                    background: #3498db;
+                    color: white;
+                    padding: 10px 15px;
+                    border-radius: 5px;
+                    font-weight: bold;
+                    text-align: center;
+                    cursor: pointer;
+                    transition: background 0.3s ease;
+                }
+
+                #scroller li:hover {
+                    background: #1d6fa5;
+                }
+            </style>
             <!-- <div class="xy-buttons-container">
                 <button id="xButton" class="xy-button" title="X Function">X</button>
                 <button id="yButton" class="xy-button" title="Y Function">Y</button>
@@ -317,6 +384,8 @@
     <!-- <script src="js/uiController.js"></script> -->
     <script src="{% static 'js/tourism/main.js' %}"></script>
     <script src="{% static 'js/loading.js' %}"></script>
+
+    <link rel="stylesheet" href="{% static 'js/tourism/imageScroll.js' %}">
     
     <!-- Sidebar Toggle JavaScript -->
     <script>

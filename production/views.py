@@ -1,3 +1,4 @@
+from django.shortcuts import redirect, render
 from pymongo import MongoClient
 # from .utils import dbLocation
 from django.http import JsonResponse, HttpResponse
@@ -34,4 +35,6 @@ def print_example(request):
     else:
         return JsonResponse({'message': "No documents found"})
     
+def test_page(request):
+    return render(request, 'metroui/mLandingPage.html')
     
