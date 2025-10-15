@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Country Autocomplete Demo</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Autocomplete CSS -->
+    <link rel="stylesheet" href="../static/css/tourism/autocomplete.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .demo-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        
+        .demo-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .demo-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        
+        .demo-subtitle {
+            color: #6b7280;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+        
+        .feature-item {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+        }
+        
+        .demo-form {
+            background: #f8fafc;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 2rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+        
+        .results-display {
+            background: #e0f2fe;
+            border: 2px solid #0ea5e9;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            display: none;
+        }
+        
+        .results-display.show {
+            display: block;
+        }
+        
+        .result-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 0.25rem;
+        }
+        
+        .result-value {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .demo-container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+            
+            .demo-card {
+                padding: 2rem 1.5rem;
+            }
+            
+            .demo-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-card">
+            <div class="demo-header">
+                <h1 class="demo-title">
+                    <i class="fas fa-globe me-3"></i>
+                    Enhanced Country Autocomplete
+                </h1>
+                <p class="demo-subtitle">
+                    Experience our intelligent autocomplete with real-time search, smooth animations, and professional UX design
+                </p>
+                
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <span>Real-time API search</span>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                        <span>Smart loading indicators</span>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-keyboard"></i>
+                        </div>
+                        <span>Keyboard navigation</span>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <span>Mobile responsive</span>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <span>Debounced requests</span>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <span>Error handling</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="demo-form">
+                <div class="form-group">
+                    <label for="demoCountryInput" class="form-label">
+                        <i class="fas fa-map-marked-alt me-2"></i>
+                        Search for a Country
+                    </label>
+                    <input 
+                        type="text" 
+                        id="demoCountryInput" 
+                        placeholder="Start typing to search countries (e.g., 'Unite', 'Japa', 'Germ')..." 
+                        autocomplete="off"
+                    >
+                    <small class="form-text text-muted mt-2">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Type at least 2 characters to start searching. Use arrow keys to navigate, Enter to select.
+                    </small>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="provinceDemo" class="form-label">
+                                <i class="fas fa-map me-2"></i>
+                                Province/State
+                            </label>
+                            <select class="form-select" id="provinceDemo" disabled>
+                                <option value="">Select a province</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="cityDemo" class="form-label">
+                                <i class="fas fa-city me-2"></i>
+                                City
+                            </label>
+                            <select class="form-select" id="cityDemo" disabled>
+                                <option value="">Select a city</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <button type="button" class="btn btn-primary btn-lg" id="submitDemo">
+                        <i class="fas fa-check me-2"></i>
+                        Confirm Selection
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-lg ms-2" id="clearDemo">
+                        <i class="fas fa-undo me-2"></i>
+                        Clear
+                    </button>
+                </div>
+            </div>
+            
+            <div class="results-display" id="resultsDisplay">
+                <h5 class="mb-3">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Selection Results
+                </h5>
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom Autocomplete JS -->
+    <script src="../static/js/tourism/autocomplete.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mock API endpoint for demo
+            const mockApiEndpoint = 'https://api.geoapify.com/v1/geocode/autocomplete';
+            
+            // Sample region data for demo
+            const regionData = {
+                "United States": {
+                    "California": ["Los Angeles", "San Francisco", "San Diego", "Sacramento"],
+                    "New York": ["New York City", "Buffalo", "Rochester", "Syracuse"],
+                    "Texas": ["Houston", "Dallas", "Austin", "San Antonio"]
+                },
+                "United Kingdom": {
+                    "England": ["London", "Manchester", "Birmingham", "Liverpool"],
+                    "Scotland": ["Edinburgh", "Glasgow", "Aberdeen", "Dundee"],
+                    "Wales": ["Cardiff", "Swansea", "Newport", "Wrexham"]
+                },
+                "Germany": {
+                    "Bavaria": ["Munich", "Nuremberg", "Augsburg", "Würzburg"],
+                    "Berlin": ["Berlin"],
+                    "Hamburg": ["Hamburg"]
+                },
+                "Japan": {
+                    "Tokyo": ["Tokyo", "Shibuya", "Shinjuku", "Harajuku"],
+                    "Osaka": ["Osaka", "Kyoto", "Nara", "Kobe"],
+                    "Hokkaido": ["Sapporo", "Hakodate", "Asahikawa"]
+                }
+            };
+            
+            let selectedCountryData = null;
+            
+            // Initialize autocomplete with mock data
+            const countryAutocomplete = new CountryAutocomplete({
+                input: document.getElementById('demoCountryInput'),
+                apiEndpoint: mockApiEndpoint, // This would be your real API
+                minChars: 2,
+                debounceDelay: 300,
+                maxResults: 8,
+                onSelect: function(country) {
+                    console.log('Country selected:', country);
+                    selectedCountryData = country;
+                    
+                    // Enable province dropdown and populate
+                    const provinceSelect = document.getElementById('provinceDemo');
+                    const countryName = country.formatted || country.country;
+                    
+                    // Find matching country in our region data
+                    const matchingCountry = Object.keys(regionData).find(key =>
+                        key.toLowerCase().includes(countryName.toLowerCase()) ||
+                        countryName.toLowerCase().includes(key.toLowerCase())
+                    );
+                    
+                    if (matchingCountry) {
+                        provinceSelect.disabled = false;
+                        provinceSelect.innerHTML = '<option value="">Select a province</option>';
+                        
+                        Object.keys(regionData[matchingCountry]).forEach(province => {
+                            provinceSelect.innerHTML += `<option value="${province}">${province}</option>`;
+                        });
+                        
+                        showToast('Country selected successfully!', 'success');
+                    } else {
+                        showToast('Province data not available for this country', 'warning');
+                    }
+                },
+                onError: function(error) {
+                    console.error('Search error:', error);
+                    showToast('Search failed. Using demo mode.', 'warning');
+                    
+                    // Fallback to demo mode with sample countries
+                    simulateDemoSearch();
+                }
+            });
+            
+            // Simulate demo search for when API is not available
+            function simulateDemoSearch() {
+                const input = document.getElementById('demoCountryInput');
+                const query = input.value.toLowerCase();
+                
+                if (query.length < 2) return;
+                
+                // Mock search results
+                const mockResults = [
+                    { formatted: "United States", country: "United States", lat: 39.8283, lon: -98.5795 },
+                    { formatted: "United Kingdom", country: "United Kingdom", lat: 55.3781, lon: -3.4360 },
+                    { formatted: "Germany", country: "Germany", lat: 51.1657, lon: 10.4515 },
+                    { formatted: "Japan", country: "Japan", lat: 36.2048, lon: 138.2529 }
+                ].filter(country => 
+                    country.formatted.toLowerCase().includes(query)
+                );
+                
+                if (mockResults.length > 0) {
+                    // Manually trigger the autocomplete display
+                    countryAutocomplete.currentResults = mockResults;
+                    countryAutocomplete.renderResults();
+                }
+            }
+            
+            // Province selection handler
+            document.getElementById('provinceDemo').addEventListener('change', function() {
+                const citySelect = document.getElementById('cityDemo');
+                const countryInput = document.getElementById('demoCountryInput');
+                
+                if (this.value) {
+                    citySelect.disabled = false;
+                    citySelect.innerHTML = '<option value="">Select a city</option>';
+                    
+                    // Find matching country and populate cities
+                    const countryName = countryInput.value;
+                    const matchingCountry = Object.keys(regionData).find(key =>
+                        key.toLowerCase().includes(countryName.toLowerCase()) ||
+                        countryName.toLowerCase().includes(key.toLowerCase())
+                    );
+                    
+                    if (matchingCountry && regionData[matchingCountry][this.value]) {
+                        regionData[matchingCountry][this.value].forEach(city => {
+                            citySelect.innerHTML += `<option value="${city}">${city}</option>`;
+                        });
+                    }
+                } else {
+                    citySelect.disabled = true;
+                    citySelect.innerHTML = '<option value="">Select a city</option>';
+                }
+            });
+            
+            // Submit button handler
+            document.getElementById('submitDemo').addEventListener('click', function() {
+                const country = document.getElementById('demoCountryInput').value;
+                const province = document.getElementById('provinceDemo').value;
+                const city = document.getElementById('cityDemo').value;
+                
+                if (country && province && city) {
+                    displayResults({
+                        country: country,
+                        province: province,
+                        city: city,
+                        countryData: selectedCountryData
+                    });
+                    showToast('Selection confirmed!', 'success');
+                } else {
+                    showToast('Please complete all fields', 'error');
+                }
+            });
+            
+            // Clear button handler
+            document.getElementById('clearDemo').addEventListener('click', function() {
+                countryAutocomplete.clear();
+                document.getElementById('provinceDemo').innerHTML = '<option value="">Select a province</option>';
+                document.getElementById('provinceDemo').disabled = true;
+                document.getElementById('cityDemo').innerHTML = '<option value="">Select a city</option>';
+                document.getElementById('cityDemo').disabled = true;
+                document.getElementById('resultsDisplay').classList.remove('show');
+                selectedCountryData = null;
+                showToast('Form cleared', 'info');
+            });
+            
+            // Display results function
+            function displayResults(data) {
+                const resultsDisplay = document.getElementById('resultsDisplay');
+                const resultsContent = document.getElementById('resultsContent');
+                
+                resultsContent.innerHTML = `
+                    <div class="result-item">
+                        <div class="result-label">Country</div>
+                        <div class="result-value">${data.country}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Province/State</div>
+                        <div class="result-value">${data.province}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">City</div>
+                        <div class="result-value">${data.city}</div>
+                    </div>
+                    ${data.countryData ? `
+                    <div class="result-item">
+                        <div class="result-label">Coordinates</div>
+                        <div class="result-value">
+                            Lat: ${data.countryData.lat || 'N/A'}, 
+                            Lon: ${data.countryData.lon || 'N/A'}
+                        </div>
+                    </div>
+                    ` : ''}
+                `;
+                
+                resultsDisplay.classList.add('show');
+            }
+            
+            // Toast notification function
+            function showToast(message, type = 'info') {
+                // Remove existing toasts
+                const existingToast = document.querySelector('.demo-toast');
+                if (existingToast) {
+                    existingToast.remove();
+                }
+                
+                const toast = document.createElement('div');
+                toast.className = `demo-toast alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : type === 'warning' ? 'warning' : 'info'} alert-dismissible fade show`;
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 9999;
+                    min-width: 300px;
+                    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+                `;
+                toast.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 4000);
+            }
+            
+            // Add demo search trigger for when real API is not available
+            document.getElementById('demoCountryInput').addEventListener('input', function() {
+                if (this.value.length >= 2) {
+                    setTimeout(() => simulateDemoSearch(), 300);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

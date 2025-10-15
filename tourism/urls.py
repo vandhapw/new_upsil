@@ -19,6 +19,10 @@ urlpatterns = [
 
     path('api/test_api_call/', test_api_call, name='test_api_call'),
     path('api/test_api_call_2/', test_api_call_2, name='test_api_call_2'),
+    path('api/test_api_call_3/', test_api_call_3, name='test_api_call_3'),
+
+    path('api/autocomplete_country/', autocomplete_country, name='autocomplete_country'),
+    path('api/autocomplete_province/', autocomplete_province, name='autocomplete_province'),
 
 
 ]

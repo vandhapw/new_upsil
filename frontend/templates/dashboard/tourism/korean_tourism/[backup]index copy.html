@@ -22,7 +22,6 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/tourism/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/tourism/enhanced-ux.css' %}?v=1.0">
     <link rel="stylesheet" href="{% static 'css/tourism/trip_history.css' %}">
     <link rel="stylesheet" href="{% static 'css/tourism/modalTripSummary.css' %}">
 
@@ -98,15 +97,9 @@
            
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
-            <div class="step-process">
-                {% include 'dashboard/tourism/korean_tourism/sidebar/step_process.html' %}
-            </div>
-
-            {% include 'dashboard/tourism/korean_tourism/modals/region_selected.html' %}
 
             
-            
-            <!-- <div class="sidebar-header">
+            <div class="sidebar-header">
                 <h2><i class="fas fa-filter"></i> <span></span>Options Selected</span></h2>
                  <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
                     <i class="fas fa-chevron-left"></i>
@@ -114,11 +107,11 @@
                 <button class="close-sidebar" id="closeSidebar">
                     <i class="fas fa-times"></i>
                 </button>
-            </div> -->
+            </div>
 
-            <!-- <div class="sidebar-content"> -->
+            <div class="sidebar-content">
                 <!-- Region Selection -->
-                <!-- <div class="filter-section">
+                <div class="filter-section">
                     <div class="form-group d-flex align-items-center gap-3">
                         <label for="provinceSelect">
                             <i class="fas fa-flag"></i> Province (시도)
@@ -146,7 +139,7 @@
                             <option value="">Select Province...</option>
                         </select>
                     </div>
-                </div> -->
+                </div>
                 <!-- <div class="filter-section">
                     <h3><i class="fas fa-map-marker-alt"></i> <span>Region Selection</span></h3>
                     
@@ -160,11 +153,11 @@
                     </div>
                 </div>  -->
                 
-                <!-- <div class="filter-section">
-                    <h3><i class="fas fa-calendar-day"></i> <span>Date & Time Selection</span></h3> -->
+                <div class="filter-section">
+                    <h3><i class="fas fa-calendar-day"></i> <span>Date & Time Selection</span></h3>
                     
                     <!-- Date Selection -->
-                <!-- <div class="form-group">
+                <div class="form-group">
                     <div class="form-group-horizontal">
                         <div class="form-group-inline">
                             <label for="startDateTime">
@@ -188,11 +181,11 @@
                     </button>
                     <button id="clearHistoryButton" class="btn btn-danger">
                         <i class="fas fa-eraser"></i> Clear History
-                    </button> -->
+                    </button>
                     <!-- <button id="clearHistoryButton" class="btn btn-outline-secondary">
                         <i class="fas fa-eraser"></i> Clear History
                     </button> -->
-                <!-- </div> -->
+                </div>
                 <!-- <div class="form-group">
                     <button id="clearHistoryButton" class="btn btn-outline-secondary">
                         <i class="fas fa-eraser"></i> Clear History
@@ -203,7 +196,7 @@
                         <i class="fas fa-save"></i> Save to History
                     </button>
                 </div> -->
-            <!-- </div> -->
+            </div>
             
             
         </aside>
@@ -211,7 +204,7 @@
         <!-- Map Container -->
         <main class="map-container">
             <div id="map" class="map"></div>
-            <!-- <div class="overlay-container">
+            <div class="overlay-container">
             <h1>Horizontal scroll progress</h1>
             <div id="scroll-progress"></div>
             <div class="scroller-wrapper">
@@ -248,7 +241,7 @@
                 <li>15</li>
                 </ul>
             </div>
-            </div> -->
+            </div>
 
             <!-- <div class="xy-buttons-container">
                 <button id="xButton" class="xy-button" title="X Function">X</button>
@@ -269,16 +262,16 @@
             </div>
 
             <!-- Results Panel -->
-            <!-- <div class="results-panel" id="resultsPanel">
+            <div class="results-panel" id="resultsPanel">
                 <div class="results-header">
                     <h3><i class="fas fa-list"></i> Search Results</h3>
                     <button id="closeResults" class="close-btn">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="results-content" id="resultsContent"> -->
+                <div class="results-content" id="resultsContent">
                     <!-- Results will be populated here -->
-                <!-- </div> -->
+                </div>
             </div>
         </main>
     </div>
@@ -293,9 +286,9 @@
 
     <!-- Add this before the closing </main> tag in the map-container -->
         <!-- Trip History DataTable -->
-        <!-- <div class="trip-history-container" id="tripHistoryContainer">
+        <div class="trip-history-container" id="tripHistoryContainer">
             <div class="trip-history-header">
-                <h4><i class="fas fa-history"></i> Trip Planning History <span id="currentEntryIndicator" class="current-entry-badge" style="display: none;">Updating Current Entry</span></h4> -->
+                <h4><i class="fas fa-history"></i> Trip Planning History <span id="currentEntryIndicator" class="current-entry-badge" style="display: none;">Updating Current Entry</span></h4>
                 <!-- <div class="trip-history-controls">
                     <button id="createNewEntryButton" class="btn btn-sm btn-outline-info">
                         <i class="fas fa-plus"></i> New Entry
@@ -310,8 +303,8 @@
                         <i class="fas fa-download"></i> Export
                     </button>
                 </div> -->
-            <!-- </div> -->
-            <!-- <div class="trip-history-table-container">
+            </div>
+            <div class="trip-history-table-container">
                 <table id="tripHistoryTable" class="trip-history-table">
                     <thead>
                         <tr>
@@ -326,15 +319,15 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="tripHistoryTableBody"> -->
+                    <tbody id="tripHistoryTableBody">
                         <!-- Rows will be dynamically added here -->
-                    <!-- </tbody>
+                    </tbody>
                 </table>
             </div>
-        </div> -->
+        </div>
 
     <!-- Footer -->
-    <!-- <footer class="footer">
+    <footer class="footer">
         <div class="footer-content">
             <div class="footer-links">
                 <a href="#"><i class="fas fa-info-circle"></i> About</a>
@@ -345,7 +338,7 @@
                 <p>&copy; 2025 South Korea Interactive Map. Data source: Scraping methods</p>
             </div>
         </div>
-    </footer> -->
+    </footer>
 
     <!-- Leaflet JavaScript -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
@@ -394,8 +387,6 @@
     <script src="{% static 'js/loading.js' %}"></script>
 
     <script src="{% static 'js/tourism/imageScroll.js' %}"></script>
-
-    <script src="{% static 'js/tourism/modals/region_selected.js' %}"></script>
     
     <!-- Sidebar Toggle JavaScript -->
     <script>

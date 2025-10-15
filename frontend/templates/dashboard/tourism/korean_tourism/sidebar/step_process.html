@@ -1,0 +1,181 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/tourism/stepProcess.css' %}?v=1.3">
+
+<div class="trip-planning-container">
+    <div class="trip-planning-header">
+        <h4><i class="fas fa-route"></i> Plan Your Trip</h4>
+        <div class="progress-wrapper">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 25%"></div>
+            </div>
+            <span class="progress-text">Step <span id="currentStepNumber">1</span> of 4</span>
+        </div>
+    </div>
+
+    <div class="trip-planning-steps">
+        <!-- Step 1: Destination -->
+        <div class="step-item active" data-step="1">
+            <div class="step-circle">
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="step-content">
+                <h5>Choose Destination</h5>
+                <button type="button" id="Destination" class="btn btn-primary" onclick="openRegionSelectedModal()">
+                    Choose Destination <i class="fa-solid fa-earth-americas"></i>
+                </button>
+                <!-- <div class="step-form" id="step1-form">
+                    <div class="destination-selector">
+                        <select class="form-select" id="provinceSelect">
+                            <option value="">Where would you like to go?</option>
+                            <option value="seoul">Seoul</option>
+                            <option value="busan">Busan</option>
+                            <option value="incheon">Incheon</option>
+                            <option value="daegu">Daegu</option>
+                            <option value="daejeon">Daejeon</option>
+                            <option value="gwangju">Gwangju</option>
+                            <option value="ulsan">Ulsan</option>
+                            <option value="gyeonggi">Gyeonggi</option>
+                            <option value="gangwon">Gangwon</option>
+                            <option value="chungbuk">Chungcheongbuk-do</option>
+                            <option value="chungnam">Chungcheongnam-do</option>
+                            <option value="jeonbuk">Jeollabuk-do</option>
+                            <option value="jeonnam">Jeollanam-do</option>
+                            <option value="gyeongbuk">Gyeongsangbuk-do</option>
+                            <option value="gyeongnam">Gyeongsangnam-do</option>
+                            <option value="jeju">Jeju</option>
+                        </select>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+
+        <!-- Step 2: Dates -->
+        <div class="step-item" data-step="2">
+            <div class="step-circle">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="step-content">
+                <h5>Select Dates</h5>
+                <div class="step-form" id="step2-form" style="display: none;">
+                    <div class="date-picker-container">
+                        <div class="date-input-group">
+                            <label for="startDateTime">Departure</label>
+                            <input type="datetime-local" id="startDateTime" class="form-control">
+                        </div>
+                        <div class="date-input-group">
+                            <label for="endDateTime">Return</label>
+                            <input type="datetime-local" id="endDateTime" class="form-control">
+                        </div>
+                        <div class="trip-duration">
+                            <span id="tripDuration" class="badge bg-secondary">Select dates</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Preferences -->
+        <div class="step-item" data-step="3">
+            <div class="step-circle">
+                <i class="fas fa-heart"></i>
+            </div>
+            <div class="step-content">
+                <h5>Your Interests</h5>
+                <div class="step-form" id="step3-form" style="display: none;">
+                    <div class="preferences-section">
+                        <div class="interest-tags">
+                            <label class="interest-tag">
+                                <input type="checkbox" value="culture" class="form-check-input">
+                                <span><i class="fas fa-landmark"></i> Culture</span>
+                            </label>
+                            <label class="interest-tag">
+                                <input type="checkbox" value="nature" class="form-check-input">
+                                <span><i class="fas fa-mountain"></i> Nature</span>
+                            </label>
+                            <label class="interest-tag">
+                                <input type="checkbox" value="food" class="form-check-input">
+                                <span><i class="fas fa-utensils"></i> Food</span>
+                            </label>
+                            <label class="interest-tag">
+                                <input type="checkbox" value="shopping" class="form-check-input">
+                                <span><i class="fas fa-shopping-bag"></i> Shopping</span>
+                            </label>
+                            <label class="interest-tag">
+                                <input type="checkbox" value="nightlife" class="form-check-input">
+                                <span><i class="fas fa-moon"></i> Nightlife</span>
+                            </label>
+                            <label class="interest-tag">
+                                <input type="checkbox" value="history" class="form-check-input">
+                                <span><i class="fas fa-university"></i> History</span>
+                            </label>
+                        </div>
+                        
+                        <div class="budget-section">
+                            <label for="budgetRange">Budget per day</label>
+                            <select id="budgetRange" class="form-select">
+                                <option value="">Select budget range</option>
+                                <option value="budget">Budget (₩50,000-100,000/day)</option>
+                                <option value="mid">Mid-range (₩100,000-300,000/day)</option>
+                                <option value="luxury">Luxury (₩300,000+/day)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Review -->
+        <div class="step-item" data-step="4">
+            <div class="step-circle">
+                <i class="fas fa-check"></i>
+            </div>
+            <div class="step-content">
+                <h5>Review & Generate</h5>
+                <div class="step-form" id="step4-form" style="display: none;">
+                    <div class="trip-summary">
+                        <div class="summary-item">
+                            <strong>Destination:</strong> 
+                            <span id="summaryDestination">Not selected</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Duration:</strong> 
+                            <span id="summaryDuration">Not set</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Interests:</strong> 
+                            <span id="summaryInterests">None selected</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Budget:</strong> 
+                            <span id="summaryBudget">Not set</span>
+                        </div>
+                    </div>
+                    
+                    <button type="button" id="generateItineraryBtn" class="btn btn-success btn-lg">
+                        <i class="fas fa-magic"></i> Generate Itinerary
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="step-navigation">
+        <button type="button" id="prevStep" class="btn btn-outline-secondary" style="display: none;">
+            <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        <button type="button" id="nextStep" class="btn btn-primary">
+            Next <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+</div>
+
+<script src="{% static 'js/tourism/stepProcess.js' %}?v=1.0"></script>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress">
+            <div class="progress-bar bg-success" role="progressbar" style="width: 25%" id="progressBar"></div>
+        </div>
+        <small class="text-muted">Step <span id="currentStepNumber">1</span> of 4</small>
+    </div>
+</div>

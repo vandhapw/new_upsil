@@ -1,0 +1,510 @@
+{% load static %}
+
+<!-- Region Selection Modal -->
+<div class="modal fade bd-example-modal-lg" id="regionModal" tabindex="-1" aria-labelledby="regionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="regionModalLabel">
+                    <i class="fas fa-map-marked-alt me-2"></i>
+                    Select Region
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="regionForm">
+                    <!-- Enhanced Country Autocomplete -->
+                    <div class="mb-4">
+                        <label for="countrySelect" class="form-label">
+                            <i class="fas fa-globe me-2"></i>
+                            Country
+                        </label>
+                        <input 
+                            type="text" 
+                            id="countrySelect" 
+                            placeholder="Start typing to search countries..." 
+                            autocomplete="off" 
+                            required
+                            aria-describedby="countryHelp"
+                        >
+                        <small id="countryHelp" class="form-text text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Type at least 2 characters to search
+                        </small>
+                    </div>
+                    
+                    <!-- Province Dropdown -->
+                    <div class="mb-4">
+                        <label for="provinceSelect" class="form-label">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            Province/State
+                        </label>
+                        <input 
+                            type="text" 
+                            id="provinceSelect" 
+                            placeholder="Start typing to search provinces..." 
+                            autocomplete="off" 
+                            required
+                            disabled
+                            aria-describedby="provinceHelp"
+                        >
+                        <small id="provinceHelp" class="form-text text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Type at least 2 characters to search
+                        </small>
+                    </div>
+                    
+                    <!-- City Dropdown -->
+                    <div class="mb-4">
+                        <label for="citySelect" class="form-label">
+                            <i class="fas fa-city me-2"></i>
+                            City
+                        </label>
+                        <input 
+                            type="text" 
+                            id="citySelect" 
+                            placeholder="Start typing to search cities..." 
+                            autocomplete="off" 
+                            required
+                            disabled
+                            aria-describedby="cityHelp"
+                        >
+                        <small id="cityHelp" class="form-text text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Type at least 2 characters to search
+                        </small>
+                    </div>
+                    
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmRegion">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Include Enhanced Autocomplete Styles and Scripts -->
+<link rel="stylesheet" href="{% static 'css/tourism/autocomplete.css' %}">
+<script src="{% static 'js/tourism/autocomplete.js' %}"></script>
+
+<style>
+    /* Modal enhancements */
+    .modal-header {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: white;
+        border-bottom: none;
+    }
+    
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+    }
+    
+    .modal-body {
+        background: #f8fafc;
+        padding: 2rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.75rem;
+    }
+    
+    .form-label i {
+        color: #2563eb;
+    }
+    
+    .form-select {
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 12px 16px;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+    }
+    
+    .form-select:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    .form-select:disabled {
+        background: #f3f4f6;
+        color: #9ca3af;
+        cursor: not-allowed;
+    }
+    
+    .modal-footer {
+        background: white;
+        border-top: 1px solid #e5e7eb;
+        padding: 1.5rem 2rem;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        border: none;
+        padding: 10px 24px;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(240, 4, 36, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #6b7280;
+        border: none;
+        padding: 10px 24px;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background: #f70606;
+        transform: translateY(-1px);
+    }
+    
+    .form-text {
+        display: flex;
+        align-items: center;
+        margin-top: 0.5rem;
+    }
+    
+    /* Loading overlay for modal */
+    .modal-loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(248, 250, 252, 0.95);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1060;
+        backdrop-filter: blur(2px);
+    }
+    
+    .modal-loading.show {
+        display: flex;
+    }
+    
+    .loading-content {
+        text-align: center;
+        padding: 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<script>
+    // Initialize the enhanced country autocomplete
+    window.addEventListener('DOMContentLoaded', function () {
+        // Get DOM elements
+        const countryInput = document.getElementById('countrySelect');
+        const provinceInput = document.getElementById('provinceSelect');
+        const cityInput = document.getElementById('citySelect');
+        
+        // Store selected data
+        let selectedCountryData = null;
+        let selectedProvinceData = null;
+        let selectedCityData = null;
+        
+        // Initialize country autocomplete
+        const countryAutocomplete = new CountryAutocomplete({
+            input: countryInput,
+            apiEndpoint: '/tourism/api/autocomplete_country/',
+            searchType: 'country',
+            minChars: 2,
+            debounceDelay: 300,
+            maxResults: 8,
+            onSelect: function(selectedCountry) {
+                console.log('Country selected:', selectedCountry);
+                selectedCountryData = selectedCountry;
+                
+                // Extract country code from the selected country
+                const countryCode = selectedCountry.countryCode || 
+                                   selectedCountry.properties?.country_code || 
+                                   selectedCountry.properties?.country || 
+                                   extractCountryCode(selectedCountry.formatted);
+                
+                console.log('Country code extracted:', countryCode);
+                
+                // Enable and configure province autocomplete
+                if (countryCode) {
+                    provinceAutocomplete.setCountryCode(countryCode);
+                    provinceAutocomplete.enable();
+                    showSelectionFeedback('Country selected! Now search for provinces.', 'success');
+                } else {
+                    showSelectionFeedback('Country selected, but province search may be limited.', 'warning');
+                    provinceAutocomplete.enable();
+                }
+                
+                // Reset dependent fields
+                provinceInput.value = '';
+                cityInput.value = '';
+                cityAutocomplete.disable();
+                selectedProvinceData = null;
+                selectedCityData = null;
+            },
+            onError: function(error) {
+                console.error('Country autocomplete error:', error);
+                showSelectionFeedback('Failed to load countries. Please try again.', 'error');
+            }
+        });
+        
+        // Initialize province autocomplete
+        const provinceAutocomplete = new CountryAutocomplete({
+            input: provinceInput,
+            // apiEndpoint: '/tourism/api/autocomplete_country/',
+            provinceApiEndpoint: '/tourism/api/autocomplete_province/',
+            searchType: 'province',
+            minChars: 2,
+            debounceDelay: 300,
+            maxResults: 8,
+            onSelect: function(selectedProvince) {
+                console.log('Province selected:', selectedProvince);
+                selectedProvinceData = selectedProvince;
+                
+                // Extract province code or use country code for city search
+                const provinceCode = selectedProvince.properties?.state_code || 
+                                    selectedProvince.properties?.province_code;
+                const countryCode = selectedProvince.countryCode || selectedCountryData?.countryCode;
+                
+                // Enable city autocomplete
+                if (countryCode) {
+                    cityAutocomplete.setCountryCode(countryCode);
+                    if (provinceCode) {
+                        cityAutocomplete.setProvinceCode(provinceCode);
+                    }
+                    cityAutocomplete.enable();
+                    showSelectionFeedback('Province selected! Now search for cities.', 'success');
+                } else {
+                    showSelectionFeedback('Province selected, but city search may be limited.', 'warning');
+                    cityAutocomplete.enable();
+                }
+                
+                // Reset city field
+                cityInput.value = '';
+                selectedCityData = null;
+            },
+            onError: function(error) {
+                console.error('Province autocomplete error:', error);
+                showSelectionFeedback('Failed to load provinces. Please try again.', 'error');
+            }
+        });
+        
+        // Initialize city autocomplete
+        const cityAutocomplete = new CountryAutocomplete({
+            input: cityInput,
+            apiEndpoint: '/tourism/api/test_api_call_3/',
+            provinceApiEndpoint: '/tourism/api/cities/',
+            searchType: 'city',
+            minChars: 2,
+            debounceDelay: 300,
+            maxResults: 8,
+            onSelect: function(selectedCity) {
+                console.log('City selected:', selectedCity);
+                selectedCityData = selectedCity;
+                showSelectionFeedback('City selected! Ready to confirm.', 'success');
+            },
+            onError: function(error) {
+                console.error('City autocomplete error:', error);
+                showSelectionFeedback('Failed to load cities. Please try again.', 'error');
+            }
+        });
+        
+        // Initially disable province and city autocompletes
+        provinceAutocomplete.disable();
+        cityAutocomplete.disable();
+        
+        // Helper function to extract country code from formatted string
+        function extractCountryCode(formattedString) {
+            // This is a fallback method - try to extract from common patterns
+            const countryMappings = {
+                'United States': 'US',
+                'United Kingdom': 'GB',
+                'Germany': 'DE',
+                'France': 'FR',
+                'Italy': 'IT',
+                'Spain': 'ES',
+                'Japan': 'JP',
+                'South Korea': 'KR',
+                'China': 'CN',
+                'India': 'IN',
+                'Canada': 'CA',
+                'Australia': 'AU',
+                'Brazil': 'BR',
+                'Mexico': 'MX',
+                'Netherlands': 'NL',
+                'Belgium': 'BE',
+                'Switzerland': 'CH',
+                'Austria': 'AT',
+                'Sweden': 'SE',
+                'Norway': 'NO',
+                'Denmark': 'DK',
+                'Finland': 'FI'
+            };
+            
+            // Try exact match first
+            if (countryMappings[formattedString]) {
+                return countryMappings[formattedString];
+            }
+            
+            // Try partial match
+            for (const [country, code] of Object.entries(countryMappings)) {
+                if (formattedString.toLowerCase().includes(country.toLowerCase()) ||
+                    country.toLowerCase().includes(formattedString.toLowerCase())) {
+                    return code;
+                }
+            }
+            
+            return null;
+        }
+
+        // Function to show user feedback
+        function showSelectionFeedback(message, type = 'success') {
+            // Remove existing feedback
+            const existingFeedback = document.querySelector('.selection-feedback');
+            if (existingFeedback) {
+                existingFeedback.remove();
+            }
+            
+            // Create feedback element
+            const feedback = document.createElement('div');
+            feedback.className = `selection-feedback alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show mt-2`;
+            feedback.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            // Insert after country input container
+            const countryContainer = document.querySelector('.autocomplete-container').parentNode;
+            countryContainer.appendChild(feedback);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                if (feedback.parentNode) {
+                    feedback.remove();
+                }
+            }, 3000);
+        }
+
+        // Confirm selection with enhanced validation
+        document.getElementById('confirmRegion').addEventListener('click', function() {
+            const country = countryInput.value.trim();
+            const province = provinceInput.value.trim();
+            const city = cityInput.value.trim();
+            
+            if (!country) {
+                showSelectionFeedback('Please select a country first.', 'error');
+                countryInput.focus();
+                return;
+            }
+            
+            if (!province) {
+                showSelectionFeedback('Please select a province/state.', 'error');
+                provinceInput.focus();
+                return;
+            }
+            
+            if (!city) {
+                showSelectionFeedback('Please select a city.', 'error');
+                cityInput.focus();
+                return;
+            }
+            
+            // Create comprehensive selection data
+            const selectionData = {
+                country: {
+                    name: country,
+                    data: selectedCountryData
+                },
+                province: {
+                    name: province,
+                    data: selectedProvinceData
+                },
+                city: {
+                    name: city,
+                    data: selectedCityData
+                },
+                // Combined location string
+                fullLocation: `${city}, ${province}, ${country}`,
+                // Coordinates (use city if available, fallback to province, then country)
+                coordinates: {
+                    lat: selectedCityData?.lat || selectedProvinceData?.lat || selectedCountryData?.lat,
+                    lon: selectedCityData?.lon || selectedProvinceData?.lon || selectedCountryData?.lon
+                }
+            };
+            
+            console.log('Complete selection data:', selectionData);
+            
+            // Show success message
+            showSelectionFeedback('Region selected successfully!', 'success');
+            
+            // Store in global scope for other components to access
+            window.selectedRegionData = selectionData;
+            
+            // Trigger custom event for other parts of the application
+            const regionSelectedEvent = new CustomEvent('regionSelected', {
+                detail: selectionData
+            });
+            document.dispatchEvent(regionSelectedEvent);
+            
+            // Close modal after a short delay
+            setTimeout(() => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('regionModal'));
+                if (modal) {
+                    modal.hide();
+                }
+            }, 1000);
+            
+            // Call callback if provided
+            if (typeof window.onRegionSelected === 'function') {
+                window.onRegionSelected(selectionData);
+            }
+        });
+        
+        // Clear/Reset functionality
+        function resetForm() {
+            // Clear all autocomplete inputs
+            countryAutocomplete.clear();
+            provinceAutocomplete.clear();
+            cityAutocomplete.clear();
+            
+            // Disable dependent fields
+            provinceAutocomplete.disable();
+            cityAutocomplete.disable();
+            
+            // Reset stored data
+            selectedCountryData = null;
+            selectedProvinceData = null;
+            selectedCityData = null;
+            
+            // Clear global data
+            window.selectedRegionData = null;
+            
+            showSelectionFeedback('Form cleared successfully.', 'info');
+        }
+        
+        // Add reset button functionality if it exists
+        const resetButton = document.getElementById('resetRegion');
+        if (resetButton) {
+            resetButton.addEventListener('click', resetForm);
+        }
+        
+        // Reset form when modal is hidden
+        document.getElementById('regionModal').addEventListener('hidden.bs.modal', function() {
+            // Don't auto-clear to preserve user's selections
+            // resetForm();
+        });
+    });
+</script>

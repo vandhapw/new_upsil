@@ -742,6 +742,34 @@ def calculate_distance_matrix(request, data=None):
     #     'optimize_route': optimize_route,
     # })
 
+# Autocomplete API Function 
+def autocomplete_country(request):
+    from tourism.external_api.geopify import GeopifyAPI
+
+    geopify = GeopifyAPI()
+    if request.method == 'GET':
+        autocomplete_query = request.GET.get('text', None)
+        if not autocomplete_query:
+            return JsonResponse({"error": "Missing 'text' query parameter"}, status=400)
+        suggestions = geopify.autocomplete_country({"text": autocomplete_query})
+        return JsonResponse(suggestions)
+
+def autocomplete_province(request):
+    from tourism.external_api.geopify import GeopifyAPI
+
+    geopify = GeopifyAPI()
+    # country_code = 
+    if request.method == 'GET':
+        autocomplete_query = request.GET.get('text', None)
+        country_code = request.GET.get('countrycode', None)
+        if not autocomplete_query:
+            return JsonResponse({"error": "Missing 'text' query parameter"}, status=400)
+        suggestions = geopify.autocomplete_province({"text": autocomplete_query, "countrycode": country_code})
+        print(suggestions)
+        return JsonResponse(suggestions)
+
+
+
 def calling_test_api(data=None):
     from tourism.crud_api import crud_map
     from tourism.optimization.dummy_data import final_data
@@ -784,3 +812,18 @@ def test_api_call_2(request):
     routes = result.get('optimized_routes') if result else None
 
     return JsonResponse(routes if routes else {"message": "No data found"})
+
+def test_api_call_3(request):
+    from tourism.external_api.geopify import GeopifyAPI
+
+    geopify = GeopifyAPI()
+    # country_code = 
+    if request.method == 'GET':
+        autocomplete_query = request.GET.get('text', None)
+        country_code = request.GET.get('country_code', "kr")
+        if not autocomplete_query:
+            return JsonResponse({"error": "Missing 'text' query parameter"}, status=400)
+        suggestions = geopify.autocomplete_province({"text": autocomplete_query, "country": country_code})
+        return JsonResponse(suggestions)
+
+

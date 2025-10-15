@@ -1,0 +1,587 @@
+/* Trip Planning Steps Styles */
+.trip-planning-container {
+    padding: 1.5rem;
+    height: 100%;
+    overflow-y: auto;
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.trip-planning-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    color: white;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.trip-planning-header h4 {
+    margin: 0 0 1rem 0;
+    font-weight: 600;
+    font-size: 1.3rem;
+}
+
+.trip-planning-header i {
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.progress-wrapper {
+    margin-top: 1rem;
+}
+
+.progress-bar {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00d4aa 0%, #00a8ff 100%);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 212, 170, 0.3);
+}
+
+.progress-text {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+.trip-planning-steps {
+    margin-bottom: 2rem;
+}
+
+.step-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(-10px);
+}
+
+.step-item.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.step-item.completed {
+    opacity: 0.8;
+    transform: translateX(0);
+}
+
+.step-circle {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1.5rem;
+    flex-shrink: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 3px solid #e9ecef;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.step-circle i {
+    font-size: 1.2rem;
+    color: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.step-item.active .step-circle {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: white;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    transform: scale(1.1);
+}
+
+.step-item.active .step-circle i {
+    color: white;
+    transform: scale(1.1);
+}
+
+.step-item.completed .step-circle {
+    background: linear-gradient(135deg, #00d4aa 0%, #00a8ff 100%);
+    border-color: #00d4aa;
+    color: white;
+    box-shadow: 0 6px 20px rgba(0, 212, 170, 0.4);
+}
+
+.step-item.completed .step-circle i {
+    color: white;
+}
+
+.step-circle i {
+    font-size: 1.2rem;
+    position: absolute;
+}
+
+.step-number {
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: none;
+}
+
+.step-item.completed .step-circle i {
+    display: none;
+}
+
+.step-item.completed .step-number {
+    display: block;
+}
+
+.step-content {
+    flex: 1;
+    padding-top: 0.5rem;
+}
+
+.step-content h5 {
+    color: #2c3e50;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.step-item.active .step-content h5 {
+    color: #667eea;
+    transform: translateX(5px);
+}
+
+.step-form {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 2px solid #e9ecef;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.step-item.active .step-form {
+    border-color: #667eea;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+}
+
+/* Form Controls */
+.form-select, .form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.form-select:focus, .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.1), 0 4px 12px rgba(102, 126, 234, 0.15);
+    outline: none;
+    transform: translateY(-1px);
+}
+
+.form-select:hover, .form-control:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Date picker styling */
+.date-picker-container {
+    display: grid;
+    gap: 1rem;
+}
+
+.date-input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.date-input-group label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.trip-duration {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.trip-duration .badge {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    border-radius: 20px;
+}
+
+.step-divider {
+    width: 2px;
+    height: 20px;
+    background: #dee2e6;
+    margin: 0.5rem 0 0.5rem 24px;
+    transition: all 0.3s ease;
+}
+
+.step-item.active + .step-divider {
+    background: #007bff;
+}
+
+.step-item.completed + .step-divider {
+    background: #28a745;
+}
+
+/* Interest Tags */
+.interest-tags {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.interest-tag {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interest-tag input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.interest-tag span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #4a5568;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 60px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.interest-tag:hover span {
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+}
+
+.interest-tag input:checked + span {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: white;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    transform: translateY(-3px);
+}
+
+.interest-tag span i {
+    font-size: 1.1rem;
+}
+
+/* Budget Section */
+.budget-section {
+    margin-top: 1.5rem;
+}
+
+.budget-section label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.8rem;
+    display: block;
+    font-size: 1rem;
+}
+
+/* Trip Summary */
+.trip-summary {
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    border-radius: 16px;
+    padding: 2rem;
+    border: 2px solid #e9ecef;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+    background: white;
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.summary-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+}
+
+.summary-item:last-child {
+    margin-bottom: 0;
+}
+
+.summary-item strong {
+    color: #4a5568;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.summary-item span {
+    color: #667eea;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+/* Navigation Buttons */
+.step-navigation {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+    margin: 0 -1.5rem -1.5rem -1.5rem;
+}
+
+.step-navigation .btn {
+    flex: 1;
+    max-width: 200px;
+    padding: 0.8rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.step-navigation .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.step-navigation .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.step-navigation .btn-outline-secondary {
+    background: white;
+    border-color: #e9ecef;
+    color: #6c757d;
+}
+
+.step-navigation .btn-outline-secondary:hover {
+    background: #f8f9fa;
+    border-color: #667eea;
+    color: #667eea;
+    transform: translateY(-2px);
+}
+
+/* Generate Button */
+.btn-success.btn-lg {
+    background: linear-gradient(135deg, #00d4aa 0%, #00a8ff 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 1rem 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    color: white;
+    box-shadow: 0 8px 25px rgba(0, 212, 170, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+}
+
+.btn-success.btn-lg:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(0, 212, 170, 0.4);
+}
+
+.btn-success.btn-lg:active {
+    transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .trip-planning-container {
+        padding: 1rem;
+    }
+    
+    .interest-tags {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 0.6rem;
+    }
+    
+    .step-navigation {
+        flex-direction: column;
+        gap: 0.8rem;
+        padding: 1rem;
+    }
+    
+    .step-navigation .btn {
+        max-width: 100%;
+    }
+}
+
+.progress {
+    height: 6px;
+    border-radius: 3px;
+    background: #e9ecef;
+    margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.progress-container small {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .trip-planning-steps {
+        padding: 0.75rem;
+    }
+
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        margin-right: 0.75rem;
+    }
+
+    .step-circle i {
+        font-size: 1rem;
+    }
+
+    .step-content h4 {
+        font-size: 1rem;
+    }
+
+    .step-content p {
+        font-size: 0.8rem;
+    }
+
+    .step-form {
+        padding: 0.75rem;
+    }
+
+    .interest-tags {
+        gap: 0.25rem;
+    }
+
+    .interest-tags .form-check-label {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .steps-navigation {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .steps-navigation .btn {
+        width: 100%;
+    }
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.step-form {
+    animation: slideIn 0.3s ease;
+}
+
+/* Custom Scrollbar */
+.trip-planning-steps::-webkit-scrollbar {
+    width: 4px;
+}
+
+.trip-planning-steps::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.trip-planning-steps::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 2px;
+}
+
+.trip-planning-steps::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Generate Button Special Styling */
+#generateItineraryBtn {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    transition: all 0.3s ease;
+}
+
+#generateItineraryBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+#generateItineraryBtn:active {
+    transform: translateY(0);
+}
+
+/* Validation States */
+.step-form .is-invalid {
+    border-color: #dc3545;
+}
+
+.step-form .is-valid {
+    border-color: #28a745;
+}
+
+.step-form .invalid-feedback,
+.step-form .valid-feedback {
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
