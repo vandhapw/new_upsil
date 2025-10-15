@@ -454,9 +454,7 @@ class CountryAutocomplete {
     setSearchType(type) {
         this.searchType = type;
         // Update placeholder based on search type
-        if (type === 'city') {
-            this.inputElement.placeholder = 'Start typing to search cities...';
-        } else if (type === 'province') {
+        if (type === 'province') {
             this.inputElement.placeholder = 'Start typing to search provinces...';
         } else {
             this.inputElement.placeholder = 'Start typing to search countries...';

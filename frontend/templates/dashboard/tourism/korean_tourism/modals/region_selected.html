@@ -54,27 +54,6 @@
                         </small>
                     </div>
                     
-                    <!-- City Dropdown -->
-                    <div class="mb-4">
-                        <label for="citySelect" class="form-label">
-                            <i class="fas fa-city me-2"></i>
-                            City
-                        </label>
-                        <input 
-                            type="text" 
-                            id="citySelect" 
-                            placeholder="Start typing to search cities..." 
-                            autocomplete="off" 
-                            required
-                            disabled
-                            aria-describedby="cityHelp"
-                        >
-                        <small id="cityHelp" class="form-text text-muted">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Type at least 2 characters to search
-                        </small>
-                    </div>
-                    
                 </form>
             </div>
             <div class="modal-footer">
@@ -210,12 +189,10 @@
         // Get DOM elements
         const countryInput = document.getElementById('countrySelect');
         const provinceInput = document.getElementById('provinceSelect');
-        const cityInput = document.getElementById('citySelect');
         
         // Store selected data
         let selectedCountryData = null;
         let selectedProvinceData = null;
-        let selectedCityData = null;
         
         // Initialize country autocomplete
         const countryAutocomplete = new CountryAutocomplete({
@@ -301,29 +278,9 @@
             }
         });
         
-        // Initialize city autocomplete
-        const cityAutocomplete = new CountryAutocomplete({
-            input: cityInput,
-            apiEndpoint: '/tourism/api/test_api_call_3/',
-            provinceApiEndpoint: '/tourism/api/cities/',
-            searchType: 'city',
-            minChars: 2,
-            debounceDelay: 300,
-            maxResults: 8,
-            onSelect: function(selectedCity) {
-                console.log('City selected:', selectedCity);
-                selectedCityData = selectedCity;
-                showSelectionFeedback('City selected! Ready to confirm.', 'success');
-            },
-            onError: function(error) {
-                console.error('City autocomplete error:', error);
-                showSelectionFeedback('Failed to load cities. Please try again.', 'error');
-            }
-        });
         
         // Initially disable province and city autocompletes
         provinceAutocomplete.disable();
-        cityAutocomplete.disable();
         
         // Helper function to extract country code from formatted string
         function extractCountryCode(formattedString) {
@@ -416,12 +373,6 @@
                 return;
             }
             
-            if (!city) {
-                showSelectionFeedback('Please select a city.', 'error');
-                cityInput.focus();
-                return;
-            }
-            
             // Create comprehensive selection data
             const selectionData = {
                 country: {
@@ -432,12 +383,8 @@
                     name: province,
                     data: selectedProvinceData
                 },
-                city: {
-                    name: city,
-                    data: selectedCityData
-                },
                 // Combined location string
-                fullLocation: `${city}, ${province}, ${country}`,
+                fullLocation: `${province}, ${country}`,
                 // Coordinates (use city if available, fallback to province, then country)
                 coordinates: {
                     lat: selectedCityData?.lat || selectedProvinceData?.lat || selectedCountryData?.lat,
@@ -478,7 +425,6 @@
             // Clear all autocomplete inputs
             countryAutocomplete.clear();
             provinceAutocomplete.clear();
-            cityAutocomplete.clear();
             
             // Disable dependent fields
             provinceAutocomplete.disable();
