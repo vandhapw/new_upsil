@@ -17,6 +17,10 @@
     <!-- jQuery Datetimepicker CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
     
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -49,17 +53,38 @@
             justify-content: center;
             cursor: pointer;
             font-weight: bold;
-            font-size: 16px;
             color: #3498db;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         
         .xy-button:hover {
             background: #3498db;
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        /* Test hotel button */
+        .test-hotel-button {
+            position: absolute;
+            top: 80px;
+            left: 30em;
+            z-index: 1000;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .test-hotel-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
         }
         
         .xy-button.active {
@@ -76,6 +101,711 @@
             border-radius: 6px;
             margin-bottom: 8px;
         }
+        
+        /* Header Actions Styles */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .history-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
+        }
+        
+        .history-button:hover {
+            background: linear-gradient(135deg, #2980b9, #1abc9c);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .history-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+        }
+        
+        .history-button i {
+            font-size: 16px;
+        }
+        
+        /* Responsive Header */
+        @media (max-width: 768px) {
+            .header-actions {
+                gap: 10px;
+            }
+            
+            .history-button span {
+                display: none;
+            }
+            
+            .history-button {
+                padding: 10px;
+                min-width: 40px;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-content {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .history-button {
+                padding: 8px;
+                font-size: 12px;
+            }
+        }
+        
+        /* History Modal Styles */
+        .history-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .history-modal-overlay.show {
+            opacity: 1;
+        }
+        
+        .history-modal-content {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .history-modal-overlay.show .history-modal-content {
+            transform: scale(1);
+        }
+        
+        .history-modal-header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .history-modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .close-history-modal {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .close-history-modal:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+        
+        .history-modal-body {
+            padding: 25px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .history-section {
+            margin-bottom: 25px;
+        }
+        
+        .history-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .history-section h4 {
+            color: #2c3e50;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .history-item:hover {
+            background: #e3f2fd;
+            transform: translateX(5px);
+            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.1);
+        }
+        
+        .history-icon {
+            color: #3498db;
+            font-size: 14px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .history-details {
+            flex: 1;
+        }
+        
+        .history-title {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+        
+        .history-time {
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+        
+        .empty-history {
+            text-align: center;
+            color: #95a5a6;
+            font-style: italic;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .history-modal-footer {
+            background: #f8f9fa;
+            padding: 20px 25px;
+            border-top: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .clear-history-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .clear-history-btn:hover {
+            background: linear-gradient(135deg, #c0392b, #a93226);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        /* History Modal Responsive */
+        @media (max-width: 768px) {
+            .history-modal-content {
+                width: 95%;
+                max-height: 85vh;
+            }
+            
+            .history-modal-header {
+                padding: 15px 20px;
+            }
+            
+            .history-modal-header h3 {
+                font-size: 18px;
+            }
+            
+            .history-modal-body {
+                padding: 20px;
+            }
+            
+            .history-section h4 {
+                font-size: 14px;
+            }
+            
+            .history-item {
+                padding: 10px 12px;
+            }
+            
+            .history-title {
+                font-size: 13px;
+            }
+        }
+        
+        /* DataTable History Modal Styles */
+        .history-modal-content {
+            width: 95%;
+            max-width: 900px;
+            max-height: 90vh;
+        }
+        
+        .history-modal-body {
+            padding: 20px 25px;
+        }
+        
+        .nav-tabs {
+            border-bottom: 2px solid #dee2e6;
+            margin-bottom: 0;
+        }
+        
+        .nav-tabs .nav-link {
+            color: #495057;
+            border: none;
+            padding: 12px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            border: none;
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .tab-content {
+            background: white;
+        }
+        
+        .table-responsive {
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table thead th {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: none;
+            font-weight: 600;
+            color: #2c3e50;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .table tbody td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-color: #dee2e6;
+        }
+        
+        .table tbody tr:hover {
+            background: rgba(52, 152, 219, 0.05);
+        }
+        
+        .badge {
+            font-size: 0.75em;
+            padding: 0.5em 0.8em;
+        }
+        
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            margin: 0 2px;
+        }
+        
+        .dataTables_wrapper .dataTables_length select {
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 5px 8px;
+        }
+        
+        .dataTables_wrapper .dataTables_filter input {
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin-left: 8px;
+        }
+        
+        .dataTables_wrapper .dataTables_info {
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 0.5rem 0.75rem;
+            margin: 0 2px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background: white;
+            color: #3498db !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #3498db !important;
+            color: white !important;
+            border-color: #3498db;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #3498db !important;
+            color: white !important;
+            border-color: #3498db;
+        }
+        
+        .export-history-btn {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+        }
+        
+        .export-history-btn:hover {
+            background: linear-gradient(135deg, #229954, #1e8449);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+        
+        /* Mobile responsive for DataTables */
+        @media (max-width: 768px) {
+            .history-modal-content {
+                width: 98%;
+                margin: 10px;
+            }
+            
+            .nav-tabs .nav-link {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+            
+            .table thead th {
+                padding: 10px 8px;
+                font-size: 12px;
+            }
+            
+            .table tbody td {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+            
+            .btn-sm {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            
+            .dataTables_wrapper .dataTables_length,
+            .dataTables_wrapper .dataTables_filter {
+                margin-bottom: 10px;
+            }
+        }
+        
+        /* History Stats Styles */
+        .history-controls {
+            margin-bottom: 20px;
+        }
+        
+        .history-stats {
+            display: flex;
+            justify-content: space-around;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+            padding: 0 15px;
+        }
+        
+        .stat-item:not(:last-child) {
+            border-right: 1px solid #dee2e6;
+        }
+        
+        .stat-number {
+            display: block;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            display: block;
+            font-size: 0.875rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        /* Unified History Table Styles */
+        #unifiedHistoryTable .badge {
+            font-size: 0.75rem;
+            padding: 0.4rem 0.6rem;
+            white-space: nowrap;
+        }
+        
+        #unifiedHistoryTable .badge i {
+            margin-right: 4px;
+        }
+        
+        #unifiedHistoryTable td {
+            vertical-align: middle;
+        }
+        
+        #unifiedHistoryTable .btn-sm {
+            padding: 0.25rem 0.5rem;
+            margin: 0 1px;
+        }
+        
+        /* History Stats Responsive */
+        @media (max-width: 768px) {
+            .history-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .stat-item {
+                border-right: none !important;
+                border-bottom: 1px solid #dee2e6;
+                padding-bottom: 15px;
+            }
+            
+            .stat-item:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+            
+            .stat-label {
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Header History Button Styles */
+        .header-history-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
+            margin-left: 20px;
+        }
+        
+        .header-history-button:hover {
+            background: linear-gradient(135deg, #2980b9, #1abc9c);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .header-history-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+        }
+        
+        .header-history-button i {
+            font-size: 16px;
+        }
+        
+        .header-history-button span {
+            font-weight: 500;
+        }
+        
+        /* Responsive Header History Button */
+        @media (max-width: 768px) {
+            .header-history-button span {
+                display: none;
+            }
+            
+            .header-history-button {
+                padding: 8px 12px;
+                margin-left: 15px;
+                min-width: 40px;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-history-button {
+                padding: 6px 10px;
+                margin-left: 10px;
+                font-size: 12px;
+            }
+            
+            .header-history-button i {
+                font-size: 14px;
+            }
+        }
+        
+        /* Custom Footer Fix */
+        .footer {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            height: 60px !important;
+            background-color: #2c3e50 !important;
+            color: white !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-top: 1px solid #34495e !important;
+            z-index: 1000 !important;
+        }
+        
+        .footer-content {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+            padding: 0 2rem !important;
+        }
+        
+        .footer-text p {
+            margin: 0 !important;
+            font-size: 0.9rem !important;
+            color: #ecf0f1 !important;
+        }
+        
+        /* Add bottom padding to body to prevent content being hidden behind footer */
+        body {
+            padding-bottom: 60px !important;
+            background-color: transparent !important;
+            background: none !important;
+        }
+        
+        /* Ensure map container takes full space without white background */
+        .map-container {
+            background-color: transparent !important;
+            background: none !important;
+        }
+        
+        .map {
+            background-color: transparent !important;
+            background: none !important;
+        }
+        
+        /* Override any Bootstrap or other background colors */
+        html {
+            background-color: transparent !important;
+            background: none !important;
+        }
+        
+        /* Ensure main container doesn't have white background */
+        .main-container {
+            background-color: transparent !important;
+            background: none !important;
+        }
+        
+        /* API Hotel Card Styling */
+        .hotel-card.api-loaded {
+            border: 2px solid #10b981 !important;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25) !important;
+        }
+        
+        .hotel-card.api-loaded::after {
+            content: 'API';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: #10b981;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 700;
+            z-index: 10;
+        }
+        
+        /* Enhanced hotel marker styling for API markers */
+        .hotel-marker-api .hotel-marker-content {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            border-color: #ffffff !important;
+        }
+        
+        .hotel-marker-api:hover .hotel-marker-content {
+            transform: scale(1.15) !important;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6) !important;
+        }
     </style>
 
 </head>
@@ -85,11 +815,17 @@
         <div class="header-content">
             <div class="logo">
                 <i class="fas fa-map-marked-alt"></i>
-                <h1>South Korea Interactive Map</h1>
+                <h1>Upsil Interactive Map</h1>
+                <button class="header-history-button" id="headerHistoryButton" onclick="showUserHistoryModal()" title="View Activity History">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </button>
             </div>
-            <button class="menu-toggle" id="menuToggle">
-                <i class="fas fa-bars"></i>
-            </button>
+            <div class="header-actions">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -102,10 +838,14 @@
                 {% include 'dashboard/tourism/korean_tourism/sidebar/step_process.html' %}
             </div>
 
+            <!-- Modality -->
             {% include 'dashboard/tourism/korean_tourism/modals/region_selected.html' %}
 
-            
-            
+            {% include 'dashboard/tourism/korean_tourism/modals/datetime_selected.html' %}
+
+            {% include 'dashboard/tourism/korean_tourism/modals/hotel_lists.html' %}
+
+
             <!-- <div class="sidebar-header">
                 <h2><i class="fas fa-filter"></i> <span></span>Options Selected</span></h2>
                  <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
@@ -257,9 +997,9 @@
 
             <!-- Map Controls -->
             <div class="map-controls">
-                <button id="zoomToKorea" class="map-control-btn" title="Zoom to South Korea">
+                <!-- <button id="zoomToKorea" class="map-control-btn" title="Zoom to South Korea">
                     <i class="fas fa-globe-asia"></i>
-                </button>
+                </button> -->
                 <button id="toggleSatellite" class="map-control-btn" title="Toggle Satellite View">
                     <i class="fas fa-satellite"></i>
                 </button>
@@ -267,6 +1007,21 @@
                     <i class="fas fa-expand"></i>
                 </button>
             </div>
+            
+            <!-- Test Hotel Modal Button -->
+            <!-- <button class="test-hotel-button" onclick="openHotelModal()" title="Test Hotel Vertical Scroll Progress">
+                <i class="fas fa-hotel me-2"></i>Test Vertical Scroll
+            </button> -->
+            
+            <!-- Test Hotel API Integration Button -->
+            <button class="test-hotel-button" onclick="testHotelIntegration()" title="Test Hotel API Integration" style="top: 120px;">
+                <i class="fas fa-bed me-2"></i>Test Hotels API
+            </button>
+            
+            <!-- Test Hotel API Direct Button -->
+            <button class="test-hotel-button" onclick="testDirectAPI()" title="Test Hotel API Direct" style="top: 170px; background: linear-gradient(135deg, #27ae60, #2ecc71);">
+                <i class="fas fa-api me-2"></i>Test API Direct
+            </button>
 
             <!-- Results Panel -->
             <!-- <div class="results-panel" id="resultsPanel">
@@ -279,6 +1034,15 @@
                 <div class="results-content" id="resultsContent"> -->
                     <!-- Results will be populated here -->
                 <!-- </div> -->
+            </div>
+            
+            <!-- Horizontal Hotel Overlay -->
+            <div id="horizontal-hotel-overlay" style="display: none;">
+                {% include 'dashboard/tourism/korean_tourism/modals/horizontal_lists.html' %}
+            </div>
+
+            <div id="horizontal-attraction-overlay" style="display: none;">
+                {% include 'dashboard/tourism/korean_tourism/modals/attraction_lists.html' %}
             </div>
         </main>
     </div>
@@ -342,7 +1106,7 @@
                 <a href="#"><i class="fas fa-envelope"></i> Contact</a>
             </div>
             <div class="footer-text">
-                <p>&copy; 2025 South Korea Interactive Map. Data source: Scraping methods</p>
+                <p>&copy; 2025 Upsil Interactive Map. Data source: Scraping methods</p>
             </div>
         </div>
     </footer> -->
@@ -374,6 +1138,13 @@
     <script  src="https://code.jquery.com/jquery-3.7.1.js"  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="  crossorigin="anonymous"></script>
     <!-- jQuery Datetimepicker JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
+    
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 			
     <!-- <script src="js/app.js"></script> -->
@@ -395,7 +1166,7 @@
 
     <script src="{% static 'js/tourism/imageScroll.js' %}"></script>
 
-    <script src="{% static 'js/tourism/modals/region_selected.js' %}"></script>
+    <script src="{% static 'js/tourism/modals/showing_modals.js' %}"></script>
     
     <!-- Sidebar Toggle JavaScript -->
     <script>
@@ -535,7 +1306,1215 @@
                 }
             });
         });
+        
+        // Global functions for modal operations
+        function openRegionSelectedModal() {
+            const regionModal = new bootstrap.Modal(document.getElementById('regionModal'));
+            regionModal.show();
+        }
+        
+        function openDateTimeModal() {
+            const dateTimeModal = new bootstrap.Modal(document.getElementById('dateTimeModal'));
+            dateTimeModal.show();
+        }
+        
+        function openHotelModal() {
+            console.log('Opening hotel modal...');
+            const hotelModal = new bootstrap.Modal(document.getElementById('hotelListModal'));
+            hotelModal.show();
+        }
+        
+        function showHorizontalHotelOverlay() {
+            console.log('Showing horizontal hotel overlay...');
+            const overlay = document.getElementById('horizontal-hotel-overlay');
+            const button = document.getElementById('Hotel');
+            
+            if (overlay.style.display === 'none' || overlay.style.display === '') {
+                // Check if we have province data
+                if (window.selectedProvinceData) {
+                    // Fetch hotels from API using province data
+                    fetchHotelsFromAPI(window.selectedProvinceData);
+                } else {
+                    // Show static hotels if no province selected
+                    overlay.style.display = 'block';
+                    console.warn('No province selected - showing static hotel list');
+                }
+                
+                button.innerHTML = 'Choose Hotels <i class="fa-solid fa-hotel"></i>';
+                button.classList.add('btn-primary');
+                // button.classList.remove('btn-primary');
+                
+                // Initialize horizontal scroll functionality
+                setTimeout(() => {
+                    initializeHorizontalScrollOverlay();
+                }, 100);
+                
+                // Add close button functionality
+                const overlayContainer = overlay.querySelector('.overlay-container');
+                overlayContainer.addEventListener('click', function(e) {
+                    // Check if clicked on the close button (×)
+                    const rect = overlayContainer.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    // Close button area (top-right corner)
+                    if (x > rect.width - 45 && y < 45) {
+                        showHorizontalHotelOverlay(); // Toggle to close
+                    }
+                });
+                
+            } else {
+                // Hide the horizontal overlay
+                overlay.style.display = 'none';
+                button.innerHTML = 'Choose Hotels <i class="fa-solid fa-hotel"></i>';
+                button.classList.add('btn-primary');
+                button.classList.remove('btn-secondary');
+            }
+        }
+        
+        // Function to fetch hotels from API and display them
+        async function fetchHotelsFromAPI(provinceData) {
+            console.log('Fetching hotels from API for province:', provinceData);
+            
+            // Extract place_id from province data - it's directly in properties
+            const placeId = provinceData.properties?.place_id;
+            
+            console.log('Extracted place_id:', placeId);
+            console.log('Province properties:', provinceData.properties);
+            
+            if (!placeId) {
+                console.warn('No place_id found in province data:', provinceData);
+                console.warn('Available properties:', Object.keys(provinceData.properties || {}));
+                alert('Unable to fetch hotels - missing location ID. Showing static hotel list.');
+                document.getElementById('horizontal-hotel-overlay').style.display = 'block';
+                return;
+            }
+            
+            try {
+                // Show loading indicator
+                showLoadingIndicator('Loading hotels for selected region...');
+                
+                // Fetch hotels from your API
+                const apiUrl = `/tourism/api/hotels_list/?place_id=${placeId}`;
+                console.log('Calling API:', apiUrl);
+                
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`Hotels API error: ${response.status}`);
+                }
+                
+                const hotelsData = await response.json();
+                console.log('Hotels API response:', hotelsData);
+                
+                if (hotelsData && hotelsData.hotels && hotelsData.hotels.length > 0) {
+                    // Display hotels in horizontal list
+                    displayHotelsInOverlay(hotelsData.hotels);
+                    
+                    // Add hotel markers to map
+                    addHotelMarkersToMap(hotelsData.hotels, provinceData);
+                    
+                    hideLoadingIndicator();
+                    console.log(`✅ Loaded ${hotelsData.hotels.length} hotels from API`);
+                } else {
+                    hideLoadingIndicator();
+                    alert('No hotels found in this region. Showing static hotel list.');
+                    document.getElementById('horizontal-hotel-overlay').style.display = 'block';
+                }
+                
+            } catch (error) {
+                console.error('Error fetching hotels from API:', error);
+                hideLoadingIndicator();
+                alert('Error loading hotels from API. Showing static hotel list.');
+                document.getElementById('horizontal-hotel-overlay').style.display = 'block';
+            }
+        }
+        
+        // Function to display hotels in the horizontal overlay
+        function displayHotelsInOverlay(hotels) {
+            const overlay = document.getElementById('horizontal-hotel-overlay');
+            if (!overlay) {
+                console.error('Horizontal hotel overlay not found');
+                return;
+            }
+            
+            // Find the scroller container
+            const scroller = overlay.querySelector('#scroller');
+            if (!scroller) {
+                console.error('Hotel scroller container not found');
+                return;
+            }
+            
+            // Clear existing static hotels
+            scroller.innerHTML = '';
+            
+            // Generate hotel cards from API data
+            hotels.forEach((hotel, index) => {
+                const hotelCard = createAPIHotelCard(hotel, index);
+                scroller.appendChild(hotelCard);
+            });
+            
+            // Show the overlay
+            overlay.style.display = 'block';
+            
+            // Initialize scroll functionality
+            setTimeout(() => {
+                if (typeof initializeHorizontalScrollOverlay === 'function') {
+                    initializeHorizontalScrollOverlay();
+                }
+            }, 100);
+            
+            console.log(`✅ Displayed ${hotels.length} hotels in horizontal overlay`);
+        }
+        
+        // Function to create API hotel card
+        function createAPIHotelCard(hotel, index) {
+            const div = document.createElement('div');
+            div.className = 'hotel-card api-loaded';
+            div.dataset.hotelId = hotel.id || index;
+            
+            // Extract hotel data with fallbacks
+            const name = hotel.name || `Hotel ${index + 1}`;
+            const rating = hotel.rating || (4.0 + Math.random()).toFixed(1);
+            const price = hotel.price || `₩${Math.floor(Math.random() * 200 + 100)}K`;
+            const image = hotel.image || hotel.photo_url || `https://images.unsplash.com/photo-${1564501049412 + index}-61c2a3083791?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80`;
+            const location = hotel.address || hotel.location || 'Location not specified';
+            
+            // Create amenities icons (limit to 4 for horizontal layout)
+            const amenities = hotel.amenities || ['wifi', 'pool', 'spa', 'gym'];
+            const amenityIcons = amenities.slice(0, 4).map(amenity => {
+                const iconMap = {
+                    'wifi': 'fas fa-wifi',
+                    'pool': 'fas fa-swimming-pool', 
+                    'spa': 'fas fa-spa',
+                    'gym': 'fas fa-dumbbell',
+                    'restaurant': 'fas fa-utensils',
+                    'parking': 'fas fa-parking',
+                    'bar': 'fas fa-cocktail'
+                };
+                return `<i class="${iconMap[amenity.toLowerCase()] || 'fas fa-check'}"></i>`;
+            }).join('');
+            
+            div.innerHTML = `
+                <div class="hotel-image">
+                    <img src="${image}" alt="${name}" loading="lazy">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i>
+                        <span>${rating}</span>
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>${name}</h3>
+                    <p class="hotel-location">
+                        <i class="fas fa-map-marker-alt"></i> 
+                        ${location}
+                    </p>
+                    <div class="hotel-amenities">
+                        ${amenityIcons}
+                    </div>
+                    <div class="hotel-price">${price}</div>
+                </div>
+            `;
+            
+            // Add click handler for hotel selection
+            div.addEventListener('click', function(e) {
+                selectAPIHotel(hotel, div, index);
+            });
+            
+            return div;
+        }
+        
+        // Function to select API hotel
+        function selectAPIHotel(hotel, cardElement, index) {
+            // Remove previous selection
+            document.querySelectorAll('.hotel-card.selected').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selection to current card
+            cardElement.classList.add('selected');
+            
+            // Highlight corresponding marker on map
+            if (window.apiHotelMarkers && window.apiHotelMarkers[index]) {
+                const marker = window.apiHotelMarkers[index];
+                marker.openPopup();
+                
+                // Briefly highlight the marker
+                const markerElement = marker.getElement();
+                if (markerElement) {
+                    markerElement.style.transform = 'scale(1.2)';
+                    markerElement.style.zIndex = '1000';
+                    setTimeout(() => {
+                        markerElement.style.transform = 'scale(1)';
+                        markerElement.style.zIndex = '';
+                    }, 1000);
+                }
+            }
+            
+            console.log('API Hotel selected:', hotel.name);
+        }
+        
+        // Function to add hotel markers to map
+        function addHotelMarkersToMap(hotels, provinceData) {
+            // Get map instance
+            const mapInstance = getMapInstance();
+            if (!mapInstance) {
+                console.warn('Map instance not available for hotel markers');
+                return;
+            }
+            
+            try {
+                // Clear existing API hotel markers
+                if (window.apiHotelMarkers && Array.isArray(window.apiHotelMarkers)) {
+                    window.apiHotelMarkers.forEach(marker => {
+                        mapInstance.removeLayer(marker);
+                    });
+                }
+                window.apiHotelMarkers = [];
+                
+                // Add markers for each hotel
+                hotels.forEach((hotel, index) => {
+                    // Use hotel coordinates if available, otherwise use province center with offset
+                    let lat = hotel.lat || hotel.latitude;
+                    let lon = hotel.lon || hotel.longitude;
+                    
+                    if (!lat || !lon) {
+                        // Fallback to province center with random offset
+                        const baseLat = provinceData.lat || provinceData.properties?.lat;
+                        const baseLon = provinceData.lon || provinceData.properties?.lon;
+                        
+                        if (baseLat && baseLon) {
+                            // Add small random offset to spread hotels around the province center
+                            const offsetRange = 0.01; // ~1km
+                            lat = baseLat + (Math.random() - 0.5) * offsetRange;
+                            lon = baseLon + (Math.random() - 0.5) * offsetRange;
+                        } else {
+                            console.warn(`No coordinates available for hotel: ${hotel.name}`);
+                            return;
+                        }
+                    }
+                    
+                    // Create custom hotel marker icon
+                    const hotelIcon = window.L.divIcon({
+                        className: 'hotel-marker hotel-marker-api',
+                        html: `
+                            <div class="hotel-marker-content">
+                                <i class="fas fa-bed"></i>
+                                <span class="hotel-price">${hotel.price || '₩150K'}</span>
+                            </div>
+                        `,
+                        iconSize: [70, 45],
+                        iconAnchor: [35, 45],
+                        popupAnchor: [0, -45]
+                    });
+                    
+                    // Create marker
+                    const marker = window.L.marker([lat, lon], { icon: hotelIcon }).addTo(mapInstance);
+                    
+                    // Add data attributes for synchronization
+                    marker._hotelData = hotel;
+                    marker._hotelIndex = index;
+                    
+                    // Create detailed popup content
+                    const popupContent = `
+                        <div class="hotel-popup" style="min-width: 300px; max-width: 350px;">
+                            <div class="hotel-popup-header">
+                                <img src="${hotel.image || hotel.photo_url || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80'}" 
+                                     alt="${hotel.name}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;">
+                                <div class="hotel-popup-badge">
+                                    <i class="fas fa-star"></i>
+                                    <span>${hotel.rating || 4.0}</span>
+                                </div>
+                            </div>
+                            <div class="hotel-popup-content">
+                                <h4 style="margin: 10px 0 5px 0; color: #2563eb;">${hotel.name}</h4>
+                                <p style="margin: 5px 0; color: #4b5563; font-size: 14px;">
+                                    <i class="fas fa-map-marker-alt" style="color: #e74c3c; margin-right: 5px;"></i>
+                                    ${hotel.address || hotel.location || 'Address not available'}
+                                </p>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+                                    <div>
+                                        <span style="font-size: 12px; color: #6b7280;">From</span>
+                                        <span style="font-size: 18px; font-weight: bold; color: #e74c3c; margin: 0 3px;">${hotel.price || '₩150K'}</span>
+                                        <span style="font-size: 12px; color: #6b7280;">/night</span>
+                                    </div>
+                                    <button onclick="selectAPIHotelFromMarker(${index})" 
+                                            style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer;">
+                                        <i class="fas fa-check" style="margin-right: 5px;"></i>Select
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    marker.bindPopup(popupContent);
+                    
+                    // Add click handler to highlight corresponding hotel in list
+                    marker.on('click', function() {
+                        highlightAPIHotelInList(hotel.id || index);
+                    });
+                    
+                    // Store marker for later management
+                    window.apiHotelMarkers.push(marker);
+                });
+                
+                console.log(`✅ Added ${hotels.length} hotel markers to map`);
+                
+            } catch (error) {
+                console.error('Error adding hotel markers to map:', error);
+            }
+        }
+        
+        // Function to get map instance
+        function getMapInstance() {
+            // Try different methods to get map instance
+            if (window.map) {
+                return window.map;
+            } else if (window.displayMapInstance && window.displayMapInstance.getMap) {
+                return window.displayMapInstance.getMap();
+            } else if (window.displayMap && window.displayMap.getMap) {
+                return window.displayMap.getMap();
+            }
+            
+            console.warn('Map instance not found');
+            return null;
+        }
+        
+        // Function to highlight API hotel in list when marker clicked
+        function highlightAPIHotelInList(hotelId) {
+            const hotelCard = document.querySelector(`.hotel-card[data-hotel-id="${hotelId}"]`);
+            if (hotelCard) {
+                // Remove previous selection
+                document.querySelectorAll('.hotel-card.selected').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                
+                // Add selection
+                hotelCard.classList.add('selected');
+                
+                // Scroll to hotel card in horizontal list
+                const scrollerWrapper = hotelCard.closest('.scroller-wrapper');
+                if (scrollerWrapper) {
+                    const cardRect = hotelCard.getBoundingClientRect();
+                    const wrapperRect = scrollerWrapper.getBoundingClientRect();
+                    const scrollLeft = scrollerWrapper.scrollLeft;
+                    const cardLeft = cardRect.left - wrapperRect.left + scrollLeft;
+                    const wrapperWidth = wrapperRect.width;
+                    const cardWidth = cardRect.width;
+                    
+                    // Center the card in the viewport
+                    const targetScrollLeft = cardLeft - (wrapperWidth / 2) + (cardWidth / 2);
+                    
+                    scrollerWrapper.scrollTo({
+                        left: targetScrollLeft,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        }
+        
+        // Function to select hotel from marker
+        function selectAPIHotelFromMarker(index) {
+            const hotelCard = document.querySelector(`.hotel-card[data-hotel-id="${index}"]`);
+            if (hotelCard) {
+                hotelCard.click();
+            }
+        }
+        
+        // Loading indicator functions
+        function showLoadingIndicator(message) {
+            // Create or show loading indicator
+            let loadingDiv = document.getElementById('api-loading-indicator');
+            if (!loadingDiv) {
+                loadingDiv = document.createElement('div');
+                loadingDiv.id = 'api-loading-indicator';
+                loadingDiv.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(255, 255, 255, 0.95);
+                    padding: 20px 30px;
+                    border-radius: 12px;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                    z-index: 10000;
+                    text-align: center;
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                `;
+                document.body.appendChild(loadingDiv);
+            }
+            
+            loadingDiv.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 20px; height: 20px; border: 2px solid #3498db; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <span style="color: #2c3e50; font-weight: 600;">${message}</span>
+                </div>
+                <style>
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                </style>
+            `;
+            loadingDiv.style.display = 'block';
+        }
+        
+        function hideLoadingIndicator() {
+            const loadingDiv = document.getElementById('api-loading-indicator');
+            if (loadingDiv) {
+                loadingDiv.style.display = 'none';
+            }
+        }
+
+        function showHorizontalAttractionOverlay() {
+            console.log('Showing horizontal attraction overlay...');
+            const overlay = document.getElementById('horizontal-attraction-overlay');
+            const button = document.getElementById('Attraction');
+            
+            if (overlay.style.display === 'none' || overlay.style.display === '') {
+                // Show the horizontal overlay
+                overlay.style.display = 'block';
+                button.innerHTML = 'Choose Attractions <i class="fa-solid fa-map-marker-alt"></i>';
+                button.classList.add('btn-primary');
+                // button.classList.remove('btn-primary');
+                
+                // Initialize horizontal scroll functionality
+                setTimeout(() => {
+                    initializeHorizontalAttractionScrollOverlay();
+                }, 100);
+                
+                // Add close button functionality
+                const overlayContainer = overlay.querySelector('.overlay-container');
+                overlayContainer.addEventListener('click', function(e) {
+                    // Check if clicked on the close button (×)
+                    const rect = overlayContainer.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    // Close button area (top-right corner)
+                    if (x > rect.width - 45 && y < 45) {
+                        showHorizontalAttractionOverlay(); // Toggle to close
+                    }
+                });
+                
+            } else {
+                // Hide the horizontal overlay
+                overlay.style.display = 'none';
+                button.innerHTML = 'Choose Attractions <i class="fa-solid fa-map-marker-alt"></i>';
+                button.classList.add('btn-primary');
+                button.classList.remove('btn-secondary');
+            }
+        }
+        
+        // Function to test API directly
+        async function testDirectAPI() {
+            console.log('🧪 Testing API directly...');
+            
+            try {
+                showLoadingIndicator('Testing hotel API...');
+                
+                // Use a real place_id format like the one provided by the user
+                const testPlaceId = '51cd1e680506ce5c4059e4744820144e21c0f00101f90104dd760000000000c00208';
+                const apiUrl = `/tourism/api/hotels_list/?place_id=${testPlaceId}`;
+                
+                console.log('Testing API with URL:', apiUrl);
+                
+                const response = await fetch(apiUrl);
+                
+                console.log('API Response status:', response.status);
+                console.log('API Response headers:', [...response.headers.entries()]);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ API Response data:', data);
+                    
+                    if (data.hotels && data.hotels.length > 0) {
+                        alert(`✅ API Success! Found ${data.hotels.length} hotels`);
+                        
+                        // Test displaying the hotels
+                        displayHotelsInOverlay(data.hotels);
+                        
+                        // Mock province data using the structure provided by user
+                        const mockProvince = {
+                            lat: -8.6524973,
+                            lon: 115.2191175,
+                            properties: {
+                                address_line1: "Denpasar",
+                                address_line2: "Bali, Indonesia",
+                                category: "administrative",
+                                city: "Denpasar", 
+                                country: "Indonesia",
+                                country_code: "id",
+                                formatted: "Denpasar, Bali, Indonesia",
+                                iso3166_2: "ID-NU",
+                                iso3166_2_sublevel: "ID-BA",
+                                lat: -8.6524973,
+                                lon: 115.2191175,
+                                place_id: testPlaceId
+                            }
+                        };
+                        
+                        addHotelMarkersToMap(data.hotels, mockProvince);
+                    } else {
+                        alert('✅ API Success but no hotels found');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    console.error('❌ API Error:', errorText);
+                    alert(`❌ API Error: ${response.status} - ${errorText}`);
+                }
+                
+                hideLoadingIndicator();
+                
+            } catch (error) {
+                console.error('❌ Network Error:', error);
+                hideLoadingIndicator();
+                alert(`❌ Network Error: ${error.message}`);
+            }
+        }
+
+        // Horizontal scroll functionality for the overlay
+        function initializeHorizontalScrollOverlay() {
+            const scroller = document.querySelector('#horizontal-hotel-overlay #scroller');
+            const scrollerWrapper = document.querySelector('#horizontal-hotel-overlay .scroller-wrapper');
+            const scrollProgress = document.querySelector('#horizontal-hotel-overlay #scroll-progress');
+
+            console.log('Initializing horizontal scroll overlay:', { scroller, scrollerWrapper, scrollProgress });
+
+            if (!scroller || !scrollerWrapper || !scrollProgress) {
+                console.error('Horizontal scroll overlay elements not found');
+                return;
+            }
+
+            // Update progress bar function
+            function updateScrollProgress() {
+                if (scrollerWrapper.scrollWidth <= scrollerWrapper.clientWidth) {
+                    scrollProgress.style.width = "100%";
+                    return;
+                }
+                
+                const scrollPercent = (scrollerWrapper.scrollLeft / (scrollerWrapper.scrollWidth - scrollerWrapper.clientWidth)) * 100;
+                const clampedPercent = Math.max(0, Math.min(100, scrollPercent));
+                scrollProgress.style.width = clampedPercent + "%";
+            }
+
+            // Add scroll event listener
+            scrollerWrapper.addEventListener("scroll", updateScrollProgress);
+
+            // Enhanced wheel event handler for horizontal scrolling
+            function handleWheelScroll(event) {
+                if (scrollerWrapper.scrollWidth > scrollerWrapper.clientWidth) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    const scrollAmount = event.deltaY * 2;
+                    scrollerWrapper.scrollLeft += scrollAmount;
+                    updateScrollProgress();
+                    
+                    return false;
+                }
+            }
+
+            // Add wheel events
+            scrollerWrapper.addEventListener("wheel", handleWheelScroll, { 
+                passive: false, 
+                capture: true 
+            });
+
+            // Add click events to hotel cards
+            const hotelCards = scroller.querySelectorAll('.hotel-card');
+            hotelCards.forEach((card, index) => {
+                card.addEventListener('click', function() {
+                    const hotelName = card.querySelector('h3').textContent;
+                    console.log(`Selected hotel: ${hotelName}`);
+                    
+                    // Add selection visual feedback
+                    hotelCards.forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    
+                    // Optional: Auto-hide overlay after selection
+                    setTimeout(() => {
+                        showHorizontalHotelOverlay(); // Toggle to close
+                    }, 1000);
+                });
+            });
+
+            // Initialize progress
+            setTimeout(updateScrollProgress, 100);
+            
+            console.log('Horizontal scroll overlay initialized successfully');
+        }
+        
+        // Horizontal scroll functionality for the attraction overlay
+        function initializeHorizontalAttractionScrollOverlay() {
+            const scroller = document.querySelector('#horizontal-attraction-overlay #scroller');
+            const scrollerWrapper = document.querySelector('#horizontal-attraction-overlay .scroller-wrapper');
+            const scrollProgress = document.querySelector('#horizontal-attraction-overlay #scroll-progress');
+
+            console.log('Initializing horizontal attraction scroll overlay:', { scroller, scrollerWrapper, scrollProgress });
+
+            if (!scroller || !scrollerWrapper || !scrollProgress) {
+                console.error('Horizontal attraction scroll overlay elements not found');
+                return;
+            }
+
+            // Update progress bar function
+            function updateScrollProgress() {
+                if (scrollerWrapper.scrollWidth <= scrollerWrapper.clientWidth) {
+                    scrollProgress.style.width = "100%";
+                    return;
+                }
+                
+                const scrollPercent = (scrollerWrapper.scrollLeft / (scrollerWrapper.scrollWidth - scrollerWrapper.clientWidth)) * 100;
+                const clampedPercent = Math.max(0, Math.min(100, scrollPercent));
+                scrollProgress.style.width = clampedPercent + "%";
+            }
+
+            // Add scroll event listener
+            scrollerWrapper.addEventListener("scroll", updateScrollProgress);
+
+            // Enhanced wheel event handler for horizontal scrolling
+            function handleWheelScroll(event) {
+                if (scrollerWrapper.scrollWidth > scrollerWrapper.clientWidth) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    const scrollAmount = event.deltaY * 2;
+                    scrollerWrapper.scrollLeft += scrollAmount;
+                    updateScrollProgress();
+                    
+                    return false;
+                }
+            }
+
+            // Add wheel events
+            scrollerWrapper.addEventListener("wheel", handleWheelScroll, { 
+                passive: false, 
+                capture: true 
+            });
+
+            // Add click events to attraction cards
+            const attractionCards = scroller.querySelectorAll('.attraction-card');
+            attractionCards.forEach((card, index) => {
+                card.addEventListener('click', function() {
+                    const attractionName = card.querySelector('h3').textContent;
+                    console.log(`Selected attraction: ${attractionName}`);
+                    
+                    // Add selection visual feedback
+                    attractionCards.forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    
+                    // Optional: Auto-hide overlay after selection
+                    setTimeout(() => {
+                        showHorizontalAttractionOverlay(); // Toggle to close
+                    }, 1000);
+                });
+            });
+
+            // Initialize progress
+            setTimeout(updateScrollProgress, 100);
+            
+            console.log('Horizontal attraction scroll overlay initialized successfully');
+        }
+        
+        // Show user history modal
+        function showUserHistoryModal() {
+            // Create the history modal if it doesn't exist
+            let historyModal = document.getElementById('user-history-modal');
+            
+            if (!historyModal) {
+                historyModal = document.createElement('div');
+                historyModal.id = 'user-history-modal';
+                historyModal.className = 'history-modal-overlay';
+                
+                historyModal.innerHTML = `
+                    <div class="history-modal-content">
+                        <div class="history-modal-header">
+                            <h3><i class="fas fa-history"></i> Activity History</h3>
+                            <button class="close-history-modal" onclick="closeUserHistoryModal()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="history-modal-body">
+                            <div class="history-controls">
+                                <div class="history-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-number">15</span>
+                                        <span class="stat-label">Total Activities</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-number">8</span>
+                                        <span class="stat-label">Hotels Viewed</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-number">4</span>
+                                        <span class="stat-label">Attractions</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-number">3</span>
+                                        <span class="stat-label">Searches</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="table-responsive mt-3">
+                                <table id="unifiedHistoryTable" class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Type</th>
+                                            <th>Item Name</th>
+                                            <th>Location/Category</th>
+                                            <th>Rating/Info</th>
+                                            <th>Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Hotels -->
+                                        <tr>
+                                            <td><span class="badge bg-primary"><i class="fas fa-hotel"></i> Hotel</span></td>
+                                            <td><strong>Grand Hyatt Seoul</strong></td>
+                                            <td>Seoul, Yongsan-gu</td>
+                                            <td><span class="badge bg-warning">4.5 ⭐</span></td>
+                                            <td data-sort="2025-10-16 14:00">2 hours ago</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('hotel', 'Grand Hyatt Seoul')" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('hotel', 'Grand Hyatt Seoul')" title="Remove">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-info"><i class="fas fa-map-marker-alt"></i> Attraction</span></td>
+                                            <td><strong>Gyeongbokgung Palace</strong></td>
+                                            <td>Seoul, Jongno-gu</td>
+                                            <td><span class="badge bg-success">Historical</span></td>
+                                            <td data-sort="2025-10-16 13:00">3 hours ago</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('attraction', 'Gyeongbokgung Palace')" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('attraction', 'Gyeongbokgung Palace')" title="Remove">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-success"><i class="fas fa-search"></i> Search</span></td>
+                                            <td><strong>Seoul luxury hotels</strong></td>
+                                            <td>Hotels Category</td>
+                                            <td><span class="badge bg-secondary">25 results</span></td>
+                                            <td data-sort="2025-10-16 12:00">4 hours ago</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-success" onclick="repeatSearch('Seoul luxury hotels')" title="Repeat Search">
+                                                    <i class="fas fa-redo"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('search', 'Seoul luxury hotels')" title="Remove">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-primary"><i class="fas fa-hotel"></i> Hotel</span></td>
+                                            <td><strong>Lotte Hotel Busan</strong></td>
+                                            <td>Busan, Busanjin-gu</td>
+                                            <td><span class="badge bg-warning">4.3 ⭐</span></td>
+                                            <td data-sort="2025-10-15 16:00">1 day ago</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('hotel', 'Lotte Hotel Busan')" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('hotel', 'Lotte Hotel Busan')" title="Remove">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-success"><i class="fas fa-search"></i> Search</span></td>
+                                            <td><strong>Jeju Island attractions</strong></td>
+                                            <td>Attractions Category</td>
+                                            <td><span class="badge bg-secondary">18 results</span></td>
+                                            <td data-sort="2025-10-15 14:00">1 day ago</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-success" onclick="repeatSearch('Jeju Island attractions')" title="Repeat Search">
+                                                    <i class="fas fa-redo"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('search', 'Jeju Island attractions')" title="Remove">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-info"><i class="fas fa-map-marker-alt"></i> Attraction</span></td>
+                                            <td><strong>Bukchon Hanok Village</strong></td>
+                                            <td>Seoul, Jongno-gu</td>
+                                            <td><span class="badge bg-success">Cultural</span></td>
+                                            <td data-sort="2025-10-14 10:00">2 days ago</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('attraction', 'Bukchon Hanok Village')" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('attraction', 'Bukchon Hanok Village')" title="Remove">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-primary"><i class="fas fa-hotel"></i> Hotel</span></td>
+                                            <td><strong>Paradise Hotel Incheon</strong></td>
+                                            <td>Incheon, Jung-gu</td>
+                                            <td><span class="badge bg-warning">4.2 ⭐</span></td>
+                                            <td data-sort="2025-10-14 08:00">2 days ago</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('hotel', 'Paradise Hotel Incheon')" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('hotel', 'Paradise Hotel Incheon')" title="Remove">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-success"><i class="fas fa-search"></i> Search</span></td>
+                                            <td><strong>Busan beach resorts</strong></td>
+                                            <td>Hotels Category</td>
+                                            <td><span class="badge bg-secondary">12 results</span></td>
+                                            <td data-sort="2025-10-13 15:00">3 days ago</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-success" onclick="repeatSearch('Busan beach resorts')" title="Repeat Search">
+                                                    <i class="fas fa-redo"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('search', 'Busan beach resorts')" title="Remove">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-primary"><i class="fas fa-hotel"></i> Hotel</span></td>
+                                            <td><strong>Shilla Jeju</strong></td>
+                                            <td>Jeju-do, Seogwipo</td>
+                                            <td><span class="badge bg-warning">4.7 ⭐</span></td>
+                                            <td data-sort="2025-10-13 09:00">3 days ago</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('hotel', 'Shilla Jeju')" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('hotel', 'Shilla Jeju')" title="Remove">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-info"><i class="fas fa-map-marker-alt"></i> Attraction</span></td>
+                                            <td><strong>Hallasan National Park</strong></td>
+                                            <td>Jeju-do</td>
+                                            <td><span class="badge bg-success">Nature</span></td>
+                                            <td data-sort="2025-10-12 11:00">4 days ago</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('attraction', 'Hallasan National Park')" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('attraction', 'Hallasan National Park')" title="Remove">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-primary"><i class="fas fa-hotel"></i> Hotel</span></td>
+                                            <td><strong>Hotel Nongshim Busan</strong></td>
+                                            <td>Busan, Dongnae-gu</td>
+                                            <td><span class="badge bg-warning">4.1 ⭐</span></td>
+                                            <td data-sort="2025-10-11 16:00">5 days ago</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('hotel', 'Hotel Nongshim Busan')" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('hotel', 'Hotel Nongshim Busan')" title="Remove">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-info"><i class="fas fa-map-marker-alt"></i> Attraction</span></td>
+                                            <td><strong>Busan Gamcheon Culture Village</strong></td>
+                                            <td>Busan, Saha-gu</td>
+                                            <td><span class="badge bg-warning">Cultural</span></td>
+                                            <td data-sort="2025-10-10 14:00">6 days ago</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('attraction', 'Busan Gamcheon Culture Village')" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('attraction', 'Busan Gamcheon Culture Village')" title="Remove">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="history-modal-footer">
+                            <button class="clear-history-btn" onclick="clearUserHistory()">
+                                <i class="fas fa-trash"></i> Clear All History
+                            </button>
+                            <button class="export-history-btn" onclick="exportHistory()">
+                                <i class="fas fa-download"></i> Export History
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(historyModal);
+                
+                // Initialize unified DataTable after modal is added to DOM
+                setTimeout(() => {
+                    initializeUnifiedHistoryDataTable();
+                }, 100);
+            }
+            
+            // Show the modal
+            historyModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Add fade-in animation
+            setTimeout(() => {
+                historyModal.classList.add('show');
+            }, 10);
+        }
+        
+        // Initialize unified DataTable for history modal
+        function initializeUnifiedHistoryDataTable() {
+            // Initialize unified history DataTable
+            if ($.fn.DataTable.isDataTable('#unifiedHistoryTable')) {
+                $('#unifiedHistoryTable').DataTable().destroy();
+            }
+            
+            $('#unifiedHistoryTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                order: [[4, 'desc']], // Sort by date (newest first)
+                columnDefs: [
+                    { orderable: false, targets: [5] }, // Disable sorting for Actions column
+                    { type: 'date', targets: [4] }, // Date column
+                    { width: '12%', targets: [0] }, // Type column
+                    { width: '25%', targets: [1] }, // Item Name column
+                    { width: '20%', targets: [2] }, // Location column
+                    { width: '15%', targets: [3] }, // Rating/Info column
+                    { width: '15%', targets: [4] }, // Date column
+                    { width: '13%', targets: [5] }  // Actions column
+                ],
+                language: {
+                    search: "Search History:",
+                    lengthMenu: "Show _MENU_ activities per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ activities",
+                    emptyTable: "No activity history found",
+                    zeroRecords: "No matching activities found"
+                },
+                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                     '<"row"<"col-sm-12"tr>>' +
+                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                drawCallback: function() {
+                    // Re-initialize tooltips after table redraw
+                    $('[title]').tooltip();
+                }
+            });
+            
+            // Initialize Bootstrap tooltips
+            $('[title]').tooltip();
+        }
+        
+        // Unified view item details function
+        function viewItemDetails(type, itemName) {
+            let details = {};
+            
+            switch(type) {
+                case 'hotel':
+                    details = {
+                        title: itemName,
+                        html: `
+                            <div class="text-left">
+                                <p><strong>Type:</strong> Hotel</p>
+                                <p><strong>Location:</strong> Seoul, South Korea</p>
+                                <p><strong>Rating:</strong> 4.5/5 ⭐</p>
+                                <p><strong>Price Range:</strong> $200-400/night</p>
+                                <p><strong>Amenities:</strong> Pool, Spa, Restaurant, Wi-Fi</p>
+                                <p><strong>Contact:</strong> +82-2-797-1234</p>
+                            </div>
+                        `,
+                        confirmText: 'Book Now'
+                    };
+                    break;
+                case 'attraction':
+                    details = {
+                        title: itemName,
+                        html: `
+                            <div class="text-left">
+                                <p><strong>Type:</strong> Tourist Attraction</p>
+                                <p><strong>Location:</strong> Seoul, South Korea</p>
+                                <p><strong>Category:</strong> Historical Palace</p>
+                                <p><strong>Opening Hours:</strong> 9:00 AM - 6:00 PM</p>
+                                <p><strong>Entrance Fee:</strong> ₩3,000 (~$2.50)</p>
+                                <p><strong>Best Time to Visit:</strong> Spring & Autumn</p>
+                            </div>
+                        `,
+                        confirmText: 'Get Directions'
+                    };
+                    break;
+                default:
+                    return;
+            }
+            
+            Swal.fire({
+                title: details.title,
+                html: details.html,
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: details.confirmText,
+                cancelButtonText: 'Close',
+                confirmButtonColor: '#3498db'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (type === 'hotel') {
+                        Swal.fire('Redirecting...', 'Taking you to booking page', 'success');
+                    } else {
+                        Swal.fire('Opening Maps...', 'Redirecting to navigation', 'success');
+                    }
+                }
+            });
+        }
+        
+        // Repeat search function
+        function repeatSearch(query) {
+            Swal.fire({
+                title: 'Repeat Search',
+                text: `Do you want to search again for "${query}"?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Search Again',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Simulate search
+                    Swal.fire('Searching...', `Looking for "${query}"`, 'info');
+                    setTimeout(() => {
+                        Swal.fire('Search Complete!', 'Results updated', 'success');
+                    }, 1500);
+                }
+            });
+        }
+        
+        // Remove from history function
+        function removeFromHistory(type, item) {
+            Swal.fire({
+                title: 'Remove from History',
+                text: `Are you sure you want to remove "${item}" from your ${type} history?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Remove',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#d33'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Find and remove the row from the unified DataTable
+                    if ($.fn.DataTable.isDataTable('#unifiedHistoryTable')) {
+                        const table = $('#unifiedHistoryTable').DataTable();
+                        table.rows().every(function() {
+                            const data = this.data();
+                            // Check if the item name matches
+                            if (data[1].includes(item)) {
+                                this.remove();
+                            }
+                        });
+                        table.draw();
+                        
+                        Swal.fire('Removed!', `${item} has been removed from your history.`, 'success');
+                    }
+                }
+            });
+        }
+        
+        // Export history function
+        function exportHistory() {
+            Swal.fire({
+                title: 'Export History',
+                text: 'Choose export format:',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Export as PDF',
+                cancelButtonText: 'Export as CSV',
+                showDenyButton: true,
+                denyButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Export as PDF
+                    Swal.fire('Exporting...', 'Generating PDF report', 'info');
+                    setTimeout(() => {
+                        Swal.fire('Export Complete!', 'PDF downloaded successfully', 'success');
+                    }, 2000);
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    // Export as CSV
+                    Swal.fire('Exporting...', 'Generating CSV file', 'info');
+                    setTimeout(() => {
+                        Swal.fire('Export Complete!', 'CSV downloaded successfully', 'success');
+                    }, 1500);
+                }
+            });
+        }
+        
+        // Close user history modal
+        function closeUserHistoryModal() {
+            const historyModal = document.getElementById('user-history-modal');
+            if (historyModal) {
+                historyModal.classList.remove('show');
+                setTimeout(() => {
+                    historyModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }, 300);
+            }
+        }
+        
+        // Clear user history
+        function clearUserHistory() {
+            Swal.fire({
+                title: 'Clear All History',
+                text: 'Are you sure you want to clear all activity history? This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Clear All',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#d33'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Clear unified DataTable
+                    if ($.fn.DataTable.isDataTable('#unifiedHistoryTable')) {
+                        const table = $('#unifiedHistoryTable').DataTable();
+                        table.clear().draw();
+                    }
+                    
+                    Swal.fire({
+                        title: 'History Cleared!',
+                        text: 'All activity history has been successfully cleared.',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        }
     </script>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-text">
+                <p>&copy; Upsil Interactive Map. Copyright UPSIL-PKNU 2025</p>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
 

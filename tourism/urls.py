@@ -23,6 +23,8 @@ urlpatterns = [
 
     path('api/autocomplete_country/', autocomplete_country, name='autocomplete_country'),
     path('api/autocomplete_province/', autocomplete_province, name='autocomplete_province'),
+    path('api/hotels_list/', get_hotel_list, name='get_hotel_list'),
+    path('api/attractions_list/', get_attraction_list, name='get_attraction_list'),
 
 
 ]

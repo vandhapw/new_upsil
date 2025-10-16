@@ -58,6 +58,9 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-info" id="chooseHotelBtn" onclick="fetchHotelsForSelectedProvince()" disabled>
+                    <i class="fas fa-bed me-1"></i>Choose Hotel
+                </button>
                 <button type="button" class="btn btn-primary" id="confirmRegion">Confirm</button>
             </div>
         </div>
@@ -181,6 +184,327 @@
         border-radius: 12px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     }
+    
+    /* Custom styles for region selection marker */
+    .region-selection-marker {
+        background: none !important;
+        border: none !important;
+    }
+    
+    .region-popup h6 {
+        border-bottom: 2px solid #2563eb;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .region-popup p {
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+    
+    /* Boundary popup styles */
+    .boundary-popup h6 {
+        border-bottom: 2px solid #e74c3c;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .boundary-popup p {
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+    
+    /* Hotel marker styling */
+    .hotel-marker {
+        background: none !important;
+        border: none !important;
+    }
+    
+    .hotel-marker-content {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: white;
+        padding: 6px 10px;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        font-size: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        min-width: 60px;
+        justify-content: center;
+        border: 2px solid white;
+        transition: all 0.3s ease;
+    }
+    
+    .hotel-marker-content:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
+    }
+    
+    .hotel-marker-content i {
+        font-size: 14px;
+    }
+    
+    .hotel-price {
+        font-size: 11px;
+        font-weight: 700;
+    }
+    
+    /* Hotel card enhanced styling */
+    .hotel-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        padding: 0;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        overflow: hidden;
+        min-width: 320px;
+        max-width: 350px;
+    }
+    
+    .hotel-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+    }
+    
+    .hotel-card.selected {
+        border-color: #2563eb;
+        box-shadow: 0 16px 48px rgba(37, 99, 235, 0.3);
+        transform: translateY(-8px);
+    }
+    
+    .hotel-image {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+    }
+    
+    .hotel-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .hotel-card:hover .hotel-image img {
+        transform: scale(1.05);
+    }
+    
+    .hotel-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .hotel-badge i {
+        color: #fbbf24;
+        font-size: 12px;
+    }
+    
+    .hotel-content {
+        padding: 20px;
+    }
+    
+    .hotel-content h3 {
+        margin: 0 0 10px 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: #1f2937;
+        line-height: 1.3;
+    }
+    
+    .hotel-rating {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    
+    .hotel-rating i {
+        color: #fbbf24;
+        font-size: 14px;
+    }
+    
+    .rating-text {
+        font-size: 13px;
+        color: #6b7280;
+        font-weight: 500;
+    }
+    
+    .hotel-address {
+        color: #6b7280;
+        font-size: 14px;
+        margin: 8px 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        line-height: 1.4;
+    }
+    
+    .hotel-address i {
+        color: #e74c3c;
+        margin-top: 2px;
+        flex-shrink: 0;
+    }
+    
+    .hotel-description {
+        color: #4b5563;
+        font-size: 13px;
+        line-height: 1.5;
+        margin: 10px 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .hotel-amenities {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 12px 0;
+    }
+    
+    .amenity {
+        background: #f3f4f6;
+        color: #374151;
+        padding: 4px 10px;
+        border-radius: 16px;
+        font-size: 12px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .amenity i {
+        color: #10b981;
+        font-size: 10px;
+    }
+    
+    .hotel-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .hotel-price {
+        display: flex;
+        align-items: baseline;
+        gap: 3px;
+    }
+    
+    .price-label {
+        font-size: 12px;
+        color: #6b7280;
+    }
+    
+    .price-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #e74c3c;
+    }
+    
+    .price-unit {
+        font-size: 12px;
+        color: #6b7280;
+    }
+    
+    .book-hotel-btn {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .book-hotel-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
+    }
+    
+    /* Hotel popup styling */
+    .leaflet-popup-content-wrapper {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .hotel-popup {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .hotel-popup-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+    
+    .hotel-popup-badge i {
+        color: #fbbf24;
+    }
+    
+    /* Enhanced hotel card interactions for horizontal list */
+    #horizontal-hotel-overlay .hotel-card.api-loaded {
+        border: 2px solid #10b981;
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25);
+    }
+    
+    #horizontal-hotel-overlay .hotel-card.api-loaded::after {
+        content: 'API';
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        background: #10b981;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 8px;
+        font-size: 10px;
+        font-weight: 700;
+        z-index: 10;
+    }
+    
+    /* Enhanced marker-card synchronization styling */
+    .hotel-marker-synced .hotel-marker-content {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
 </style>
 
 <script>
@@ -214,22 +538,22 @@
                 
                 console.log('Country code extracted:', countryCode);
                 
+                // Move map to selected country immediately
+                moveMapToRegion(selectedCountry);
+                
                 // Enable and configure province autocomplete
                 if (countryCode) {
                     provinceAutocomplete.setCountryCode(countryCode);
                     provinceAutocomplete.enable();
-                    showSelectionFeedback('Country selected! Now search for provinces.', 'success');
+                    showSelectionFeedback('Country selected! Map moved to region. Now search for provinces.', 'success');
                 } else {
-                    showSelectionFeedback('Country selected, but province search may be limited.', 'warning');
+                    showSelectionFeedback('Country selected and map moved! Province search may be limited.', 'warning');
                     provinceAutocomplete.enable();
                 }
                 
                 // Reset dependent fields
                 provinceInput.value = '';
-                cityInput.value = '';
-                cityAutocomplete.disable();
                 selectedProvinceData = null;
-                selectedCityData = null;
             },
             onError: function(error) {
                 console.error('Country autocomplete error:', error);
@@ -250,26 +574,33 @@
                 console.log('Province selected:', selectedProvince);
                 selectedProvinceData = selectedProvince;
                 
+                // Move map to selected province
+                moveMapToRegion(selectedProvince);
+                
+                // Fetch and display province boundary polygon
+                fetchAndDisplayProvinceBoundary(selectedProvince);
+                
+                // Store province data globally for hotel fetching
+                window.selectedProvinceData = selectedProvince;
+                
+                // Enable the Choose Hotel button
+                const chooseHotelBtn = document.getElementById('chooseHotelBtn');
+                if (chooseHotelBtn) {
+                    chooseHotelBtn.disabled = false;
+                    chooseHotelBtn.innerHTML = '<i class="fas fa-bed me-1"></i>Choose Hotel';
+                }
+                
+                // Don't automatically fetch hotels - wait for user to click Choose Hotel button
+                // fetchAndDisplayHotels(selectedProvince);
+                
                 // Extract province code or use country code for city search
                 const provinceCode = selectedProvince.properties?.state_code || 
                                     selectedProvince.properties?.province_code;
                 const countryCode = selectedProvince.countryCode || selectedCountryData?.countryCode;
                 
-                // Enable city autocomplete
-                if (countryCode) {
-                    cityAutocomplete.setCountryCode(countryCode);
-                    if (provinceCode) {
-                        cityAutocomplete.setProvinceCode(provinceCode);
-                    }
-                    cityAutocomplete.enable();
-                    showSelectionFeedback('Province selected! Now search for cities.', 'success');
-                } else {
-                    showSelectionFeedback('Province selected, but city search may be limited.', 'warning');
-                    cityAutocomplete.enable();
-                }
+                showSelectionFeedback('Province selected, map moved, and boundary loaded! Click "Choose Hotel" to load hotels.', 'success');
                 
                 // Reset city field
-                cityInput.value = '';
                 selectedCityData = null;
             },
             onError: function(error) {
@@ -281,6 +612,1176 @@
         
         // Initially disable province and city autocompletes
         provinceAutocomplete.disable();
+        
+        // Function to move map to selected region
+        function moveMapToRegion(regionData) {
+            console.log('Moving map to region:', regionData);
+            
+            // Extract coordinates from the region data
+            const lat = regionData.lat || regionData.properties?.lat;
+            const lon = regionData.lon || regionData.properties?.lon;
+            
+            if (!lat || !lon) {
+                console.error('No coordinates found in region data:', regionData);
+                showSelectionFeedback('Unable to locate region on map - coordinates missing.', 'warning');
+                return;
+            }
+            
+            // Try to get map instance from different possible sources
+            let mapInstance = null;
+            
+            // Method 1: Check if displayMap class instance exists
+            if (window.displayMap && window.displayMap.getMap) {
+                mapInstance = window.displayMap.getMap();
+                console.log('Found map via displayMap class instance');
+            }
+            // Method 2: Check if displayMap singleton instance exists
+            else if (window.displayMap && typeof window.displayMap.getInstance === 'function') {
+                const instance = window.displayMap.getInstance();
+                if (instance && instance.getMap) {
+                    mapInstance = instance.getMap();
+                    console.log('Found map via displayMap singleton');
+                }
+            }
+            // Method 3: Check if map is stored globally
+            else if (window.map) {
+                mapInstance = window.map;
+                console.log('Found map via global window.map');
+            }
+            // Method 4: Check for map in displayMap static instance
+            else if (window.displayMap && window.displayMap.instance && window.displayMap.instance.map) {
+                mapInstance = window.displayMap.instance.map;
+                console.log('Found map via displayMap static instance');
+            }
+            
+            if (mapInstance) {
+                try {
+                    // Determine zoom level based on region type
+                    let zoomLevel = 6; // Default zoom
+                    
+                    if (regionData.properties?.result_type) {
+                        switch(regionData.properties.result_type) {
+                            case 'country':
+                                zoomLevel = 5;
+                                break;
+                            case 'state':
+                            case 'province':
+                                zoomLevel = 7;
+                                break;
+                            case 'city':
+                                zoomLevel = 10;
+                                break;
+                            default:
+                                zoomLevel = 6;
+                        }
+                    }
+                    
+                    // Check if it's a Leaflet map (most likely based on your displayMap.js)
+                    if (mapInstance.setView && typeof mapInstance.setView === 'function') {
+                        // Leaflet map - move from Korea to selected region
+                        mapInstance.setView([lat, lon], zoomLevel, {
+                            animate: true,
+                            duration: 2.0 // Longer animation to see the movement from Korea
+                        });
+                        
+                        // Add a marker for the selected region
+                        if (window.L && window.L.marker) {
+                            // Remove existing region marker if it exists
+                            if (window.regionMarker) {
+                                mapInstance.removeLayer(window.regionMarker);
+                            }
+                            
+                            // Create new marker with custom icon
+                            const customIcon = window.L.divIcon({
+                                className: 'region-selection-marker',
+                                html: '<i class="fas fa-map-marker-alt" style="color: #e74c3c; font-size: 24px;"></i>',
+                                iconSize: [30, 30],
+                                iconAnchor: [15, 30]
+                            });
+                            
+                            window.regionMarker = window.L.marker([lat, lon], { icon: customIcon }).addTo(mapInstance);
+                            window.regionMarker.bindPopup(`
+                                <div class="region-popup" style="min-width: 200px;">
+                                    <h6 style="margin-bottom: 10px; color: #2563eb;">
+                                        <i class="fas fa-map-marker-alt"></i> ${regionData.formatted || regionData.country}
+                                    </h6>
+                                    <p style="margin-bottom: 5px;"><strong>Country:</strong> ${regionData.country || regionData.formatted}</p>
+                                    <p style="margin-bottom: 5px;"><strong>Coordinates:</strong> ${lat.toFixed(4)}, ${lon.toFixed(4)}</p>
+                                    ${regionData.properties?.timezone?.name ? `<p style="margin-bottom: 5px;"><strong>Timezone:</strong> ${regionData.properties.timezone.name}</p>` : ''}
+                                    ${regionData.properties?.result_type ? `<p style="margin-bottom: 0;"><strong>Type:</strong> ${regionData.properties.result_type}</p>` : ''}
+                                </div>
+                            `).openPopup();
+                        }
+                        
+                        console.log(`✅ Map successfully moved from Korea to ${regionData.formatted} at coordinates [${lat}, ${lon}] with zoom ${zoomLevel}`);
+                        
+                    } 
+                    // Check if it's a MapLibre map (fallback)
+                    else if (mapInstance.flyTo && typeof mapInstance.flyTo === 'function') {
+                        // MapLibre map
+                        mapInstance.flyTo({
+                            center: [lon, lat], // MapLibre uses [lon, lat] order
+                            zoom: zoomLevel,
+                            speed: 0.6, // Slower speed to see the movement
+                            curve: 1.4
+                        });
+                        
+                        console.log(`✅ MapLibre map moved from Korea to ${regionData.formatted} at coordinates [${lon}, ${lat}] with zoom ${zoomLevel}`);
+                    }
+                    
+                    // Store the region data globally for other components
+                    window.currentSelectedRegion = regionData;
+                    
+                    // Dispatch custom event for other components to listen to
+                    const mapMovedEvent = new CustomEvent('mapMovedToRegion', {
+                        detail: {
+                            region: regionData,
+                            coordinates: { lat, lon },
+                            zoom: zoomLevel,
+                            fromKorea: true // Flag to indicate this was a move from Korea
+                        }
+                    });
+                    document.dispatchEvent(mapMovedEvent);
+                    
+                } catch (error) {
+                    console.error('❌ Error moving map to region:', error);
+                    showSelectionFeedback('Error moving map to selected region.', 'error');
+                }
+            } else {
+                console.warn('❌ Map instance not found. Available objects:', {
+                    windowDisplayMap: window.displayMap,
+                    windowMap: window.map,
+                    displayMapType: typeof window.displayMap
+                });
+                showSelectionFeedback('Map not available for navigation. Please ensure the map is loaded.', 'warning');
+            }
+        }
+        
+        // Function to fetch and display province boundary polygon
+        async function fetchAndDisplayProvinceBoundary(provinceData) {
+            console.log('Fetching boundary for province:', provinceData);
+            
+            // Get map instance
+            let mapInstance = getMapInstance();
+            if (!mapInstance) {
+                console.warn('Map instance not available for boundary display');
+                return;
+            }
+            
+            try {
+                // Clear existing province boundary if it exists
+                if (window.provinceBoundaryLayer) {
+                    mapInstance.removeLayer(window.provinceBoundaryLayer);
+                    window.provinceBoundaryLayer = null;
+                }
+                
+                // Show loading indicator
+                showSelectionFeedback('Loading province boundary...', 'info');
+                
+                // Extract province/state information for boundary query
+                const provinceName = provinceData.province || 
+                                   provinceData.properties?.state || 
+                                   provinceData.properties?.province ||
+                                   provinceData.properties?.county;
+                                   
+                const countryCode = provinceData.countryCode || 
+                                  provinceData.properties?.country_code;
+                                  
+                const iso3166_2 = provinceData.properties?.iso3166_2;
+                
+                console.log('Boundary query params:', { provinceName, countryCode, iso3166_2 });
+                
+                // Method 1: Try to fetch boundary using Overpass API (OpenStreetMap data)
+                let boundaryData = await fetchBoundaryFromOverpass(provinceName, countryCode, iso3166_2);
+                
+                // Method 2: Fallback to approximate boundary based on bounding box
+                if (!boundaryData) {
+                    console.log('Overpass API failed, creating approximate boundary');
+                    boundaryData = createApproximateBoundary(provinceData);
+                }
+                
+                if (boundaryData) {
+                    displayBoundaryOnMap(boundaryData, provinceData);
+                    showSelectionFeedback('Province boundary loaded successfully!', 'success');
+                } else {
+                    showSelectionFeedback('Unable to load province boundary', 'warning');
+                }
+                
+            } catch (error) {
+                console.error('Error fetching province boundary:', error);
+                showSelectionFeedback('Error loading province boundary', 'error');
+            }
+        }
+        
+        // Function to get map instance (reusable)
+        function getMapInstance() {
+            if (window.displayMap && window.displayMap.getMap) {
+                return window.displayMap.getMap();
+            } else if (window.displayMapInstance && window.displayMapInstance.getMap) {
+                return window.displayMapInstance.getMap();
+            } else if (window.map) {
+                return window.map;
+            } else if (window.displayMap && window.displayMap.instance && window.displayMap.instance.map) {
+                return window.displayMap.instance.map;
+            }
+            return null;
+        }
+        
+        // Function to fetch boundary from Overpass API
+        async function fetchBoundaryFromOverpass(provinceName, countryCode, iso3166_2) {
+            try {
+                // Build Overpass query for administrative boundary
+                let overpassQuery = '';
+                
+                if (iso3166_2) {
+                    // Use ISO 3166-2 code for precise boundary (preferred method)
+                    overpassQuery = `
+                        [out:json][timeout:15];
+                        (
+                            relation["ISO3166-2"="${iso3166_2}"]["admin_level"~"^[4-6]$"];
+                            relation["ref:ISO3166-2"="${iso3166_2}"]["admin_level"~"^[4-6]$"];
+                        );
+                        out geom;
+                    `;
+                } else if (provinceName && countryCode) {
+                    // Fallback to name-based query
+                    overpassQuery = `
+                        [out:json][timeout:15];
+                        (
+                            relation["name"="${provinceName}"]["admin_level"~"^[4-6]$"]["ISO3166-1"="${countryCode.toUpperCase()}"];
+                            relation["name:en"="${provinceName}"]["admin_level"~"^[4-6]$"]["ISO3166-1"="${countryCode.toUpperCase()}"];
+                        );
+                        out geom;
+                    `;
+                }
+                
+                if (!overpassQuery) {
+                    console.log('Insufficient data for Overpass query');
+                    return null;
+                }
+                
+                console.log('Overpass query:', overpassQuery);
+                
+                const response = await fetch('https://overpass-api.de/api/interpreter', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `data=${encodeURIComponent(overpassQuery)}`
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Overpass API error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Overpass API response:', data);
+                
+                if (data.elements && data.elements.length > 0) {
+                    // Convert Overpass data to GeoJSON
+                    return convertOverpassToGeoJSON(data.elements[0]);
+                }
+                
+                return null;
+                
+            } catch (error) {
+                console.error('Overpass API error:', error);
+                return null;
+            }
+        }
+        
+        // Function to convert Overpass relation to GeoJSON
+        function convertOverpassToGeoJSON(relation) {
+            if (!relation.members || relation.members.length === 0) {
+                return null;
+            }
+            
+            try {
+                // Extract outer ways (boundary)
+                const outerWays = relation.members.filter(member => 
+                    member.type === 'way' && member.role === 'outer'
+                );
+                
+                if (outerWays.length === 0) {
+                    return null;
+                }
+                
+                // Convert to coordinate arrays
+                const coordinates = [];
+                outerWays.forEach(way => {
+                    if (way.geometry && way.geometry.length > 0) {
+                        const wayCoords = way.geometry.map(point => [point.lon, point.lat]);
+                        coordinates.push(wayCoords);
+                    }
+                });
+                
+                if (coordinates.length === 0) {
+                    return null;
+                }
+                
+                return {
+                    type: 'Feature',
+                    properties: {
+                        name: relation.tags?.name || 'Province Boundary',
+                        admin_level: relation.tags?.admin_level || '4',
+                        iso3166_2: relation.tags?.['ISO3166-2'] || relation.tags?.['ref:ISO3166-2']
+                    },
+                    geometry: {
+                        type: 'Polygon',
+                        coordinates: coordinates
+                    }
+                };
+                
+            } catch (error) {
+                console.error('Error converting Overpass data to GeoJSON:', error);
+                return null;
+            }
+        }
+        
+        // Function to create approximate boundary based on bounding box
+        function createApproximateBoundary(provinceData) {
+            const lat = provinceData.lat || provinceData.properties?.lat;
+            const lon = provinceData.lon || provinceData.properties?.lon;
+            
+            if (!lat || !lon) {
+                return null;
+            }
+            
+            // Create a rough circular/rectangular boundary around the center point
+            // This is a fallback when precise boundary data is not available
+            const radius = 0.5; // Degrees (approximately 55km)
+            
+            const coordinates = [];
+            const sides = 20; // Number of sides for the polygon
+            
+            for (let i = 0; i <= sides; i++) {
+                const angle = (i * 2 * Math.PI) / sides;
+                const pointLat = lat + (radius * Math.cos(angle));
+                const pointLon = lon + (radius * Math.sin(angle));
+                coordinates.push([pointLon, pointLat]);
+            }
+            
+            return {
+                type: 'Feature',
+                properties: {
+                    name: provinceData.province || provinceData.formatted,
+                    approximateBoundary: true
+                },
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [coordinates]
+                }
+            };
+        }
+        
+        // Function to display boundary on map
+        function displayBoundaryOnMap(geoJsonData, provinceData) {
+            const mapInstance = getMapInstance();
+            if (!mapInstance || !geoJsonData) {
+                return;
+            }
+            
+            try {
+                // Remove existing boundary layer
+                if (window.provinceBoundaryLayer) {
+                    mapInstance.removeLayer(window.provinceBoundaryLayer);
+                }
+                
+                // Style for the boundary
+                const boundaryStyle = {
+                    color: '#e74c3c',
+                    weight: 3,
+                    opacity: 0.8,
+                    fillColor: '#e74c3c',
+                    fillOpacity: 0.1,
+                    dashArray: geoJsonData.properties.approximateBoundary ? '10, 5' : null
+                };
+                
+                // Create and add the boundary layer
+                window.provinceBoundaryLayer = L.geoJSON(geoJsonData, {
+                    style: boundaryStyle,
+                    onEachFeature: function(feature, layer) {
+                        // Add popup with province information
+                        const popupContent = `
+                            <div class="boundary-popup" style="min-width: 250px;">
+                                <h6 style="margin-bottom: 10px; color: #e74c3c; border-bottom: 2px solid #e74c3c; padding-bottom: 5px;">
+                                    <i class="fas fa-map"></i> ${feature.properties.name}
+                                </h6>
+                                <p style="margin-bottom: 5px;"><strong>Province/State:</strong> ${provinceData.province || provinceData.properties?.state}</p>
+                                <p style="margin-bottom: 5px;"><strong>Country:</strong> ${provinceData.country}</p>
+                                ${provinceData.properties?.iso3166_2 ? `<p style="margin-bottom: 5px;"><strong>ISO Code:</strong> ${provinceData.properties.iso3166_2}</p>` : ''}
+                                <p style="margin-bottom: 5px;"><strong>Center:</strong> ${provinceData.lat.toFixed(4)}, ${provinceData.lon.toFixed(4)}</p>
+                                ${feature.properties.approximateBoundary ? '<p style="margin-bottom: 0; font-style: italic; color: #7f8c8d;">Approximate boundary</p>' : '<p style="margin-bottom: 0; font-style: italic; color: #27ae60;">Official boundary</p>'}
+                            </div>
+                        `;
+                        
+                        layer.bindPopup(popupContent);
+                    }
+                }).addTo(mapInstance);
+                
+                // Fit map to boundary
+                const bounds = window.provinceBoundaryLayer.getBounds();
+                if (bounds.isValid()) {
+                    mapInstance.fitBounds(bounds, {
+                        padding: [20, 20],
+                        maxZoom: 8
+                    });
+                }
+                
+                console.log(`✅ Province boundary displayed for ${provinceData.province || provinceData.formatted}`);
+                
+            } catch (error) {
+                console.error('Error displaying boundary on map:', error);
+            }
+        }
+        
+        // Function to fetch and display hotels for selected province
+        async function fetchAndDisplayHotels(provinceData) {
+            console.log('Fetching hotels for province:', provinceData);
+            
+            // Extract place_id from province data - it's directly in properties
+            const placeId = provinceData.properties?.place_id;
+            
+            console.log('Extracted place_id:', placeId);
+            console.log('Province properties:', provinceData.properties);
+            
+            if (!placeId) {
+                console.warn('No place_id found in province data');
+                console.warn('Available properties:', Object.keys(provinceData.properties || {}));
+                showSelectionFeedback('Unable to fetch hotels - missing location ID', 'warning');
+                return;
+            }
+            
+            try {
+                // Show loading indicator
+                showSelectionFeedback('Loading hotels for selected region...', 'info');
+                
+                // Fetch hotels from your API
+                const apiUrl = `/tourism/api/hotels_list/?place_id=${placeId}`;
+                console.log('Calling API:', apiUrl);
+                
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`Hotels API error: ${response.status}`);
+                }
+                
+                const hotelsData = await response.json();
+                console.log('Hotels API response (raw):', hotelsData);
+                console.log('Response data type:', typeof hotelsData);
+                console.log('Response data keys:', Object.keys(hotelsData || {}));
+                
+                // Check if response is GeoJSON format with features array
+                let hotels = [];
+                
+                // Enhanced debugging for response structure
+                if (hotelsData) {
+                    console.log('hotelsData exists');
+                    console.log('hotelsData.type:', hotelsData.type);
+                    console.log('hotelsData.features:', hotelsData.features);
+                    console.log('hotelsData.hotels:', hotelsData.hotels);
+                    console.log('Is features array?', Array.isArray(hotelsData.features));
+                    console.log('Features length:', hotelsData.features?.length);
+                }
+                
+                if (hotelsData && hotelsData.type === 'FeatureCollection' && hotelsData.features && Array.isArray(hotelsData.features)) {
+                    console.log('✅ Detected GeoJSON FeatureCollection format');
+                    console.log('Number of features:', hotelsData.features.length);
+                    
+                    // GeoJSON format - extract hotel data from features
+                    hotels = hotelsData.features.map((feature, index) => {
+                        console.log(`Processing feature ${index}:`, feature);
+                        
+                        // Handle coordinates safely
+                        let latitude = null, longitude = null;
+                        if (feature.geometry && feature.geometry.coordinates && Array.isArray(feature.geometry.coordinates)) {
+                            longitude = feature.geometry.coordinates[0];
+                            latitude = feature.geometry.coordinates[1];
+                        }
+                        
+                        const hotel = {
+                            id: feature.properties?.place_id || feature.properties?.name || `hotel-${index}`,
+                            name: feature.properties?.name || `Hotel ${index + 1}`,
+                            rating: feature.properties?.accommodation?.stars || (4.0 + Math.random()).toFixed(1),
+                            price: `$${Math.floor(Math.random() * 200 + 100)}`,
+                            image: getRandomHotelImage(index),
+                            address: feature.properties?.formatted || feature.properties?.address_line2 || 'Address not available',
+                            location: feature.properties?.address_line1 || feature.properties?.name || 'Location not specified',
+                            amenities: extractAmenities(feature.properties || {}),
+                            description: feature.properties?.description || 'Comfortable accommodation with modern amenities',
+                            latitude: latitude,
+                            longitude: longitude,
+                            lat: latitude, // Also add lat/lon for compatibility
+                            lon: longitude,
+                            contact: feature.properties?.contact,
+                            website: feature.properties?.website
+                        };
+                        
+                        console.log(`Processed hotel ${index}:`, hotel);
+                        return hotel;
+                    });
+                    
+                    console.log('✅ Processed hotels from GeoJSON:', hotels.length, 'hotels');
+                    
+                } else if (hotelsData && hotelsData.features && Array.isArray(hotelsData.features)) {
+                    console.log('✅ Detected features array (non-standard GeoJSON)');
+                    // Handle features array even without FeatureCollection type
+                    hotels = hotelsData.features.map((feature, index) => ({
+                        id: feature.properties?.place_id || feature.properties?.name || `hotel-${index}`,
+                        name: feature.properties?.name || `Hotel ${index + 1}`,
+                        rating: feature.properties?.accommodation?.stars || (4.0 + Math.random()).toFixed(1),
+                        price: `$${Math.floor(Math.random() * 200 + 100)}`,
+                        image: getRandomHotelImage(index),
+                        address: feature.properties?.formatted || feature.properties?.address_line2 || 'Address not available',
+                        location: feature.properties?.address_line1 || feature.properties?.name || 'Location not specified',
+                        amenities: extractAmenities(feature.properties || {}),
+                        description: feature.properties?.description || 'Comfortable accommodation with modern amenities',
+                        latitude: feature.geometry?.coordinates?.[1],
+                        longitude: feature.geometry?.coordinates?.[0],
+                        lat: feature.geometry?.coordinates?.[1],
+                        lon: feature.geometry?.coordinates?.[0],
+                        contact: feature.properties?.contact,
+                        website: feature.properties?.website
+                    }));
+                    console.log('✅ Processed hotels from features array:', hotels.length, 'hotels');
+                    
+                } else if (hotelsData && hotelsData.hotels && Array.isArray(hotelsData.hotels)) {
+                    console.log('✅ Detected legacy hotel format');
+                    // Legacy format
+                    hotels = hotelsData.hotels;
+                    console.log('✅ Using legacy hotel format:', hotels.length, 'hotels');
+                    
+                } else if (hotelsData && Array.isArray(hotelsData)) {
+                    console.log('✅ Detected direct array format');
+                    // Direct array format
+                    hotels = hotelsData;
+                    console.log('✅ Using direct array format:', hotels.length, 'hotels');
+                    
+                } else {
+                    console.log('❌ Unknown response format');
+                    console.log('Available properties:', Object.keys(hotelsData || {}));
+                    console.log('Raw response:', JSON.stringify(hotelsData, null, 2));
+                }
+                
+                console.log(`Final hotels array length: ${hotels.length}`);
+                
+                if (hotels.length > 0) {
+                    console.log('✅ Found hotels, displaying them...');
+                    
+                    // Display hotels in horizontal list
+                    displayHotelsInHorizontalList(hotels);
+                    
+                    // Add hotel markers to map
+                    addHotelMarkersToMap(hotels, provinceData);
+                    
+                    showSelectionFeedback(`Found ${hotels.length} hotels in the region!`, 'success');
+                } else {
+                    console.log('❌ No hotels found in response');
+                    console.log('Response structure debug:');
+                    console.log('- hotelsData:', hotelsData);
+                    console.log('- typeof hotelsData:', typeof hotelsData);
+                    console.log('- hotelsData keys:', Object.keys(hotelsData || {}));
+                    showSelectionFeedback('No hotels found in this region', 'warning');
+                }
+                
+            } catch (error) {
+                console.error('Error fetching hotels:', error);
+                showSelectionFeedback('Error loading hotels for this region', 'error');
+            }
+        }
+        
+        // Helper function to extract amenities from hotel properties
+        function extractAmenities(properties) {
+            const amenities = [];
+            
+            // Safely check properties to avoid undefined errors
+            if (!properties || typeof properties !== 'object') {
+                return ['WiFi', 'Room Service']; // Default amenities
+            }
+            
+            // Check various property fields for amenities
+            if (properties.facilities) {
+                if (properties.facilities.internet_access) amenities.push('WiFi');
+                if (properties.facilities.wheelchair) amenities.push('Accessible');
+                if (properties.facilities.smoking) amenities.push('Smoking Area');
+                if (properties.facilities.air_conditioning) amenities.push('Air Conditioning');
+            }
+            
+            if (properties.accommodation) {
+                if (properties.accommodation.stars) {
+                    amenities.push(`${properties.accommodation.stars} Star`);
+                }
+                if (properties.accommodation.rooms) {
+                    amenities.push(`${properties.accommodation.rooms} Rooms`);
+                }
+            }
+            
+            if (properties.contact) {
+                if (properties.contact.phone) amenities.push('Phone Service');
+                if (properties.contact.email) amenities.push('Email Contact');
+            }
+            
+            if (properties.website) amenities.push('Website');
+            
+            // If no specific amenities found, add default ones
+            if (amenities.length === 0) {
+                amenities.push('WiFi', 'Room Service', 'Daily Cleaning');
+            }
+            
+            return amenities;
+        }
+        
+        // Function to display hotels in horizontal list
+        function displayHotelsInHorizontalList(hotels) {
+            // Find the horizontal hotel overlay in the main page
+            let horizontalOverlay = document.getElementById('horizontal-hotel-overlay');
+            
+            if (!horizontalOverlay) {
+                console.warn('Horizontal hotel overlay not found - checking if it needs to be created');
+                
+                // Try to show the overlay using the existing function
+                if (typeof window.showHorizontalHotelOverlay === 'function') {
+                    window.showHorizontalHotelOverlay();
+                    // Wait a bit for the overlay to be created
+                    setTimeout(() => {
+                        horizontalOverlay = document.getElementById('horizontal-hotel-overlay');
+                        if (horizontalOverlay) {
+                            populateHotelOverlay(hotels);
+                        }
+                    }, 200);
+                }
+                return;
+            }
+            
+            populateHotelOverlay(hotels);
+        }
+        
+        // Function to populate the hotel overlay with API data
+        function populateHotelOverlay(hotels) {
+            const horizontalOverlay = document.getElementById('horizontal-hotel-overlay');
+            if (!horizontalOverlay) return;
+            
+            // Find the scroller container inside the overlay
+            const scroller = horizontalOverlay.querySelector('#scroller');
+            if (!scroller) {
+                console.warn('Hotel scroller container not found');
+                return;
+            }
+            
+            // Clear existing static hotels
+            scroller.innerHTML = '';
+            
+            // Generate hotel cards from API data
+            hotels.forEach((hotel, index) => {
+                const hotelCard = createHorizontalHotelCard(hotel, index);
+                scroller.appendChild(hotelCard);
+            });
+            
+            // Show the horizontal overlay
+            horizontalOverlay.style.display = 'block';
+            
+            // Initialize horizontal scroll functionality if it exists
+            if (typeof window.initializeHorizontalScrollOverlay === 'function') {
+                setTimeout(() => {
+                    window.initializeHorizontalScrollOverlay();
+                }, 100);
+            }
+            
+            console.log(`✅ Displayed ${hotels.length} hotels in horizontal list`);
+        }
+        
+        // Function to create horizontal hotel card matching the existing structure
+        function createHorizontalHotelCard(hotel, index) {
+            const div = document.createElement('div');
+            div.className = 'hotel-card api-loaded'; // Add api-loaded class for styling
+            div.dataset.hotelId = hotel.id || index;
+            
+            // Extract hotel data with fallbacks
+            const name = hotel.name || `Hotel ${index + 1}`;
+            const rating = hotel.rating || (4.0 + Math.random()).toFixed(1);
+            const price = hotel.price || `₩${Math.floor(Math.random() * 200 + 100)}K`;
+            const image = hotel.image || hotel.photo_url || `https://images.unsplash.com/photo-${1564501049412 + index}-61c2a3083791?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80`;
+            const location = hotel.address || hotel.location || 'Location not specified';
+            
+            // Create amenities icons (limit to 4 for horizontal layout)
+            const amenities = hotel.amenities || ['wifi', 'pool', 'spa', 'gym'];
+            const amenityIcons = amenities.slice(0, 4).map(amenity => {
+                const iconMap = {
+                    'wifi': 'fas fa-wifi',
+                    'pool': 'fas fa-swimming-pool',
+                    'spa': 'fas fa-spa',
+                    'gym': 'fas fa-dumbbell',
+                    'restaurant': 'fas fa-utensils',
+                    'parking': 'fas fa-parking',
+                    'bar': 'fas fa-cocktail',
+                    'room-service': 'fas fa-concierge-bell'
+                };
+                return `<i class="${iconMap[amenity.toLowerCase()] || 'fas fa-check'}"></i>`;
+            }).join('');
+            
+            div.innerHTML = `
+                <div class="hotel-image">
+                    <img src="${image}" alt="${name}" loading="lazy">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i>
+                        <span>${rating}</span>
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>${name}</h3>
+                    <p class="hotel-location">
+                        <i class="fas fa-map-marker-alt"></i> 
+                        ${location}
+                    </p>
+                    <div class="hotel-amenities">
+                        ${amenityIcons}
+                    </div>
+                    <div class="hotel-price">${price}</div>
+                </div>
+            `;
+            
+            // Add click handler for hotel selection
+            div.addEventListener('click', function(e) {
+                selectHorizontalHotel(hotel, div, index);
+            });
+            
+            return div;
+        }
+        
+        // Function to select hotel from horizontal list
+        function selectHorizontalHotel(hotel, cardElement, index) {
+            // Remove previous selection
+            document.querySelectorAll('.hotel-card.selected').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selection to current card
+            cardElement.classList.add('selected');
+            
+            // Highlight corresponding marker on map
+            if (window.hotelMarkers && window.hotelMarkers[index]) {
+                const marker = window.hotelMarkers[index];
+                marker.openPopup();
+                
+                // Briefly highlight the marker
+                const markerElement = marker.getElement();
+                if (markerElement) {
+                    markerElement.style.transform = 'scale(1.2)';
+                    markerElement.style.zIndex = '1000';
+                    setTimeout(() => {
+                        markerElement.style.transform = 'scale(1)';
+                        markerElement.style.zIndex = '';
+                    }, 1000);
+                }
+            }
+            
+            console.log('Hotel selected from horizontal list:', hotel.name);
+            showSelectionFeedback(`Selected: ${hotel.name}`, 'success');
+        }
+        
+        // Function to generate star rating HTML
+        function generateStarRating(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let starsHtml = '';
+            
+            // Full stars
+            for (let i = 0; i < fullStars; i++) {
+                starsHtml += '<i class="fas fa-star"></i>';
+            }
+            
+            // Half star
+            if (hasHalfStar) {
+                starsHtml += '<i class="fas fa-star-half-alt"></i>';
+            }
+            
+            // Empty stars
+            for (let i = 0; i < emptyStars; i++) {
+                starsHtml += '<i class="far fa-star"></i>';
+            }
+            
+            return starsHtml;
+        }
+        
+        // Function to add hotel markers to map
+        function addHotelMarkersToMap(hotels, provinceData) {
+            const mapInstance = getMapInstance();
+            if (!mapInstance) {
+                console.warn('Map instance not available for hotel markers');
+                return;
+            }
+            
+            try {
+                // Clear existing hotel markers
+                if (window.hotelMarkers && Array.isArray(window.hotelMarkers)) {
+                    window.hotelMarkers.forEach(marker => {
+                        mapInstance.removeLayer(marker);
+                    });
+                }
+                window.hotelMarkers = [];
+                
+                // Add markers for each hotel
+                hotels.forEach((hotel, index) => {
+                    // Use hotel coordinates if available, otherwise use province center with slight offset
+                    let lat = hotel.lat || hotel.latitude;
+                    let lon = hotel.lon || hotel.longitude;
+                    
+                    if (!lat || !lon) {
+                        // Fallback to province center with random offset
+                        const baseLat = provinceData.lat || provinceData.properties?.lat;
+                        const baseLon = provinceData.lon || provinceData.properties?.lon;
+                        
+                        if (baseLat && baseLon) {
+                            // Add small random offset to spread hotels around the province center
+                            const offsetRange = 0.01; // ~1km
+                            lat = baseLat + (Math.random() - 0.5) * offsetRange;
+                            lon = baseLon + (Math.random() - 0.5) * offsetRange;
+                        } else {
+                            console.warn(`No coordinates available for hotel: ${hotel.name}`);
+                            return;
+                        }
+                    }
+                    
+                    // Create custom hotel marker icon
+                    const hotelIcon = window.L.divIcon({
+                        className: 'hotel-marker hotel-marker-api',
+                        html: `
+                            <div class="hotel-marker-content">
+                                <i class="fas fa-bed"></i>
+                                <span class="hotel-price">${hotel.price || '$150'}</span>
+                            </div>
+                        `,
+                        iconSize: [60, 40],
+                        iconAnchor: [30, 40],
+                        popupAnchor: [0, -40]
+                    });
+                    
+                    // Create marker
+                    const marker = window.L.marker([lat, lon], { icon: hotelIcon }).addTo(mapInstance);
+                    
+                    // Add data attributes for synchronization
+                    marker._hotelData = hotel;
+                    marker._hotelIndex = index;
+                    
+                    // Create contact info HTML
+                    const contactInfo = hotel.contact ? `
+                        ${hotel.contact.phone ? `<p style="margin: 2px 0; font-size: 12px;"><i class="fas fa-phone" style="color: #10b981; margin-right: 5px;"></i>${hotel.contact.phone}</p>` : ''}
+                        ${hotel.contact.email ? `<p style="margin: 2px 0; font-size: 12px;"><i class="fas fa-envelope" style="color: #10b981; margin-right: 5px;"></i>${hotel.contact.email}</p>` : ''}
+                    ` : '';
+                    
+                    const websiteInfo = hotel.website ? `
+                        <p style="margin: 5px 0; font-size: 12px;">
+                            <a href="${hotel.website}" target="_blank" style="color: #2563eb; text-decoration: none;">
+                                <i class="fas fa-globe" style="margin-right: 5px;"></i>Visit Website
+                            </a>
+                        </p>
+                    ` : '';
+                    
+                    // Create detailed popup content
+                    const popupContent = `
+                        <div class="hotel-popup" style="min-width: 300px; max-width: 350px;">
+                            <div class="hotel-popup-header">
+                                <img src="${hotel.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80'}" 
+                                     alt="${hotel.name}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;">
+                                <div class="hotel-popup-badge">
+                                    <i class="fas fa-star"></i>
+                                    <span>${hotel.rating || 4.0}</span>
+                                </div>
+                            </div>
+                            <div class="hotel-popup-content">
+                                <h4 style="margin: 10px 0 5px 0; color: #2563eb;">${hotel.name}</h4>
+                                <div class="hotel-popup-rating" style="margin-bottom: 8px;">
+                                    ${generateStarRating(hotel.rating || 4.0)}
+                                    <span style="margin-left: 5px; color: #6b7280;">(${hotel.rating || 4.0}/5.0)</span>
+                                </div>
+                                <p style="margin: 5px 0; color: #4b5563; font-size: 14px;">
+                                    <i class="fas fa-map-marker-alt" style="color: #e74c3c; margin-right: 5px;"></i>
+                                    ${hotel.address || hotel.location || 'Address not available'}
+                                </p>
+                                <p style="margin: 8px 0; color: #6b7280; font-size: 13px; line-height: 1.4;">
+                                    ${hotel.description || 'Comfortable accommodation with modern amenities'}
+                                </p>
+                                ${contactInfo}
+                                ${websiteInfo}
+                                <div class="hotel-popup-amenities" style="margin: 8px 0;">
+                                    ${(hotel.amenities || ['WiFi', 'Room Service']).slice(0, 4).map(amenity => 
+                                        `<span style="display: inline-block; background: #f3f4f6; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin: 2px; color: #374151;">
+                                            <i class="fas fa-check" style="color: #10b981; margin-right: 3px;"></i>${amenity}
+                                        </span>`
+                                    ).join('')}
+                                </div>
+                                <div class="hotel-popup-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                                    <div class="hotel-popup-price">
+                                        <span style="font-size: 12px; color: #6b7280;">From</span>
+                                        <span style="font-size: 18px; font-weight: bold; color: #e74c3c; margin: 0 3px;">${hotel.price || '$150'}</span>
+                                        <span style="font-size: 12px; color: #6b7280;">/night</span>
+                                    </div>
+                                    <button onclick="bookHotel('${hotel.id || index}', '${hotel.name}')" 
+                                            style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: transform 0.2s;"
+                                            onmouseover="this.style.transform='scale(1.05)'" 
+                                            onmouseout="this.style.transform='scale(1)'">
+                                        <i class="fas fa-bed" style="margin-right: 5px;"></i>Book Now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    marker.bindPopup(popupContent);
+                    
+                    // Add click handler to highlight corresponding hotel in horizontal list
+                    marker.on('click', function() {
+                        highlightHotelInList(hotel.id || index);
+                    });
+                    
+                    // Store marker for later management
+                    window.hotelMarkers.push(marker);
+                });
+                
+                console.log(`✅ Added ${hotels.length} hotel markers to map`);
+                
+            } catch (error) {
+                console.error('Error adding hotel markers to map:', error);
+            }
+        }
+        
+        // Function to highlight hotel in horizontal list when marker is clicked
+        function highlightHotelInList(hotelId) {
+            const hotelCard = document.querySelector(`.hotel-card[data-hotel-id="${hotelId}"]`);
+            if (hotelCard) {
+                // Remove previous selection
+                document.querySelectorAll('.hotel-card.selected').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                
+                // Add selection
+                hotelCard.classList.add('selected');
+                
+                // Scroll to hotel card in horizontal list
+                const scrollerWrapper = hotelCard.closest('.scroller-wrapper');
+                if (scrollerWrapper) {
+                    const cardRect = hotelCard.getBoundingClientRect();
+                    const wrapperRect = scrollerWrapper.getBoundingClientRect();
+                    const scrollLeft = scrollerWrapper.scrollLeft;
+                    const cardLeft = cardRect.left - wrapperRect.left + scrollLeft;
+                    const wrapperWidth = wrapperRect.width;
+                    const cardWidth = cardRect.width;
+                    
+                    // Center the card in the viewport
+                    const targetScrollLeft = cardLeft - (wrapperWidth / 2) + (cardWidth / 2);
+                    
+                    scrollerWrapper.scrollTo({
+                        left: targetScrollLeft,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        }
+        
+        // Function to book hotel
+        function bookHotel(hotelId, hotelName) {
+            console.log(`Booking hotel: ${hotelName} (ID: ${hotelId})`);
+            
+            // You can implement booking logic here
+            showSelectionFeedback(`Booking ${hotelName}...`, 'info');
+            
+            // Simulate booking process
+            setTimeout(() => {
+                showSelectionFeedback(`${hotelName} booking request sent!`, 'success');
+            }, 1500);
+        }
+        
+        // Test function to verify hotel integration with sample data
+        function testHotelIntegration() {
+            console.log('🧪 Testing hotel integration with sample data...');
+            
+            // First test the API directly
+            testHotelAPI();
+            
+            const sampleHotels = [
+                {
+                    id: 'test-1',
+                    name: 'Grand Palace Seoul',
+                    rating: 4.8,
+                    price: '₩250K',
+                    image: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+                    address: 'Gangnam District, Seoul',
+                    amenities: ['wifi', 'pool', 'spa', 'gym'],
+                    lat: 37.5665 + (Math.random() - 0.5) * 0.01,
+                    lon: 126.9780 + (Math.random() - 0.5) * 0.01
+                },
+                {
+                    id: 'test-2',
+                    name: 'Seaside Resort Busan',
+                    rating: 4.5,
+                    price: '₩180K',
+                    image: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+                    address: 'Haeundae Beach, Busan',
+                    amenities: ['wifi', 'pool', 'restaurant', 'bar'],
+                    lat: 35.1796 + (Math.random() - 0.5) * 0.01,
+                    lon: 129.0756 + (Math.random() - 0.5) * 0.01
+                },
+                {
+                    id: 'test-3',
+                    name: 'Mountain View Lodge',
+                    rating: 4.2,
+                    price: '₩120K',
+                    image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+                    address: 'Jeju Island',
+                    amenities: ['wifi', 'spa', 'gym', 'parking'],
+                    lat: 33.4996 + (Math.random() - 0.5) * 0.01,
+                    lon: 126.5312 + (Math.random() - 0.5) * 0.01
+                }
+            ];
+            
+            // Mock province data for testing
+            const mockProvinceData = {
+                lat: 37.5665,
+                lon: 126.9780,
+                properties: { 
+                    name: 'Seoul',
+                    place_id: 'test_place_id_123'
+                }
+            };
+            
+            // Store as selected province for testing
+            window.selectedProvinceData = mockProvinceData;
+            
+            // Display hotels in horizontal list
+            displayHotelsInHorizontalList(sampleHotels);
+            
+            // Add hotel markers to map
+            addHotelMarkersToMap(sampleHotels, mockProvinceData);
+            
+            showSelectionFeedback('✅ Hotel integration test completed! Check horizontal list and map markers.', 'success');
+        }
+        
+        // Function to test the actual API
+        async function testHotelAPI() {
+            console.log('🧪 Testing hotel API...');
+            
+            try {
+                // Use a real place_id format like the one you provided
+                const testPlaceId = '51cd1e680506ce5c4059e4744820144e21c0f00101f90104dd760000000000c00208';
+                const apiUrl = `/tourism/api/hotels_list/?place_id=${testPlaceId}`;
+                
+                console.log('Testing API with URL:', apiUrl);
+                
+                const response = await fetch(apiUrl);
+                
+                console.log('API Response status:', response.status);
+                console.log('API Response headers:', [...response.headers.entries()]);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ API Response data:', data);
+                    
+                    if (data.hotels && data.hotels.length > 0) {
+                        console.log(`✅ Found ${data.hotels.length} hotels`);
+                        
+                        // Test the province data structure you provided
+                        const mockProvinceData = {
+                            lat: -8.6524973,
+                            lon: 115.2191175,
+                            properties: {
+                                address_line1: "Denpasar",
+                                address_line2: "Bali, Indonesia",
+                                category: "administrative",
+                                city: "Denpasar",
+                                country: "Indonesia",
+                                country_code: "id",
+                                formatted: "Denpasar, Bali, Indonesia",
+                                iso3166_2: "ID-NU",
+                                iso3166_2_sublevel: "ID-BA",
+                                lat: -8.6524973,
+                                lon: 115.2191175,
+                                place_id: testPlaceId
+                            }
+                        };
+                        
+                        // Test displaying hotels with the actual structure
+                        console.log('Testing hotel display with mock province data:', mockProvinceData);
+                        displayHotelsInHorizontalList(data.hotels);
+                        addHotelMarkersToMap(data.hotels, mockProvinceData);
+                        
+                    } else {
+                        console.log('✅ API Success but no hotels found');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    console.error('❌ API Error:', response.status, errorText);
+                }
+                
+            } catch (error) {
+                console.error('❌ Network Error:', error);
+            }
+        }
+        
+        // Make test function globally available for testing
+        window.testHotelIntegration = testHotelIntegration;
+        
+        // Function to fetch hotels for currently selected province (triggered by button)
+        function fetchHotelsForSelectedProvince() {
+            console.log('🏨 Manual hotel fetch triggered from region modal');
+            
+            if (!window.selectedProvinceData) {
+                showSelectionFeedback('Please select a province first!', 'warning');
+                return;
+            }
+            
+            const chooseHotelBtn = document.getElementById('chooseHotelBtn');
+            if (chooseHotelBtn) {
+                chooseHotelBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Loading Hotels...';
+                chooseHotelBtn.disabled = true;
+            }
+            
+            // Instead of displaying in modal, redirect to step process
+            showSelectionFeedback('Province data saved! Go to Step 3 to choose hotels.', 'info');
+            
+            // Close the modal
+            setTimeout(() => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('regionModal'));
+                if (modal) {
+                    modal.hide();
+                }
+            }, 1500);
+            
+            // Reset button after delay
+            setTimeout(() => {
+                if (chooseHotelBtn) {
+                    chooseHotelBtn.innerHTML = '<i class="fas fa-bed me-1"></i>Choose Hotel';
+                    chooseHotelBtn.disabled = false;
+                }
+            }, 2000);
+        }
+        
+        // Make function globally available
+        window.fetchHotelsForSelectedProvince = fetchHotelsForSelectedProvince;
+        
+        // Shared function to get random hotel images
+        function getRandomHotelImage(index) {
+            const hotelImages = [
+                'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+                'https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+                'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+                'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+                'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+                'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+                'https://images.unsplash.com/photo-1596436889106-be35e843f974?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+                'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+                'https://images.unsplash.com/photo-1559508551-44bff1de756e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+                'https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+                'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+                'https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
+            ];
+            
+            return hotelImages[index % hotelImages.length];
+        }
+        
+        // Make globally available
+        window.getRandomHotelImage = getRandomHotelImage;
         
         // Helper function to extract country code from formatted string
         function extractCountryCode(formattedString) {
@@ -359,7 +1860,6 @@
         document.getElementById('confirmRegion').addEventListener('click', function() {
             const country = countryInput.value.trim();
             const province = provinceInput.value.trim();
-            const city = cityInput.value.trim();
             
             if (!country) {
                 showSelectionFeedback('Please select a country first.', 'error');
@@ -385,17 +1885,28 @@
                 },
                 // Combined location string
                 fullLocation: `${province}, ${country}`,
-                // Coordinates (use city if available, fallback to province, then country)
+                // Coordinates (use province if available, fallback to country)
                 coordinates: {
-                    lat: selectedCityData?.lat || selectedProvinceData?.lat || selectedCountryData?.lat,
-                    lon: selectedCityData?.lon || selectedProvinceData?.lon || selectedCountryData?.lon
+                    lat: selectedProvinceData?.lat || selectedCountryData?.lat,
+                    lon: selectedProvinceData?.lon || selectedCountryData?.lon
                 }
             };
             
             console.log('Complete selection data:', selectionData);
             
+            // Final map movement to the most specific location (province preferred)
+            const finalRegionData = selectedProvinceData || selectedCountryData;
+            if (finalRegionData) {
+                moveMapToRegion(finalRegionData);
+                
+                // Display boundary for province if available
+                if (selectedProvinceData) {
+                    fetchAndDisplayProvinceBoundary(selectedProvinceData);
+                }
+            }
+            
             // Show success message
-            showSelectionFeedback('Region selected successfully!', 'success');
+            showSelectionFeedback('Region selected successfully! Map moved to final location.', 'success');
             
             // Store in global scope for other components to access
             window.selectedRegionData = selectionData;
@@ -412,7 +1923,7 @@
                 if (modal) {
                     modal.hide();
                 }
-            }, 1000);
+            }, 1500); // Increased delay to see the map movement
             
             // Call callback if provided
             if (typeof window.onRegionSelected === 'function') {

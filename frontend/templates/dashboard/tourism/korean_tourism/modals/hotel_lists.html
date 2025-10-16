@@ -1,0 +1,767 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/tourism/scroll_images.css' %}">
+<!-- Modal -->
+<div class="modal fade bd-example-modal-sm" id="hotelListModal" role="dialog" tabindex="-1" aria-labelledby="hotelListModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="hotelListModalLabel">Hotel Lists</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="hotel-list-container">
+                    <div class="overlay-container">
+                        <h1><i class="fas fa-list me-2"></i>Horizontal Scroll Progress</h1>
+                        <div id="scroll-progress"></div>
+                        <div class="scroller-wrapper" tabindex="0">
+                            <div id="scroller">
+                                <!-- Hotel Card 1 -->
+                                <div class="hotel-card">
+                                    <div class="hotel-image">
+                                        <img src="https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Grand Palace Hotel">
+                                        <div class="hotel-rating">
+                                            <i class="fas fa-star"></i> 4.8
+                                        </div>
+                                    </div>
+                                    <div class="hotel-info">
+                                        <h3>Grand Palace Hotel</h3>
+                                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Gangnam, Seoul</p>
+                                        <p class="hotel-amenities">
+                                            <i class="fas fa-wifi"></i>
+                                            <i class="fas fa-swimming-pool"></i>
+                                            <i class="fas fa-parking"></i>
+                                            <i class="fas fa-utensils"></i>
+                                        </p>
+                                        <div class="hotel-price">
+                                            <span class="price">₩180,000</span>
+                                            <span class="per-night">/night</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hotel Card 2 -->
+                                <div class="hotel-card">
+                                    <div class="hotel-image">
+                                        <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Seaside Resort">
+                                        <div class="hotel-rating">
+                                            <i class="fas fa-star"></i> 4.6
+                                        </div>
+                                    </div>
+                                    <div class="hotel-info">
+                                        <h3>Seaside Resort</h3>
+                                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Busan Beach</p>
+                                        <p class="hotel-amenities">
+                                            <i class="fas fa-water"></i>
+                                            <i class="fas fa-spa"></i>
+                                            <i class="fas fa-dumbbell"></i>
+                                            <i class="fas fa-wifi"></i>
+                                        </p>
+                                        <div class="hotel-price">
+                                            <span class="price">₩220,000</span>
+                                            <span class="per-night">/night</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hotel Card 3 -->
+                                <div class="hotel-card">
+                                    <div class="hotel-image">
+                                        <img src="https://images.unsplash.com/photo-1455587734955-081b22074882?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Business Tower">
+                                        <div class="hotel-rating">
+                                            <i class="fas fa-star"></i> 4.4
+                                        </div>
+                                    </div>
+                                    <div class="hotel-info">
+                                        <h3>Business Tower Hotel</h3>
+                                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Myeongdong, Seoul</p>
+                                        <p class="hotel-amenities">
+                                            <i class="fas fa-briefcase"></i>
+                                            <i class="fas fa-wifi"></i>
+                                            <i class="fas fa-coffee"></i>
+                                            <i class="fas fa-taxi"></i>
+                                        </p>
+                                        <div class="hotel-price">
+                                            <span class="price">₩150,000</span>
+                                            <span class="per-night">/night</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hotel Card 4 -->
+                                <div class="hotel-card">
+                                    <div class="hotel-image">
+                                        <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Mountain Lodge">
+                                        <div class="hotel-rating">
+                                            <i class="fas fa-star"></i> 4.7
+                                        </div>
+                                    </div>
+                                    <div class="hotel-info">
+                                        <h3>Mountain View Lodge</h3>
+                                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Jeju Island</p>
+                                        <p class="hotel-amenities">
+                                            <i class="fas fa-mountain"></i>
+                                            <i class="fas fa-hiking"></i>
+                                            <i class="fas fa-fire"></i>
+                                            <i class="fas fa-wifi"></i>
+                                        </p>
+                                        <div class="hotel-price">
+                                            <span class="price">₩120,000</span>
+                                            <span class="per-night">/night</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hotel Card 5 -->
+                                <div class="hotel-card">
+                                    <div class="hotel-image">
+                                        <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Luxury Suite">
+                                        <div class="hotel-rating">
+                                            <i class="fas fa-star"></i> 4.9
+                                        </div>
+                                    </div>
+                                    <div class="hotel-info">
+                                        <h3>Luxury Suite Hotel</h3>
+                                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Gangnam, Seoul</p>
+                                        <p class="hotel-amenities">
+                                            <i class="fas fa-crown"></i>
+                                            <i class="fas fa-spa"></i>
+                                            <i class="fas fa-glass-cheers"></i>
+                                            <i class="fas fa-concierge-bell"></i>
+                                        </p>
+                                        <div class="hotel-price">
+                                            <span class="price">₩350,000</span>
+                                            <span class="per-night">/night</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hotel Card 6 -->
+                                <div class="hotel-card">
+                                    <div class="hotel-image">
+                                        <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Boutique Hotel">
+                                        <div class="hotel-rating">
+                                            <i class="fas fa-star"></i> 4.5
+                                        </div>
+                                    </div>
+                                    <div class="hotel-info">
+                                        <h3>Boutique Garden Hotel</h3>
+                                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Insadong, Seoul</p>
+                                        <p class="hotel-amenities">
+                                            <i class="fas fa-leaf"></i>
+                                            <i class="fas fa-palette"></i>
+                                            <i class="fas fa-wifi"></i>
+                                            <i class="fas fa-coffee"></i>
+                                        </p>
+                                        <div class="hotel-price">
+                                            <span class="price">₩140,000</span>
+                                            <span class="per-night">/night</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hotel Card 7 -->
+                                <div class="hotel-card">
+                                    <div class="hotel-image">
+                                        <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Resort Hotel">
+                                        <div class="hotel-rating">
+                                            <i class="fas fa-star"></i> 4.6
+                                        </div>
+                                    </div>
+                                    <div class="hotel-info">
+                                        <h3>Paradise Resort</h3>
+                                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Jeju Island</p>
+                                        <p class="hotel-amenities">
+                                            <i class="fas fa-swimming-pool"></i>
+                                            <i class="fas fa-umbrella-beach"></i>
+                                            <i class="fas fa-cocktail"></i>
+                                            <i class="fas fa-shuttle-van"></i>
+                                        </p>
+                                        <div class="hotel-price">
+                                            <span class="price">₩280,000</span>
+                                            <span class="per-night">/night</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hotel Card 8 -->
+                                <div class="hotel-card">
+                                    <div class="hotel-image">
+                                        <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Budget Hotel">
+                                        <div class="hotel-rating">
+                                            <i class="fas fa-star"></i> 4.2
+                                        </div>
+                                    </div>
+                                    <div class="hotel-info">
+                                        <h3>Smart Stay Hotel</h3>
+                                        <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Hongdae, Seoul</p>
+                                        <p class="hotel-amenities">
+                                            <i class="fas fa-wifi"></i>
+                                            <i class="fas fa-bed"></i>
+                                            <i class="fas fa-shower"></i>
+                                            <i class="fas fa-tv"></i>
+                                        </p>
+                                        <div class="hotel-price">
+                                            <span class="price">₩80,000</span>
+                                            <span class="per-night">/night</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="scroll-instructions">
+                            <small class="text-muted">
+                                <i class="fas fa-mouse me-1"></i>Use mouse wheel or drag to scroll vertically through hotels
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Add more hotel cards as needed -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/tourism/imageScroll.js' %}"></script>
+
+<script>
+// Enhanced vertical scroll progress functionality
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Hotel modal script loaded');
+    
+    // Initialize scroll progress when modal is shown
+    const hotelModal = document.getElementById('hotelListModal');
+    
+    if (hotelModal) {
+        hotelModal.addEventListener('shown.bs.modal', function() {
+            console.log('Hotel modal opened, initializing scroll');
+            initializeVerticalScroll();
+            
+            // Add debug info
+            setTimeout(() => {
+                const scroller = document.getElementById("scroller");
+                const scrollerWrapper = document.querySelector(".scroller-wrapper");
+                const scrollProgress = document.getElementById("scroll-progress");
+                
+                console.log('Debug info:', {
+                    scrollerWrapper: {
+                        scrollHeight: scrollerWrapper?.scrollHeight,
+                        clientHeight: scrollerWrapper?.clientHeight,
+                        canScroll: scrollerWrapper?.scrollHeight > scrollerWrapper?.clientHeight
+                    },
+                    elementsFound: {
+                        scroller: !!scroller,
+                        scrollerWrapper: !!scrollerWrapper,
+                        scrollProgress: !!scrollProgress
+                    }
+                });
+            }, 500);
+        });
+    }
+    
+    function initializeVerticalScroll() {
+        const scroller = document.getElementById("scroller");
+        const scrollerWrapper = document.querySelector(".scroller-wrapper");
+        const scrollProgress = document.getElementById("scroll-progress");
+
+        console.log('Initializing scroll elements:', { scroller, scrollerWrapper, scrollProgress });
+
+        if (!scroller || !scrollerWrapper || !scrollProgress) {
+            console.error('Scroll elements not found');
+            return;
+        }
+
+        // Update progress bar function
+        function updateScrollProgress() {
+            if (scrollerWrapper.scrollHeight <= scrollerWrapper.clientHeight) {
+                scrollProgress.style.width = "100%";
+                console.log('No scroll needed - content fits');
+                return;
+            }
+            
+            const scrollPercent = (scrollerWrapper.scrollTop / (scrollerWrapper.scrollHeight - scrollerWrapper.clientHeight)) * 100;
+            const clampedPercent = Math.max(0, Math.min(100, scrollPercent));
+            scrollProgress.style.width = clampedPercent + "%";
+            
+            // Update the title to show current progress
+            const progressText = document.querySelector('.overlay-container h1');
+            if (progressText) {
+                progressText.innerHTML = `<i class="fas fa-list me-2"></i>Vertical Scroll Progress - ${Math.round(clampedPercent)}%`;
+            }
+            
+            console.log('Scroll progress updated:', clampedPercent + '%', {
+                scrollTop: scrollerWrapper.scrollTop,
+                scrollHeight: scrollerWrapper.scrollHeight,
+                clientHeight: scrollerWrapper.clientHeight
+            });
+        }
+
+        // Clear any existing event listeners to prevent duplicates
+        scrollerWrapper.removeEventListener("scroll", updateScrollProgress);
+        
+        // Add scroll event listener
+        scrollerWrapper.addEventListener("scroll", updateScrollProgress);
+
+        // Enhanced wheel event handler
+        function handleWheelScroll(event) {
+            if (scrollerWrapper.scrollHeight > scrollerWrapper.clientHeight) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                const scrollAmount = event.deltaY * 3; // Increased sensitivity
+                scrollerWrapper.scrollTop += scrollAmount;
+                updateScrollProgress();
+                
+                console.log('Wheel scroll:', scrollAmount);
+                return false;
+            }
+        }
+
+        // Add wheel events
+        scrollerWrapper.addEventListener("wheel", handleWheelScroll, { 
+            passive: false, 
+            capture: true 
+        });
+
+        // Add drag scrolling functionality
+        let isDragging = false;
+        let startY;
+        let scrollTop;
+
+        scrollerWrapper.addEventListener('mousedown', function(e) {
+            isDragging = true;
+            scrollerWrapper.style.cursor = 'grabbing';
+            startY = e.pageY - scrollerWrapper.offsetTop;
+            scrollTop = scrollerWrapper.scrollTop;
+            e.preventDefault();
+        });
+
+        scrollerWrapper.addEventListener('mouseleave', function() {
+            isDragging = false;
+            scrollerWrapper.style.cursor = 'grab';
+        });
+
+        scrollerWrapper.addEventListener('mouseup', function() {
+            isDragging = false;
+            scrollerWrapper.style.cursor = 'grab';
+        });
+
+        scrollerWrapper.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            const y = e.pageY - scrollerWrapper.offsetTop;
+            const walk = (y - startY) * 2; // Scroll speed
+            scrollerWrapper.scrollTop = scrollTop - walk;
+            updateScrollProgress();
+        });
+
+        // Keyboard navigation
+        scrollerWrapper.addEventListener("keydown", function(event) {
+            switch (event.key) {
+                case "ArrowUp":
+                    event.preventDefault();
+                    scrollerWrapper.scrollTop -= 100;
+                    break;
+                case "ArrowDown":
+                    event.preventDefault();
+                    scrollerWrapper.scrollTop += 100;
+                    break;
+                case "Home":
+                    event.preventDefault();
+                    scrollerWrapper.scrollLeft = 0;
+                    break;
+                case "End":
+                    event.preventDefault();
+                    scrollerWrapper.scrollLeft = scrollerWrapper.scrollWidth;
+                    break;
+            }
+            updateScrollProgress();
+        });
+
+        // Touch support for mobile
+        let touchStartY = 0;
+        let touchScrollStart = 0;
+
+        scrollerWrapper.addEventListener("touchstart", function(event) {
+            touchStartY = event.touches[0].clientY;
+            touchScrollStart = scrollerWrapper.scrollTop;
+        });
+
+        scrollerWrapper.addEventListener("touchmove", function(event) {
+            if (!touchStartY) return;
+            event.preventDefault();
+            const currentY = event.touches[0].clientY;
+            const diffY = touchStartY - currentY;
+            scrollerWrapper.scrollTop = touchScrollStart + diffY;
+            updateScrollProgress();
+        });
+
+        scrollerWrapper.addEventListener("touchend", function() {
+            touchStartY = 0;
+            touchScrollStart = 0;
+        });
+
+        // Click to scroll to item
+        const scrollItems = scroller.querySelectorAll('.hotel-card');
+        scrollItems.forEach((item, index) => {
+            item.addEventListener('click', function() {
+                const hotelName = item.querySelector('h3').textContent;
+                console.log(`Clicked hotel ${index + 1}: ${hotelName}`);
+                
+                // Scroll to center the clicked item
+                const itemRect = item.getBoundingClientRect();
+                const containerRect = scrollerWrapper.getBoundingClientRect();
+                const scrollTop = scrollerWrapper.scrollTop + itemRect.top - containerRect.top - (containerRect.height / 2) + (itemRect.height / 2);
+                
+                scrollerWrapper.scrollTo({
+                    top: scrollTop,
+                    behavior: 'smooth'
+                });
+                
+                // Add visual feedback
+                item.style.transform = 'translateY(-5px) scale(1.02)';
+                setTimeout(() => {
+                    item.style.transform = '';
+                }, 200);
+                
+                setTimeout(updateScrollProgress, 300);
+            });
+        });
+
+        // Set initial state
+        scrollerWrapper.style.cursor = 'grab';
+        scrollerWrapper.setAttribute("tabindex", "0");
+        
+        // Initialize progress
+        setTimeout(updateScrollProgress, 100);
+        
+        // Handle window resize
+        window.addEventListener('resize', updateScrollProgress);
+        
+        console.log('Horizontal scroll initialized successfully');
+    }
+    
+    // Also initialize immediately if the modal is already visible
+    if (document.getElementById('scroller')) {
+        initializeHorizontalScroll();
+    }
+});
+</script>
+
+<style>
+    .hotel-list-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        position: relative;
+        min-height: 400px;
+    }
+    
+    .modal-dialog-scrollable .modal-body {
+        max-height: calc(100vh - 200px);
+        padding: 1rem;
+    }
+    
+    /* Override any conflicting styles */
+    .hotel-list-container .overlay-container {
+        position: static !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        padding: 20px !important;
+        border-radius: 15px !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+        backdrop-filter: blur(10px) !important;
+        border: 2px solid #e9ecef !important;
+    }
+    
+    .hotel-list-container .overlay-container h1 {
+        margin: 0 0 15px 0 !important;
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        color: #2c3e50 !important;
+        text-align: center !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+    
+    .hotel-list-container #scroll-progress {
+        height: 8px !important;
+        background: linear-gradient(90deg, #3498db 0%, #2980b9 50%, #1abc9c 100%) !important;
+        margin-bottom: 20px !important;
+        border-radius: 4px !important;
+        transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3) !important;
+        width: 0% !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+    
+    .hotel-list-container #scroll-progress::after {
+        content: '' !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent) !important;
+        animation: shimmer 2s infinite !important;
+    }
+    
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+    
+    .hotel-list-container .scroller-wrapper {
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        background: #f8f9fa !important;
+        border-radius: 12px !important;
+        padding: 10px !important;
+        border: 2px solid #e9ecef !important;
+        cursor: grab !important;
+        user-select: none !important;
+        position: relative !important;
+        max-height: 400px !important;
+    }
+    
+    .hotel-list-container .scroller-wrapper:active {
+        cursor: grabbing !important;
+    }
+    
+    .hotel-list-container .scroller-wrapper::-webkit-scrollbar {
+        width: 8px !important;
+    }
+    
+    .hotel-list-container .scroller-wrapper::-webkit-scrollbar-track {
+        background: #e9ecef !important;
+        border-radius: 4px !important;
+    }
+    
+    .hotel-list-container .scroller-wrapper::-webkit-scrollbar-thumb {
+        background: linear-gradient(90deg, #3498db, #2980b9) !important;
+        border-radius: 4px !important;
+        border: 1px solid #fff !important;
+    }
+    
+    .hotel-list-container .scroller-wrapper::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(90deg, #2980b9, #1abc9c) !important;
+    }
+    
+    .hotel-list-container #scroller {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 20px !important;
+        list-style: none !important;
+        padding: 15px !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+    
+    /* Hotel Card Styles */
+    .hotel-card {
+        display: flex !important;
+        background: white !important;
+        border-radius: 15px !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+        overflow: hidden !important;
+        transition: all 0.3s ease !important;
+        cursor: pointer !important;
+        border: 2px solid transparent !important;
+        min-height: 140px !important;
+    }
+    
+    .hotel-card:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+        border-color: #3498db !important;
+    }
+    
+    .hotel-image {
+        position: relative !important;
+        width: 160px !important;
+        min-width: 160px !important;
+        overflow: hidden !important;
+    }
+    
+    .hotel-image img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        transition: transform 0.3s ease !important;
+    }
+    
+    .hotel-card:hover .hotel-image img {
+        transform: scale(1.1) !important;
+    }
+    
+    .hotel-rating {
+        position: absolute !important;
+        top: 10px !important;
+        right: 10px !important;
+        background: rgba(0, 0, 0, 0.8) !important;
+        color: #ffd700 !important;
+        padding: 5px 8px !important;
+        border-radius: 15px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 3px !important;
+    }
+    
+    .hotel-info {
+        flex: 1 !important;
+        padding: 15px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+    }
+    
+    .hotel-info h3 {
+        margin: 0 0 8px 0 !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        color: #2c3e50 !important;
+        line-height: 1.2 !important;
+    }
+    
+    .hotel-location {
+        margin: 0 0 10px 0 !important;
+        color: #7f8c8d !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+    }
+    
+    .hotel-location i {
+        color: #e74c3c !important;
+        font-size: 12px !important;
+    }
+    
+    .hotel-amenities {
+        margin: 0 0 12px 0 !important;
+        display: flex !important;
+        gap: 8px !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .hotel-amenities i {
+        color: #3498db !important;
+        font-size: 14px !important;
+        padding: 4px !important;
+        background: rgba(52, 152, 219, 0.1) !important;
+        border-radius: 50% !important;
+        width: 24px !important;
+        height: 24px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .hotel-price {
+        display: flex !important;
+        align-items: baseline !important;
+        gap: 5px !important;
+        margin-top: auto !important;
+    }
+    
+    .hotel-price .price {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        color: #27ae60 !important;
+    }
+    
+    .hotel-price .per-night {
+        font-size: 12px !important;
+        color: #7f8c8d !important;
+        font-weight: 500 !important;
+    }
+    
+    .scroll-instructions {
+        text-align: center !important;
+        margin-top: 15px !important;
+        padding: 10px !important;
+        background: rgba(52, 152, 219, 0.1) !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(52, 152, 219, 0.2) !important;
+    }
+    
+    .scroll-instructions small {
+        color: #5a6c7d !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Focus styles for accessibility */
+    .hotel-list-container .scroller-wrapper:focus {
+        outline: 3px solid #3498db !important;
+        outline-offset: 2px !important;
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+        .hotel-card {
+            flex-direction: column !important;
+            min-height: auto !important;
+        }
+        
+        .hotel-image {
+            width: 100% !important;
+            min-width: auto !important;
+            height: 200px !important;
+        }
+        
+        .hotel-info {
+            padding: 12px !important;
+        }
+        
+        .hotel-info h3 {
+            font-size: 15px !important;
+        }
+        
+        .hotel-amenities i {
+            width: 20px !important;
+            height: 20px !important;
+            font-size: 12px !important;
+        }
+        
+        .hotel-price .price {
+            font-size: 16px !important;
+        }
+        
+        .hotel-list-container .overlay-container {
+            padding: 15px !important;
+        }
+        
+        .hotel-list-container #scroller {
+            padding: 10px !important;
+            gap: 15px !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .hotel-image {
+            height: 150px !important;
+        }
+        
+        .hotel-info {
+            padding: 10px !important;
+        }
+        
+        .hotel-info h3 {
+            font-size: 14px !important;
+        }
+        
+        .hotel-location {
+            font-size: 12px !important;
+        }
+        
+        .hotel-price .price {
+            font-size: 15px !important;
+        }
+    }
+</style>

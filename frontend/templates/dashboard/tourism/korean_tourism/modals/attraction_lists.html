@@ -1,0 +1,843 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/tourism/scroll_images.css' %}">
+
+<div class="overlay-container">
+    <button class="close-overlay-btn" onclick="closeHorizontalAttractionOverlay()">×</button>
+    <h1><i class="fas fa-map-marker-alt me-2"></i>Select Your Attraction</h1>
+    <div id="scroll-progress"></div>
+    <div class="scroller-wrapper">
+        <div id="scroller">
+            <!-- Attraction Card 1 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1578911373434-0cb395d2cbfb?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Gyeongbokgung Palace">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.9
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Gyeongbokgung Palace</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Jongno, Seoul</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-crown" title="Royal"></i>
+                        <i class="fas fa-camera" title="Photo"></i>
+                        <i class="fas fa-history" title="Historic"></i>
+                    </div>
+                    <div class="attraction-price">₩3K</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 2 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Namsan Tower">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.7
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Namsan Tower</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Jung-gu, Seoul</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-mountain" title="Mountain"></i>
+                        <i class="fas fa-eye" title="View"></i>
+                        <i class="fas fa-heart" title="Romance"></i>
+                    </div>
+                    <div class="attraction-price">₩15K</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 3 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1549220088-d2645ec37715?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Bukchon Hanok Village">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.5
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Bukchon Hanok Village</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Jongno, Seoul</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-home" title="Traditional"></i>
+                        <i class="fas fa-walking" title="Walking"></i>
+                        <i class="fas fa-palette" title="Culture"></i>
+                    </div>
+                    <div class="attraction-price">Free</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 4 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Lotte World Tower">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.6
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Lotte World Tower</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Songpa, Seoul</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-building" title="Skyscraper"></i>
+                        <i class="fas fa-shopping-bag" title="Shopping"></i>
+                        <i class="fas fa-glass-cheers" title="Dining"></i>
+                    </div>
+                    <div class="attraction-price">₩27K</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 5 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Jeju Hallasan">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.8
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Jeju Hallasan</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Jeju Island</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-mountain" title="Hiking"></i>
+                        <i class="fas fa-leaf" title="Nature"></i>
+                        <i class="fas fa-camera" title="Scenic"></i>
+                    </div>
+                    <div class="attraction-price">Free</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 6 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1578016119723-78e0ad9a6506?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Busan Gamcheon Village">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.4
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Gamcheon Village</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Busan</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-palette" title="Art"></i>
+                        <i class="fas fa-rainbow" title="Colorful"></i>
+                        <i class="fas fa-walking" title="Walking"></i>
+                    </div>
+                    <div class="attraction-price">₩5K</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 7 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1565008447742-97cfe30d2939?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Jeongdongjin Beach">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.3
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Jeongdongjin Beach</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Gangneung</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-sun" title="Sunrise"></i>
+                        <i class="fas fa-water" title="Beach"></i>
+                        <i class="fas fa-train" title="Train"></i>
+                    </div>
+                    <div class="attraction-price">Free</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 8 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Changdeokgung Palace">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.7
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Changdeokgung</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Jongno, Seoul</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-tree" title="Garden"></i>
+                        <i class="fas fa-crown" title="UNESCO"></i>
+                        <i class="fas fa-history" title="Historic"></i>
+                    </div>
+                    <div class="attraction-price">₩8K</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 9 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Dongdaemun Design Plaza">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.2
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Dongdaemun DDP</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Jung-gu, Seoul</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-palette" title="Design"></i>
+                        <i class="fas fa-lightbulb" title="Modern"></i>
+                        <i class="fas fa-shopping-bag" title="Shopping"></i>
+                    </div>
+                    <div class="attraction-price">Free</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 10 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1571077834174-4a21c40b4f7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Jeonju Hanok Village">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.6
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Jeonju Hanok</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Jeonju</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-utensils" title="Food"></i>
+                        <i class="fas fa-home" title="Traditional"></i>
+                        <i class="fas fa-walking" title="Walking"></i>
+                    </div>
+                    <div class="attraction-price">₩2K</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 11 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Haeundae Beach">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.5
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Haeundae Beach</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Busan</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-water" title="Beach"></i>
+                        <i class="fas fa-sun" title="Summer"></i>
+                        <i class="fas fa-volleyball-ball" title="Sports"></i>
+                    </div>
+                    <div class="attraction-price">Free</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 12 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1569317002804-ab77bcf1bce4?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Seongsan Sunrise Peak">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.8
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Seongsan Peak</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Jeju Island</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-mountain" title="Hiking"></i>
+                        <i class="fas fa-sun" title="Sunrise"></i>
+                        <i class="fas fa-crown" title="UNESCO"></i>
+                    </div>
+                    <div class="attraction-price">₩2K</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 13 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Banpo Rainbow Bridge">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.4
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Banpo Bridge</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Seocho, Seoul</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-water" title="Fountain"></i>
+                        <i class="fas fa-rainbow" title="Rainbow"></i>
+                        <i class="fas fa-music" title="Music"></i>
+                    </div>
+                    <div class="attraction-price">Free</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 14 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1518733057094-95b53143d2a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Bulguksa Temple">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.7
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Bulguksa Temple</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Gyeongju</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-om" title="Buddhist"></i>
+                        <i class="fas fa-peace" title="Peaceful"></i>
+                        <i class="fas fa-crown" title="UNESCO"></i>
+                    </div>
+                    <div class="attraction-price">₩5K</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 15 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Seoraksan National Park">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.9
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Seoraksan Park</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Gangwon</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-mountain" title="Mountain"></i>
+                        <i class="fas fa-leaf" title="Nature"></i>
+                        <i class="fas fa-hiking" title="Hiking"></i>
+                    </div>
+                    <div class="attraction-price">₩3K</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 16 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1561409037-c7be81613c1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Cheonggye Stream">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.3
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Cheonggye Stream</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Jung-gu, Seoul</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-water" title="Stream"></i>
+                        <i class="fas fa-walking" title="Walking"></i>
+                        <i class="fas fa-lightbulb" title="LED"></i>
+                    </div>
+                    <div class="attraction-price">Free</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 17 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Insadong Street">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.5
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Insadong Street</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Jongno, Seoul</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-palette" title="Art"></i>
+                        <i class="fas fa-shopping-bag" title="Shopping"></i>
+                        <i class="fas fa-coffee" title="Tea"></i>
+                    </div>
+                    <div class="attraction-price">₩10K</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 18 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="War Memorial">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.6
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>War Memorial</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Yongsan, Seoul</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-flag" title="Memorial"></i>
+                        <i class="fas fa-history" title="History"></i>
+                        <i class="fas fa-book" title="Education"></i>
+                    </div>
+                    <div class="attraction-price">Free</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 19 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Myeongdong Shopping">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.2
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Myeongdong</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Jung-gu, Seoul</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-shopping-bag" title="Shopping"></i>
+                        <i class="fas fa-utensils" title="Food"></i>
+                        <i class="fas fa-heart" title="Beauty"></i>
+                    </div>
+                    <div class="attraction-price">₩20K</div>
+                </div>
+            </div>
+
+            <!-- Attraction Card 20 -->
+            <div class="attraction-card">
+                <div class="attraction-image">
+                    <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Andong Hahoe Village">
+                    <div class="attraction-rating">
+                        <i class="fas fa-star"></i> 4.7
+                    </div>
+                </div>
+                <div class="attraction-info">
+                    <h3>Hahoe Village</h3>
+                    <p class="attraction-location"><i class="fas fa-map-marker-alt"></i> Andong</p>
+                    <div class="attraction-amenities">
+                        <i class="fas fa-home" title="Traditional"></i>
+                        <i class="fas fa-masks-theater" title="Mask"></i>
+                        <i class="fas fa-crown" title="UNESCO"></i>
+                    </div>
+                    <div class="attraction-price">₩3K</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="scroll-instructions">
+        <small class="text-muted">
+            <i class="fas fa-mouse me-1"></i>Scroll horizontally to explore attractions • Click to select
+        </small>
+    </div>
+</div>
+
+<style>
+    /* Overlay positioning for map container */
+    #horizontal-attraction-overlay {
+        position: absolute !important;
+        bottom: 20px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        z-index: 1000 !important;
+        width: 100% !important;
+        max-width: 1200px !important;
+        animation: slideUpFromBottom 0.4s ease-out;
+        pointer-events: auto !important;
+    }
+    
+    /* Main container styles for overlay */
+    #horizontal-attraction-overlay .overlay-container {
+        background: rgba(255, 255, 255, 0.95) !important;
+        padding: 15px !important;
+        border-radius: 15px !important;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+        backdrop-filter: blur(15px) !important;
+        border: 2px solid rgba(255, 255, 255, 0.3) !important;
+        margin: 0px 0px -70px 250px !important;
+        position: relative !important;
+    }
+    
+    /* Responsive design for overlay container */
+    @media (max-width: 768px) {
+        #horizontal-attraction-overlay .overlay-container {
+            margin: 0px 10px -30px 10px !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        #horizontal-attraction-overlay .overlay-container {
+            margin: 0px 5px -20px 5px !important;
+        }
+    }
+    
+    #horizontal-attraction-overlay .overlay-container h1 {
+        margin: 0 0 15px 0 !important;
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        color: #2c3e50 !important;
+        text-align: center !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    #horizontal-attraction-overlay #scroll-progress {
+        height: 6px !important;
+        background: linear-gradient(90deg, #e74c3c, #c0392b, #d35400) !important;
+        margin-bottom: 12px !important;
+        border-radius: 3px !important;
+        transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 0 2px 6px rgba(231, 76, 60, 0.3) !important;
+        width: 0% !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+    
+    #horizontal-attraction-overlay #scroll-progress::after {
+        content: '' !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent) !important;
+        animation: shimmer 2s infinite !important;
+    }
+    
+    #horizontal-attraction-overlay .scroller-wrapper {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        background: rgba(248, 249, 250, 0.9) !important;
+        border-radius: 12px !important;
+        padding: 15px !important;
+        border: 2px solid rgba(233, 236, 239, 0.5) !important;
+        cursor: grab !important;
+        user-select: none !important;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    #horizontal-attraction-overlay .scroller-wrapper:active {
+        cursor: grabbing !important;
+    }
+    
+    #horizontal-attraction-overlay .scroller-wrapper::-webkit-scrollbar {
+        height: 8px !important;
+    }
+    
+    #horizontal-attraction-overlay .scroller-wrapper::-webkit-scrollbar-track {
+        background: rgba(233, 236, 239, 0.5) !important;
+        border-radius: 4px !important;
+    }
+    
+    #horizontal-attraction-overlay .scroller-wrapper::-webkit-scrollbar-thumb {
+        background: linear-gradient(90deg, #e74c3c, #c0392b) !important;
+        border-radius: 4px !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    }
+    
+    #horizontal-attraction-overlay .scroller-wrapper::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(90deg, #c0392b, #d35400) !important;
+    }
+    
+    #horizontal-attraction-overlay #scroller {
+        display: inline-flex !important;
+        gap: 12px !important;
+        list-style: none !important;
+        padding: 8px !important;
+        margin: 0 !important;
+        min-width: max-content !important;
+    }
+    
+    /* Attraction Card Styles for Horizontal Layout */
+    #horizontal-attraction-overlay .attraction-card {
+        display: flex !important;
+        flex-direction: column !important;
+        background: white !important;
+        border-radius: 10px !important;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1) !important;
+        overflow: hidden !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        cursor: pointer !important;
+        border: 2px solid transparent !important;
+        width: 140px !important;
+        min-width: 140px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-card:hover {
+        transform: translateY(-5px) scale(1.02) !important;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+        border-color: #e74c3c !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-card.selected {
+        border-color: #27ae60 !important;
+        background: rgba(39, 174, 96, 0.05) !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 6px 15px rgba(39, 174, 96, 0.25) !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-card.selected::before {
+        content: '✓' !important;
+        position: absolute !important;
+        top: 6px !important;
+        left: 6px !important;
+        background: #27ae60 !important;
+        color: white !important;
+        width: 18px !important;
+        height: 18px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: bold !important;
+        font-size: 10px !important;
+        z-index: 10 !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-image {
+        position: relative !important;
+        width: 100% !important;
+        height: 80px !important;
+        overflow: hidden !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-image img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        transition: transform 0.3s ease !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-card:hover .attraction-image img {
+        transform: scale(1.05) !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-rating {
+        position: absolute !important;
+        top: 5px !important;
+        right: 5px !important;
+        background: rgba(0, 0, 0, 0.8) !important;
+        color: #ffd700 !important;
+        padding: 2px 5px !important;
+        border-radius: 8px !important;
+        font-size: 9px !important;
+        font-weight: 600 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 2px !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-info {
+        flex: 1 !important;
+        padding: 8px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        min-height: 75px !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-info h3 {
+        margin: 0 0 4px 0 !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        color: #2c3e50 !important;
+        line-height: 1.1 !important;
+        text-align: center !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-location {
+        margin: 0 0 5px 0 !important;
+        color: #7f8c8d !important;
+        font-size: 9px !important;
+        font-weight: 500 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 2px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-location i {
+        color: #e74c3c !important;
+        font-size: 8px !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-amenities {
+        margin: 0 0 5px 0 !important;
+        display: flex !important;
+        gap: 3px !important;
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-amenities i {
+        color: #e74c3c !important;
+        font-size: 9px !important;
+        padding: 2px !important;
+        background: rgba(231, 76, 60, 0.1) !important;
+        border-radius: 50% !important;
+        width: 14px !important;
+        height: 14px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-price {
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        color: #27ae60 !important;
+        text-align: center !important;
+        margin-top: auto !important;
+        background: rgba(39, 174, 96, 0.1) !important;
+        padding: 3px !important;
+        border-radius: 4px !important;
+    }
+    
+    #horizontal-attraction-overlay .scroll-instructions {
+        text-align: center !important;
+        margin-top: 15px !important;
+        padding: 10px !important;
+        background: rgba(231, 76, 60, 0.1) !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(231, 76, 60, 0.2) !important;
+    }
+    
+    #horizontal-attraction-overlay .scroll-instructions small {
+        color: #5a6c7d !important;
+        font-weight: 500 !important;
+        font-size: 13px !important;
+    }
+    
+    /* Close button for overlay */
+    #horizontal-attraction-overlay .close-overlay-btn {
+        position: absolute !important;
+        top: 10px !important;
+        left: 15px !important;
+        font-size: 24px !important;
+        color: #7f8c8d !important;
+        cursor: pointer !important;
+        width: 30px !important;
+        height: 30px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 50% !important;
+        background: rgba(255, 255, 255, 0.8) !important;
+        border: none !important;
+        transition: all 0.3s ease !important;
+        z-index: 10 !important;
+        font-weight: bold !important;
+    }
+    
+    #horizontal-attraction-overlay .close-overlay-btn:hover {
+        background: rgba(231, 76, 60, 0.1) !important;
+        color: #e74c3c !important;
+        transform: scale(1.1) !important;
+    }
+    
+    /* Animation for showing overlay */
+    @keyframes slideUpFromBottom {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    }
+    
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+    
+    /* Responsive design for overlay */
+    @media (max-width: 768px) {
+        #horizontal-attraction-overlay {
+            width: 98% !important;
+            bottom: 10px !important;
+        }
+        
+        #horizontal-attraction-overlay .overlay-container {
+            padding: 10px !important;
+        }
+        
+        #horizontal-attraction-overlay .overlay-container h1 {
+            font-size: 14px !important;
+            margin-bottom: 8px !important;
+        }
+        
+        #horizontal-attraction-overlay .attraction-card {
+            width: 120px !important;
+            min-width: 120px !important;
+        }
+        
+        #horizontal-attraction-overlay .attraction-image {
+            height: 70px !important;
+        }
+        
+        #horizontal-attraction-overlay .attraction-info {
+            padding: 6px !important;
+            min-height: 65px !important;
+        }
+        
+        #horizontal-attraction-overlay .attraction-info h3 {
+            font-size: 11px !important;
+        }
+        
+        #horizontal-attraction-overlay .attraction-price {
+            font-size: 11px !important;
+        }
+        
+        #horizontal-attraction-overlay #scroller {
+            gap: 8px !important;
+            padding: 6px !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        #horizontal-attraction-overlay {
+            width: 99% !important;
+        }
+        
+        #horizontal-attraction-overlay .overlay-container {
+            padding: 8px !important;
+        }
+        
+        #horizontal-attraction-overlay .attraction-card {
+            width: 100px !important;
+            min-width: 100px !important;
+        }
+        
+        #horizontal-attraction-overlay .attraction-image {
+            height: 60px !important;
+        }
+        
+        #horizontal-attraction-overlay .attraction-info {
+            padding: 5px !important;
+            min-height: 55px !important;
+        }
+        
+        #horizontal-attraction-overlay .attraction-info h3 {
+            font-size: 10px !important;
+        }
+        
+        #horizontal-attraction-overlay .attraction-location {
+            font-size: 8px !important;
+        }
+        
+        #horizontal-attraction-overlay .attraction-price {
+            font-size: 10px !important;
+        }
+        
+        #horizontal-attraction-overlay .attraction-amenities i {
+            width: 12px !important;
+            height: 12px !important;
+            font-size: 8px !important;
+        }
+        
+        #horizontal-attraction-overlay #scroller {
+            gap: 6px !important;
+            padding: 4px !important;
+        }
+    }
+</style>
+
+<script>
+function closeHorizontalAttractionOverlay() {
+    const overlay = document.getElementById('horizontal-attraction-overlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
+}
+</script>

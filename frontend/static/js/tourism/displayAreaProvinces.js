@@ -249,37 +249,67 @@ class provinceDisplay {
     const provinceSelect = document.getElementById("provinceSelect");
 
      provinceSelect?.addEventListener("change", (e) => {
-        const selectedOption = e.target.selectedOptions[0];
-        const provinceName = e.target.value;
+        try {
+            // Handle both input (autocomplete) and select elements
+            const provinceName = e.target.value;
 
-        // this.insertKoreanGraphml();
-        
-        if (selectedOption && provinceName) {
-            // Get additional data from the selected option
-            const provinceCode = selectedOption.dataset.code;
-            const nameKor = selectedOption.dataset.nameKor;
-            const nameEng = selectedOption.dataset.nameEng;
+            // this.insertKoreanGraphml();
             
-            // Store selected region info
-            this.selectedRegion.province = {
-                name: provinceName,
-                nameKor: nameKor,
-                nameEng: nameEng,
-                code: provinceCode
-            };
+            if (provinceName) {
+                // For autocomplete input, we need to get data differently
+                // Check if it's a select element or input element
+                let provinceCode, nameKor, nameEng;
+                
+                if (e.target.tagName === 'SELECT' && e.target.selectedOptions) {
+                    // Traditional select element
+                    const selectedOption = e.target.selectedOptions[0];
+                    provinceCode = selectedOption?.dataset.code;
+                    nameKor = selectedOption?.dataset.nameKor;
+                    nameEng = selectedOption?.dataset.nameEng;
+                } else {
+                    // Input element with autocomplete - try to get data from global state
+                    if (window.selectedProvinceData) {
+                        provinceCode = window.selectedProvinceData.properties?.state_code || 
+                                      window.selectedProvinceData.properties?.province_code;
+                        nameKor = window.selectedProvinceData.properties?.name_ko || 
+                                 window.selectedProvinceData.properties?.name_kr;
+                        nameEng = window.selectedProvinceData.properties?.name_en || 
+                                 window.selectedProvinceData.formatted;
+                    }
+                }
+                
+                // Store selected region info
+                this.selectedRegion.province = {
+                    name: provinceName,
+                    nameKor: nameKor || provinceName, // fallback to province name
+                    nameEng: nameEng || provinceName, // fallback to province name
+                    code: provinceCode || null
+                };
+                
+                console.log("Selected province:", this.selectedRegion.province);
+                console.log("Province data source:", e.target.tagName, 
+                           e.target.tagName === 'SELECT' ? 'from select options' : 'from autocomplete data');
+                
+                // this.insertKoreanGraphml(provinceName);
+                
+                // Show selected province on map
+                this.showProvince(provinceName);
+            } else {
+                // Clear selection when no province is selected
+                this.selectedRegion.province = null;
+                this.clearProvinceSelection();
+            }
             
-            console.log("Selected province:", this.selectedRegion.province);
-            // this.insertKoreanGraphml(provinceName);
-            
-            // Show selected province on map
-            this.showProvince(provinceName);
-        } else {
-            // Clear selection when no province is selected
-            this.selectedRegion.province = null;
-            this.clearProvinceSelection();
+            this.updateSelectedInfo();
+        } catch (error) {
+            console.error("Error in province selection:", error);
+            console.error("Event target:", e.target);
+            console.error("Event target properties:", {
+                tagName: e.target.tagName,
+                value: e.target.value,
+                hasSelectedOptions: !!e.target.selectedOptions
+            });
         }
-        
-        this.updateSelectedInfo();
     });
 
         

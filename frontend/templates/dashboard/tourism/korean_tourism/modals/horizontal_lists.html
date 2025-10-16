@@ -1,0 +1,843 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/tourism/scroll_images.css' %}">
+
+<div class="overlay-container">
+    <button class="close-overlay-btn" onclick="closeHorizontalHotelOverlay()">×</button>
+    <h1><i class="fas fa-hotel me-2"></i>Select Your Hotel</h1>
+    <div id="scroll-progress"></div>
+    <div class="scroller-wrapper">
+        <div id="scroller">
+            <!-- Hotel Card 1 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Grand Palace Hotel">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.8
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Grand Palace</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Gangnam, Seoul</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-wifi" title="WiFi"></i>
+                        <i class="fas fa-swimming-pool" title="Pool"></i>
+                        <i class="fas fa-spa" title="Spa"></i>
+                    </div>
+                    <div class="hotel-price">₩180K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 2 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Seaside Resort">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.6
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Seaside Resort</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Busan Beach</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-water" title="Beach"></i>
+                        <i class="fas fa-cocktail" title="Bar"></i>
+                        <i class="fas fa-dumbbell" title="Gym"></i>
+                    </div>
+                    <div class="hotel-price">₩220K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 3 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1455587734955-081b22074882?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Business Tower">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.4
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Business Tower</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Myeongdong</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-briefcase" title="Business"></i>
+                        <i class="fas fa-wifi" title="WiFi"></i>
+                        <i class="fas fa-coffee" title="Café"></i>
+                    </div>
+                    <div class="hotel-price">₩150K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 4 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Mountain Lodge">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.7
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Mountain Lodge</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Jeju Island</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-mountain" title="Mountain"></i>
+                        <i class="fas fa-hiking" title="Hiking"></i>
+                        <i class="fas fa-fire" title="Fireplace"></i>
+                    </div>
+                    <div class="hotel-price">₩120K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 5 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Luxury Suite">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.9
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Luxury Suite</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Gangnam</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-crown" title="Luxury"></i>
+                        <i class="fas fa-glass-cheers" title="Premium"></i>
+                        <i class="fas fa-concierge-bell" title="Service"></i>
+                    </div>
+                    <div class="hotel-price">₩350K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 6 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Boutique Hotel">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.5
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Boutique Garden</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Insadong</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-leaf" title="Garden"></i>
+                        <i class="fas fa-palette" title="Art"></i>
+                        <i class="fas fa-coffee" title="Café"></i>
+                    </div>
+                    <div class="hotel-price">₩140K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 7 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Paradise Resort">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.6
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Paradise Resort</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Jeju Beach</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-swimming-pool" title="Pool"></i>
+                        <i class="fas fa-umbrella-beach" title="Beach"></i>
+                        <i class="fas fa-shuttle-van" title="Transfer"></i>
+                    </div>
+                    <div class="hotel-price">₩280K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 8 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Smart Stay">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.2
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Smart Stay</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Hongdae</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-wifi" title="WiFi"></i>
+                        <i class="fas fa-bed" title="Comfort"></i>
+                        <i class="fas fa-tv" title="Smart TV"></i>
+                    </div>
+                    <div class="hotel-price">₩80K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 9 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="City Center">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.3
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>City Center</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Jung-gu</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-building" title="Urban"></i>
+                        <i class="fas fa-subway" title="Metro"></i>
+                        <i class="fas fa-shopping-bag" title="Shopping"></i>
+                    </div>
+                    <div class="hotel-price">₩160K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 10 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Garden Villa">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.4
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Garden Villa</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Itaewon</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-tree" title="Garden"></i>
+                        <i class="fas fa-parking" title="Parking"></i>
+                        <i class="fas fa-utensils" title="Restaurant"></i>
+                    </div>
+                    <div class="hotel-price">₩190K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 11 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Sky Tower">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.7
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Sky Tower</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Yeouido</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-eye" title="View"></i>
+                        <i class="fas fa-elevator" title="High-rise"></i>
+                        <i class="fas fa-wine-glass" title="Lounge"></i>
+                    </div>
+                    <div class="hotel-price">₩250K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 12 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1518733057094-95b53143d2a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Cozy Inn">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.1
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Cozy Inn</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Sinchon</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-heart" title="Cozy"></i>
+                        <i class="fas fa-coffee" title="Café"></i>
+                        <i class="fas fa-book" title="Library"></i>
+                    </div>
+                    <div class="hotel-price">₩95K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 13 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Executive Plaza">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.5
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Executive Plaza</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Gangnam</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-briefcase" title="Business"></i>
+                        <i class="fas fa-car" title="Valet"></i>
+                        <i class="fas fa-concierge-bell" title="Service"></i>
+                    </div>
+                    <div class="hotel-price">₩270K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 14 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Harbor View">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.3
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Harbor View</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Incheon</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-ship" title="Harbor"></i>
+                        <i class="fas fa-binoculars" title="View"></i>
+                        <i class="fas fa-fish" title="Seafood"></i>
+                    </div>
+                    <div class="hotel-price">₩130K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 15 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Royal Palace">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.8
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Royal Palace</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Jongno</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-crown" title="Royal"></i>
+                        <i class="fas fa-monument" title="Historic"></i>
+                        <i class="fas fa-gem" title="Luxury"></i>
+                    </div>
+                    <div class="hotel-price">₩400K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 16 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Green Oasis">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.4
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Green Oasis</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Yangjaecheon</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-seedling" title="Eco"></i>
+                        <i class="fas fa-leaf" title="Nature"></i>
+                        <i class="fas fa-running" title="Jogging"></i>
+                    </div>
+                    <div class="hotel-price">₩170K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 17 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1561409037-c7be81613c1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Riverside Lodge">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.2
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Riverside Lodge</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Hangang</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-water" title="River"></i>
+                        <i class="fas fa-bicycle" title="Cycling"></i>
+                        <i class="fas fa-camera" title="Scenic"></i>
+                    </div>
+                    <div class="hotel-price">₩110K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 18 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Art District">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.6
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Art District</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Hongdae</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-paint-brush" title="Art"></i>
+                        <i class="fas fa-music" title="Music"></i>
+                        <i class="fas fa-cocktail" title="Nightlife"></i>
+                    </div>
+                    <div class="hotel-price">₩145K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 19 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Tech Hub">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.4
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Tech Hub</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Gangnam</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-laptop" title="Tech"></i>
+                        <i class="fas fa-robot" title="Smart"></i>
+                        <i class="fas fa-charging-station" title="Charging"></i>
+                    </div>
+                    <div class="hotel-price">₩200K</div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 20 -->
+            <div class="hotel-card">
+                <div class="hotel-image">
+                    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Heritage Inn">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i> 4.3
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>Heritage Inn</h3>
+                    <p class="hotel-location"><i class="fas fa-map-marker-alt"></i> Bukchon</p>
+                    <div class="hotel-amenities">
+                        <i class="fas fa-torii-gate" title="Traditional"></i>
+                        <i class="fas fa-mountain" title="Historic"></i>
+                        <i class="fas fa-tea" title="Tea"></i>
+                    </div>
+                    <div class="hotel-price">₩155K</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="scroll-instructions">
+        <small class="text-muted">
+            <i class="fas fa-mouse me-1"></i>Scroll horizontally to explore hotels • Click to select
+        </small>
+    </div>
+</div>
+
+<style>
+    /* Overlay positioning for map container */
+    #horizontal-hotel-overlay {
+        position: absolute !important;
+        bottom: 20px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        z-index: 1000 !important;
+        width: 100% !important;
+        max-width: 1200px !important;
+        animation: slideUpFromBottom 0.4s ease-out;
+        pointer-events: auto !important;
+    }
+    
+    /* Main container styles for overlay */
+    #horizontal-hotel-overlay .overlay-container {
+        background: rgba(255, 255, 255, 0.95) !important;
+        padding: 15px !important;
+        border-radius: 15px !important;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+        backdrop-filter: blur(15px) !important;
+        border: 2px solid rgba(255, 255, 255, 0.3) !important;
+        margin: 0px 0px -70px 250px !important;
+        position: relative !important;
+    }
+    
+    /* Responsive design for overlay container */
+    @media (max-width: 768px) {
+        #horizontal-hotel-overlay .overlay-container {
+            margin: 0px 10px -30px 10px !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        #horizontal-hotel-overlay .overlay-container {
+            margin: 0px 5px -20px 5px !important;
+        }
+    }
+    
+    #horizontal-hotel-overlay .overlay-container h1 {
+        margin: 0 0 15px 0 !important;
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        color: #2c3e50 !important;
+        text-align: center !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    #horizontal-hotel-overlay #scroll-progress {
+        height: 6px !important;
+        background: linear-gradient(90deg, #3498db, #2980b9, #1abc9c) !important;
+        margin-bottom: 12px !important;
+        border-radius: 3px !important;
+        transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 0 2px 6px rgba(52, 152, 219, 0.3) !important;
+        width: 0% !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+    
+    #horizontal-hotel-overlay #scroll-progress::after {
+        content: '' !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent) !important;
+        animation: shimmer 2s infinite !important;
+    }
+    
+    #horizontal-hotel-overlay .scroller-wrapper {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        background: rgba(248, 249, 250, 0.9) !important;
+        border-radius: 12px !important;
+        padding: 15px !important;
+        border: 2px solid rgba(233, 236, 239, 0.5) !important;
+        cursor: grab !important;
+        user-select: none !important;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    #horizontal-hotel-overlay .scroller-wrapper:active {
+        cursor: grabbing !important;
+    }
+    
+    #horizontal-hotel-overlay .scroller-wrapper::-webkit-scrollbar {
+        height: 8px !important;
+    }
+    
+    #horizontal-hotel-overlay .scroller-wrapper::-webkit-scrollbar-track {
+        background: rgba(233, 236, 239, 0.5) !important;
+        border-radius: 4px !important;
+    }
+    
+    #horizontal-hotel-overlay .scroller-wrapper::-webkit-scrollbar-thumb {
+        background: linear-gradient(90deg, #3498db, #2980b9) !important;
+        border-radius: 4px !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    }
+    
+    #horizontal-hotel-overlay .scroller-wrapper::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(90deg, #2980b9, #1abc9c) !important;
+    }
+    
+    #horizontal-hotel-overlay #scroller {
+        display: inline-flex !important;
+        gap: 12px !important;
+        list-style: none !important;
+        padding: 8px !important;
+        margin: 0 !important;
+        min-width: max-content !important;
+    }
+    
+    /* Hotel Card Styles for Horizontal Layout */
+    #horizontal-hotel-overlay .hotel-card {
+        display: flex !important;
+        flex-direction: column !important;
+        background: white !important;
+        border-radius: 10px !important;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1) !important;
+        overflow: hidden !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        cursor: pointer !important;
+        border: 2px solid transparent !important;
+        width: 140px !important;
+        min-width: 140px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    #horizontal-hotel-overlay .hotel-card:hover {
+        transform: translateY(-5px) scale(1.02) !important;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+        border-color: #3498db !important;
+    }
+    
+    #horizontal-hotel-overlay .hotel-card.selected {
+        border-color: #27ae60 !important;
+        background: rgba(39, 174, 96, 0.05) !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 6px 15px rgba(39, 174, 96, 0.25) !important;
+    }
+    
+    #horizontal-hotel-overlay .hotel-card.selected::before {
+        content: '✓' !important;
+        position: absolute !important;
+        top: 6px !important;
+        left: 6px !important;
+        background: #27ae60 !important;
+        color: white !important;
+        width: 18px !important;
+        height: 18px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: bold !important;
+        font-size: 10px !important;
+        z-index: 10 !important;
+    }
+    
+    #horizontal-hotel-overlay .hotel-image {
+        position: relative !important;
+        width: 100% !important;
+        height: 80px !important;
+        overflow: hidden !important;
+    }
+    
+    #horizontal-hotel-overlay .hotel-image img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        transition: transform 0.3s ease !important;
+    }
+    
+    #horizontal-hotel-overlay .hotel-card:hover .hotel-image img {
+        transform: scale(1.05) !important;
+    }
+    
+    #horizontal-hotel-overlay .hotel-rating {
+        position: absolute !important;
+        top: 5px !important;
+        right: 5px !important;
+        background: rgba(0, 0, 0, 0.8) !important;
+        color: #ffd700 !important;
+        padding: 2px 5px !important;
+        border-radius: 8px !important;
+        font-size: 9px !important;
+        font-weight: 600 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 2px !important;
+    }
+    
+    #horizontal-hotel-overlay .hotel-info {
+        flex: 1 !important;
+        padding: 8px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        min-height: 75px !important;
+    }
+    
+    #horizontal-hotel-overlay .hotel-info h3 {
+        margin: 0 0 4px 0 !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        color: #2c3e50 !important;
+        line-height: 1.1 !important;
+        text-align: center !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+    
+    #horizontal-hotel-overlay .hotel-location {
+        margin: 0 0 5px 0 !important;
+        color: #7f8c8d !important;
+        font-size: 9px !important;
+        font-weight: 500 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 2px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+    
+    #horizontal-hotel-overlay .hotel-location i {
+        color: #e74c3c !important;
+        font-size: 8px !important;
+    }
+    
+    #horizontal-hotel-overlay .hotel-amenities {
+        margin: 0 0 5px 0 !important;
+        display: flex !important;
+        gap: 3px !important;
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+    }
+    
+    #horizontal-hotel-overlay .hotel-amenities i {
+        color: #3498db !important;
+        font-size: 9px !important;
+        padding: 2px !important;
+        background: rgba(52, 152, 219, 0.1) !important;
+        border-radius: 50% !important;
+        width: 14px !important;
+        height: 14px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    #horizontal-hotel-overlay .hotel-price {
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        color: #27ae60 !important;
+        text-align: center !important;
+        margin-top: auto !important;
+        background: rgba(39, 174, 96, 0.1) !important;
+        padding: 3px !important;
+        border-radius: 4px !important;
+    }
+    
+    #horizontal-hotel-overlay .scroll-instructions {
+        text-align: center !important;
+        margin-top: 15px !important;
+        padding: 10px !important;
+        background: rgba(52, 152, 219, 0.1) !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(52, 152, 219, 0.2) !important;
+    }
+    
+    #horizontal-hotel-overlay .scroll-instructions small {
+        color: #5a6c7d !important;
+        font-weight: 500 !important;
+        font-size: 13px !important;
+    }
+    
+    /* Close button for overlay */
+    #horizontal-hotel-overlay .close-overlay-btn {
+        position: absolute !important;
+        top: 10px !important;
+        left: 15px !important;
+        font-size: 24px !important;
+        color: #7f8c8d !important;
+        cursor: pointer !important;
+        width: 30px !important;
+        height: 30px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 50% !important;
+        background: rgba(255, 255, 255, 0.8) !important;
+        border: none !important;
+        transition: all 0.3s ease !important;
+        z-index: 10 !important;
+        font-weight: bold !important;
+    }
+    
+    #horizontal-hotel-overlay .close-overlay-btn:hover {
+        background: rgba(231, 76, 60, 0.1) !important;
+        color: #e74c3c !important;
+        transform: scale(1.1) !important;
+    }
+    
+    /* Animation for showing overlay */
+    @keyframes slideUpFromBottom {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    }
+    
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+    
+    /* Responsive design for overlay */
+    @media (max-width: 768px) {
+        #horizontal-hotel-overlay {
+            width: 98% !important;
+            bottom: 10px !important;
+        }
+        
+        #horizontal-hotel-overlay .overlay-container {
+            padding: 10px !important;
+        }
+        
+        #horizontal-hotel-overlay .overlay-container h1 {
+            font-size: 14px !important;
+            margin-bottom: 8px !important;
+        }
+        
+        #horizontal-hotel-overlay .hotel-card {
+            width: 120px !important;
+            min-width: 120px !important;
+        }
+        
+        #horizontal-hotel-overlay .hotel-image {
+            height: 70px !important;
+        }
+        
+        #horizontal-hotel-overlay .hotel-info {
+            padding: 6px !important;
+            min-height: 65px !important;
+        }
+        
+        #horizontal-hotel-overlay .hotel-info h3 {
+            font-size: 11px !important;
+        }
+        
+        #horizontal-hotel-overlay .hotel-price {
+            font-size: 11px !important;
+        }
+        
+        #horizontal-hotel-overlay #scroller {
+            gap: 8px !important;
+            padding: 6px !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        #horizontal-hotel-overlay {
+            width: 99% !important;
+        }
+        
+        #horizontal-hotel-overlay .overlay-container {
+            padding: 8px !important;
+        }
+        
+        #horizontal-hotel-overlay .hotel-card {
+            width: 100px !important;
+            min-width: 100px !important;
+        }
+        
+        #horizontal-hotel-overlay .hotel-image {
+            height: 60px !important;
+        }
+        
+        #horizontal-hotel-overlay .hotel-info {
+            padding: 5px !important;
+            min-height: 55px !important;
+        }
+        
+        #horizontal-hotel-overlay .hotel-info h3 {
+            font-size: 10px !important;
+        }
+        
+        #horizontal-hotel-overlay .hotel-location {
+            font-size: 8px !important;
+        }
+        
+        #horizontal-hotel-overlay .hotel-price {
+            font-size: 10px !important;
+        }
+        
+        #horizontal-hotel-overlay .hotel-amenities i {
+            width: 12px !important;
+            height: 12px !important;
+            font-size: 8px !important;
+        }
+        
+        #horizontal-hotel-overlay #scroller {
+            gap: 6px !important;
+            padding: 4px !important;
+        }
+    }
+</style>
+
+<script>
+function closeHorizontalHotelOverlay() {
+    const overlay = document.getElementById('horizontal-hotel-overlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
+}
+</script>

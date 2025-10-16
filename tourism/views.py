@@ -767,6 +767,32 @@ def autocomplete_province(request):
         suggestions = geopify.autocomplete_province({"text": autocomplete_query, "countrycode": country_code})
         print(suggestions)
         return JsonResponse(suggestions)
+    
+def get_hotel_list(request):
+    from tourism.external_api.geopify import GeopifyAPI
+
+    geopify = GeopifyAPI()
+    # country_code = 
+    if request.method == 'GET':
+        place_id = request.GET.get('place_id', None)
+        if not place_id:
+            return JsonResponse({"error": "Missing 'place_id' query parameter"}, status=400)
+        results = geopify.get_hotel_list({"place_id": place_id})
+        # print(suggestions)
+        return JsonResponse(results)
+
+def get_attraction_list(request):
+    from tourism.external_api.geopify import GeopifyAPI
+
+    geopify = GeopifyAPI()
+    # country_code = 
+    if request.method == 'GET':
+        place_id = request.GET.get('place_id', None)
+        if not place_id:
+            return JsonResponse({"error": "Missing 'place_id' query parameter"}, status=400)
+        results = geopify.get_attraction_list({"place_id": place_id})
+        # print(suggestions)
+        return JsonResponse(results)
 
 
 
@@ -819,11 +845,13 @@ def test_api_call_3(request):
     geopify = GeopifyAPI()
     # country_code = 
     if request.method == 'GET':
-        autocomplete_query = request.GET.get('text', None)
-        country_code = request.GET.get('country_code', "kr")
-        if not autocomplete_query:
-            return JsonResponse({"error": "Missing 'text' query parameter"}, status=400)
-        suggestions = geopify.autocomplete_province({"text": autocomplete_query, "country": country_code})
-        return JsonResponse(suggestions)
+        place_id = request.GET.get('place_id', None)
+        if not place_id:
+            return JsonResponse({"error": "Missing 'place_id' query parameter"}, status=400)
+        results = geopify.get_attraction_list({"place_id": place_id})
+        # print(suggestions)
+        return JsonResponse(results)
+    
+
 
 

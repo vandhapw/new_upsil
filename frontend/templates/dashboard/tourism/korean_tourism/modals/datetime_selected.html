@@ -1,0 +1,77 @@
+{% load static %}
+
+<!-- Modal for Date Time Selection -->
+<div class="modal fade" id="datetimeModal" tabindex="-1" aria-labelledby="datetimeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="datetimeModalLabel">Select Date & Time Range</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="datetimeForm">
+                    <div class="mb-3">
+                        <label for="startDatetime" class="form-label">Start Date & Time</label>
+                        <input type="datetime-local" class="form-control" id="startDatetime" name="startDatetime" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="endDatetime" class="form-label">End Date & Time</label>
+                        <input type="datetime-local" class="form-control" id="endDatetime" name="endDatetime" required>
+                    </div>
+                    <div class="alert alert-danger d-none" id="datetimeError" role="alert">
+                        End date & time must be after start date & time.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="applyDatetimeBtn">Apply</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize datetime modal
+    const datetimeModal = new bootstrap.Modal(document.getElementById('datetimeSelectedModal'));
+    const startDatetimeInput = document.getElementById('startDatetime');
+    const endDatetimeInput = document.getElementById('endDatetime');
+    const applyDatetimeBtn = document.getElementById('applyDatetimeBtn');
+    const datetimeError = document.getElementById('datetimeError');
+
+    // Apply datetime selection
+    applyDatetimeBtn.addEventListener('click', function() {
+        const startDatetime = startDatetimeInput.value;
+        const endDatetime = endDatetimeInput.value;
+
+        if (!startDatetime || !endDatetime) {
+            return;
+        }
+
+        if (new Date(endDatetime) <= new Date(startDatetime)) {
+            datetimeError.classList.remove('d-none');
+            return;
+        }
+
+        datetimeError.classList.add('d-none');
+
+        // Process the selected datetime range
+        console.log('Start:', startDatetime);
+        console.log('End:', endDatetime);
+
+        // Close modal
+        datetimeModal.hide();
+
+        // Optional: Trigger data reload or filter
+        // applyDatetimeFilter(startDatetime, endDatetime);
+    });
+
+    // Clear error when inputs change
+    startDatetimeInput.addEventListener('change', function() {
+        datetimeError.classList.add('d-none');
+    });
+
+    endDatetimeInput.addEventListener('change', function() {
+        datetimeError.classList.add('d-none');
+    });
+</script>

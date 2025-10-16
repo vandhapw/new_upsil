@@ -1,5 +1,5 @@
 /* Scroll Images CSS - Main styles */
-.map-container .overlay-container {
+.hotel-list-container .overlay-container {
     position: absolute !important;
     bottom: 20px !important;
     left: 50% !important;
@@ -17,7 +17,7 @@
     pointer-events: auto !important;
 }
 
-.map-container .overlay-container h1 {
+.hotel-list-container .overlay-container h1 {
     margin: 0 0 10px 0 !important;
     font-size: 16px !important;
     font-weight: 600 !important;
@@ -25,7 +25,7 @@
     text-align: center !important;
 }
 
-.map-container #scroll-progress {
+.hotel-list-container #scroll-progress {
     height: 6px !important;
     background: linear-gradient(90deg, #3498db, #2980b9) !important;
     margin-bottom: 15px !important;
@@ -35,7 +35,7 @@
     width: 0% !important;
 }
 
-.map-container .scroller-wrapper {
+.hotel-list-container .scroller-wrapper {
     overflow-x: auto !important;
     overflow-y: hidden !important;
     white-space: nowrap !important;
@@ -50,25 +50,25 @@
     scrollbar-color: #3498db #e9ecef !important;
 }
 
-.map-container .scroller-wrapper::-webkit-scrollbar {
+.hotel-list-container .scroller-wrapper::-webkit-scrollbar {
     height: 6px !important;
 }
 
-.map-container .scroller-wrapper::-webkit-scrollbar-track {
+.hotel-list-container .scroller-wrapper::-webkit-scrollbar-track {
     background: #e9ecef !important;
     border-radius: 3px !important;
 }
 
-.map-container .scroller-wrapper::-webkit-scrollbar-thumb {
+.hotel-list-container .scroller-wrapper::-webkit-scrollbar-thumb {
     background: #3498db !important;
     border-radius: 3px !important;
 }
 
-.map-container .scroller-wrapper::-webkit-scrollbar-thumb:hover {
+.hotel-list-container .scroller-wrapper::-webkit-scrollbar-thumb:hover {
     background: #2980b9 !important;
 }
 
-.map-container #scroller {
+.hotel-list-container #scroller {
     display: inline-flex !important;
     gap: 12px !important;
     list-style: none !important;
@@ -77,7 +77,7 @@
     min-width: 100% !important;
 }
 
-.map-container #scroller li {
+.hotel-list-container #scroller li {
     background: linear-gradient(135deg, #3498db, #2980b9) !important;
     color: white !important;
     padding: 12px 18px !important;
@@ -94,7 +94,7 @@
     overflow: hidden !important;
 }
 
-.map-container #scroller li::before {
+.hotel-list-container #scroller li::before {
     content: '' !important;
     position: absolute !important;
     top: 0 !important;
@@ -105,30 +105,30 @@
     transition: left 0.5s ease !important;
 }
 
-.map-container #scroller li:hover {
+.hotel-list-container #scroller li:hover {
     background: linear-gradient(135deg, #2980b9, #1abc9c) !important;
     transform: translateY(-2px) !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
-.map-container #scroller li:hover::before {
+.hotel-list-container #scroller li:hover::before {
     left: 100% !important;
 }
 
-.map-container #scroller li:active {
+.hotel-list-container #scroller li:active {
     transform: translateY(0) !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* Focus styles for keyboard navigation */
-.map-container .scroller-wrapper:focus-within {
+.hotel-list-container .scroller-wrapper:focus-within {
     outline: 2px solid #3498db !important;
     outline-offset: 2px !important;
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
-    .map-container .overlay-container {
+    .hotel-list-container .overlay-container {
         bottom: 10px !important;
         left: 50% !important;
         max-width: 95% !important;
@@ -136,23 +136,23 @@
         padding: 12px !important;
     }
 
-    .map-container .overlay-container h1 {
+    .hotel-list-container .overlay-container h1 {
         font-size: 14px !important;
     }
 
-    .map-container #scroller li {
+    .hotel-list-container #scroller li {
         padding: 10px 14px !important;
         font-size: 14px !important;
     }
 }
 
 @media (max-width: 480px) {
-    .map-container .overlay-container {
+    .hotel-list-container .overlay-container {
         min-width: 250px !important;
         padding: 10px !important;
     }
 
-    .map-container #scroller li {
+    .hotel-list-container #scroller li {
         padding: 8px 12px !important;
         font-size: 13px !important;
         min-width: 40px !important;
@@ -180,12 +180,14 @@ body {
   margin: 0;
   padding: 0;
   /* background-color: var(--pastelBlue); */
-  background: linear-gradient(135deg, #435463, #6a798f, #91a0b6, #b8c8de, #dfeef8);
+  /* background: linear-gradient(135deg, #435463, #6a798f, #91a0b6, #b8c8de, #dfeef8); */
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
   font-family: 'Ubuntu', sans-serif;
+  height: 100%;
+  max-height: 100vw;
 }
 
 p {

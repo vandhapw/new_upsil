@@ -45,33 +45,39 @@ class displayMap {
             zoomControl: false
         });
 
+        // Make map accessible globally for region selection and other components
+        window.map = this.map;
+        
+        // Also store the displayMap instance globally
+        window.displayMapInstance = this;
+
         // Add zoom control to bottom right
-        L.control.zoom({
-            position: "bottomright"
-        }).addTo(this.map);
+        // L.control.zoom({
+        //     position: "bottomright"
+        // }).addTo(this.map);
 
         // Add custom hotel control
-    const HotelControl = L.Control.extend({
-    options: {
-        position: 'topright'
-    },
-    onAdd: function(map) {
-        const container = L.DomUtil.create('div', 'custom-map-control hotel-control');
-        container.innerHTML = '<i class="fas fa-hotel" style="font-size: 16px; color: #333;"></i>';
-        container.title = 'Search Hotels';
+//     const HotelControl = L.Control.extend({
+//     options: {
+//         position: 'topright'
+//     },
+//     onAdd: function(map) {
+//         const container = L.DomUtil.create('div', 'custom-map-control hotel-control');
+//         container.innerHTML = '<i class="fas fa-hotel" style="font-size: 16px; color: #333;"></i>';
+//         container.title = 'Search Hotels';
 
-        container.onclick = function() {
-            if (window.displayHotelInstance) {
-                window.displayHotelInstance.searchHotels();
-                window.displayAttractionInstance.clearAttractions();
-            } else {
-                alert('Please select a province first to search for hotels');
-            }
-        };
+//         container.onclick = function() {
+//             if (window.displayHotelInstance) {
+//                 window.displayHotelInstance.searchHotels();
+//                 window.displayAttractionInstance.clearAttractions();
+//             } else {
+//                 alert('Please select a province first to search for hotels');
+//             }
+//         };
 
-        return container;
-    }
-});
+//         return container;
+//     }
+// });
 
 // Add custom flight control with responsive CSS classes
 // const FlightControl = L.Control.extend({
@@ -92,33 +98,33 @@ class displayMap {
 //     }
 // });
 
-const AttractionControl = L.Control.extend({
-    options: {
-        position: 'topright'
-    },
-    onAdd: function(map) {
-        const container = L.DomUtil.create('div', 'custom-map-control attraction-control');
-        container.innerHTML = '<i class="fas fa-map-marker-alt" style="font-size: 16px; color: #333;"></i>';
-        container.title = 'Search Attractions';
+// const AttractionControl = L.Control.extend({
+//     options: {
+//         position: 'topright'
+//     },
+//     onAdd: function(map) {
+//         const container = L.DomUtil.create('div', 'custom-map-control attraction-control');
+//         container.innerHTML = '<i class="fas fa-map-marker-alt" style="font-size: 16px; color: #333;"></i>';
+//         container.title = 'Search Attractions';
 
-        container.onclick = function() {
-            console.log('Attraction control clicked');
-            if (window.displayAttractionInstance) {
-                window.displayAttractionInstance.searchAttractions();
-                window.displayHotelInstance.clearMarkersOnly();
-            } else {
-                alert('Please select a province first to search for attractions');
-            }
-        };
+//         container.onclick = function() {
+//             console.log('Attraction control clicked');
+//             if (window.displayAttractionInstance) {
+//                 window.displayAttractionInstance.searchAttractions();
+//                 window.displayHotelInstance.clearMarkersOnly();
+//             } else {
+//                 alert('Please select a province first to search for attractions');
+//             }
+//         };
 
-        return container;
-    }
-});
+//         return container;
+//     }
+// });
 
     // Add the controls to the map
-    new HotelControl().addTo(this.map);
+    // new HotelControl().addTo(this.map);
     // new FlightControl().addTo(this.map);
-    new AttractionControl().addTo(this.map);
+    // new AttractionControl().addTo(this.map);
 
         // Add OpenStreetMap tile layer
         const osmLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -163,13 +169,13 @@ const AttractionControl = L.Control.extend({
         });        
 
         // Map controls
-        const zoomToKorea = document.getElementById("zoomToKorea");
+        // const zoomToKorea = document.getElementById("zoomToKorea");
         const toggleSatellite = document.getElementById("toggleSatellite");
         const fullscreenMap = document.getElementById("fullscreenMap");
 
-        zoomToKorea?.addEventListener("click", () => {
-            this.map.setView(this.koreaCenter, this.defaultZoom);
-        });
+        // zoomToKorea?.addEventListener("click", () => {
+        //     this.map.setView(this.koreaCenter, this.defaultZoom);
+        // });
 
         toggleSatellite?.addEventListener("click", () => {
             this.toggleSatelliteView();
