@@ -32,46 +32,254 @@
 </div>
 
 <script>
-    // Initialize datetime modal
-    const datetimeModal = new bootstrap.Modal(document.getElementById('datetimeSelectedModal'));
-    const startDatetimeInput = document.getElementById('startDatetime');
-    const endDatetimeInput = document.getElementById('endDatetime');
-    const applyDatetimeBtn = document.getElementById('applyDatetimeBtn');
-    const datetimeError = document.getElementById('datetimeError');
+    // Wait for DOM to be fully loaded
+    (function() {
+        'use strict';
+        
+        // Function to initialize the datetime modal
+        function initializeDatetimeModal() {
+            console.log('Initializing datetime modal...');
+            
+            const startDatetimeInput = document.getElementById('startDatetime');
+            const endDatetimeInput = document.getElementById('endDatetime');
+            const applyDatetimeBtn = document.getElementById('applyDatetimeBtn');
+            const datetimeError = document.getElementById('datetimeError');
 
-    // Apply datetime selection
-    applyDatetimeBtn.addEventListener('click', function() {
-        const startDatetime = startDatetimeInput.value;
-        const endDatetime = endDatetimeInput.value;
+            if (!startDatetimeInput || !endDatetimeInput || !applyDatetimeBtn || !datetimeError) {
+                console.error('DateTime modal elements not found!');
+                return;
+            }
 
-        if (!startDatetime || !endDatetime) {
-            return;
+            console.log('✅ All datetime modal elements found');
+
+            // Function to convert datetime-local format to display format
+            function convertDatetimeFormat(datetimeLocal) {
+                // datetime-local format: 2025-10-20T09:00
+                // Convert to: 2025-10-20 09:00
+                return datetimeLocal.replace('T', ' ');
+            }
+
+            // Function to calculate duration
+            function calculateDuration(startDatetime, endDatetime) {
+                const start = new Date(startDatetime);
+                const end = new Date(endDatetime);
+                const diffMs = end - start;
+                const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+                const diffHours = Math.ceil(diffMs / (1000 * 60 * 60));
+
+                let text = '';
+                if (diffDays === 1) {
+                    text = '1 day';
+                } else if (diffDays < 7) {
+                    text = `${diffDays} days`;
+                } else {
+                    const weeks = Math.floor(diffDays / 7);
+                    const remainingDays = diffDays % 7;
+                    if (remainingDays === 0) {
+                        text = weeks === 1 ? '1 week' : `${weeks} weeks`;
+                    } else {
+                        text = `${weeks} week${weeks > 1 ? 's' : ''} ${remainingDays} day${remainingDays > 1 ? 's' : ''}`;
+                    }
+                }
+
+                return { days: diffDays, hours: diffHours, text: text };
+            }
+
+            // Function to save datetime data
+            function saveDatetimeData(startDatetime, endDatetime) {
+                // Convert format
+                const startFormatted = convertDatetimeFormat(startDatetime);
+                const endFormatted = convertDatetimeFormat(endDatetime);
+
+                // Extract date and time parts
+                const startParts = startFormatted.split(' ');
+                const endParts = endFormatted.split(' ');
+
+                const startDate = startParts[0];
+                const startTime = startParts[1];
+                const endDate = endParts[0];
+                const endTime = endParts[1];
+
+                // Calculate duration
+                const duration = calculateDuration(startDatetime, endDatetime);
+
+                // Create data object
+                const datetimeData = {
+                    startDateTime: startFormatted,
+                    endDateTime: endFormatted,
+                    startDate: startDate,
+                    endDate: endDate,
+                    startTime: startTime,
+                    endTime: endTime,
+                    duration: duration,
+                    savedAt: new Date().toISOString()
+                };
+
+                // Store in window object for immediate access
+                window.selectedDateTimeData = datetimeData;
+                window.selectedDatetimeData = datetimeData; // Backward compatibility
+
+                // Store in localStorage for persistence
+                try {
+                    localStorage.setItem('tripDateTimeData', JSON.stringify(datetimeData));
+                    console.log('✅ DateTime data saved successfully:', datetimeData);
+                } catch (e) {
+                    console.error('Failed to save to localStorage:', e);
+                }
+
+                // Dispatch custom event for other components to react
+                window.dispatchEvent(new CustomEvent('datetimeRangeUpdated', { 
+                    detail: datetimeData 
+                }));
+
+                return datetimeData;
+            }
+
+            // Function to load saved datetime data
+            function loadDatetimeData() {
+                try {
+                    const stored = localStorage.getItem('tripDateTimeData');
+                    if (stored) {
+                        const data = JSON.parse(stored);
+                        window.selectedDateTimeData = data;
+                        window.selectedDatetimeData = data;
+                        console.log('📅 DateTime data loaded from storage:', data);
+
+                        // Populate form fields if they exist
+                        if (data.startDateTime && startDatetimeInput) {
+                            // Convert back to datetime-local format
+                            const startLocal = data.startDateTime.replace(' ', 'T');
+                            startDatetimeInput.value = startLocal;
+                        }
+                        if (data.endDateTime && endDatetimeInput) {
+                            const endLocal = data.endDateTime.replace(' ', 'T');
+                            endDatetimeInput.value = endLocal;
+                        }
+
+                        return data;
+                    }
+                } catch (e) {
+                    console.error('Failed to load from localStorage:', e);
+                }
+                return null;
+            }
+
+            // Apply datetime selection - Main function
+            applyDatetimeBtn.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent any default behavior
+                console.log('✅ Apply button clicked!');
+                
+                const startDatetime = startDatetimeInput.value;
+                const endDatetime = endDatetimeInput.value;
+
+                console.log('Start value:', startDatetime);
+                console.log('End value:', endDatetime);
+
+                if (!startDatetime || !endDatetime) {
+                    datetimeError.textContent = 'Please select both start and end date & time.';
+                    datetimeError.classList.remove('d-none');
+                    console.warn('Validation failed: Missing datetime values');
+                    return;
+                }
+
+                if (new Date(endDatetime) <= new Date(startDatetime)) {
+                    datetimeError.textContent = 'End date & time must be after start date & time.';
+                    datetimeError.classList.remove('d-none');
+                    console.warn('Validation failed: End date not after start date');
+                    return;
+                }
+
+                datetimeError.classList.add('d-none');
+
+                // Save the datetime data
+                const savedData = saveDatetimeData(startDatetime, endDatetime);
+
+                // Show success feedback
+                console.log('✅ Start:', savedData.startDateTime);
+                console.log('✅ End:', savedData.endDateTime);
+                console.log('✅ Duration:', savedData.duration.text);
+
+                // Update UI if there's a display element
+                const tripDurationElement = document.getElementById('tripDuration');
+                if (tripDurationElement) {
+                    tripDurationElement.textContent = `Duration: ${savedData.duration.text}`;
+                    tripDurationElement.className = 'badge bg-success';
+                }
+
+                // Close modal
+                const modalElement = document.getElementById('datetimeModal');
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                } else {
+                    // Try alternative method
+                    const modalBackdrop = document.querySelector('.modal-backdrop');
+                    if (modalBackdrop) {
+                        modalBackdrop.remove();
+                    }
+                    modalElement.classList.remove('show');
+                    modalElement.style.display = 'none';
+                    document.body.classList.remove('modal-open');
+                }
+
+                // Show success notification (optional)
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Dates Saved!',
+                        text: `Trip duration: ${savedData.duration.text}`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    // Fallback alert
+                    alert(`Dates saved successfully! Duration: ${savedData.duration.text}`);
+                }
+            });
+
+            // Clear error when inputs change
+            startDatetimeInput.addEventListener('change', function() {
+                datetimeError.classList.add('d-none');
+            });
+
+            endDatetimeInput.addEventListener('change', function() {
+                datetimeError.classList.add('d-none');
+            });
+
+            // Load saved data
+            loadDatetimeData();
+
+            console.log('✅ DateTime modal initialized successfully');
         }
 
-        if (new Date(endDatetime) <= new Date(startDatetime)) {
-            datetimeError.classList.remove('d-none');
-            return;
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeDatetimeModal);
+        } else {
+            // DOM is already loaded
+            initializeDatetimeModal();
         }
 
-        datetimeError.classList.add('d-none');
+        // Also try to initialize after a short delay as fallback
+        setTimeout(initializeDatetimeModal, 500);
 
-        // Process the selected datetime range
-        console.log('Start:', startDatetime);
-        console.log('End:', endDatetime);
+    })();
 
-        // Close modal
-        datetimeModal.hide();
+    // Global function to access datetime data
+    window.getStoredDatetimeData = function() {
+        return window.selectedDateTimeData || window.selectedDatetimeData || null;
+    };
 
-        // Optional: Trigger data reload or filter
-        // applyDatetimeFilter(startDatetime, endDatetime);
-    });
-
-    // Clear error when inputs change
-    startDatetimeInput.addEventListener('change', function() {
-        datetimeError.classList.add('d-none');
-    });
-
-    endDatetimeInput.addEventListener('change', function() {
-        datetimeError.classList.add('d-none');
-    });
+    // Global function to clear datetime data
+    window.clearDatetimeData = function() {
+        window.selectedDateTimeData = null;
+        window.selectedDatetimeData = null;
+        try {
+            localStorage.removeItem('tripDateTimeData');
+            console.log('🗑️ DateTime data cleared');
+        } catch (e) {
+            console.error('Failed to clear localStorage:', e);
+        }
+        window.dispatchEvent(new CustomEvent('datetimeRangeCleared'));
+    };
 </script>

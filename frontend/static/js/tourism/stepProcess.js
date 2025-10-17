@@ -73,6 +73,28 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSummary();
     }
 
+    // Listen for datetime updates from modal
+    window.addEventListener('datetimeRangeUpdated', function(e) {
+        console.log('DateTime range updated:', e.detail);
+        
+        // Update tripData with the stored datetime
+        if (e.detail) {
+            tripData.startDate = e.detail.startDate;
+            tripData.endDate = e.detail.endDate;
+            tripData.duration = e.detail.duration.text;
+            
+            // Update duration display
+            const durationElement = document.getElementById('tripDuration');
+            if (durationElement) {
+                durationElement.textContent = `Duration: ${e.detail.duration.text}`;
+                durationElement.className = 'badge bg-success';
+            }
+            
+            markStepCompleted(2);
+            updateSummary();
+        }
+    });
+
     // Handle interest changes
     function handleInterestChange() {
         const selectedInterests = Array.from(document.querySelectorAll('.interest-tags input[type="checkbox"]:checked'))

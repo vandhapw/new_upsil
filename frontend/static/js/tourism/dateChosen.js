@@ -39,6 +39,7 @@ class dateChosen {
             },
             onChangeDateTime: function() {
                 self.validateAndUpdateEndDateMin();
+                self.dispatchDatetimeUpdate();
             }
         });
         
@@ -54,8 +55,44 @@ class dateChosen {
                         minDate: startValue
                     });
                 }
+            },
+            onChangeDateTime: function() {
+                self.dispatchDatetimeUpdate();
             }
         });
+
+        // Load stored datetime if available
+        this.loadStoredDatetime();
+    }
+
+    // Load stored datetime from storage
+    loadStoredDatetime() {
+        const storedData = window.getStoredDatetimeData ? window.getStoredDatetimeData() : null;
+        if (storedData && storedData.startDateTime && storedData.endDateTime) {
+            console.log('Loading stored datetime:', storedData);
+            this.setStartDateTime(storedData.startDateTime);
+            this.setEndDateTime(storedData.endDateTime);
+        }
+    }
+
+    // Dispatch datetime update event
+    dispatchDatetimeUpdate() {
+        const startDateTime = this.getStartDateTime();
+        const endDateTime = this.getEndDateTime();
+        
+        if (startDateTime && endDateTime) {
+            // Trigger the same storage logic as modal
+            window.dispatchEvent(new CustomEvent('datetimeRangeUpdated', {
+                detail: {
+                    startDateTime: startDateTime,
+                    endDateTime: endDateTime,
+                    startDate: this.getStartDate(),
+                    endDate: this.getEndDate(),
+                    startTime: this.getStartTime(),
+                    endTime: this.getEndTime()
+                }
+            }));
+        }
     }
 
     // Update end date minimum when start date changes

@@ -533,14 +533,15 @@ class provinceDisplay {
                 });
 
                 console.log(`Showing province: ${provinceName}`);
-            } else {
-                console.error(`Province not found: ${provinceName}`);
-                console.log("Available provinces:", this.regionData.provinces?.features?.map(f => ({
-                    name: f.properties.name,
-                    name_eng: f.properties.name_eng
-                })));
-                this.showError(`Province "${provinceName}" not found in map data.`);
-            }
+            } 
+            // else {
+            //     console.error(`Province not found: ${provinceName}`);
+            //     console.log("Available provinces:", this.regionData.provinces?.features?.map(f => ({
+            //         name: f.properties.name,
+            //         name_eng: f.properties.name_eng
+            //     })));
+            //     this.showError(`Province "${provinceName}" not found in map data.`);
+            // }
         } catch (error) {
             console.error('Error showing province:', error);
             this.showError('Error displaying selected province on map.');

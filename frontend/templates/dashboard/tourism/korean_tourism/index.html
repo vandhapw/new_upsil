@@ -843,6 +843,8 @@
 
             {% include 'dashboard/tourism/korean_tourism/modals/datetime_selected.html' %}
 
+            {% include 'dashboard/tourism/korean_tourism/modals/hotel_date_selection_modal.html' %}
+
             {% include 'dashboard/tourism/korean_tourism/modals/hotel_lists.html' %}
 
 
@@ -1927,16 +1929,38 @@
             hotelCards.forEach((card, index) => {
                 card.addEventListener('click', function() {
                     const hotelName = card.querySelector('h3').textContent;
+                    const hotelLocation = card.querySelector('.hotel-location')?.textContent?.trim() || '';
                     console.log(`Selected hotel: ${hotelName}`);
                     
                     // Add selection visual feedback
                     hotelCards.forEach(c => c.classList.remove('selected'));
                     card.classList.add('selected');
                     
-                    // Optional: Auto-hide overlay after selection
-                    setTimeout(() => {
-                        showHorizontalHotelOverlay(); // Toggle to close
-                    }, 1000);
+                    // Prepare hotel data for date selection modal
+                    const hotelData = {
+                        id: card.dataset.hotelId || `horizontal-${index}`,
+                        name: hotelName,
+                        address: hotelLocation,
+                        coordinates: [127.0, 37.5] // Default coordinates
+                    };
+                    
+                    // Check if showHotelDateSelection function exists
+                    if (typeof window.showHotelDateSelection === 'function') {
+                        console.log('🎯 Opening date selection modal from horizontal list...');
+                        // Close horizontal overlay first
+                        setTimeout(() => {
+                            showHorizontalHotelOverlay(); // Toggle to close
+                        }, 300);
+                        
+                        // Open the date selection modal
+                        window.showHotelDateSelection(hotelData, null);
+                    } else {
+                        console.warn('Date selection modal function not available');
+                        // Fallback: Auto-hide overlay after selection
+                        setTimeout(() => {
+                            showHorizontalHotelOverlay(); // Toggle to close
+                        }, 1000);
+                    }
                 });
             });
 

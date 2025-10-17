@@ -44,7 +44,101 @@ class displayHotel {
         // Display booked hotels on map
         this.displayBookedHotels();
         
-        console.log("Hotel display initialized");
+        // Listen for hotel date selection events
+        window.addEventListener('hotelWithDateSelected', (event) => {
+            const { hotel, date, dayNumber, totalSelected } = event.detail;
+            console.log(`🏨 Hotel booked via date modal: ${hotel.name} for Day ${dayNumber}`);
+            
+            // Add to selected hotels if not already exists
+            if (!this.selectedHotels) {
+                this.selectedHotels = [];
+            }
+            
+            // Check if hotel already exists (update) or add new
+            const existingIndex = this.selectedHotels.findIndex(h => h.hotelId === hotel.id);
+            if (existingIndex !== -1) {
+                this.selectedHotels[existingIndex].stayDate = date;
+                this.selectedHotels[existingIndex].dayNumber = dayNumber;
+            } else {
+                this.selectedHotels.push({
+                    hotelId: hotel.id,
+                    name: hotel.name,
+                    address: hotel.address,
+                    coordinates: hotel.coordinates,
+                    stayDate: date,
+                    dayNumber: dayNumber,
+                    days: 1, // Each hotel is for 1 day now
+                    province: this.provinceDisplayInstance?.selectedRegion?.province?.name || 'Unknown'
+                });
+            }
+            
+            // Save bookings
+            this.saveHotelBookings();
+            
+            // Refresh displays
+            this.displayBookedHotels();
+            
+            // Dispatch update event
+            window.dispatchEvent(new CustomEvent('hotelBookingsUpdated', {
+                detail: { total: this.selectedHotels.length }
+            }));
+        });
+        
+        // Add SIMPLE global event delegation for .btn-book buttons
+        const self = this;
+        document.addEventListener('click', function(e) {
+            // Check if click is on button or inside button (icon)
+            const button = e.target.closest('.btn-book');
+            if (button && button.hasAttribute('data-hotel-id')) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Get data from button attributes
+                const hotelId = button.getAttribute('data-hotel-id');
+                const hotelName = button.getAttribute('data-hotel-name');
+                const hotelAddress = button.getAttribute('data-hotel-address');
+                const lat = button.getAttribute('data-hotel-lat');
+                const lng = button.getAttribute('data-hotel-lng');
+                
+                console.log('🎯 btn-book clicked!');
+                console.log('Hotel ID:', hotelId);
+                console.log('Hotel Name:', hotelName);
+                
+                // Prepare hotel data (same format as horizontal list)
+                const hotelData = {
+                    id: hotelId,
+                    name: hotelName,
+                    address: hotelAddress,
+                    coordinates: [parseFloat(lng), parseFloat(lat)]
+                };
+                
+                // Check trip dates
+                const tripData = window.selectedDateTimeData || window.selectedDatetimeData;
+                if (!tripData || !tripData.startDate || !tripData.endDate) {
+                    alert('⚠️ Please select your travel dates first!');
+                    return;
+                }
+                
+                // Check modal function exists
+                if (typeof window.showHotelDateSelection !== 'function') {
+                    console.error('❌ showHotelDateSelection function not found');
+                    alert('⚠️ Modal not available. Please refresh the page.');
+                    return;
+                }
+                
+                // Close any popup
+                const popups = document.querySelectorAll('.leaflet-popup');
+                popups.forEach(p => {
+                    p.style.display = 'none';
+                });
+                
+                // Call modal directly (same as horizontal list)
+                console.log('📅 Calling showHotelDateSelection from popup button...');
+                window.showHotelDateSelection(hotelData, null);
+            }
+        }, true); // USE CAPTURE PHASE to catch before Leaflet
+        
+        console.log("Hotel display initialized with simple event delegation");
     }
 
     async searchHotels() {
@@ -193,6 +287,10 @@ class displayHotel {
 
             // Store hotel data with marker for reference
             marker.hotelData = hotel;
+            
+            // Store reference to this for use in event handlers
+            const self = this;
+            
             this.hotelMarkers.push(marker);
         });
 
@@ -233,19 +331,8 @@ class displayHotel {
                         <p><small>Trip Duration: ${tripDuration} days | Booked: ${totalBookedDays} days | Available: ${remainingDays} days</small></p>
                     </div>
                     <div class="booking-form">
-                        <div class="form-group">
-                            <label for="bookingDays_${hotel.id}">Number of Days (max ${remainingDays}):</label>
-                            <input type="number" 
-                                   id="bookingDays_${hotel.id}" 
-                                   class="booking-input" 
-                                   min="1" 
-                                   max="${remainingDays}"
-                                   placeholder="Enter days"
-                                   onchange="window.displayHotelInstance.validateBookingDays('${hotel.id}', this.value)">
-                            <div id="validation_${hotel.id}" class="validation-message"></div>
-                        </div>
-                        <button class="btn-book" onclick="window.displayHotelInstance.bookHotel('${hotel.id}', '${hotel.name}', '${hotel.address}')">
-                            <i class="fas fa-check"></i> Book Hotel
+                        <button type="button" class="btn-book" data-hotel-id="${hotel.id}" data-hotel-name="${hotel.name.replace(/"/g, '&quot;')}" data-hotel-address="${hotel.address.replace(/"/g, '&quot;')}" data-hotel-lat="${hotel.coordinates[1]}" data-hotel-lng="${hotel.coordinates[0]}">
+                            <i class="fas fa-calendar-alt"></i> Select Date
                         </button>
                     </div>
                 </div>
@@ -319,6 +406,96 @@ class displayHotel {
         console.log("Selected hotel:", name, address);
         alert(`Selected hotel: ${name}\nAddress: ${address}`);
         // Here you can add logic to save the selected hotel or integrate with trip planning
+    }
+
+    // SIMPLE function to open hotel date modal
+    openHotelDateModal(hotelId, hotelName, hotelAddress, coordinates) {
+        console.log("🏨 openHotelDateModal called for:", hotelName);
+        
+        // Check trip dates
+        const tripData = window.selectedDateTimeData || window.selectedDatetimeData;
+        if (!tripData || !tripData.startDate || !tripData.endDate) {
+            alert('⚠️ Please select your travel dates first!');
+            return;
+        }
+        
+        // Check modal function
+        if (typeof window.showHotelDateSelection !== 'function') {
+            alert('⚠️ Modal not available. Please refresh the page.');
+            return;
+        }
+        
+        // Prepare data
+        const hotelData = {
+            id: hotelId,
+            name: hotelName,
+            address: hotelAddress,
+            coordinates: coordinates
+        };
+        
+        // Close any open popups
+        const popups = document.querySelectorAll('.leaflet-popup');
+        popups.forEach(p => p.remove());
+        
+        // Show modal
+        console.log("📅 Calling showHotelDateSelection...");
+        window.showHotelDateSelection(hotelData, null);
+    }
+
+    // Old function kept for compatibility
+    selectHotelDate(hotelId, hotelName, hotelAddress, coordinates, marker) {
+        console.log("🏨 Opening date selection for hotel:", hotelName);
+
+        // Check if datetime range is selected
+        const tripData = window.selectedDateTimeData || window.selectedDatetimeData;
+        if (!tripData || !tripData.startDate || !tripData.endDate) {
+            console.warn('No trip dates selected!');
+            alert('⚠️ Please select your travel dates first!\n\nOpen the datetime modal and select your trip dates before booking hotels.');
+            return;
+        }
+
+        console.log('✅ Trip data found:', tripData);
+
+        // Check if the date selection modal function exists
+        if (typeof window.showHotelDateSelection !== 'function') {
+            console.error('❌ Hotel date selection modal not loaded!');
+            alert('⚠️ Hotel date selection feature is not available. Please refresh the page.');
+            return;
+        }
+
+        console.log('✅ Date selection modal function exists');
+
+        // Prepare hotel data
+        const hotelData = {
+            id: hotelId,
+            name: hotelName,
+            address: hotelAddress,
+            coordinates: coordinates
+        };
+
+        console.log('Hotel data prepared:', hotelData);
+
+        // Close the popup
+        if (marker && marker._popup) {
+            console.log('Closing popup...');
+            marker.closePopup();
+        }
+
+        // Show the date selection modal
+        console.log('🎯 Calling showHotelDateSelection...');
+        console.log('🔍 Checking modal function availability...');
+        console.log('   - typeof window.showHotelDateSelection:', typeof window.showHotelDateSelection);
+        console.log('   - Modal element exists:', !!document.getElementById('hotelDateModal'));
+        console.log('   - Bootstrap available:', typeof bootstrap !== 'undefined');
+        
+        try {
+            window.showHotelDateSelection(hotelData, marker);
+            console.log('✅ Modal function called successfully');
+        } catch (error) {
+            console.error('❌ Error opening modal:', error);
+            console.error('❌ Error stack:', error.stack);
+            alert('Error opening date selection modal: ' + error.message + '\n\nCheck console for details.');
+        }
     }
 
     // Validate booking days input
