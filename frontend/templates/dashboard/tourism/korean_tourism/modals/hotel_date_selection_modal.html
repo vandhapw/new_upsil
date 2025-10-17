@@ -12,7 +12,7 @@
             </div>
             <div class="modal-body">
                 <div id="hotelDateInfo" class="mb-3">
-                    <p class="mb-2 small text-muted">Select which date you'll stay at this hotel:</p>
+                    <p class="mb-2 small text-muted">Select the date range for your hotel stay:</p>
                     <div class="hotel-name-display mb-2">
                         <strong id="selectedHotelName"></strong>
                     </div>
@@ -22,9 +22,9 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="hotelDateSelect" class="form-label small fw-bold">Choose Date:</label>
+                    <label for="hotelDateSelect" class="form-label small fw-bold">Choose Date Range:</label>
                     <select class="form-select" id="hotelDateSelect" required>
-                        <option value="">Select a date...</option>
+                        <option value="">Select a date range...</option>
                     </select>
                 </div>
                 <div class="alert alert-warning d-none mt-3 py-2 px-3 small" id="hotelDateError" role="alert">
@@ -137,7 +137,7 @@
 
         // Initialize when DOM is ready
         function initHotelDateModal() {
-            console.log('Initializing hotel date selection modal...');
+            console.log('🔄 Initializing hotel date selection modal...');
 
             const hotelDateModal = document.getElementById('hotelDateModal');
             const hotelDateSelect = document.getElementById('hotelDateSelect');
@@ -146,11 +146,111 @@
             const hotelDateErrorMessage = document.getElementById('hotelDateErrorMessage');
 
             if (!hotelDateModal || !hotelDateSelect || !confirmHotelDateBtn) {
-                console.error('Hotel date modal elements not found!');
-                return;
+                console.error('❌ Hotel date modal elements not found!');
+                console.log('Missing elements:', {
+                    modal: !!hotelDateModal,
+                    select: !!hotelDateSelect,
+                    confirmBtn: !!confirmHotelDateBtn,
+                    error: !!hotelDateError,
+                    errorMsg: !!hotelDateErrorMessage
+                });
+                return false;
             }
 
             console.log('✅ Hotel date modal elements found');
+
+            // Function to enhance hotel data with proper coordinates
+            function enhanceHotelCoordinates(hotelData) {
+                console.log('🔧 Enhancing hotel coordinates for:', hotelData.name);
+                console.log('📊 Original coordinate data:', {
+                    latitude: hotelData.latitude,
+                    longitude: hotelData.longitude,
+                    coordinates: hotelData.coordinates,
+                    coordsArray: hotelData.coordsArray
+                });
+                
+                let finalLat = hotelData.latitude || hotelData.lat;
+                let finalLng = hotelData.longitude || hotelData.lng;
+                
+                // Extract coordinates from multiple possible formats (matching step_process logic)
+                if (hotelData.coordinates && typeof hotelData.coordinates === 'object' && !Array.isArray(hotelData.coordinates)) {
+                    // Normalized object format from step process {latitude: ..., longitude: ...}
+                    if (hotelData.coordinates.latitude !== undefined && hotelData.coordinates.longitude !== undefined) {
+                        finalLat = hotelData.coordinates.latitude;
+                        finalLng = hotelData.coordinates.longitude;
+                        console.log('📍 Using normalized coordinates object:', {lat: finalLat, lng: finalLng});
+                    }
+                } else if (Array.isArray(hotelData.coordinates) && hotelData.coordinates.length >= 2) {
+                    // Array format [lng, lat] from GeoJSON
+                    finalLng = hotelData.coordinates[0];
+                    finalLat = hotelData.coordinates[1];
+                    console.log('📍 Using coordinates array:', {lat: finalLat, lng: finalLng});
+                } else if (hotelData.coordsArray && Array.isArray(hotelData.coordsArray) && hotelData.coordsArray.length >= 2) {
+                    // CoordsArray format from normalization
+                    finalLng = hotelData.coordsArray[0];
+                    finalLat = hotelData.coordsArray[1];
+                    console.log('📍 Using coordsArray:', {lat: finalLat, lng: finalLng});
+                }
+                
+                // Validate and parse coordinates
+                finalLat = parseFloat(finalLat);
+                finalLng = parseFloat(finalLng);
+                
+                if (isNaN(finalLat) || isNaN(finalLng)) {
+                    console.warn('⚠️ Invalid coordinates detected, attempting fallback...');
+                    // Try to get from province data as fallback
+                    if (window.selectedProvinceData && window.selectedProvinceData.geometry) {
+                        if (window.selectedProvinceData.geometry.coordinates) {
+                            finalLng = window.selectedProvinceData.geometry.coordinates[0];
+                            finalLat = window.selectedProvinceData.geometry.coordinates[1];
+                        } else if (window.selectedProvinceData.lat && window.selectedProvinceData.lng) {
+                            finalLat = window.selectedProvinceData.lat;
+                            finalLng = window.selectedProvinceData.lng;
+                        }
+                        
+                        // Add small offset for hotels
+                        if (!isNaN(finalLat) && !isNaN(finalLng)) {
+                            finalLat += (Math.random() - 0.5) * 0.01;
+                            finalLng += (Math.random() - 0.5) * 0.01;
+                            console.log('📍 Using province fallback with offset:', {lat: finalLat, lng: finalLng});
+                        }
+                    }
+                }
+                
+                // Create enhanced hotel data with all coordinate formats
+                const enhancedData = {
+                    ...hotelData,
+                    // Primary coordinate properties
+                    latitude: finalLat,
+                    longitude: finalLng,
+                    lat: finalLat,
+                    lng: finalLng,
+                    
+                    // Normalized coordinates object
+                    coordinates: {
+                        latitude: finalLat,
+                        longitude: finalLng
+                    },
+                    
+                    // Array format for compatibility
+                    coordsArray: [finalLng, finalLat],
+                    
+                    // Additional metadata
+                    coordinateSource: 'enhanced_by_modal',
+                    coordinateEnhancedAt: new Date().toISOString()
+                };
+                
+                console.log('✅ Enhanced hotel coordinates:', {
+                    name: enhancedData.name,
+                    latitude: enhancedData.latitude,
+                    longitude: enhancedData.longitude,
+                    coordinates: enhancedData.coordinates,
+                    coordsArray: enhancedData.coordsArray,
+                    valid: !isNaN(enhancedData.latitude) && !isNaN(enhancedData.longitude)
+                });
+                
+                return enhancedData;
+            }
 
             // Function to format date for display
             function formatDate(dateStr) {
@@ -174,41 +274,83 @@
             // Function to check if date is already booked
             function isDateBooked(dateStr) {
                 if (!window.selectedHotelsData) return false;
-                return window.selectedHotelsData.some(hotel => hotel.stayDate === dateStr);
+                return window.selectedHotelsData.some(hotel => {
+                    // Check both old format (stayDate) and new format (checkInDate)
+                    return hotel.stayDate === dateStr || hotel.checkInDate === dateStr;
+                });
             }
 
             // Function to get booked hotel for a date
             function getBookedHotelForDate(dateStr) {
                 if (!window.selectedHotelsData) return null;
-                return window.selectedHotelsData.find(hotel => hotel.stayDate === dateStr);
+                return window.selectedHotelsData.find(hotel => {
+                    // Check both old format (stayDate) and new format (checkInDate)
+                    return hotel.stayDate === dateStr || hotel.checkInDate === dateStr;
+                });
             }
 
             // Function to show hotel date selection modal
             window.showHotelDateSelection = function(hotelData, marker) {
-                console.log('📅 showHotelDateSelection called for:', hotelData?.name);
+                // console.log('📅 showHotelDateSelection called for:', hotelData?.name);
+                console.log('📝 Hotel data received:', hotelData);
+                console.log('🔍 Coordinate data analysis:', {
+                    latitude: hotelData?.latitude,
+                    longitude: hotelData?.longitude,
+                    coordinates: hotelData?.coordinates,
+                    coordsArray: hotelData?.coordsArray
+                });
+                
+                // Validate input data
+                if (!hotelData || !hotelData.name) {
+                    console.error('❌ Invalid hotel data provided');
+                    alert('⚠️ Invalid hotel data. Please try again.');
+                    return;
+                }
+                
+                // Enhance hotel data with proper coordinates before storing
+                const enhancedHotelData = enhanceHotelCoordinates(hotelData);
+                console.log('✅ Enhanced hotel data with coordinates:', enhancedHotelData);
+                
+                // Store the current horizontal overlay state to preserve it
+                const horizontalOverlay = document.getElementById('horizontal-hotel-overlay');
+                const isHorizontalOverlayVisible = horizontalOverlay && 
+                    (horizontalOverlay.style.display === 'block' || 
+                     horizontalOverlay.style.display === '' && 
+                     getComputedStyle(horizontalOverlay).display !== 'none');
+                
+                console.log('🏨 Horizontal overlay visibility before modal:', isHorizontalOverlayVisible);
                 
                 // Get modal element
                 const modalElement = document.getElementById('hotelDateModal');
                 if (!modalElement) {
-                    alert('Modal not found. Please refresh.');
+                    console.error('❌ Modal element not found in DOM');
+                    alert('⚠️ Modal not found. Please refresh the page.');
                     return;
                 }
                 
                 // Check trip data
                 const tripData = window.selectedDateTimeData || window.selectedDatetimeData;
+                console.log('📅 Trip data check:', tripData);
+                
                 if (!tripData || !tripData.startDate || !tripData.endDate) {
+                    console.error('❌ No valid trip dates found');
                     alert('⚠️ Please select your travel dates first!');
                     return;
                 }
 
-                // Store data
-                currentHotelData = hotelData;
+                console.log('✅ All validations passed, setting up modal...');
+
+                // Store enhanced data (with proper coordinates)
+                currentHotelData = enhancedHotelData;
                 currentHotelMarker = marker;
 
                 // Set hotel name
                 const hotelNameElement = document.getElementById('selectedHotelName');
                 if (hotelNameElement) {
                     hotelNameElement.textContent = hotelData.name;
+                    console.log('✅ Hotel name set:', hotelData.name);
+                } else {
+                    console.warn('⚠️ Hotel name element not found');
                 }
 
                 // Set trip duration info
@@ -216,25 +358,54 @@
                 const tripInfoElement = document.getElementById('tripDurationInfo');
                 if (tripInfoElement) {
                     tripInfoElement.textContent = durationInfo;
+                    console.log('✅ Trip info set:', durationInfo);
+                } else {
+                    console.warn('⚠️ Trip info element not found');
                 }
 
-                // Populate date options
-                hotelDateSelect.innerHTML = '<option value="">Select a date...</option>';
+                // Populate date range options
+                console.log('🗓️ Populating date range options...');
+                const selectElement = document.getElementById('hotelDateSelect');
+                if (!selectElement) {
+                    console.error('❌ Date select element not found');
+                    alert('⚠️ Date selection not available. Please refresh.');
+                    return;
+                }
+                
+                selectElement.innerHTML = '<option value="">Select a date range...</option>';
 
                 const startDate = new Date(tripData.startDate);
                 const endDate = new Date(tripData.endDate);
                 const currentDate = new Date(startDate);
+                let optionsAdded = 0;
 
-                while (currentDate <= endDate) {
-                    const dateStr = currentDate.toISOString().split('T')[0];
-                    const dayNum = getDayNumber(dateStr);
-                    const isBooked = isDateBooked(dateStr);
-                    const bookedHotel = getBookedHotelForDate(dateStr);
+                // Create date ranges (check-in to check-out)
+                while (currentDate < endDate) { // Note: < instead of <= to avoid creating a range ending after trip end
+                    const checkInDate = new Date(currentDate);
+                    const checkOutDate = new Date(currentDate);
+                    checkOutDate.setDate(checkOutDate.getDate() + 1);
+                    
+                    // Don't create range if check-out would be after trip end
+                    if (checkOutDate > endDate) {
+                        break;
+                    }
+                    
+                    const checkInStr = checkInDate.toISOString().split('T')[0];
+                    const checkOutStr = checkOutDate.toISOString().split('T')[0];
+                    const dayNum = getDayNumber(checkInStr);
+                    
+                    // Check if this date range is already booked
+                    const isBooked = isDateBooked(checkInStr);
+                    const bookedHotel = getBookedHotelForDate(checkInStr);
 
                     const option = document.createElement('option');
-                    option.value = dateStr;
+                    option.value = JSON.stringify({
+                        checkIn: checkInStr,
+                        checkOut: checkOutStr,
+                        dayNumber: dayNum
+                    });
                     
-                    let displayText = `Day ${dayNum} - ${formatDate(dateStr)}`;
+                    let displayText = `Day ${dayNum}: ${formatDate(checkInStr)} to ${formatDate(checkOutStr)}`;
                     if (isBooked && bookedHotel) {
                         displayText += ` (${bookedHotel.name})`;
                         option.disabled = true;
@@ -242,49 +413,114 @@
                     }
                     
                     option.textContent = displayText;
-                    hotelDateSelect.appendChild(option);
+                    selectElement.appendChild(option);
+                    optionsAdded++;
                     currentDate.setDate(currentDate.getDate() + 1);
                 }
 
-                // Clear any previous error
-                hotelDateError.classList.add('d-none');
+                console.log(`✅ Added ${optionsAdded} date range options`);
 
-                // Show the modal - SIMPLE VERSION
-                console.log('🎯 Showing modal...');
+                // Clear any previous error
+                const errorElement = document.getElementById('hotelDateError');
+                if (errorElement) {
+                    errorElement.classList.add('d-none');
+                }
+
+                // Show the modal
+                console.log('🎯 Attempting to show modal...');
                 
-                // Simple direct approach
                 if (typeof bootstrap !== 'undefined') {
                     try {
                         // Get or create modal instance
                         let modal = bootstrap.Modal.getInstance(modalElement);
                         if (!modal) {
-                            modal = new bootstrap.Modal(modalElement);
+                            console.log('🔧 Creating new modal instance...');
+                            modal = new bootstrap.Modal(modalElement, {
+                                backdrop: 'static',
+                                keyboard: false
+                            });
                         }
-                        // Show it
+                        
+                        // Add event listeners to preserve horizontal overlay
+                        modalElement.addEventListener('shown.bs.modal', function preserveOverlay() {
+                            // Ensure horizontal overlay remains visible after modal is shown
+                            if (isHorizontalOverlayVisible && horizontalOverlay) {
+                                horizontalOverlay.style.display = 'block';
+                                console.log('🔄 Preserved horizontal overlay visibility after modal shown');
+                            }
+                            // Remove this specific event listener after execution
+                            modalElement.removeEventListener('shown.bs.modal', preserveOverlay);
+                        });
+                        
+                        modalElement.addEventListener('hidden.bs.modal', function preserveOverlayOnHide() {
+                            // Ensure horizontal overlay remains visible after modal is hidden
+                            if (isHorizontalOverlayVisible && horizontalOverlay) {
+                                horizontalOverlay.style.display = 'block';
+                                console.log('🔄 Preserved horizontal overlay visibility after modal hidden');
+                            }
+                            // Remove this specific event listener after execution
+                            modalElement.removeEventListener('hidden.bs.modal', preserveOverlayOnHide);
+                        });
+                        
+                        // Show the modal
                         modal.show();
-                        console.log('✅ Modal shown!');
+                        console.log('✅ Modal show() called successfully!');
+                        
+                        // Verify modal is visible and preserve overlay
+                        setTimeout(() => {
+                            const isVisible = modalElement.classList.contains('show');
+                            console.log('📊 Modal visibility check:', isVisible);
+                            
+                            // Double-check horizontal overlay visibility
+                            if (isHorizontalOverlayVisible && horizontalOverlay) {
+                                horizontalOverlay.style.display = 'block';
+                                console.log('🔄 Double-checked horizontal overlay visibility');
+                            }
+                            
+                            if (!isVisible) {
+                                console.error('❌ Modal failed to show');
+                                alert('⚠️ Modal failed to open. Please try again.');
+                            }
+                        }, 100);
+                        
                     } catch (error) {
-                        console.error('Error:', error);
+                        console.error('❌ Error showing modal:', error);
+                        alert('⚠️ Error opening date selection. Please try again.');
                     }
                 } else {
-                    alert('Bootstrap not loaded');
+                    console.error('❌ Bootstrap not loaded');
+                    alert('⚠️ Bootstrap not loaded. Please refresh the page.');
                 }
             };
 
             // Confirm button click handler
             confirmHotelDateBtn.addEventListener('click', function() {
-                const selectedDate = hotelDateSelect.value;
+                const selectedRange = hotelDateSelect.value;
 
-                if (!selectedDate) {
-                    hotelDateErrorMessage.textContent = 'Please select a date for your hotel stay.';
+                if (!selectedRange) {
+                    hotelDateErrorMessage.textContent = 'Please select a date range for your hotel stay.';
                     hotelDateError.classList.remove('d-none');
                     return;
                 }
 
-                // Check if date is already booked
-                if (isDateBooked(selectedDate)) {
-                    const bookedHotel = getBookedHotelForDate(selectedDate);
-                    hotelDateErrorMessage.textContent = `This date is already booked with ${bookedHotel.name}. Please choose another date.`;
+                // Parse the selected date range
+                let dateRange;
+                try {
+                    dateRange = JSON.parse(selectedRange);
+                } catch (error) {
+                    hotelDateErrorMessage.textContent = 'Invalid date range selected. Please try again.';
+                    hotelDateError.classList.remove('d-none');
+                    return;
+                }
+
+                const checkInDate = dateRange.checkIn;
+                const checkOutDate = dateRange.checkOut;
+                const dayNum = dateRange.dayNumber;
+
+                // Check if date range is already booked
+                if (isDateBooked(checkInDate)) {
+                    const bookedHotel = getBookedHotelForDate(checkInDate);
+                    hotelDateErrorMessage.textContent = `This date range is already booked with ${bookedHotel.name}. Please choose another date range.`;
                     hotelDateError.classList.remove('d-none');
                     return;
                 }
@@ -292,68 +528,140 @@
                 // Hide error
                 hotelDateError.classList.add('d-none');
 
-                // Add hotel with date
+                // Add hotel with date range
                 const tripData = window.selectedDateTimeData || window.selectedDatetimeData;
-                const dayNum = getDayNumber(selectedDate);
 
                 // Initialize selectedHotelsData if not exists
                 if (!window.selectedHotelsData) {
                     window.selectedHotelsData = [];
                 }
 
-                // Check if hotel already exists (update date)
+                // Check if hotel already exists (update date range)
                 const existingIndex = window.selectedHotelsData.findIndex(h => h.id === currentHotelData.id);
                 
                 if (existingIndex !== -1) {
-                    // Update existing hotel's date
-                    window.selectedHotelsData[existingIndex].stayDate = selectedDate;
-                    window.selectedHotelsData[existingIndex].dayNumber = dayNum;
-                    console.log('✅ Updated hotel date:', currentHotelData.name, 'to Day', dayNum);
-                } else {
-                    // Add new hotel with date
-                    const hotelWithDate = {
-                        ...currentHotelData,
-                        stayDate: selectedDate,
+                    // Update existing hotel's date range and ensure coordinates are preserved
+                    window.selectedHotelsData[existingIndex] = {
+                        ...window.selectedHotelsData[existingIndex],
+                        ...currentHotelData, // This includes enhanced coordinates
+                        checkInDate: checkInDate,
+                        checkOutDate: checkOutDate,
+                        stayDate: checkInDate, // Keep for compatibility
                         dayNumber: dayNum,
+                        dateRange: `${formatDate(checkInDate)} to ${formatDate(checkOutDate)}`,
+                        updatedAt: new Date().toISOString()
+                    };
+                    console.log('✅ Updated hotel with enhanced coordinates:', {
+                        name: currentHotelData.name,
+                        latitude: window.selectedHotelsData[existingIndex].latitude,
+                        longitude: window.selectedHotelsData[existingIndex].longitude,
+                        dateRange: `Day ${dayNum} (${checkInDate} to ${checkOutDate})`
+                    });
+                } else {
+                    // Add new hotel with enhanced coordinates and date range
+                    const hotelWithDateRange = {
+                        ...currentHotelData, // This includes all enhanced coordinate data
+                        checkInDate: checkInDate,
+                        checkOutDate: checkOutDate,
+                        stayDate: checkInDate, // Keep for compatibility
+                        dayNumber: dayNum,
+                        dateRange: `${formatDate(checkInDate)} to ${formatDate(checkOutDate)}`,
                         savedAt: new Date().toISOString()
                     };
-                    window.selectedHotelsData.push(hotelWithDate);
-                    console.log('✅ Hotel added with date:', currentHotelData.name, 'for Day', dayNum);
+                    
+                    window.selectedHotelsData.push(hotelWithDateRange);
+                    console.log('✅ Hotel added with enhanced coordinates:', {
+                        name: currentHotelData.name,
+                        latitude: hotelWithDateRange.latitude,
+                        longitude: hotelWithDateRange.longitude,
+                        coordinates: hotelWithDateRange.coordinates,
+                        coordsArray: hotelWithDateRange.coordsArray,
+                        dateRange: `Day ${dayNum} (${checkInDate} to ${checkOutDate})`
+                    });
                 }
 
                 // Update marker if available
                 if (currentHotelMarker) {
                     updateHotelMarker(currentHotelMarker, dayNum);
+                } else {
+                    // For horizontal list selections, find and update the marker
+                    console.log('🔍 Looking for marker to update (horizontal list selection)');
+                    if (window.hotelMarkers && Array.isArray(window.hotelMarkers)) {
+                        const markerToUpdate = window.hotelMarkers.find(marker => {
+                            if (marker._hotelData) {
+                                return marker._hotelData.id === currentHotelData.id || 
+                                       marker._hotelData.name === currentHotelData.name;
+                            }
+                            return false;
+                        });
+                        
+                        if (markerToUpdate) {
+                            console.log('✅ Found marker to update for horizontal list selection');
+                            updateHotelMarker(markerToUpdate, dayNum);
+                        } else {
+                            console.log('⚠️ No matching marker found for hotel:', currentHotelData.name);
+                        }
+                    } else {
+                        console.log('⚠️ No hotel markers array available');
+                    }
                 }
 
                 // Dispatch event
                 window.dispatchEvent(new CustomEvent('hotelWithDateSelected', {
                     detail: {
                         hotel: currentHotelData,
-                        date: selectedDate,
+                        date: checkInDate, // Keep for compatibility
+                        checkInDate: checkInDate,
+                        checkOutDate: checkOutDate,
+                        dateRange: `${formatDate(checkInDate)} to ${formatDate(checkOutDate)}`,
                         dayNumber: dayNum,
                         totalSelected: window.selectedHotelsData.length
                     }
                 }));
 
+                // Check if this was called from a popup and complete the selection
+                if (window.currentPopupHotelData && typeof window.completeHotelSelectionFromPopup === 'function') {
+                    console.log('🏨 Completing hotel selection from popup...');
+                    window.completeHotelSelectionFromPopup(currentHotelData, checkInDate, dayNum, checkOutDate);
+                    
+                    // Clear the popup data
+                    window.currentPopupHotelData = null;
+                    window.currentPopupHotelIndex = null;
+                }
+
                 // Show success message
-                console.log('📅 Selected date:', formatDate(selectedDate), '(Day', dayNum + ')');
+                console.log('📅 Selected date range:', `${formatDate(checkInDate)} to ${formatDate(checkOutDate)}`, '(Day', dayNum + ')');
+                
+                // Store horizontal overlay state before closing modal
+                const horizontalOverlay = document.getElementById('horizontal-hotel-overlay');
+                const wasHorizontalOverlayVisible = horizontalOverlay && 
+                    (horizontalOverlay.style.display === 'block' || 
+                     horizontalOverlay.style.display === '' && 
+                     getComputedStyle(horizontalOverlay).display !== 'none');
                 
                 // Close modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('hotelDateModal'));
                 modal.hide();
+                
+                // Preserve horizontal overlay visibility after modal closes
+                setTimeout(() => {
+                    if (wasHorizontalOverlayVisible && horizontalOverlay) {
+                        horizontalOverlay.style.display = 'block';
+                        console.log('🔄 Preserved horizontal overlay after modal close');
+                    }
+                }, 100);
 
                 // Show success notification
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         icon: 'success',
                         title: 'Hotel Booked!',
-                        html: `<strong>${currentHotelData.name}</strong><br>Day ${dayNum}: ${formatDate(selectedDate)}`,
+                        html: `<strong>${currentHotelData.name}</strong><br>Day ${dayNum}: ${formatDate(checkInDate)} to ${formatDate(checkOutDate)}`,
                         timer: 2000,
                         showConfirmButton: false
                     });
                 } else {
-                    alert(`✅ Hotel booked!\n${currentHotelData.name}\nDay ${dayNum}: ${formatDate(selectedDate)}`);
+                    alert(`✅ Hotel booked!\n${currentHotelData.name}\nDay ${dayNum}: ${formatDate(checkInDate)} to ${formatDate(checkOutDate)}`);
                 }
 
                 // Log summary
@@ -383,7 +691,15 @@
 
             console.log('✅ Hotel date modal initialized successfully');
             console.log('✅ window.showHotelDateSelection is available:', typeof window.showHotelDateSelection === 'function');
+            
+            return true; // Return success
         }
+
+        // Listen for force initialization event
+        window.addEventListener('forceModalInit', function() {
+            console.log('🔄 Force modal initialization triggered');
+            initHotelDateModal();
+        });
 
         // Initialize
         if (document.readyState === 'loading') {
@@ -394,11 +710,19 @@
             initHotelDateModal();
         }
 
-        // Fallback initialization
+        // Multiple fallback initializations to ensure it works
         setTimeout(() => {
             console.log('🔄 Fallback initialization after 500ms...');
             initHotelDateModal();
         }, 500);
+        
+        setTimeout(() => {
+            console.log('🔄 Final fallback initialization after 1000ms...');
+            if (typeof window.showHotelDateSelection !== 'function') {
+                console.warn('⚠️ Modal function still not available, forcing init...');
+                initHotelDateModal();
+            }
+        }, 1000);
 
     })();
 
@@ -407,7 +731,7 @@
         return window.selectedHotelsData || [];
     };
 
-    // Global function to check if all days have hotels
+    // Global function to validate hotel schedule
     window.validateHotelSchedule = function() {
         const tripData = window.selectedDateTimeData || window.selectedDatetimeData;
         if (!tripData) {
@@ -425,6 +749,96 @@
             message: bookedDays === requiredDays 
                 ? `All ${requiredDays} days have hotels assigned` 
                 : `${bookedDays}/${requiredDays} days have hotels assigned`
+        };
+    };
+
+    // Global function to validate hotel coordinates
+    window.validateHotelCoordinates = function() {
+        console.log('🔍 === HOTEL COORDINATE VALIDATION ===');
+        
+        const selectedHotels = window.selectedHotelsData || [];
+        if (selectedHotels.length === 0) {
+            console.log('❌ No hotels selected');
+            return { valid: false, message: 'No hotels selected' };
+        }
+        
+        let validCount = 0;
+        let invalidCount = 0;
+        const details = [];
+        
+        selectedHotels.forEach((hotel, index) => {
+            const hasValidCoords = hotel.latitude && hotel.longitude && 
+                                 !isNaN(hotel.latitude) && !isNaN(hotel.longitude);
+            
+            const detail = {
+                index: index + 1,
+                name: hotel.name,
+                latitude: hotel.latitude,
+                longitude: hotel.longitude,
+                coordinates: hotel.coordinates,
+                coordsArray: hotel.coordsArray,
+                valid: hasValidCoords,
+                dayNumber: hotel.dayNumber,
+                dateRange: hotel.dateRange
+            };
+            
+            details.push(detail);
+            
+            if (hasValidCoords) {
+                validCount++;
+                console.log(`✅ Hotel ${index + 1}: ${hotel.name} - Valid coords [${hotel.latitude}, ${hotel.longitude}]`);
+            } else {
+                invalidCount++;
+                console.log(`❌ Hotel ${index + 1}: ${hotel.name} - Invalid coords [${hotel.latitude}, ${hotel.longitude}]`);
+            }
+        });
+        
+        const result = {
+            valid: invalidCount === 0,
+            totalHotels: selectedHotels.length,
+            validCount,
+            invalidCount,
+            successRate: (validCount / selectedHotels.length) * 100,
+            details,
+            message: invalidCount === 0 
+                ? `All ${validCount} hotels have valid coordinates` 
+                : `${invalidCount}/${selectedHotels.length} hotels have invalid coordinates`
+        };
+        
+        console.log('📊 Validation Summary:', {
+            valid: result.valid,
+            successRate: `${result.successRate.toFixed(1)}%`,
+            message: result.message
+        });
+        
+        console.log('🔍 === VALIDATION COMPLETE ===');
+        return result;
+    };
+
+    // Global function to debug hotel modal coordinates
+    window.debugHotelModalCoordinates = function() {
+        console.log('🔧 === HOTEL MODAL COORDINATE DEBUG ===');
+        
+        console.log('📊 Current hotel data (modal):', currentHotelData);
+        console.log('🏨 Selected hotels data:', window.selectedHotelsData);
+        
+        if (currentHotelData) {
+            console.log('📍 Current hotel coordinates:', {
+                name: currentHotelData.name,
+                latitude: currentHotelData.latitude,
+                longitude: currentHotelData.longitude,
+                coordinates: currentHotelData.coordinates,
+                coordsArray: currentHotelData.coordsArray
+            });
+        }
+        
+        const validation = window.validateHotelCoordinates();
+        console.log('✅ Coordinate validation result:', validation);
+        
+        return {
+            currentHotel: currentHotelData,
+            selectedHotels: window.selectedHotelsData,
+            validation
         };
     };
 </script>

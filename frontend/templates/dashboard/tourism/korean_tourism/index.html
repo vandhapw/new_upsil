@@ -806,6 +806,238 @@
             transform: scale(1.15) !important;
             box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6) !important;
         }
+
+        /* Hotel Popup Styles */
+        .popup-content.hotel-popup {
+            min-width: 280px;
+            max-width: 350px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .popup-content.hotel-popup h4 {
+            color: #1f2937;
+            margin-bottom: 10px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .popup-content.hotel-popup p {
+            margin: 5px 0;
+            color: #4b5563;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .booking-section {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .booking-section.booked {
+            background: #ecfdf5;
+            border-color: #10b981;
+        }
+
+        .booking-section h5 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .booking-section.booked h5 {
+            color: #10b981;
+        }
+
+        .booking-info {
+            margin-bottom: 10px;
+        }
+
+        .booking-info p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .booking-form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn-book {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-book:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-book:active {
+            transform: translateY(0);
+        }
+
+        .btn-cancel-booking {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .btn-cancel-booking:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .popup-content.hotel-popup.booked-hotel {
+            border-left: 4px solid #10b981;
+        }
+
+        /* Leaflet popup overrides */
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .leaflet-popup-content {
+            margin: 0;
+            padding: 16px;
+        }
+
+        .leaflet-popup-tip {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Attraction marker styles for horizontal list selection */
+        .custom-attraction-marker.attraction-selected-from-horizontal {
+            animation: attractionSelectedPulse 1s ease-in-out;
+            z-index: 1000 !important;
+        }
+
+        .custom-attraction-marker.attraction-selected-from-horizontal > div {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4) !important;
+            transform: scale(1.1);
+        }
+
+        .custom-attraction-marker.attraction-unselected {
+            animation: attractionUnselectedFade 0.5s ease-in-out;
+        }
+
+        .custom-attraction-marker.attraction-unselected > div {
+            background: linear-gradient(135deg, #ff6b6b 0%, #e74c3c 100%) !important;
+            transform: scale(1.0);
+        }
+
+        @keyframes attractionSelectedPulse {
+            0% { transform: scale(1.0); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1.1); }
+        }
+
+        @keyframes attractionUnselectedFade {
+            0% { transform: scale(1.1); }
+            100% { transform: scale(1.0); }
+        }
+
+        /* Enhanced attraction marker hover effects */
+        .custom-attraction-marker:hover > div {
+            transform: scale(1.2) !important;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .custom-attraction-marker.attraction-selected-from-horizontal:hover > div {
+            transform: scale(1.25) !important;
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5) !important;
+        }
+
+        /* Enhanced horizontal attraction selection styles */
+        #horizontal-attraction-overlay .attraction-card.selected {
+            border-color: #10b981 !important;
+            background: rgba(16, 185, 129, 0.1) !important;
+            transform: translateY(-3px) scale(1.02) !important;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3) !important;
+        }
+
+        #horizontal-attraction-overlay .attraction-card.selected::before {
+            content: '✓' !important;
+            position: absolute !important;
+            top: 8px !important;
+            right: 8px !important;
+            background: #10b981 !important;
+            color: white !important;
+            width: 20px !important;
+            height: 20px !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-weight: bold !important;
+            font-size: 12px !important;
+            z-index: 10 !important;
+            animation: checkmarkPulse 0.6s ease-out !important;
+        }
+
+        #horizontal-attraction-overlay .attraction-card.selected .attraction-info h3 {
+            color: #10b981 !important;
+            font-weight: 800 !important;
+        }
+
+        #horizontal-attraction-overlay .attraction-card.selected .attraction-price {
+            background: rgba(16, 185, 129, 0.2) !important;
+            color: #065f46 !important;
+            font-weight: 800 !important;
+        }
+
+        @keyframes checkmarkPulse {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2) rotate(180deg);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1) rotate(360deg);
+                opacity: 1;
+            }
+        }
+
+        /* Selection state transitions */
+        #horizontal-attraction-overlay .attraction-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        #horizontal-attraction-overlay .attraction-card:not(.selected):hover {
+            border-color: #e74c3c !important;
+            transform: translateY(-2px) scale(1.01) !important;
+        }
     </style>
 
 </head>
@@ -1016,14 +1248,19 @@
             </button> -->
             
             <!-- Test Hotel API Integration Button -->
-            <button class="test-hotel-button" onclick="testHotelIntegration()" title="Test Hotel API Integration" style="top: 120px;">
+            <!-- <button class="test-hotel-button" onclick="testHotelIntegration()" title="Test Hotel API Integration" style="top: 120px;">
                 <i class="fas fa-bed me-2"></i>Test Hotels API
-            </button>
+            </button> -->
             
             <!-- Test Hotel API Direct Button -->
-            <button class="test-hotel-button" onclick="testDirectAPI()" title="Test Hotel API Direct" style="top: 170px; background: linear-gradient(135deg, #27ae60, #2ecc71);">
+            <!-- <button class="test-hotel-button" onclick="testDirectAPI()" title="Test Hotel API Direct" style="top: 170px; background: linear-gradient(135deg, #27ae60, #2ecc71);">
                 <i class="fas fa-api me-2"></i>Test API Direct
-            </button>
+            </button> -->
+
+            <!-- Test Hotel Date Modal Button -->
+            <!-- <button class="test-hotel-button" onclick="testHotelDateModal()" title="Test Hotel Date Modal" style="top: 220px; background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                <i class="fas fa-calendar-check me-2"></i>Test Modal
+            </button> -->
 
             <!-- Results Panel -->
             <!-- <div class="results-panel" id="resultsPanel">
@@ -1121,6 +1358,11 @@
     <!-- TopoJSON Client for proper TopoJSON to GeoJSON conversion -->
     <script src="https://unpkg.com/topojson-client@3"></script>
     
+    <!-- Hotel Date Selection Integration Script -->
+    <script>
+        // Function to integrate hotel selection with date modal from step process
+    </script>
+    
     <!-- Custom JavaScript -->
         <!-- MapLibre GL JS CSS -->
     <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" />
@@ -1172,6 +1414,25 @@
     
     <!-- Sidebar Toggle JavaScript -->
     <script>
+        // Initialize attraction instance check
+        function ensureAttractionInstance() {
+            if (!window.displayAttractionInstance) {
+                console.warn('⚠️ displayAttractionInstance not found. Attraction selection may not work properly.');
+                return false;
+            }
+            return true;
+        }
+
+        // Log horizontal attraction selection for debugging
+        function logAttractionSelection(attractionName, isSelected) {
+            console.log(`🎯 Horizontal attraction selection: ${attractionName} -> ${isSelected ? 'SELECTED' : 'DESELECTED'}`);
+            if (window.displayAttractionInstance) {
+                console.log('✅ displayAttractionInstance is available');
+            } else {
+                console.log('❌ displayAttractionInstance is NOT available');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
@@ -1333,14 +1594,14 @@
             
             if (overlay.style.display === 'none' || overlay.style.display === '') {
                 // Check if we have province data
-                if (window.selectedProvinceData) {
-                    // Fetch hotels from API using province data
-                    fetchHotelsFromAPI(window.selectedProvinceData);
-                } else {
-                    // Show static hotels if no province selected
-                    overlay.style.display = 'block';
-                    console.warn('No province selected - showing static hotel list');
-                }
+                // if (window.selectedProvinceData) {
+                //     // Fetch hotels from API using province data
+                //     fetchHotelsFromAPI(window.selectedProvinceData);
+                // } else {
+                //     // Show static hotels if no province selected
+                //     overlay.style.display = 'block';
+                //     console.warn('No province selected - showing static hotel list');
+                // }
                 
                 button.innerHTML = 'Choose Hotels <i class="fa-solid fa-hotel"></i>';
                 button.classList.add('btn-primary');
@@ -2025,14 +2286,81 @@
                     const attractionName = card.querySelector('h3').textContent;
                     console.log(`Selected attraction: ${attractionName}`);
                     
-                    // Add selection visual feedback
-                    attractionCards.forEach(c => c.classList.remove('selected'));
-                    card.classList.add('selected');
+                    // Generate a simple ID based on the attraction name and index
+                    const attractionId = `attraction_${index}_${attractionName.toLowerCase().replace(/\s+/g, '_')}`;
                     
-                    // Optional: Auto-hide overlay after selection
-                    setTimeout(() => {
-                        showHorizontalAttractionOverlay(); // Toggle to close
-                    }, 1000);
+                    // Check if this attraction is already selected
+                    const isCurrentlySelected = card.classList.contains('selected');
+                    
+                    if (isCurrentlySelected) {
+                        // Deselect the attraction
+                        card.classList.remove('selected');
+                        console.log(`🔴 Deselected attraction: ${attractionName}`);
+                        logAttractionSelection(attractionName, false);
+                        
+                        // Update map marker to unselected state
+                        if (ensureAttractionInstance() && typeof window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList === 'function') {
+                            window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(attractionId, attractionName, false);
+                        }
+                        
+                        // If we have the selectAttraction function available, we could cancel the selection
+                        if (window.displayAttractionInstance && typeof window.displayAttractionInstance.cancelAttractionSelection === 'function') {
+                            try {
+                                window.displayAttractionInstance.cancelAttractionSelection(attractionId);
+                            } catch (error) {
+                                console.warn('Could not cancel attraction selection:', error);
+                            }
+                        }
+                    } else {
+                        // Remove selection from all other cards first (single selection mode)
+                        attractionCards.forEach((c, i) => {
+                            if (c.classList.contains('selected')) {
+                                c.classList.remove('selected');
+                                const otherAttractionName = c.querySelector('h3').textContent;
+                                const otherAttractionId = `attraction_${i}_${otherAttractionName.toLowerCase().replace(/\s+/g, '_')}`;
+                                
+                                logAttractionSelection(otherAttractionName, false);
+                                
+                                // Update map marker for deselected attraction
+                                if (ensureAttractionInstance() && typeof window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList === 'function') {
+                                    window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(otherAttractionId, otherAttractionName, false);
+                                }
+                            }
+                        });
+                        
+                        // Select the clicked attraction
+                        card.classList.add('selected');
+                        console.log(`🟢 Selected attraction: ${attractionName}`);
+                        logAttractionSelection(attractionName, true);
+                        
+                        // Update map marker to selected state
+                        if (ensureAttractionInstance() && typeof window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList === 'function') {
+                            window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(attractionId, attractionName, true);
+                        }
+                        
+                        // If we have attraction selection functionality, trigger it
+                        if (window.displayAttractionInstance && typeof window.displayAttractionInstance.selectAttraction === 'function') {
+                            // Get location from the card
+                            const locationElement = card.querySelector('.attraction-location');
+                            const location = locationElement ? locationElement.textContent.replace('🗺️', '').trim() : 'Unknown Location';
+                            
+                            // Mock coordinates based on known locations (this should ideally come from API data)
+                            let coordinates = '126.9780,37.5665'; // Default Seoul coordinates
+                            
+                            // Try to trigger the selection with mock data - in a real implementation, this would use API data
+                            try {
+                                // Note: This is a simplified version - in practice you'd want to get real coordinates from your attraction data
+                                console.log(`Triggering attraction selection for ${attractionName} at ${location}`);
+                            } catch (error) {
+                                console.warn('Could not trigger attraction selection:', error);
+                            }
+                        }
+                        
+                        // Optional: Auto-hide overlay after a longer delay to allow user to see the selection
+                        setTimeout(() => {
+                            showHorizontalAttractionOverlay(); // Toggle to close
+                        }, 2000);
+                    }
                 });
             });
 
@@ -2528,6 +2856,36 @@
                     });
                 }
             });
+        }
+        
+        // Test hotel date modal functionality
+        function testHotelDateModal() {
+            console.log('🧪 TESTING HOTEL DATE MODAL FUNCTIONALITY');
+            console.log('==========================================');
+            
+            // Check modal availability
+            const available = window.testHotelDateModal();
+            
+            if (!available) {
+                alert('❌ Modal function not available. Please refresh and try again.');
+                return;
+            }
+            
+            // Check if trip dates are set
+            const tripData = window.selectedDateTimeData || window.selectedDatetimeData;
+            if (!tripData || !tripData.startDate || !tripData.endDate) {
+                alert('⚠️ Please select travel dates first before testing hotel selection!');
+                return;
+            }
+            
+            // Test the direct function (same as marker popup)
+            console.log('� Testing direct modal function...');
+            window.openHotelDateModalDirect(
+                'test-hotel-direct',
+                'Test Hotel from Direct Function',
+                'Test Address, Seoul, South Korea',
+                [126.9780, 37.5665]
+            );
         }
     </script>
 

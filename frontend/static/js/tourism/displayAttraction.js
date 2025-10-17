@@ -35,19 +35,47 @@ class displayAttraction {
     }
 
     init() {
-        // Create a layer group for regular attractions
-        this.attractionLayer = L.layerGroup().addTo(this.map);
-        
-        // Create a separate layer group for selected attractions (always visible)
-        this.selectedAttractionLayer = L.layerGroup().addTo(this.map);
+        // Create layer groups only if map is available
+        if (this.map) {
+            // Create a layer group for regular attractions
+            this.attractionLayer = L.layerGroup().addTo(this.map);
+            
+            // Create a separate layer group for selected attractions (always visible)
+            this.selectedAttractionLayer = L.layerGroup().addTo(this.map);
+            
+            console.log("✅ Attraction layers initialized with map");
+        } else {
+            console.log("⚠️ Map not available during init, will initialize layers later");
+        }
         
         // Load saved attraction selections
         this.loadSelectedAttractions();
         
-        // Display selected attractions on map
-        this.displaySelectedAttractions();
+        // Display selected attractions on map if map is available
+        if (this.map) {
+            this.displaySelectedAttractions();
+        }
 
         console.log("Attraction display initialized");
+    }
+
+    // Method to set map instance if not available during construction
+    setMapInstance(map) {
+        console.log('🗺️ Setting map instance for DisplayAttraction');
+        this.map = map;
+        
+        // Initialize layers if map is now available
+        if (map && !this.attractionLayer) {
+            this.attractionLayer = L.layerGroup().addTo(this.map);
+            console.log("✅ Attraction layer created");
+        }
+        if (map && !this.selectedAttractionLayer) {
+            this.selectedAttractionLayer = L.layerGroup().addTo(this.map);
+            console.log("✅ Selected attraction layer created");
+        }
+        
+        // Display selected attractions if we have them
+        this.displaySelectedAttractions();
     }
 
     async searchAttractions() {
@@ -596,5 +624,581 @@ class displayAttraction {
         return this.attractionMarkers.find(marker => marker.attractionData && marker.attractionData.id === attractionId);
     }
 
+    // Refresh the attraction display to ensure proper icon states
+    refreshAttractionDisplay() {
+        console.log('🔄 Refreshing attraction display...');
+        
+        if (!this.attractionMarkers || !Array.isArray(this.attractionMarkers)) {
+            console.log('⚠️ No attraction markers to refresh');
+            return;
+        }
+        
+        // Ensure map is available
+        if (!this.map) {
+            const globalMap = window.map || window.leafletMap || window.myMap;
+            if (globalMap) {
+                this.setMapInstance(globalMap);
+            } else {
+                console.log('⚠️ No map available for refreshing attraction display');
+                return;
+            }
+        }
+        
+        const selectedAttractions = this.getSelectedAttractions();
+        
+        this.attractionMarkers.forEach(marker => {
+            if (marker.attractionData) {
+                const attractionId = marker.attractionData.id;
+                const isSelected = selectedAttractions.some(selected => 
+                    selected.id === attractionId || selected.id === String(attractionId)
+                );
+                
+                // Update marker icon
+                const correctIcon = isSelected ? this.selectedAttractionIcon : this.AttractionIcon;
+                marker.setIcon(correctIcon);
+                
+                // Update marker element classes
+                const markerElement = marker.getElement();
+                if (markerElement) {
+                    if (isSelected) {
+                        markerElement.classList.add('attraction-selected');
+                        markerElement.classList.remove('attraction-unselected');
+                    } else {
+                        markerElement.classList.remove('attraction-selected');
+                        markerElement.classList.add('attraction-unselected');
+                    }
+                }
+                
+                console.log(`🔄 Refreshed marker for ${marker.attractionData.name}: ${isSelected ? 'GREEN' : 'RED'}`);
+            }
+        });
+        
+        console.log('✅ Attraction display refreshed');
+    }
+
+    // Update attraction marker when selected from horizontal list
+    updateAttractionMarkerFromHorizontalList(attractionId, attractionName, isSelected) {
+        console.log(`🎯 Updating attraction marker for: ${attractionName}, selected: ${isSelected}`);
+        console.log(`🔍 Looking for marker with ID: ${attractionId} (type: ${typeof attractionId}), Name: ${attractionName}`);
+        console.log(`📊 Available markers: ${this.attractionMarkers?.length || 0}`);
+        
+        // Ensure we have map and layers
+        if (!this.map) {
+            console.warn('⚠️ Map not available for marker update');
+            // Try to get map from global scope
+            const globalMap = window.map || window.leafletMap || window.myMap;
+            if (globalMap) {
+                this.setMapInstance(globalMap);
+                console.log('📍 Map instance retrieved from global scope');
+            } else {
+                console.warn('⚠️ No map available, cannot update markers');
+                return;
+            }
+        }
+        
+        // Ensure layers exist
+        if (!this.attractionLayer && this.map) {
+            this.attractionLayer = L.layerGroup().addTo(this.map);
+            console.log('📍 Created attraction layer');
+        }
+        if (!this.selectedAttractionLayer && this.map) {
+            this.selectedAttractionLayer = L.layerGroup().addTo(this.map);
+            console.log('📍 Created selected attraction layer');
+        }
+        
+        // Find the marker by attraction ID or name with enhanced flexible matching
+        let markerToUpdate = null;
+        
+        if (this.attractionMarkers && Array.isArray(this.attractionMarkers)) {
+            console.log('🔍 Detailed marker search:');
+            
+            // Convert attractionId to different possible formats for comparison
+            const idAsString = String(attractionId);
+            const idAsNumber = parseInt(attractionId);
+            
+            this.attractionMarkers.forEach((marker, index) => {
+                if (marker.attractionData) {
+                    const markerId = marker.attractionData.id;
+                    const markerName = marker.attractionData.name;
+                    console.log(`  ${index}: ID="${markerId}" (type: ${typeof markerId}), Name="${markerName}"`);
+                    
+                    // Try multiple ID comparison strategies
+                    const idMatches = (
+                        markerId === attractionId ||
+                        markerId === idAsString ||
+                        markerId === idAsNumber ||
+                        String(markerId) === idAsString ||
+                        parseInt(markerId) === idAsNumber
+                    );
+                    
+                    const nameMatches = (
+                        markerName === attractionName ||
+                        (markerName && attractionName && markerName.toLowerCase() === attractionName.toLowerCase())
+                    );
+                    
+                    if (idMatches || nameMatches) {
+                        console.log(`  ✅ MATCH FOUND! ID match: ${idMatches}, Name match: ${nameMatches}`);
+                        if (!markerToUpdate) { // Take the first match
+                            markerToUpdate = marker;
+                        }
+                    }
+                }
+            });
+        }
+        
+        if (markerToUpdate) {
+            console.log('✅ Found marker to update for horizontal list selection');
+            console.log('📍 Marker data:', markerToUpdate.attractionData);
+            
+            // Update the marker icon based on selection state
+            const newIcon = isSelected ? this.selectedAttractionIcon : this.AttractionIcon;
+            console.log(`🔄 Setting icon to: ${isSelected ? 'selectedAttractionIcon (GREEN)' : 'AttractionIcon (RED)'}`);
+            
+            try {
+                markerToUpdate.setIcon(newIcon);
+                console.log(`✅ Icon successfully updated for ${attractionName}`);
+                
+                // Update marker class for CSS styling
+                const markerElement = markerToUpdate.getElement();
+                if (markerElement) {
+                    if (isSelected) {
+                        markerElement.classList.add('attraction-selected-from-horizontal');
+                        markerElement.classList.remove('attraction-unselected');
+                    } else {
+                        markerElement.classList.remove('attraction-selected-from-horizontal');
+                        markerElement.classList.add('attraction-unselected');
+                    }
+                    console.log(`✅ CSS classes updated for ${attractionName}`);
+                }
+                
+                // Update the popup content to reflect the new state
+                if (markerToUpdate.attractionData) {
+                    markerToUpdate.bindPopup(this.createAttractionPopup(markerToUpdate.attractionData));
+                    console.log(`✅ Popup updated for ${attractionName}`);
+                }
+                
+                // Force map to redraw/refresh the marker
+                if (this.map) {
+                    markerToUpdate.redraw && markerToUpdate.redraw();
+                    this.map.invalidateSize();
+                }
+                
+                console.log(`✅ Marker fully updated for ${attractionName} - Icon: ${isSelected ? 'GREEN' : 'RED'}`);
+                
+            } catch (error) {
+                console.error(`❌ Error updating marker for ${attractionName}:`, error);
+            }
+            
+        } else {
+            console.log(`⚠️ No matching marker found for attraction: ${attractionName} (ID: ${attractionId})`);
+            console.log('🔍 This might be because:');
+            console.log('  1. Marker data format mismatch');
+            console.log('  2. Attractions not synchronized from step process');
+            console.log('  3. Marker not created yet');
+            
+            // Try to trigger sync if markers are missing
+            if ((!this.attractionMarkers || this.attractionMarkers.length === 0) && window.attractionDataForStepProcess) {
+                console.log('🔄 Attempting auto-sync with step process...');
+                this.syncAttractionsFromStepProcess();
+                
+                // Try the update again after sync
+                setTimeout(() => {
+                    console.log('🔄 Retrying marker update after sync...');
+                    this.updateAttractionMarkerFromHorizontalList(attractionId, attractionName, isSelected);
+                }, 100);
+                return;
+            }
+        }
+        
+        // If selected, also display in the selected attractions layer
+        if (isSelected && markerToUpdate) {
+            this.displaySelectedAttractions();
+        }
+        
+        // Refresh the regular attraction display to update icons
+        this.refreshAttractionDisplay();
+    }
+
+    // Handle attraction selection from horizontal list (with simplified parameters)
+    selectAttractionFromHorizontalList(attractionId, attractionName, province, coordinates, hours = 2) {
+        console.log(`🎯 Selecting attraction from horizontal list: ${attractionName} (ID: ${attractionId})`);
+        
+        // Check if already selected
+        if (this.isAttractionSelected(attractionId)) {
+            console.log(`⚠️ Attraction ${attractionName} is already selected`);
+            return false;
+        }
+        
+        // Ensure we have markers available for this attraction
+        if (!this.attractionMarkers || this.attractionMarkers.length === 0) {
+            console.log('⚠️ No attraction markers available, attempting sync...');
+            this.syncAttractionsFromStepProcess();
+        }
+        
+        // Create selection data
+        const selectionData = {
+            id: attractionId,
+            name: attractionName,
+            province: province,
+            hours: parseInt(hours),
+            coordinates: typeof coordinates === 'string' 
+                ? coordinates.split(',').map(coord => parseFloat(coord.trim())) 
+                : coordinates,
+            selectionDate: new Date().toISOString(),
+            selectedFromHorizontalList: true
+        };
+        
+        console.log('📋 Selection data:', selectionData);
+        
+        // Add to selected attractions
+        if (!this.selectedAttractions) {
+            this.selectedAttractions = [];
+        }
+        this.selectedAttractions.push(selectionData);
+        
+        // Save to localStorage
+        this.saveSelectedAttractions();
+        
+        // Update displays and markers with forced refresh
+        this.displaySelectedAttractions();
+        
+        // Update marker with retry mechanism
+        this.updateAttractionMarkerFromHorizontalList(attractionId, attractionName, true);
+        
+        // Force refresh after a short delay
+        setTimeout(() => {
+            console.log(`🔄 Force refreshing marker for ${attractionName}...`);
+            this.updateAttractionMarkerFromHorizontalList(attractionId, attractionName, true);
+            this.refreshAttractionDisplay();
+        }, 100);
+        
+        // Additional refresh with longer delay
+        setTimeout(() => {
+            console.log(`🔄 Final marker refresh for ${attractionName}...`);
+            this.forceMarkerRefresh(attractionId, attractionName, true);
+        }, 500);
+        
+        console.log(`✅ Successfully selected ${attractionName} from horizontal list`);
+        return true;
+    }
     
+    // Force marker refresh method - ensures marker is updated correctly
+    forceMarkerRefresh(attractionId, attractionName, isSelected) {
+        console.log(`🔄 Force refreshing marker for ${attractionName} (selected: ${isSelected})`);
+        
+        if (!this.attractionMarkers) return;
+        
+        // Find and update the marker
+        const markerToUpdate = this.attractionMarkers.find(marker => {
+            if (!marker.attractionData) return false;
+            
+            const markerId = marker.attractionData.id;
+            const markerName = marker.attractionData.name;
+            
+            return (
+                markerId === attractionId ||
+                String(markerId) === String(attractionId) ||
+                parseInt(markerId) === parseInt(attractionId) ||
+                markerName === attractionName ||
+                (markerName && attractionName && markerName.toLowerCase() === attractionName.toLowerCase())
+            );
+        });
+        
+        if (markerToUpdate) {
+            try {
+                const newIcon = isSelected ? this.selectedAttractionIcon : this.AttractionIcon;
+                markerToUpdate.setIcon(newIcon);
+                
+                // Force redraw
+                if (markerToUpdate.redraw) {
+                    markerToUpdate.redraw();
+                }
+                
+                // Update layer if needed
+                if (this.map) {
+                    this.map.invalidateSize();
+                    
+                    // Remove and re-add marker to force refresh
+                    const latLng = markerToUpdate.getLatLng();
+                    markerToUpdate.remove();
+                    const refreshedMarker = L.marker(latLng, { icon: newIcon })
+                        .addTo(this.attractionLayer || this.map);
+                    
+                    // Update the marker reference
+                    const markerIndex = this.attractionMarkers.indexOf(markerToUpdate);
+                    if (markerIndex !== -1) {
+                        refreshedMarker.attractionData = markerToUpdate.attractionData;
+                        refreshedMarker.bindPopup(this.createAttractionPopup(refreshedMarker.attractionData));
+                        this.attractionMarkers[markerIndex] = refreshedMarker;
+                    }
+                }
+                
+                console.log(`✅ Force refresh completed for ${attractionName}`);
+            } catch (error) {
+                console.error(`❌ Error during force refresh for ${attractionName}:`, error);
+            }
+        } else {
+            console.log(`⚠️ Could not find marker for force refresh: ${attractionName} (ID: ${attractionId})`);
+        }
+    }
+
+    // Cancel attraction selection (enhanced for horizontal list compatibility)
+    cancelAttractionSelection(attractionId) {
+        const index = this.selectedAttractions.findIndex(a => a.id === attractionId);
+        if (index === -1) {
+            console.log('⚠️ Selection not found for cancellation');
+            return false;
+        }
+
+        const selection = this.selectedAttractions[index];
+        console.log(`🗑️ Canceling selection for: ${selection.name} (ID: ${attractionId})`);
+        
+        // Remove from array
+        this.selectedAttractions.splice(index, 1);
+
+        // Save updated selections
+        this.saveSelectedAttractions();
+
+        // Update displays
+        this.displaySelectedAttractions();
+        
+        // Update marker with force refresh
+        this.updateAttractionMarkerFromHorizontalList(attractionId, selection.name, false);
+        
+        // Additional force refresh to ensure marker updates
+        setTimeout(() => {
+            console.log(`🔄 Force refreshing marker after cancellation for ${selection.name}...`);
+            this.forceMarkerRefresh(attractionId, selection.name, false);
+        }, 100);
+
+        console.log(`✅ Selection for "${selection.name}" has been canceled.`);
+        return true;
+    }
+
+    // Sync attractions from step process to displayAttraction instance
+    syncAttractionsFromStepProcess() {
+        console.log('🔄 Syncing attractions from step process...');
+        
+        // Get attractions from step process
+        if (window.attractionDataForStepProcess && Array.isArray(window.attractionDataForStepProcess)) {
+            console.log(`📊 Found ${window.attractionDataForStepProcess.length} attractions from step process`);
+            console.log('📋 Step process attractions:', window.attractionDataForStepProcess);
+            
+            // Convert step process attraction format to displayAttraction format
+            const convertedAttractions = window.attractionDataForStepProcess.map((attraction, index) => {
+                // Ensure ID is consistent - use step process ID or fallback to index
+                const consistentId = attraction.id !== undefined ? attraction.id : index;
+                
+                const converted = {
+                    id: consistentId,
+                    name: attraction.name || 'Unknown Attraction',
+                    province: attraction.province || 'Unknown Province',
+                    provinceId: attraction.provinceId || '',
+                    coordinates: [attraction.longitude || 126.9780, attraction.latitude || 37.5665], // [lng, lat] format expected by displayAttraction
+                    rating: attraction.rating || null,
+                    imageUrl: attraction.image || null,
+                    type: attraction.type || 'attraction',
+                    // Additional fields from step process
+                    latitude: attraction.latitude || 37.5665,
+                    longitude: attraction.longitude || 126.9780,
+                    amenities: attraction.amenities || []
+                };
+                
+                console.log(`🔄 Converting attraction ${index}: ID=${consistentId}, Name="${converted.name}"`);
+                return converted;
+            });
+            
+            console.log('🔄 Converted attractions to displayAttraction format:', convertedAttractions);
+            
+            // Clear existing attractions and markers to avoid duplicates
+            if (this.attractionMarkers && this.attractionMarkers.length > 0) {
+                console.log('🧹 Clearing existing attraction markers...');
+                this.clearAttractions();
+            }
+            
+            // Add converted attractions from step process to displayAttraction system
+            this.displayAttractions(convertedAttractions);
+            
+            console.log(`✅ Synced ${convertedAttractions.length} attractions from step process to displayAttraction instance`);
+            console.log(`📊 Current attraction markers count: ${this.attractionMarkers?.length || 0}`);
+            
+            // Verify the markers were created with correct IDs
+            if (this.attractionMarkers && this.attractionMarkers.length > 0) {
+                console.log('🔍 Verifying created markers:');
+                this.attractionMarkers.forEach((marker, index) => {
+                    if (marker.attractionData) {
+                        console.log(`  ${index}: ID="${marker.attractionData.id}" (type: ${typeof marker.attractionData.id}), Name="${marker.attractionData.name}"`);
+                    }
+                });
+            }
+            
+        } else {
+            console.log('⚠️ No attractions found in step process data (window.attractionDataForStepProcess)');
+            console.log('📊 Available window properties:', Object.keys(window).filter(key => key.includes('attraction')));
+        }
+    }
+
+    // Refresh all attraction card states in horizontal list
+    refreshHorizontalAttractionCards() {
+        // Dispatch event to update horizontal card states
+        const event = new CustomEvent('refreshAttractionCards', {
+            detail: {
+                selectedAttractions: this.selectedAttractions || []
+            }
+        });
+        document.dispatchEvent(event);
+    }
+
+}
+
+// Initialize global instance when script loads
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Initializing DisplayAttraction instance...');
+    
+    // Function to initialize with map
+    function initializeWithMap() {
+        // Try to get the map instance from the global window object
+        let mapInstance = null;
+        
+        // Check various possible map instance locations
+        if (window.map) {
+            mapInstance = window.map;
+            console.log('📍 Found map instance in window.map');
+        } else if (window.leafletMap) {
+            mapInstance = window.leafletMap;
+            console.log('📍 Found map instance in window.leafletMap');
+        } else if (window.myMap) {
+            mapInstance = window.myMap;
+            console.log('📍 Found map instance in window.myMap');
+        }
+        
+        if (mapInstance) {
+            if (window.displayAttractionInstance) {
+                window.displayAttractionInstance.setMapInstance(mapInstance);
+                console.log('✅ Map instance attached to existing DisplayAttraction');
+            } else {
+                window.displayAttractionInstance = new displayAttraction(mapInstance);
+                console.log('✅ DisplayAttraction instance created with map');
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    // Create global instance if it doesn't exist
+    if (!window.displayAttractionInstance) {
+        // Try to initialize with map immediately
+        if (!initializeWithMap()) {
+            // Create instance without map, will initialize later
+            window.displayAttractionInstance = new displayAttraction(null);
+            console.log('✅ DisplayAttraction instance created without map (will initialize later)');
+            
+            // Try again after a short delay
+            setTimeout(() => {
+                if (!window.displayAttractionInstance.map) {
+                    console.log('🔄 Retrying map initialization...');
+                    initializeWithMap();
+                }
+            }, 1000);
+            
+            // And try again after a longer delay
+            setTimeout(() => {
+                if (!window.displayAttractionInstance.map) {
+                    console.log('🔄 Final retry for map initialization...');
+                    initializeWithMap();
+                }
+            }, 3000);
+        }
+    } else {
+        console.log('ℹ️ DisplayAttraction instance already exists');
+    }
+    
+    // Verify the instance has the required methods
+    const requiredMethods = [
+        'selectAttractionFromHorizontalList',
+        'updateAttractionMarkerFromHorizontalList',
+        'cancelAttractionSelection',
+        'refreshAttractionDisplay',
+        'isAttractionSelected',
+        'syncAttractionsFromStepProcess',
+        'forceMarkerRefresh'
+    ];
+    
+    requiredMethods.forEach(method => {
+        if (typeof window.displayAttractionInstance[method] === 'function') {
+            console.log(`✅ Method '${method}' is available`);
+        } else {
+            console.warn(`⚠️ Method '${method}' is NOT available`);
+        }
+    });
+    
+    // Auto-sync with step process attractions if they exist
+    if (window.attractionDataForStepProcess && window.displayAttractionInstance) {
+        console.log('🔄 Auto-syncing with existing step process attractions...');
+        window.displayAttractionInstance.syncAttractionsFromStepProcess();
+    }
+});
+
+// Debug function to check attraction synchronization
+window.debugAttractionSync = function() {
+    console.log('=== 🔍 ATTRACTION SYNC DEBUG ===');
+    console.log('Step Process Attractions:', window.attractionDataForStepProcess?.length || 0);
+    console.log('DisplayAttraction Markers:', window.displayAttractionInstance?.attractionMarkers?.length || 0);
+    console.log('Step Process Selections:', window.selectedAttractionsData?.length || 0);
+    console.log('DisplayAttraction Selections:', window.displayAttractionInstance?.selectedAttractions?.length || 0);
+    
+    if (window.attractionDataForStepProcess) {
+        console.log('📋 Available step process attractions:');
+        window.attractionDataForStepProcess.forEach((attr, i) => {
+            console.log(`  ${i}: ID=${attr.id} (${typeof attr.id}), Name="${attr.name}"`);
+        });
+    }
+    
+    if (window.displayAttractionInstance?.attractionMarkers) {
+        console.log('🗺️ Available markers:');
+        window.displayAttractionInstance.attractionMarkers.forEach((marker, i) => {
+            if (marker.attractionData) {
+                console.log(`  ${i}: ID=${marker.attractionData.id} (${typeof marker.attractionData.id}), Name="${marker.attractionData.name}"`);
+            }
+        });
+    }
+    
+    if (window.displayAttractionInstance?.selectedAttractions) {
+        console.log('✅ Selected attractions:');
+        window.displayAttractionInstance.selectedAttractions.forEach((sel, i) => {
+            console.log(`  ${i}: ID=${sel.id} (${typeof sel.id}), Name="${sel.name}"`);
+        });
+    }
+    
+    console.log('🧪 Testing marker update for first attraction...');
+    if (window.attractionDataForStepProcess && window.attractionDataForStepProcess.length > 0) {
+        const testAttraction = window.attractionDataForStepProcess[0];
+        console.log(`🎯 Testing with: ID=${testAttraction.id}, Name="${testAttraction.name}"`);
+        
+        if (window.displayAttractionInstance) {
+            // Test the update function
+            window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(
+                testAttraction.id, 
+                testAttraction.name, 
+                true
+            );
+        }
+    }
+    
+    console.log('=== END DEBUG ===');
+};
+
+// Also create instance immediately for immediate availability
+if (typeof window !== 'undefined' && !window.displayAttractionInstance) {
+    // Try to get map instance immediately
+    let mapInstance = window.map || window.leafletMap || window.myMap || null;
+    
+    window.displayAttractionInstance = new displayAttraction(mapInstance);
+    console.log('🚀 DisplayAttraction instance created immediately');
+    
+    if (mapInstance) {
+        console.log('📍 Map instance attached to DisplayAttraction');
+    } else {
+        console.log('⚠️ No map available yet, will initialize when map is ready');
+    }
 }

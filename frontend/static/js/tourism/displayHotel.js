@@ -84,61 +84,7 @@ class displayHotel {
             }));
         });
         
-        // Add SIMPLE global event delegation for .btn-book buttons
-        const self = this;
-        document.addEventListener('click', function(e) {
-            // Check if click is on button or inside button (icon)
-            const button = e.target.closest('.btn-book');
-            if (button && button.hasAttribute('data-hotel-id')) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Get data from button attributes
-                const hotelId = button.getAttribute('data-hotel-id');
-                const hotelName = button.getAttribute('data-hotel-name');
-                const hotelAddress = button.getAttribute('data-hotel-address');
-                const lat = button.getAttribute('data-hotel-lat');
-                const lng = button.getAttribute('data-hotel-lng');
-                
-                console.log('🎯 btn-book clicked!');
-                console.log('Hotel ID:', hotelId);
-                console.log('Hotel Name:', hotelName);
-                
-                // Prepare hotel data (same format as horizontal list)
-                const hotelData = {
-                    id: hotelId,
-                    name: hotelName,
-                    address: hotelAddress,
-                    coordinates: [parseFloat(lng), parseFloat(lat)]
-                };
-                
-                // Check trip dates
-                const tripData = window.selectedDateTimeData || window.selectedDatetimeData;
-                if (!tripData || !tripData.startDate || !tripData.endDate) {
-                    alert('⚠️ Please select your travel dates first!');
-                    return;
-                }
-                
-                // Check modal function exists
-                if (typeof window.showHotelDateSelection !== 'function') {
-                    console.error('❌ showHotelDateSelection function not found');
-                    alert('⚠️ Modal not available. Please refresh the page.');
-                    return;
-                }
-                
-                // Close any popup
-                const popups = document.querySelectorAll('.leaflet-popup');
-                popups.forEach(p => {
-                    p.style.display = 'none';
-                });
-                
-                // Call modal directly (same as horizontal list)
-                console.log('📅 Calling showHotelDateSelection from popup button...');
-                window.showHotelDateSelection(hotelData, null);
-            }
-        }, true); // USE CAPTURE PHASE to catch before Leaflet
-        
-        console.log("Hotel display initialized with simple event delegation");
+        console.log("Hotel display initialized");
     }
 
     async searchHotels() {
@@ -238,67 +184,177 @@ class displayHotel {
         }
     }
 
-    async fetchHotels(bounds) {
-        try {
-            // Use Geoapify API directly
-            const apiKey = "a5edd953082d4f209e8ef29fdeedb0a1";
-            const url = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&filter=rect:${bounds.minLng},${bounds.minLat},${bounds.maxLng},${bounds.maxLat}&limit=100&apiKey=${apiKey}`;
+    // async fetchHotels(bounds) {
+    //     try {
+    //         // Use Geoapify API directly
+    //         const apiKey = "a5edd953082d4f209e8ef29fdeedb0a1";
+    //         const url = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&filter=rect:${bounds.minLng},${bounds.minLat},${bounds.maxLng},${bounds.maxLat}&limit=100&apiKey=${apiKey}`;
             
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+    //         const response = await fetch(url);
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! status: ${response.status}`);
+    //         }
             
-            const result = await response.json();
+    //         const result = await response.json();
             
-            // Transform API response to our format
-            return result.features.map((feature, index) => ({
-                id: feature.properties.place_id || `hotel_${index}`,
-                name: feature.properties.name || `Hotel ${index + 1}`,
-                address: feature.properties.formatted || feature.properties.address_line1 || 'Address not available',
-                coordinates: [feature.geometry.coordinates[0], feature.geometry.coordinates[1]],
-                rating: feature.properties.rating || null,
-                phone: feature.properties.contact?.phone || null,
-                website: feature.properties.contact?.website || null,
-                category: feature.properties.categories?.[0] || 'hotel',
-                datasource: feature.properties.datasource?.sourcename || 'Geoapify'
-            }));
+    //         // Transform API response to our format
+    //         return result.features.map((feature, index) => ({
+    //             id: feature.properties.place_id || `hotel_${index}`,
+    //             name: feature.properties.name || `Hotel ${index + 1}`,
+    //             address: feature.properties.formatted || feature.properties.address_line1 || 'Address not available',
+    //             coordinates: [feature.geometry.coordinates[0], feature.geometry.coordinates[1]],
+    //             rating: feature.properties.rating || null,
+    //             phone: feature.properties.contact?.phone || null,
+    //             website: feature.properties.contact?.website || null,
+    //             category: feature.properties.categories?.[0] || 'hotel',
+    //             datasource: feature.properties.datasource?.sourcename || 'Geoapify'
+    //         }));
             
-        } catch (error) {
-            console.error("API fetch error:", error);
-            throw error;
+    //     } catch (error) {
+    //         console.error("API fetch error:", error);
+    //         throw error;
+    //     }
+    // }
+
+    // Function to normalize coordinates from different sources
+    normalizeCoordinates(hotel) {
+        let lat, lng;
+        
+        console.log(`🔍 Normalizing coordinates for hotel: ${hotel.name}`);
+        console.log('Original hotel data:', hotel);
+        
+        // Method 1: Array format [lng, lat] (from displayHotel.js API)
+        if (Array.isArray(hotel.coordinates) && hotel.coordinates.length >= 2) {
+            lng = hotel.coordinates[0];
+            lat = hotel.coordinates[1];
+            console.log(`📍 Using array coordinates [${lng}, ${lat}] for ${hotel.name}`);
         }
+        // Method 2: Object format {latitude, longitude} (from step process)
+        else if (hotel.coordinates && typeof hotel.coordinates === 'object') {
+            lat = hotel.coordinates.latitude;
+            lng = hotel.coordinates.longitude;
+            console.log(`📍 Using object coordinates {lat: ${lat}, lng: ${lng}} for ${hotel.name}`);
+        }
+        // Method 3: Direct properties (fallback)
+        else if (hotel.latitude && hotel.longitude) {
+            lat = hotel.latitude;
+            lng = hotel.longitude;
+            console.log(`📍 Using direct properties lat: ${lat}, lng: ${lng} for ${hotel.name}`);
+        }
+        // Method 4: Alternative property names
+        else if (hotel.lat && hotel.lng) {
+            lat = hotel.lat;
+            lng = hotel.lng;
+            console.log(`📍 Using alt properties lat: ${lat}, lng: ${lng} for ${hotel.name}`);
+        }
+        
+        // Validate coordinates
+        if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+            console.warn(`⚠️ Invalid coordinates for ${hotel.name}, using fallback`);
+            // Use province coordinates with offset as fallback
+            if (window.selectedProvinceData) {
+                if (window.selectedProvinceData.geometry?.coordinates) {
+                    lng = window.selectedProvinceData.geometry.coordinates[0];
+                    lat = window.selectedProvinceData.geometry.coordinates[1];
+                } else if (window.selectedProvinceData.lat && window.selectedProvinceData.lng) {
+                    lat = window.selectedProvinceData.lat;
+                    lng = window.selectedProvinceData.lng;
+                }
+                
+                // Add small random offset to avoid overlapping
+                if (lat && lng) {
+                    const offsetRange = 0.01;
+                    lat += (Math.random() - 0.5) * offsetRange;
+                    lng += (Math.random() - 0.5) * offsetRange;
+                    console.log(`📍 Using province fallback with offset: [${lng}, ${lat}] for ${hotel.name}`);
+                }
+            }
+        }
+        
+        // Ensure we have valid numbers
+        lat = parseFloat(lat) || 0;
+        lng = parseFloat(lng) || 0;
+        
+        console.log(`✅ Final normalized coordinates for ${hotel.name}: [${lng}, ${lat}]`);
+        
+        return {
+            lat: lat,
+            lng: lng,
+            coordinates: [lng, lat] // Standard format for Leaflet
+        };
     }
 
     displayHotels(hotels) {
-        hotels.forEach(hotel => {
-            const [lng, lat] = hotel.coordinates;
+        console.log('🏨 ===== DISPLAYING HOTELS =====');
+        console.log('🏨 Number of hotels to display:', hotels.length);
+        console.log('🏨 Hotel layer exists:', !!this.hotelLayer);
+        console.log('🏨 Map exists:', !!this.map);
+        
+        hotels.forEach((hotel, index) => {
+            // Normalize coordinates to handle different formats
+            const normalizedCoords = this.normalizeCoordinates(hotel);
+            const lat = normalizedCoords.lat;
+            const lng = normalizedCoords.lng;
+            
+            console.log(`🏨 Creating marker ${index + 1}/${hotels.length}:`, hotel.name, `at [${lat}, ${lng}]`);
             
             // Check if this hotel is already booked
             const isBooked = this.isHotelBooked(hotel.id);
+            console.log(`🏨 Hotel ${hotel.name} is booked:`, isBooked);
             
             // Use different icon based on booking status
             const icon = isBooked ? this.bookedHotelIcon : this.hotelIcon;
+            console.log(`🏨 Using icon:`, icon.options.className);
             
-            // Create hotel icon with improved styling
-            const marker = L.marker([lat, lng], { icon })
-                .bindPopup(this.createHotelPopup(hotel))
-                .addTo(this.hotelLayer);
+            // Create popup content first
+            const popupContent = this.createHotelPopup(hotel);
+            console.log(`🏨 Popup content created for ${hotel.name}, length:`, popupContent.length);
+            
+            try {
+                // Create hotel icon with improved styling
+                const marker = L.marker([lat, lng], { icon })
+                    .bindPopup(popupContent)
+                    .addTo(this.hotelLayer);
 
-            // Store hotel data with marker for reference
-            marker.hotelData = hotel;
-            
-            // Store reference to this for use in event handlers
-            const self = this;
-            
-            this.hotelMarkers.push(marker);
+                console.log(`🏨 Marker created successfully for ${hotel.name}`);
+                
+                // Store hotel data with marker for reference, including normalized coordinates
+                const hotelDataWithCoords = {
+                    ...hotel,
+                    coordinates: normalizedCoords.coordinates,
+                    latitude: lat,
+                    longitude: lng,
+                    lat: lat,
+                    lng: lng
+                };
+                marker.hotelData = hotelDataWithCoords;
+                marker._hotelData = hotelDataWithCoords; // Also store with underscore for step process compatibility
+                
+                // Add click event listener for debugging
+                marker.on('click', () => {
+                    console.log(`🎯 Marker clicked for hotel: ${hotel.name}`);
+                });
+                
+                // Store reference to this for use in event handlers
+                const self = this;
+                
+                this.hotelMarkers.push(marker);
+                console.log(`🏨 Marker added to array. Total markers:`, this.hotelMarkers.length);
+                
+            } catch (error) {
+                console.error(`❌ Error creating marker for ${hotel.name}:`, error);
+            }
         });
 
         this.isHotelsVisible = true;
-        console.log(`Displayed ${hotels.length} hotels on the map`);
+        console.log('🏨 ===== HOTELS DISPLAY COMPLETE =====');
+        console.log(`🏨 Total markers created: ${this.hotelMarkers.length}`);
+        console.log('🏨 Hotel layer has layers:', this.hotelLayer.getLayers().length);
     }
 
     createHotelPopup(hotel) {
+        console.log(`📝 Creating popup for hotel: ${hotel.name}`);
+        
         let ratingHTML = '';
         if (hotel.rating) {
             const stars = "★".repeat(Math.floor(hotel.rating));
@@ -309,6 +365,8 @@ class displayHotel {
         const totalBookedDays = this.getTotalBookedDays();
         const tripDuration = this.getTripDuration();
         const remainingDays = tripDuration - totalBookedDays;
+        
+        console.log(`📝 Popup data - isBooked: ${isBooked}, tripDuration: ${tripDuration}, totalBooked: ${totalBookedDays}`);
 
         let bookingSection = '';
         if (isBooked) {
@@ -331,7 +389,7 @@ class displayHotel {
                         <p><small>Trip Duration: ${tripDuration} days | Booked: ${totalBookedDays} days | Available: ${remainingDays} days</small></p>
                     </div>
                     <div class="booking-form">
-                        <button type="button" class="btn-book" data-hotel-id="${hotel.id}" data-hotel-name="${hotel.name.replace(/"/g, '&quot;')}" data-hotel-address="${hotel.address.replace(/"/g, '&quot;')}" data-hotel-lat="${hotel.coordinates[1]}" data-hotel-lng="${hotel.coordinates[0]}">
+                        <button type="button" class="btn-book" onclick="event.preventDefault(); event.stopPropagation(); return window.openHotelDateModalDirect('${hotel.id}', '${hotel.name.replace(/'/g, "\\'")}', '${hotel.address.replace(/'/g, "\\'")}', [${hotel.coordinates[0]}, ${hotel.coordinates[1]}]);">
                             <i class="fas fa-calendar-alt"></i> Select Date
                         </button>
                     </div>
@@ -339,7 +397,7 @@ class displayHotel {
             `;
         }
 
-        return `
+        const finalPopupHTML = `
             <div class="popup-content hotel-popup ${isBooked ? 'booked-hotel' : ''}">
                 <h4><i class="fas fa-bed"></i> ${hotel.name}</h4>
                 <p><strong>Address:</strong> ${hotel.address}</p>
@@ -351,6 +409,9 @@ class displayHotel {
                 ${bookingSection}
             </div>
         `;
+        
+        console.log(`📝 Popup HTML created for ${hotel.name}, contains 'Select Date':`, finalPopupHTML.includes('Select Date'));
+        return finalPopupHTML;
     }
 
     // Check if a hotel is already booked
@@ -368,7 +429,30 @@ class displayHotel {
 
         this.selectedHotels.forEach(booking => {
             if (booking.coordinates) {
-                const [lng, lat] = booking.coordinates;
+                let lat, lng;
+                
+                // Handle different coordinate formats
+                if (Array.isArray(booking.coordinates)) {
+                    // Array format [lng, lat] or [lat, lng]
+                    if (booking.coordinates.length >= 2) {
+                        [lng, lat] = booking.coordinates;
+                    } else {
+                        console.warn('Invalid coordinates array for booking:', booking);
+                        return;
+                    }
+                } else if (typeof booking.coordinates === 'object') {
+                    // Object format {latitude: x, longitude: y} or {lat: x, lng: y}
+                    lat = booking.coordinates.latitude || booking.coordinates.lat;
+                    lng = booking.coordinates.longitude || booking.coordinates.lng;
+                    
+                    if (!lat || !lng) {
+                        console.warn('Invalid coordinates object for booking:', booking);
+                        return;
+                    }
+                } else {
+                    console.warn('Unknown coordinates format for booking:', booking);
+                    return;
+                }
                 
                 const marker = L.marker([lat, lng], { icon: this.bookedHotelIcon })
                     .bindPopup(this.createBookedHotelPopup(booking))
@@ -384,13 +468,31 @@ class displayHotel {
 
     // Create popup for booked hotels
     createBookedHotelPopup(booking) {
+        // Handle potential missing tripDates
+        let tripDatesDisplay = 'Date information not available';
+        if (booking.tripDates && booking.tripDates.startDate && booking.tripDates.endDate) {
+            tripDatesDisplay = `${booking.tripDates.startDate} to ${booking.tripDates.endDate}`;
+        } else if (booking.stayDate) {
+            // Fallback to single stay date if available
+            tripDatesDisplay = `Stay date: ${booking.stayDate}`;
+        } else if (booking.checkInDate && booking.checkOutDate) {
+            // Fallback to check-in/out dates if available
+            tripDatesDisplay = `${booking.checkInDate} to ${booking.checkOutDate}`;
+        }
+        
+        // Handle potential missing days
+        const daysDisplay = booking.days || 'Not specified';
+        
+        // Handle potential missing province
+        const provinceDisplay = booking.province || 'Unknown';
+        
         return `
             <div class="popup-content booked-hotel-popup">
                 <h4><i class="fas fa-check-circle" style="color: #10b981;"></i> ${booking.name}</h4>
                 <p><strong>Address:</strong> ${booking.address}</p>
-                <p><strong>Province:</strong> ${booking.province}</p>
-                <p><strong>Booked Days:</strong> ${booking.days}</p>
-                <p><strong>Trip Dates:</strong> ${booking.tripDates.startDate} to ${booking.tripDates.endDate}</p>
+                <p><strong>Province:</strong> ${provinceDisplay}</p>
+                <p><strong>Booked Days:</strong> ${daysDisplay}</p>
+                <p><strong>Trip Dates:</strong> ${tripDatesDisplay}</p>
                 <p><strong>Status:</strong> <span style="color: #10b981; font-weight: bold;">BOOKED</span></p>
                 
                 <div class="booked-hotel-actions">

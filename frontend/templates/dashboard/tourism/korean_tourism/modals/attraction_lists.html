@@ -8,7 +8,7 @@
     <div class="scroller-wrapper">
         <div id="scroller">
             <!-- Attraction Card 1 -->
-            <div class="attraction-card">
+            <div class="attraction-card" data-attraction-id="gyeongbokgung_palace" data-attraction-name="Gyeongbokgung Palace" data-province="Seoul" data-coordinates="126.9770,37.5789">
                 <div class="attraction-image">
                     <img src="https://images.unsplash.com/photo-1578911373434-0cb395d2cbfb?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Gyeongbokgung Palace">
                     <div class="attraction-rating">
@@ -28,7 +28,7 @@
             </div>
 
             <!-- Attraction Card 2 -->
-            <div class="attraction-card">
+            <div class="attraction-card" data-attraction-id="namsan_tower" data-attraction-name="Namsan Tower" data-province="Seoul" data-coordinates="126.9882,37.5512">
                 <div class="attraction-image">
                     <img src="https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Namsan Tower">
                     <div class="attraction-rating">
@@ -48,7 +48,7 @@
             </div>
 
             <!-- Attraction Card 3 -->
-            <div class="attraction-card">
+            <div class="attraction-card" data-attraction-id="bukchon_hanok_village" data-attraction-name="Bukchon Hanok Village" data-province="Seoul" data-coordinates="126.9834,37.5824">
                 <div class="attraction-image">
                     <img src="https://images.unsplash.com/photo-1549220088-d2645ec37715?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Bukchon Hanok Village">
                     <div class="attraction-rating">
@@ -68,7 +68,7 @@
             </div>
 
             <!-- Attraction Card 4 -->
-            <div class="attraction-card">
+            <div class="attraction-card" data-attraction-id="lotte_world_tower" data-attraction-name="Lotte World Tower" data-province="Seoul" data-coordinates="127.1025,37.5125">
                 <div class="attraction-image">
                     <img src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Lotte World Tower">
                     <div class="attraction-rating">
@@ -88,7 +88,7 @@
             </div>
 
             <!-- Attraction Card 5 -->
-            <div class="attraction-card">
+            <div class="attraction-card" data-attraction-id="jeju_hallasan" data-attraction-name="Jeju Hallasan" data-province="Jeju" data-coordinates="126.5311,33.3617">
                 <div class="attraction-image">
                     <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Jeju Hallasan">
                     <div class="attraction-rating">
@@ -577,6 +577,50 @@
         z-index: 10 !important;
     }
     
+    /* Blocked/Disabled state for already selected attractions */
+    #horizontal-attraction-overlay .attraction-card.blocked {
+        opacity: 0.5 !important;
+        pointer-events: none !important;
+        cursor: not-allowed !important;
+        background: rgba(108, 117, 125, 0.1) !important;
+        border-color: #6c757d !important;
+        transform: none !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-card.blocked::before {
+        content: '🔒' !important;
+        position: absolute !important;
+        top: 6px !important;
+        right: 6px !important;
+        background: #6c757d !important;
+        color: white !important;
+        width: 18px !important;
+        height: 18px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: bold !important;
+        font-size: 10px !important;
+        z-index: 10 !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-card.blocked .attraction-info h3 {
+        color: #6c757d !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-card.blocked .attraction-price {
+        background: rgba(108, 117, 125, 0.2) !important;
+        color: #6c757d !important;
+    }
+    
+    #horizontal-attraction-overlay .attraction-card.blocked:hover {
+        transform: none !important;
+        border-color: #6c757d !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    }
+    
     #horizontal-attraction-overlay .attraction-image {
         position: relative !important;
         width: 100% !important;
@@ -840,4 +884,381 @@ function closeHorizontalAttractionOverlay() {
         overlay.style.display = 'none';
     }
 }
+
+// Function to ensure displayAttractionInstance is available
+function ensureDisplayAttractionInstance() {
+    if (!window.displayAttractionInstance) {
+        console.log('🔄 Creating displayAttractionInstance...');
+        
+        if (typeof displayAttraction !== 'undefined') {
+            let mapInstance = window.map || window.leafletMap || window.myMap || null;
+            window.displayAttractionInstance = new displayAttraction(mapInstance);
+            
+            if (mapInstance) {
+                console.log('✅ displayAttractionInstance created with map');
+            } else {
+                console.log('⚠️ displayAttractionInstance created without map, will initialize later');
+            }
+            
+            // Auto-sync with step process data if available
+            if (window.attractionDataForStepProcess && window.attractionDataForStepProcess.length > 0) {
+                console.log('🔄 Auto-syncing with step process attractions...');
+                window.displayAttractionInstance.syncAttractionsFromStepProcess();
+            }
+            
+            return true;
+        } else {
+            console.error('❌ displayAttraction class not available');
+            return false;
+        }
+    }
+    return true;
+}
+
+// Initialize attraction card functionality
+function initAttractionCards() {
+    // Ensure displayAttractionInstance is available before initializing cards
+    ensureDisplayAttractionInstance();
+    
+    const attractionCards = document.querySelectorAll('#horizontal-attraction-overlay .attraction-card');
+    
+    attractionCards.forEach((card, index) => {
+        // Skip if already has click listener
+        if (card.hasAttribute('data-listener-added')) return;
+        
+        card.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Skip if card is blocked
+            if (card.classList.contains('blocked')) {
+                console.log('❌ Attraction card is blocked/disabled');
+                return;
+            }
+            
+            handleAttractionCardClick(card, index);
+        });
+        
+        // Mark as having listener added
+        card.setAttribute('data-listener-added', 'true');
+    });
+    
+    // Update blocked states based on existing selections
+    updateAttractionCardStates();
+}
+
+// Handle attraction card click
+function handleAttractionCardClick(card, index) {
+    const attractionId = parseInt(card.getAttribute('data-attraction-id')) || index;
+    const attractionName = card.getAttribute('data-attraction-name') || card.querySelector('h3')?.textContent || 'Unknown Attraction';
+    const province = card.getAttribute('data-province') || 'Unknown Province';
+    const coordinates = card.getAttribute('data-coordinates') || '126.9780,37.5665';
+    
+    console.log(`🎯 Horizontal attraction card clicked: ${attractionName} (ID: ${attractionId})`);
+    console.log(`📍 Card coordinates: ${coordinates}`);
+    
+    // Ensure displayAttractionInstance is available
+    if (!ensureDisplayAttractionInstance()) {
+        console.error('❌ Failed to create displayAttractionInstance, using fallback');
+        handleBasicCardSelection(card, attractionName);
+        return;
+    }
+    
+    console.log('✅ displayAttractionInstance is ready');
+    
+    // Sync attractions from step process if needed (ensures markers exist)
+    if (window.displayAttractionInstance.attractionMarkers.length === 0 && window.attractionDataForStepProcess) {
+        console.log('🔄 Syncing attractions from step process to displayAttraction instance...');
+        window.displayAttractionInstance.syncAttractionsFromStepProcess();
+    }
+    
+    // Check if attraction is already selected in the system
+    const isCurrentlySelected = window.displayAttractionInstance.isAttractionSelected(attractionId);
+    
+    if (isCurrentlySelected) {
+        // Deselect the attraction
+        console.log(`🔴 Deselecting attraction: ${attractionName}`);
+        
+        // Use the enhanced cancelAttractionSelection method
+        const success = window.displayAttractionInstance.cancelAttractionSelection(attractionId);
+        
+        if (success) {
+            console.log(`✅ Successfully deselected ${attractionName}`);
+            
+            // Update card visual state
+            card.classList.remove('selected', 'blocked');
+            
+            // Force marker update to red
+            setTimeout(() => {
+                if (window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList) {
+                    window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(
+                        attractionId, 
+                        attractionName, 
+                        false
+                    );
+                }
+            }, 50);
+            
+            // Also remove from step process selection data to keep everything in sync
+            if (window.selectedAttractionsData && Array.isArray(window.selectedAttractionsData)) {
+                const stepProcessIndex = window.selectedAttractionsData.findIndex(sel => 
+                    (sel.id === attractionId || sel.id === parseInt(attractionId)) ||
+                    sel.name === attractionName
+                );
+                
+                if (stepProcessIndex !== -1) {
+                    window.selectedAttractionsData.splice(stepProcessIndex, 1);
+                    console.log(`✅ Removed ${attractionName} from step process selection data`);
+                }
+            }
+            
+            // Update other cards that might now be unblocked
+            updateAttractionCardStates();
+            
+            // Refresh horizontal cards
+            if (typeof window.displayAttractionInstance.refreshHorizontalAttractionCards === 'function') {
+                window.displayAttractionInstance.refreshHorizontalAttractionCards();
+            }
+            
+            console.log(`🔄 ${attractionName} deselected successfully`);
+        }
+        
+    } else {
+        // Check maximum selection limit
+        const selectedAttractions = window.displayAttractionInstance.getSelectedAttractions();
+        const maxAttractions = 5; // Adjust as needed
+        
+        if (selectedAttractions.length >= maxAttractions) {
+            console.warn(`⚠️ Maximum ${maxAttractions} attractions already selected`);
+            // Update card states to show blocking
+            updateAttractionCardStates();
+            return;
+        }
+        
+        // Select the attraction using the enhanced method
+        console.log(`🟢 Selecting attraction: ${attractionName}`);
+        
+        // Use the selectAttractionFromHorizontalList method for better integration
+        const success = window.displayAttractionInstance.selectAttractionFromHorizontalList(
+            attractionId, 
+            attractionName, 
+            province, 
+            coordinates,
+            2 // Default 2 hours
+        );
+        
+        if (success) {
+            console.log(`✅ Successfully selected ${attractionName}`);
+            
+            // Update card visual state
+            card.classList.add('selected');
+            card.classList.remove('blocked');
+            
+            // Force marker update to green with multiple attempts
+            setTimeout(() => {
+                console.log(`🔄 Updating marker for ${attractionName} to green...`);
+                if (window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList) {
+                    window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(
+                        attractionId, 
+                        attractionName, 
+                        true
+                    );
+                }
+                
+                // Also trigger a full refresh
+                if (window.displayAttractionInstance.refreshAttractionDisplay) {
+                    window.displayAttractionInstance.refreshAttractionDisplay();
+                }
+            }, 50);
+            
+            // Additional marker update with longer delay
+            setTimeout(() => {
+                console.log(`🔄 Secondary marker update for ${attractionName}...`);
+                if (window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList) {
+                    window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(
+                        attractionId, 
+                        attractionName, 
+                        true
+                    );
+                }
+            }, 200);
+            
+            // Final force refresh to ensure marker updates
+            setTimeout(() => {
+                console.log(`🔄 Final force refresh for ${attractionName}...`);
+                if (window.displayAttractionInstance.forceMarkerRefresh) {
+                    window.displayAttractionInstance.forceMarkerRefresh(
+                        attractionId, 
+                        attractionName, 
+                        true
+                    );
+                }
+            }, 500);
+            
+            // Also update the step process selection data to keep everything in sync
+            if (!window.selectedAttractionsData) {
+                window.selectedAttractionsData = [];
+            }
+            
+            // Find the attraction data from the step process
+            const stepProcessAttraction = window.attractionDataForStepProcess?.find(attr => 
+                (attr.id === attractionId || attr.id === parseInt(attractionId)) ||
+                attr.name === attractionName
+            );
+            
+            if (stepProcessAttraction) {
+                // Add to step process selection if not already there
+                const existsInStepProcess = window.selectedAttractionsData.some(sel => 
+                    sel.id === stepProcessAttraction.id || sel.name === stepProcessAttraction.name
+                );
+                
+                if (!existsInStepProcess) {
+                    window.selectedAttractionsData.push(stepProcessAttraction);
+                    console.log(`✅ Added ${attractionName} to step process selection data`);
+                }
+            }
+            
+            // Update other cards that might now be blocked
+            updateAttractionCardStates();
+            
+            // Refresh horizontal cards
+            if (typeof window.displayAttractionInstance.refreshHorizontalAttractionCards === 'function') {
+                window.displayAttractionInstance.refreshHorizontalAttractionCards();
+            }
+            
+            console.log(`🔄 ${attractionName} selected successfully`);
+        } else {
+            console.warn(`⚠️ Failed to select attraction: ${attractionName}`);
+        }
+    }
+    
+    // Auto-hide overlay after selection with longer delay to see feedback
+    setTimeout(() => {
+        closeHorizontalAttractionOverlay();
+    }, 2000);
+}
+
+// Fallback basic card selection for when displayAttraction instance is not available
+function handleBasicCardSelection(card, attractionName) {
+    const isSelected = card.classList.contains('selected');
+    
+    if (isSelected) {
+        card.classList.remove('selected');
+        console.log(`🔴 Basic deselection: ${attractionName}`);
+    } else {
+        // Remove selection from other cards (single selection mode)
+        document.querySelectorAll('#horizontal-attraction-overlay .attraction-card.selected').forEach(otherCard => {
+            otherCard.classList.remove('selected');
+        });
+        
+        card.classList.add('selected');
+        console.log(`🟢 Basic selection: ${attractionName}`);
+    }
+}
+
+// Update attraction card states based on current selections
+function updateAttractionCardStates() {
+    const attractionCards = document.querySelectorAll('#horizontal-attraction-overlay .attraction-card');
+    
+    // Ensure displayAttractionInstance is available
+    if (!ensureDisplayAttractionInstance()) {
+        console.log('⚠️ Could not create displayAttractionInstance, skipping card state updates');
+        return;
+    }
+    
+    const selectedAttractions = window.displayAttractionInstance.selectedAttractions || [];
+    console.log(`🔄 Updating ${attractionCards.length} attraction cards, ${selectedAttractions.length} selected attractions`);
+    
+    attractionCards.forEach((card, index) => {
+        const attractionId = card.getAttribute('data-attraction-id') || `attraction_${index}`;
+        const attractionName = card.getAttribute('data-attraction-name') || card.querySelector('h3')?.textContent;
+        
+        // Reset all classes first
+        card.classList.remove('selected', 'blocked');
+        
+        // Check if this attraction is selected
+        const isSelected = selectedAttractions.some(selected => 
+            selected.id === attractionId || 
+            selected.id === String(attractionId) ||
+            parseInt(selected.id) === parseInt(attractionId) ||
+            selected.name === attractionName
+        );
+        
+        if (isSelected) {
+            card.classList.add('selected');
+            console.log(`✅ Card marked as selected: ${attractionName}`);
+        } else {
+            // Check if we should block this card
+            const maxSelections = 5; // Maximum attractions limit
+            if (selectedAttractions.length >= maxSelections) {
+                card.classList.add('blocked');
+                console.log(`🔒 Card marked as blocked: ${attractionName}`);
+            }
+        }
+    });
+}
+
+// Show selection feedback (removed alert notifications - using console logs only)
+function showSelectionFeedback(attractionName, isSelected) {
+    const message = isSelected 
+        ? `✓ ${attractionName} added to your trip (2 hours)` 
+        : `✗ ${attractionName} removed from your trip`;
+    
+    // Log to console instead of showing notifications
+    console.log(`🔔 Selection feedback: ${message}`);
+    
+    // No visual notifications as requested
+}
+
+// Initialize when overlay is shown
+document.addEventListener('DOMContentLoaded', function() {
+    // Ensure displayAttractionInstance is available early
+    ensureDisplayAttractionInstance();
+    
+    // Initialize on first load
+    setTimeout(initAttractionCards, 500);
+    
+    // Listen for refresh events from displayAttraction instance
+    document.addEventListener('refreshAttractionCards', function(e) {
+        console.log('🔄 Refreshing attraction cards from displayAttraction instance');
+        updateAttractionCardStates();
+    });
+    
+    // Re-initialize when overlay is shown (in case it's dynamically loaded)
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                const overlay = document.getElementById('horizontal-attraction-overlay');
+                if (overlay && overlay.style.display !== 'none') {
+                    setTimeout(() => {
+                        ensureDisplayAttractionInstance();
+                        initAttractionCards();
+                        updateAttractionCardStates();
+                    }, 100);
+                }
+            }
+        });
+    });
+    
+    const overlay = document.getElementById('horizontal-attraction-overlay');
+    if (overlay) {
+        observer.observe(overlay, { attributes: true });
+    }
+});
+
+// Add slide-in animation CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+`;
+document.head.appendChild(style);
 </script>

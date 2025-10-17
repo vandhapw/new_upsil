@@ -555,7 +555,7 @@
         </div>
 
         <!-- Step 5: Current Activity History -->
-        <div class="step-item" data-step="5">
+        <!-- <div class="step-item" data-step="5">
             <div class="step-circle">
                 <i class="fas fa-history"></i>
             </div>
@@ -565,20 +565,20 @@
                     View Current Activity <i class="fa-solid fa-eye"></i>
                 </button>
             </div>
-        </div>
+        </div> -->
 
         <!-- Step 6: Database History -->
-        <div class="step-item" data-step="6">
+        <!-- <div class="step-item" data-step="6">
             <div class="step-circle">
-                <i class="fas fa-database"></i>
-            </div>
-            <div class="step-content">
+                <i class="fas fa-database"></i> -->
+            <!-- </div> -->
+            <!-- <div class="step-content">
                 <h5>Trip History</h5>
                 <button type="button" id="databaseHistory" class="btn btn-secondary" onclick="showDatabaseHistory()">
                     View Trip History <i class="fa-solid fa-archive"></i>
                 </button>
-            </div>
-        </div>
+            </div> -->
+        <!-- </div> -->
     </div>
 
     <div class="step-navigation">
@@ -822,6 +822,15 @@ async function fetchHotelsForStepProcess() {
         
         console.log(`Processed ${hotels.length} hotels for step process`);
         
+        // Debug: Log province data that might be causing coordinate override
+        console.log(`🌍 Province data being used for fallbacks:`, window.selectedProvinceData);
+        if (window.selectedProvinceData?.geometry?.coordinates) {
+            console.log(`🌍 Province geometry coordinates: [${window.selectedProvinceData.geometry.coordinates[0]}, ${window.selectedProvinceData.geometry.coordinates[1]}]`);
+        }
+        if (window.selectedProvinceData?.lat && window.selectedProvinceData?.lng) {
+            console.log(`🌍 Province lat/lng properties: [${window.selectedProvinceData.lat}, ${window.selectedProvinceData.lng}]`);
+        }
+        
         // Display hotels in step process
         displayHotelsInStepProcess(hotels);
         
@@ -942,6 +951,97 @@ function extractHotelAmenities(properties) {
 // Function to display hotels in step process
 function displayHotelsInStepProcess(hotels) {
     console.log('✅ Displaying hotels in step process...');
+    
+    // Normalize coordinates for consistency between horizontal list and map markers
+    hotels = hotels.map(hotel => {
+        console.log(`🔧 Normalizing coordinates for step process hotel: ${hotel.name}`);
+        console.log(`📊 Original hotel coordinate data:`, {
+            name: hotel.name,
+            latitude: hotel.latitude,
+            longitude: hotel.longitude,
+            lat: hotel.lat,
+            lng: hotel.lng,
+            coordinates: hotel.coordinates
+        });
+        
+        let lat = hotel.latitude;
+        let lng = hotel.longitude;
+        
+        console.log(`📍 Initial extracted coordinates: lat=${lat}, lng=${lng}`);
+        
+        // Be VERY conservative about using fallback coordinates - only if truly missing or invalid
+        if (lat === null || lng === null || lat === undefined || lng === undefined || 
+            isNaN(lat) || isNaN(lng) || 
+            (lat === 0 && lng === 0)) {
+            
+            console.warn(`⚠️ Truly invalid coordinates for ${hotel.name} (lat=${lat}, lng=${lng}), attempting fallback`);
+            
+            // Use province coordinates as fallback ONLY if absolutely necessary
+            // BUT first check if province coords are Seoul coords - if so, skip fallback entirely
+            let fallbackLat = null;
+            let fallbackLng = null;
+            
+            if (window.selectedProvinceData?.geometry?.coordinates) {
+                fallbackLng = window.selectedProvinceData.geometry.coordinates[0];
+                fallbackLat = window.selectedProvinceData.geometry.coordinates[1];
+            } else if (window.selectedProvinceData?.lat && window.selectedProvinceData?.lng) {
+                fallbackLat = window.selectedProvinceData.lat;
+                fallbackLng = window.selectedProvinceData.lng;
+            }
+            
+            // Check if fallback coords are Seoul coords (37.5665, 126.978) - if so, reject them
+            const isSeoulCoords = (Math.abs(fallbackLat - 37.5665) < 0.01) && (Math.abs(fallbackLng - 126.978) < 0.01);
+            
+            if (isSeoulCoords) {
+                console.error(`🚫 Rejecting Seoul coordinates as fallback for ${hotel.name}. Setting to null.`);
+                lat = null;
+                lng = null;
+            } else if (fallbackLat && fallbackLng && !isNaN(fallbackLat) && !isNaN(fallbackLng)) {
+                lat = fallbackLat;
+                lng = fallbackLng;
+                console.log(`📍 Using valid province fallback coordinates: lat=${lat}, lng=${lng}`);
+                
+                // Add small offset to avoid overlapping
+                const offsetRange = 0.01;
+                lat += (Math.random() - 0.5) * offsetRange;
+                lng += (Math.random() - 0.5) * offsetRange;
+                console.log(`📍 Added offset for ${hotel.name}: lat=${lat}, lng=${lng}`);
+            } else {
+                console.error(`❌ No valid fallback coordinates available for ${hotel.name}`);
+                lat = null;
+                lng = null;
+            }
+        } else {
+            console.log(`✅ Valid coordinates for ${hotel.name}: lat=${lat}, lng=${lng} - NOT using fallback`);
+        }
+        
+        // Ensure coordinates are numbers
+        lat = parseFloat(lat) || 0;
+        lng = parseFloat(lng) || 0;
+        
+        console.log(`📍 Final processed coordinates for ${hotel.name}: lat=${lat}, lng=${lng}`);
+        
+        // Standardize coordinate format for compatibility with displayHotel.js
+        return {
+            ...hotel,
+            latitude: lat,
+            longitude: lng,
+            lat: lat,
+            lng: lng,
+            coordinates: {
+                latitude: lat,
+                longitude: lng
+            },
+            // Also provide array format for displayHotel.js compatibility
+            coordsArray: [lng, lat]
+        };
+    });
+    
+    console.log(`✅ Normalized coordinates for ${hotels.length} hotels in step process`);
+    
+    // Store hotel data globally for debugging
+    window.hotelDataForStepProcess = hotels;
+    console.log('📊 Stored hotel data globally for debugging:', window.hotelDataForStepProcess);
     
     // Show the hotels container with message
     const hotelsContainer = document.getElementById('hotels-container');
@@ -1114,8 +1214,27 @@ function populateHorizontalOverlayWithStepHotels(hotels) {
     
     // Populate with API hotels using the existing horizontal list structure
     hotels.forEach((hotel, index) => {
-        console.log(`Creating hotel card ${index + 1}:`, hotel.name);
+        console.log(`🏨 Creating horizontal card ${index + 1}/${hotels.length} for: ${hotel.name}`);
+        console.log(`📍 Hotel coordinates before card creation:`, {
+            latitude: hotel.latitude,
+            longitude: hotel.longitude,
+            coordinates: hotel.coordinates,
+            coordsArray: hotel.coordsArray
+        });
+        
         const hotelCard = createHorizontalHotelCardForStep(hotel, index);
+        
+        // Verify coordinate storage after card creation
+        const storedData = getCoordinateDataFromCard(hotelCard);
+        if (storedData) {
+            console.log(`✅ Coordinates successfully stored in card for ${hotel.name}:`, {
+                latitude: storedData.latitude,
+                longitude: storedData.longitude
+            });
+        } else {
+            console.warn(`⚠️ Failed to store coordinates in card for ${hotel.name}`);
+        }
+        
         scroller.appendChild(hotelCard);
     });
     
@@ -1136,9 +1255,50 @@ function populateHorizontalOverlayWithStepHotels(hotels) {
 
 // Function to create hotel card for horizontal overlay (matching existing structure)
 function createHorizontalHotelCardForStep(hotel, index) {
+    console.log(`🏨 Creating horizontal card for hotel: ${hotel.name}`);
+    console.log('📊 Hotel coordinate data received:', {
+        name: hotel.name,
+        latitude: hotel.latitude,
+        longitude: hotel.longitude,
+        lat: hotel.lat,
+        lng: hotel.lng,
+        coordinates: hotel.coordinates,
+        coordsArray: hotel.coordsArray
+    });
+    
     const div = document.createElement('div');
     div.className = 'hotel-card api-loaded';
     div.dataset.hotelId = hotel.id || index;
+    
+    // Store comprehensive coordinate data in the DOM element for easy access
+    const coordinateData = {
+        // Primary coordinates (normalized from displayHotelsInStepProcess)
+        latitude: hotel.latitude,
+        longitude: hotel.longitude,
+        lat: hotel.lat,
+        lng: hotel.lng,
+        
+        // Coordinates object format (from normalization)
+        coordinates: hotel.coordinates || {
+            latitude: hotel.latitude,
+            longitude: hotel.longitude
+        },
+        
+        // Array format for displayHotel.js compatibility
+        coordsArray: hotel.coordsArray || [hotel.longitude, hotel.latitude],
+        
+        // Store original hotel data for reference
+        originalData: hotel
+    };
+    
+    // Store coordinate data as JSON in dataset for easy retrieval
+    div.dataset.coordinates = JSON.stringify(coordinateData);
+    
+    // Also store individual coordinate values for quick access
+    div.dataset.latitude = hotel.latitude;
+    div.dataset.longitude = hotel.longitude;
+    
+    console.log(`📍 Stored coordinate data in card for ${hotel.name}:`, coordinateData);
     
     // Generate amenity icons (matching existing structure)
     const amenities = hotel.amenities || ['WiFi', 'Pool', 'Spa', 'Gym'];
@@ -1179,10 +1339,29 @@ function createHorizontalHotelCardForStep(hotel, index) {
         </div>
     `;
     
-    // Add click handler for hotel selection
+    // Store the enhanced hotel data object directly on the DOM element
+    div._hotelData = {
+        ...hotel,
+        ...coordinateData
+    };
+    
+    // Add click handler for hotel selection with enhanced coordinate data
     div.addEventListener('click', function() {
-        selectHotelFromStepProcess(hotel, div, index);
+        // Retrieve the enhanced hotel data with stored coordinates
+        const enhancedHotel = div._hotelData || hotel;
+        
+        console.log(`🎯 Hotel card clicked: ${enhancedHotel.name}`);
+        console.log('📍 Coordinates available for selection:', {
+            latitude: enhancedHotel.latitude,
+            longitude: enhancedHotel.longitude,
+            coordinates: enhancedHotel.coordinates,
+            coordsArray: enhancedHotel.coordsArray
+        });
+        
+        selectHotelFromStepProcess(enhancedHotel, div, index);
     });
+    
+    console.log(`✅ Created horizontal card for ${hotel.name} with stored coordinate data`);
     
     return div;
 }
@@ -1238,17 +1417,96 @@ function selectHotelFromStepProcess(hotel, cardElement, index) {
             return;
         }
         
-        // Hotel is not selected, add it - ensure all coordinate data is preserved
+        // Hotel is not selected, add it - ensure normalized coordinates are used
+        console.log(`🔧 Processing hotel coordinates for: ${hotel.name}`);
+        console.log('📊 Original hotel coordinate data:', {
+            name: hotel.name,
+            latitude: hotel.latitude,
+            longitude: hotel.longitude,
+            lat: hotel.lat,
+            lng: hotel.lng,
+            coordinates: hotel.coordinates,
+            coordsArray: hotel.coordsArray,
+            coordinatesType: Array.isArray(hotel.coordinates) ? 'array' : typeof hotel.coordinates,
+            coordinatesLength: Array.isArray(hotel.coordinates) ? hotel.coordinates.length : 'N/A'
+        });
+        
+        // Extract coordinates from multiple possible formats
+        let finalLat = hotel.latitude || hotel.lat;
+        let finalLng = hotel.longitude || hotel.lng;
+        
+        console.log(`🔍 Initial coordinate extraction for ${hotel.name}:`, {
+            finalLat, 
+            finalLng,
+            hotelLatitude: hotel.latitude,
+            hotelLongitude: hotel.longitude,
+            hotelLat: hotel.lat,
+            hotelLng: hotel.lng,
+            coordinatesType: typeof hotel.coordinates,
+            coordinatesIsArray: Array.isArray(hotel.coordinates),
+            coordinates: hotel.coordinates
+        });
+        
+        // Check if coordinates is an array format [lng, lat] or [lat, lng]
+        if (hotel.coordinates && Array.isArray(hotel.coordinates) && hotel.coordinates.length >= 2) {
+            // Array format - assume [lng, lat] based on GeoJSON standard
+            finalLng = hotel.coordinates[0];
+            finalLat = hotel.coordinates[1];
+            console.log(`📍 Extracted from coordinates array: [${finalLng}, ${finalLat}]`);
+        }
+        // Check if coordinates is an object with latitude/longitude properties (FROM STEP PROCESS NORMALIZATION)
+        else if (hotel.coordinates && typeof hotel.coordinates === 'object' && !Array.isArray(hotel.coordinates)) {
+            // The normalization in displayHotelsInStepProcess creates {latitude: ..., longitude: ...} format
+            if (hotel.coordinates.latitude !== undefined && hotel.coordinates.longitude !== undefined) {
+                finalLat = hotel.coordinates.latitude;
+                finalLng = hotel.coordinates.longitude;
+                console.log(`📍 Extracted from normalized coordinates object: {lat: ${finalLat}, lng: ${finalLng}}`);
+            } else {
+                // Fallback for other object formats
+                finalLat = hotel.coordinates.lat || hotel.coordinates.latitude || finalLat;
+                finalLng = hotel.coordinates.lng || hotel.coordinates.longitude || finalLng;
+                console.log(`📍 Extracted from generic coordinates object: {lat: ${finalLat}, lng: ${finalLng}}`);
+            }
+        }
+        // Check coordsArray if available (from normalization)
+        else if (hotel.coordsArray && Array.isArray(hotel.coordsArray) && hotel.coordsArray.length >= 2) {
+            finalLng = hotel.coordsArray[0];
+            finalLat = hotel.coordsArray[1];
+            console.log(`📍 Extracted from coordsArray: [${finalLng}, ${finalLat}]`);
+        }
+        
+        console.log(`📍 Extracted coordinates for ${hotel.name}: lat=${finalLat}, lng=${finalLng}`);
+        
+        // Validate and ensure we have numbers
+        finalLat = parseFloat(finalLat);
+        finalLng = parseFloat(finalLng);
+        
+        if (isNaN(finalLat) || isNaN(finalLng) || finalLat === null || finalLng === null || finalLat === undefined || finalLng === undefined) {
+            console.error(`❌ Invalid coordinates for hotel ${hotel.name}: lat=${finalLat}, lng=${finalLng}`);
+            console.error('📊 Full hotel data for debugging:', hotel);
+            alert(`Error: Invalid coordinates for hotel "${hotel.name}". Please try again.`);
+            return;
+        }
+        
+        console.log(`✅ Using valid coordinates for ${hotel.name}: [${finalLat}, ${finalLng}]`);
+        
         const hotelWithCoordinates = {
             ...hotel,
-            // Ensure coordinate data is preserved from original selection
-            latitude: hotel.latitude || hotel.coordinates?.latitude || hotel.lat,
-            longitude: hotel.longitude || hotel.coordinates?.longitude || hotel.lng || hotel.lon,
+            // Store in consistent format using extracted coordinates
+            latitude: finalLat,
+            longitude: finalLng,
+            lat: finalLat,
+            lng: finalLng,
             coordinates: {
-                latitude: hotel.latitude || hotel.coordinates?.latitude || hotel.lat,
-                longitude: hotel.longitude || hotel.coordinates?.longitude || hotel.lng || hotel.lon
+                latitude: finalLat,
+                longitude: finalLng
             },
-            // Preserve original geometry and properties for debugging
+            coordsArray: [finalLng, finalLat], // Array format for displayHotel.js compatibility
+            extractedCoords: {
+                latitude: finalLat,
+                longitude: finalLng,
+                source: 'horizontal_selection'
+            },
             geometry: hotel.geometry || {},
             properties: hotel.properties || {}
         };
@@ -1757,6 +2015,10 @@ function extractAttractionAmenities(properties) {
 function displayAttractionsInStepProcess(attractions) {
     console.log('✅ Displaying attractions in step process...');
     
+    // Store attractions globally for displayAttraction instance to access
+    window.attractionDataForStepProcess = attractions;
+    console.log('📊 Stored attractions globally for displayAttraction instance:', attractions.length);
+    
     // Show the attractions container with message
     const attractionsContainer = document.getElementById('attractions-container');
     if (attractionsContainer) {
@@ -1956,7 +2218,16 @@ function populateHorizontalOverlayWithStepAttractions(attractions) {
 function createHorizontalAttractionCardForStep(attraction, index) {
     const div = document.createElement('div');
     div.className = 'attraction-card api-loaded';
-    div.dataset.attractionId = attraction.id || index;
+    
+    // Use consistent ID system for both step process and displayAttraction
+    const attractionId = attraction.id || index;
+    div.dataset.attractionId = attractionId;
+    div.dataset.attractionName = attraction.name;
+    div.dataset.attractionProvince = attraction.province || 'Unknown Province';
+    div.dataset.attractionCoordinates = `${attraction.longitude},${attraction.latitude}`;
+    div.dataset.attractionHours = '2'; // default hours
+    
+    console.log(`🎯 Creating horizontal card with ID: ${attractionId}, Name: ${attraction.name}`);
     
     // Generate amenity icons (matching existing structure)
     const amenities = attraction.amenities || ['Scenic Views', 'Photo Opportunities', 'Walkable'];
@@ -2037,6 +2308,11 @@ function selectAttractionFromStepProcess(attraction, cardElement, index) {
         }
         
         console.log('🚫 Attraction removed from selection:', attraction.name);
+        
+        // Update marker in displayAttraction instance if available
+        if (window.displayAttractionInstance && typeof window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList === 'function') {
+            window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(attraction.id, attraction.name, false);
+        }
     } else {
         // Attraction is not selected, add it - ensure all coordinate data is preserved
         const attractionWithCoordinates = {
@@ -2094,6 +2370,11 @@ function selectAttractionFromStepProcess(attraction, cardElement, index) {
         }
         
         console.log('✅ Attraction added to selection:', attraction.name);
+        
+        // Update marker in displayAttraction instance if available
+        if (window.displayAttractionInstance && typeof window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList === 'function') {
+            window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(attraction.id, attraction.name, true);
+        }
     }
     
     // Update the step process button with count
@@ -3001,29 +3282,48 @@ function addHotelMarkersToMapFromStep(hotels) {
         
         // Add markers for each hotel
         hotels.forEach((hotel, index) => {
-            console.log(`Creating marker ${index + 1} for: ${hotel.name}`);
+            console.log(`🏨 Creating marker ${index + 1} for: ${hotel.name}`);
+            console.log(`📊 Hotel coordinate data:`, {
+                name: hotel.name,
+                latitude: hotel.latitude,
+                longitude: hotel.longitude,
+                lat: hotel.lat,
+                lng: hotel.lng,
+                coordinates: hotel.coordinates,
+                coordsArray: hotel.coordsArray
+            });
             
-            // Use hotel coordinates if available, otherwise use province center with slight offset
-            let lat = hotel.lat || hotel.latitude;
-            let lon = hotel.lon || hotel.longitude;
+            // Use normalized coordinates (should be available from displayHotelsInStepProcess)
+            let lat = hotel.latitude;
+            let lng = hotel.longitude;
             
-            if (!lat || !lon) {
-                // Fallback to province center with random offset
-                const baseLat = provinceData.lat || provinceData.properties?.lat;
-                const baseLon = provinceData.lon || provinceData.properties?.lon;
+            if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+                console.warn(`⚠️ Invalid coordinates for ${hotel.name}, attempting fallback`);
                 
-                if (baseLat && baseLon) {
-                    // Add small random offset to spread hotels around the province center
-                    const offsetRange = 0.01; // ~1km
-                    lat = baseLat + (Math.random() - 0.5) * offsetRange;
-                    lon = baseLon + (Math.random() - 0.5) * offsetRange;
-                    console.log(`📍 Using province center with offset: ${lat}, ${lon}`);
+                // Try alternative coordinate properties
+                lat = hotel.lat || hotel.coordinates?.latitude;
+                lng = hotel.lng || hotel.coordinates?.longitude;
+                
+                if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+                    // Final fallback to province center with random offset
+                    const baseLat = provinceData.lat || provinceData.properties?.lat;
+                    const baseLng = provinceData.lng || provinceData.properties?.lng;
+                    
+                    if (baseLat && baseLng) {
+                        // Add small random offset to spread hotels around the province center
+                        const offsetRange = 0.01; // ~1km
+                        lat = baseLat + (Math.random() - 0.5) * offsetRange;
+                        lng = baseLng + (Math.random() - 0.5) * offsetRange;
+                        console.log(`📍 Using province center with offset for ${hotel.name}: [${lat}, ${lng}]`);
+                    } else {
+                        console.error(`❌ No coordinates available for hotel: ${hotel.name}`);
+                        return;
+                    }
                 } else {
-                    console.warn(`❌ No coordinates available for hotel: ${hotel.name}`);
-                    return;
+                    console.log(`📍 Using alternative coordinate properties for ${hotel.name}: [${lat}, ${lng}]`);
                 }
             } else {
-                console.log(`📍 Using hotel coordinates: ${lat}, ${lon}`);
+                console.log(`📍 Using normalized coordinates for ${hotel.name}: [${lat}, ${lng}]`);
             }
             
             // Check if Leaflet is available
@@ -3048,13 +3348,32 @@ function addHotelMarkersToMapFromStep(hotels) {
             
             console.log(`✅ Created icon for hotel: ${hotel.name}`);
             
-            // Create marker
-            const marker = window.L.marker([lat, lon], { icon: hotelIcon }).addTo(mapInstance);
-            console.log(`✅ Added marker to map for: ${hotel.name}`);
+            // Create marker with proper coordinate format [latitude, longitude]
+            const marker = window.L.marker([lat, lng], { icon: hotelIcon }).addTo(mapInstance);
+            console.log(`✅ Added marker to map for: ${hotel.name} at coordinates [${lat}, ${lng}]`);
             
-            // Add data attributes for synchronization
-            marker._hotelData = hotel;
+            // Add data attributes for synchronization with normalized coordinates
+            const normalizedHotelData = {
+                ...hotel,
+                latitude: lat,
+                longitude: lng,
+                lat: lat,
+                lng: lng,
+                coordinates: {
+                    latitude: lat,
+                    longitude: lng
+                },
+                coordsArray: [lng, lat] // Array format for compatibility
+            };
+            
+            marker._hotelData = normalizedHotelData;
             marker._hotelIndex = index;
+            
+            console.log(`📍 Marker data assigned with normalized coordinates for ${hotel.name}:`, {
+                latitude: normalizedHotelData.latitude,
+                longitude: normalizedHotelData.longitude,
+                coordinates: normalizedHotelData.coordinates
+            });
             
             // Create contact info HTML
             const contactInfo = hotel.contact ? `
@@ -3109,7 +3428,7 @@ function addHotelMarkersToMapFromStep(hotels) {
                                 <span style="font-size: 18px; font-weight: bold; color: #e74c3c; margin: 0 3px;">${hotel.price || '$150'}</span>
                                 <span style="font-size: 12px; color: #6b7280;">/night</span>
                             </div>
-                            <button onclick="selectHotelFromPopup('${hotel.id || index}', '${hotel.name}', ${index})" 
+                            <button onclick="selectHotelFromPopup('${hotel.id || index}', '${hotel.name}', ${index}, {latitude: ${lat}, longitude: ${lng}})" 
                                     style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: transform 0.2s;"
                                     onmouseover="this.style.transform='scale(1.05)'" 
                                     onmouseout="this.style.transform='scale(1)'">
@@ -3198,19 +3517,32 @@ function highlightHotelInStepList(hotelId) {
 }
 
 // Function to select hotel from popup (called from map popup)
-function selectHotelFromPopup(hotelId, hotelName, hotelIndex) {
-    console.log(`Selecting hotel from popup: ${hotelName}`);
-    
-    // Initialize selected hotels array if it doesn't exist
-    if (!window.selectedHotelsData) {
-        window.selectedHotelsData = [];
+function selectHotelFromPopup(hotelId, hotelName, hotelIndex, hotelCoordinates) {
+    console.log(`🏨 selectHotelFromPopup called: ${hotelName}`);
+   
+    // Check if trip dates are selected first
+    const tripData = window.selectedDateTimeData || window.selectedDatetimeData;
+    if (!tripData || !tripData.startDate || !tripData.endDate) {
+        console.error('❌ No trip dates found');
+        alert('⚠️ Please select your travel dates first!');
+        return;
     }
     
-    // Get full hotel data from marker or create with coordinates
+    console.log('✅ Trip dates validated');
+    
+    // Check if modal function exists
+    if (typeof window.showHotelDateSelection !== 'function') {
+        console.error('❌ Modal function not available');
+        alert('⚠️ Date selection feature not available. Please refresh the page.');
+        return;
+    }
+    
+    // Get full hotel data from marker
     let hotel = {
         id: hotelId,
         name: hotelName,
-        index: hotelIndex
+        index: hotelIndex,
+        coordinates: hotelCoordinates
     };
     
     // Try to get full hotel data from the marker
@@ -3253,58 +3585,135 @@ function selectHotelFromPopup(hotelId, hotelName, hotelIndex) {
         }
     }
     
+    // Prepare hotel data for modal
+    const hotelData = {
+        id: hotel.id,
+        name: hotel.name,
+        address: hotel.address || 'Address not available',
+        coordinates: [hotel.longitude || 0, hotel.latitude || 0]
+    };
+    
+    console.log('� Hotel data prepared for modal:', hotelData);
+    
+    // Close the popup first
+    if (window.hotelMarkers && window.hotelMarkers[hotelIndex]) {
+        const marker = window.hotelMarkers[hotelIndex];
+        marker.closePopup();
+        console.log('✅ Closed hotel popup before opening modal');
+    }
+    
+    // Store hotel data and index for later use
+    window.currentPopupHotelData = hotel;
+    window.currentPopupHotelIndex = hotelIndex;
+    
+    // Show the hotel date selection modal
+    console.log('📅 Opening hotel date selection modalssss...');
+    console.log('hotel data for modal:', hotelData);
+    try {
+        window.showHotelDateSelection(hotelData, null);
+        console.log('✅ Modal opened successfully', hotelData);
+    } catch (error) {
+        console.error('❌ Error opening modal:', error);
+        alert('⚠️ Error opening date selection. Please try again.');
+    }
+}
+
+// Function to complete hotel selection from popup after date is chosen
+function completeHotelSelectionFromPopup(hotelData, selectedDate, dayNumber, checkOutDate = null) {
+    console.log(`🏨 Completing hotel selection: ${hotelData.name} for Day ${dayNumber}`);
+    
+    const hotelId = hotelData.id;
+    const hotelName = hotelData.name;
+    const hotelIndex = window.currentPopupHotelIndex;
+    
+    // Initialize selected hotels array if it doesn't exist
+    if (!window.selectedHotelsData) {
+        window.selectedHotelsData = [];
+    }
+    
+    // Get the stored hotel data
+    const hotel = window.currentPopupHotelData || {
+        id: hotelId,
+        name: hotelName,
+        index: hotelIndex
+    };
+    
+    // Normalize coordinates for consistent storage
+    if (hotel.latitude && hotel.longitude) {
+        // Already normalized
+    } else if (hotel.coordinates) {
+        hotel.latitude = hotel.coordinates.latitude;
+        hotel.longitude = hotel.coordinates.longitude;
+    } else if (hotel.lat && hotel.lng) {
+        hotel.latitude = hotel.lat;
+        hotel.longitude = hotel.lng;
+    } else if (hotel.lat && hotel.lon) {
+        hotel.latitude = hotel.lat;
+        hotel.longitude = hotel.lon;
+    }
+    
+    console.log(`📍 Hotel coordinates normalized: [${hotel.latitude}, ${hotel.longitude}]`);
+    
+    // Add date information to hotel data (support both single date and date range)
+    hotel.stayDate = selectedDate; // Keep for compatibility
+    hotel.dayNumber = dayNumber;
+    hotel.savedAt = new Date().toISOString();
+    
+    if (checkOutDate) {
+        // Date range booking
+        hotel.checkInDate = selectedDate;
+        hotel.checkOutDate = checkOutDate;
+        hotel.dateRange = `${formatDate(selectedDate)} to ${formatDate(checkOutDate)}`;
+        console.log(`🗓️ Date range: ${hotel.dateRange}`);
+    } else {
+        // Single date booking (fallback)
+        hotel.checkInDate = selectedDate;
+        hotel.checkOutDate = null;
+    }
+    
+    // Helper function to format date
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    }
+    
     // Check if hotel is already selected
     const existingIndex = window.selectedHotelsData.findIndex(h => h.id === hotelId);
     
     if (existingIndex !== -1) {
-        // Hotel is already selected, remove it
-        window.selectedHotelsData.splice(existingIndex, 1);
-        
-        // Remove selection from marker
-        if (window.hotelMarkers && window.hotelMarkers[hotelIndex]) {
-            const marker = window.hotelMarkers[hotelIndex];
-            const markerElement = marker.getElement();
-            
-            if (markerElement) {
-                markerElement.classList.remove('selected');
-                
-                // Restore original marker content
-                const markerContent = markerElement.querySelector('.hotel-marker-content');
-                if (markerContent) {
-                    markerContent.innerHTML = `<i class="fas fa-bed"></i> $100`;
-                }
-            }
-        }
-        
-        console.log('🚫 Hotel removed from popup selection:', hotelName);
+        // Hotel is already selected, update the date
+        window.selectedHotelsData[existingIndex] = hotel;
+        console.log('✅ Hotel date updated in popup selection:', hotelName);
     } else {
         // Hotel is not selected, add it
         window.selectedHotelsData.push(hotel);
-        
-        // Update the marker to selected state
-        if (window.hotelMarkers && window.hotelMarkers[hotelIndex]) {
-            const marker = window.hotelMarkers[hotelIndex];
-            const markerElement = marker.getElement();
-            
-            if (markerElement) {
-                markerElement.classList.add('selected');
-                
-                // Update marker content to show check icon
-                const markerContent = markerElement.querySelector('.hotel-marker-content');
-                if (markerContent) {
-                    markerContent.innerHTML = `<i class="fas fa-check"></i> Selected`;
-                }
-            }
-        }
-        
         console.log('✅ Hotel added from popup selection:', hotelName);
     }
     
-    // Close the popup after selection
+    // Update the marker to selected state
     if (window.hotelMarkers && window.hotelMarkers[hotelIndex]) {
         const marker = window.hotelMarkers[hotelIndex];
-        marker.closePopup();
-        console.log('✅ Closed hotel popup after selection');
+        const markerElement = marker.getElement();
+        
+        if (markerElement) {
+            markerElement.classList.add('selected');
+            
+            // Update marker content to show day number and range info
+            const markerContent = markerElement.querySelector('.hotel-marker-content, .marker-content');
+            if (markerContent) {
+                if (checkOutDate) {
+                    // Show date range
+                    markerContent.innerHTML = `<i class="fas fa-check"></i> Day ${dayNumber}`;
+                    markerContent.title = `${hotel.name} - ${hotel.dateRange}`;
+                } else {
+                    // Show single day
+                    markerContent.innerHTML = `<i class="fas fa-check"></i> Day ${dayNumber}`;
+                }
+                markerContent.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                markerContent.style.color = 'white';
+            }
+        }
     }
     
     // Update the hotel button with count
@@ -3326,14 +3735,41 @@ function selectHotelFromPopup(hotelId, hotelName, hotelIndex) {
     // Highlight the hotel in the horizontal list
     highlightHotelInStepList(hotelId);
     
-    // Store the selected hotel data
+    // Normalize and store coordinates
+    let normalizedCoords = null;
+    if (hotel.latitude && hotel.longitude) {
+        normalizedCoords = [hotel.latitude, hotel.longitude];
+    } else if (hotel.coordinates) {
+        normalizedCoords = [hotel.coordinates.latitude, hotel.coordinates.longitude];
+    } else if (hotel.lat && hotel.lng) {
+        normalizedCoords = [hotel.lat, hotel.lng];
+    }
+    
+    console.log(`📍 Normalized coordinates for ${hotelName}:`, normalizedCoords);
+    
+    // Store the selected hotel data with normalized coordinates
     window.selectedHotelData = {
         id: hotelId,
         name: hotelName,
-        index: hotelIndex
+        index: hotelIndex,
+        stayDate: selectedDate,
+        checkInDate: selectedDate,
+        checkOutDate: checkOutDate,
+        dayNumber: dayNumber,
+        dateRange: hotel.dateRange,
+        latitude: normalizedCoords ? normalizedCoords[0] : null,
+        longitude: normalizedCoords ? normalizedCoords[1] : null,
+        coordinates: normalizedCoords ? {
+            latitude: normalizedCoords[0],
+            longitude: normalizedCoords[1]
+        } : null
     };
     
-    console.log(`✅ Hotel selected: ${hotelName}`);
+    if (checkOutDate) {
+        console.log(`✅ Hotel selection completed: ${hotelName} for Day ${dayNumber} (${hotel.dateRange})`);
+    } else {
+        console.log(`✅ Hotel selection completed: ${hotelName} for Day ${dayNumber}`);
+    }
 }
 
 // Function to close horizontal hotel overlay
@@ -3359,6 +3795,7 @@ function closeHorizontalHotelOverlay() {
 // Make functions globally available
 window.closeHorizontalHotelOverlay = closeHorizontalHotelOverlay;
 window.selectHotelFromPopup = selectHotelFromPopup;
+window.completeHotelSelectionFromPopup = completeHotelSelectionFromPopup;
 
 // ============= SUBMIT PROCESS FUNCTIONALITY =============
 
@@ -3531,10 +3968,74 @@ function collectTripData() {
                 properties: hotel.properties || {},
                 // Preserve original coordinate fields with validation
                 latitude: parseFloat(latitude) || 0,
-                longitude: parseFloat(longitude) || 0
+                longitude: parseFloat(longitude) || 0,
+                
+                // Booking information with date range support
+                booking: {
+                    checkInDate: hotel.checkInDate || hotel.stayDate,
+                    checkOutDate: hotel.checkOutDate || null,
+                    dateRange: hotel.dateRange || (hotel.checkInDate && hotel.checkOutDate ? 
+                        `${formatDateForSubmit(hotel.checkInDate)} to ${formatDateForSubmit(hotel.checkOutDate)}` : 
+                        formatDateForSubmit(hotel.stayDate || hotel.checkInDate)),
+                    dayNumber: hotel.dayNumber,
+                    stayDate: hotel.stayDate || hotel.checkInDate, // Keep for backward compatibility
+                    isDateRange: !!(hotel.checkInDate && hotel.checkOutDate),
+                    savedAt: hotel.savedAt
+                },
+                
+                // Trip context
+                tripDates: hotel.tripDates || {
+                    startDate: tripData.dates?.raw?.startDate,
+                    endDate: tripData.dates?.raw?.endDate
+                }
             };
         });
+        
+        // Helper function to format dates for submission
+        function formatDateForSubmit(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+        
         console.log(`✅ Hotels data collected: ${tripData.hotels.length} hotels with coordinates`);
+        
+        // Generate detailed booking statistics
+        const hotelsWithDateRanges = tripData.hotels.filter(h => h.booking.isDateRange);
+        const totalBookingDays = tripData.hotels.reduce((total, hotel) => {
+            if (hotel.booking.checkInDate && hotel.booking.checkOutDate) {
+                const checkIn = new Date(hotel.booking.checkInDate);
+                const checkOut = new Date(hotel.booking.checkOutDate);
+                const diffTime = Math.abs(checkOut - checkIn);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                return total + diffDays;
+            }
+            return total + 1; // Single day booking
+        }, 0);
+        
+        // Add booking summary to hotels data
+        tripData.hotels.bookingSummary = {
+            totalHotels: tripData.hotels.length,
+            hotelsWithDateRanges: hotelsWithDateRanges.length,
+            totalBookingDays: totalBookingDays,
+            averageStayPerHotel: tripData.hotels.length > 0 ? (totalBookingDays / tripData.hotels.length).toFixed(1) : 0
+        };
+        
+        // Log detailed booking information
+        console.log('✅ Hotel booking details collected:');
+        console.log(`📊 Total hotels: ${tripData.hotels.length}`);
+        console.log(`📊 Hotels with date ranges: ${hotelsWithDateRanges.length}/${tripData.hotels.length}`);
+        console.log(`📊 Total booking days: ${totalBookingDays}`);
+        console.log(`📊 Average stay per hotel: ${tripData.hotels.bookingSummary.averageStayPerHotel} days`);
+        
+        // Log individual hotel booking details
+        tripData.hotels.forEach((hotel, index) => {
+            console.log(`🏨 Hotel ${index + 1}: ${hotel.name}`);
+            console.log(`   📅 Booking: ${hotel.booking.dateRange} (Day ${hotel.booking.dayNumber})`);
+            console.log(`   🏷️ ID: ${hotel.id}, Date Range: ${hotel.booking.isDateRange ? 'Yes' : 'No'}`);
+            console.log(`   📍 Coordinates: ${hotel.coordinates.latitude}, ${hotel.coordinates.longitude}`);
+        });
         
         // Log coordinate summary for hotels
         const hotelsWithCoords = tripData.hotels.filter(h => h.latitude && h.longitude && !isNaN(h.latitude) && !isNaN(h.longitude));
@@ -4821,162 +5322,61 @@ function removeAttractionFromActivity(attractionId) {
     }
 }
 
-// Function to select hotel dates when hotel is selected
+// Function to select hotel dates - wrapper for showHotelDateSelection
 function selectHotelDates(hotelId, hotelName) {
-    console.log(`📅 Selecting dates for hotel: ${hotelName}`);
+    console.log('🏨 selectHotelDates called for:', hotelName, 'ID:', hotelId);
     
-    // Check if travel dates are selected
-    const travelDates = window.selectedDateTimeData || window.selectedDatetimeData;
-    if (!travelDates || !travelDates.startDate || !travelDates.endDate) {
-        alert('Please select your travel dates first before choosing hotel stay dates!');
-        return;
+    // Find the hotel data from selected hotels or step process hotels
+    let hotelData = null;
+    
+    // First try to find in selectedHotelsData
+    if (window.selectedHotelsData && window.selectedHotelsData.length > 0) {
+        hotelData = window.selectedHotelsData.find(hotel => 
+            (hotel.id === hotelId || hotel.index === hotelId)
+        );
     }
     
-    const startDate = new Date(travelDates.startDate);
-    const endDate = new Date(travelDates.endDate);
-    const tripDuration = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-    
-    // Create hotel date selection modal
-    const modalContent = `
-        <div class="modal fade" id="hotelDateModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title">
-                            <i class="fas fa-calendar-alt me-2"></i>Select Hotel Stay Dates
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="hotel-info mb-3">
-                            <h6><i class="fas fa-hotel me-2 text-primary"></i>${hotelName}</h6>
-                            <p class="text-muted mb-0">
-                                Trip Duration: ${tripDuration} day${tripDuration > 1 ? 's' : ''} 
-                                (${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})
-                            </p>
-                        </div>
-                        
-                        <div class="date-selection">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="hotelCheckIn" class="form-label">Check-in Date</label>
-                                    <input type="date" class="form-control" id="hotelCheckIn" 
-                                           min="${travelDates.startDate}" 
-                                           max="${travelDates.endDate}"
-                                           value="${travelDates.startDate}">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="hotelCheckOut" class="form-label">Check-out Date</label>
-                                    <input type="date" class="form-control" id="hotelCheckOut" 
-                                           min="${travelDates.startDate}" 
-                                           max="${travelDates.endDate}"
-                                           value="${travelDates.endDate}">
-                                </div>
-                            </div>
-                            
-                            <div class="stay-duration mt-3">
-                                <div class="alert alert-info">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    <span id="stayDurationText">Stay duration will be calculated automatically</span>
-                                </div>
-                            </div>
-                            
-                            <div class="quick-select mt-3">
-                                <h6>Quick Select:</h6>
-                                <div class="btn-group-vertical w-100">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="selectFullTrip()">
-                                        <i class="fas fa-calendar-week me-2"></i>Full Trip Duration
-                                    </button>
-                                    ${tripDuration > 1 ? `
-                                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="selectFirstHalf()">
-                                            <i class="fas fa-calendar-day me-2"></i>First Half of Trip
-                                        </button>
-                                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="selectSecondHalf()">
-                                            <i class="fas fa-calendar-day me-2"></i>Second Half of Trip
-                                        </button>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" onclick="confirmHotelDates('${hotelId}', '${hotelName}')">
-                            <i class="fas fa-check me-2"></i>Confirm Dates
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Remove existing modal if any
-    const existingModal = document.getElementById('hotelDateModal');
-    if (existingModal) {
-        existingModal.remove();
+    // If not found, try to find in step process hotel data
+    if (!hotelData && window.stepProcessHotels && window.stepProcessHotels.length > 0) {
+        hotelData = window.stepProcessHotels.find(hotel => 
+            (hotel.id === hotelId || hotel.index === hotelId)
+        );
     }
     
-    // Add modal to page
-    document.body.insertAdjacentHTML('beforeend', modalContent);
-    
-    // Show modal
-    const modal = new bootstrap.Modal(document.getElementById('hotelDateModal'));
-    modal.show();
-    
-    // Add event listeners for date changes
-    const checkInInput = document.getElementById('hotelCheckIn');
-    const checkOutInput = document.getElementById('hotelCheckOut');
-    
-    function updateStayDuration() {
-        const checkIn = new Date(checkInInput.value);
-        const checkOut = new Date(checkOutInput.value);
-        const stayDuration = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
-        
-        const durationText = document.getElementById('stayDurationText');
-        if (stayDuration > 0) {
-            durationText.innerHTML = `Stay duration: <strong>${stayDuration} day${stayDuration > 1 ? 's' : ''}</strong>`;
-            durationText.parentElement.className = 'alert alert-success';
-        } else {
-            durationText.innerHTML = 'Please select valid dates (check-out must be after check-in)';
-            durationText.parentElement.className = 'alert alert-warning';
+    // If still not found, try to find by name
+    if (!hotelData) {
+        if (window.selectedHotelsData && window.selectedHotelsData.length > 0) {
+            hotelData = window.selectedHotelsData.find(hotel => hotel.name === hotelName);
+        }
+        if (!hotelData && window.stepProcessHotels && window.stepProcessHotels.length > 0) {
+            hotelData = window.stepProcessHotels.find(hotel => hotel.name === hotelName);
         }
     }
     
-    checkInInput.addEventListener('change', updateStayDuration);
-    checkOutInput.addEventListener('change', updateStayDuration);
+    if (!hotelData) {
+        console.warn('⚠️ Hotel data not found for:', hotelName, 'ID:', hotelId);
+        // Create basic hotel data if not found
+        hotelData = {
+            id: hotelId,
+            name: hotelName,
+            address: 'Address not available',
+            coordinates: {
+                latitude: 0,
+                longitude: 0
+            }
+        };
+    }
     
-    // Initial calculation
-    updateStayDuration();
-}
-
-// Supporting functions for hotel date selection
-function selectFullTrip() {
-    const travelDates = window.selectedDateTimeData || window.selectedDatetimeData;
-    document.getElementById('hotelCheckIn').value = travelDates.startDate;
-    document.getElementById('hotelCheckOut').value = travelDates.endDate;
-    document.getElementById('hotelCheckIn').dispatchEvent(new Event('change'));
-}
-
-function selectFirstHalf() {
-    const travelDates = window.selectedDateTimeData || window.selectedDatetimeData;
-    const startDate = new Date(travelDates.startDate);
-    const endDate = new Date(travelDates.endDate);
-    const midPoint = new Date(startDate.getTime() + (endDate.getTime() - startDate.getTime()) / 2);
+    console.log('📍 Found hotel data:', hotelData);
     
-    document.getElementById('hotelCheckIn').value = travelDates.startDate;
-    document.getElementById('hotelCheckOut').value = midPoint.toISOString().split('T')[0];
-    document.getElementById('hotelCheckIn').dispatchEvent(new Event('change'));
-}
-
-function selectSecondHalf() {
-    const travelDates = window.selectedDateTimeData || window.selectedDatetimeData;
-    const startDate = new Date(travelDates.startDate);
-    const endDate = new Date(travelDates.endDate);
-    const midPoint = new Date(startDate.getTime() + (endDate.getTime() - startDate.getTime()) / 2);
-    
-    document.getElementById('hotelCheckIn').value = midPoint.toISOString().split('T')[0];
-    document.getElementById('hotelCheckOut').value = travelDates.endDate;
-    document.getElementById('hotelCheckIn').dispatchEvent(new Event('change'));
+    // Check if showHotelDateSelection function exists
+    if (typeof window.showHotelDateSelection === 'function') {
+        console.log('🎯 Calling showHotelDateSelection...');
+        window.showHotelDateSelection(hotelData, null);
+    } else {
+        console.error('❌ showHotelDateSelection function not available');
+        alert('⚠️ Hotel date selection not available. Please ensure the hotel modal is loaded.');
+    }
 }
 
 // Function to confirm hotel dates
@@ -5713,6 +6113,490 @@ window.selectSecondHalf = selectSecondHalf;
 window.viewHotelDetails = viewHotelDetails;
 window.editHotelStay = editHotelStay;
 window.viewAttractionDetails = viewAttractionDetails;
+
+// Debug function to check coordinate consistency
+function debugCoordinateConsistency() {
+    console.log('🔍 === DEBUGGING COORDINATE CONSISTENCY ===');
+    
+    // Check what data is in window.selectedProvinceData
+    if (window.selectedProvinceData) {
+        console.log('🌍 Province data:', {
+            name: window.selectedProvinceData.properties?.name,
+            geometryCoords: window.selectedProvinceData.geometry?.coordinates,
+            latLngProps: {
+                lat: window.selectedProvinceData.lat,
+                lng: window.selectedProvinceData.lng
+            }
+        });
+    }
+    
+    // Check hotel markers data
+    if (window.hotelMarkers && window.hotelMarkers.length > 0) {
+        console.log('🏨 Hotel markers coordinate data:');
+        window.hotelMarkers.forEach((marker, index) => {
+            if (marker._hotelData) {
+                console.log(`  Marker ${index + 1} (${marker._hotelData.name}):`, {
+                    latitude: marker._hotelData.latitude,
+                    longitude: marker._hotelData.longitude,
+                    coordinates: marker._hotelData.coordinates
+                });
+            }
+        });
+    }
+    
+    // Check selected hotels data
+    if (window.selectedHotelsData && window.selectedHotelsData.length > 0) {
+        console.log('🏨 Selected hotels coordinate data:');
+        window.selectedHotelsData.forEach((hotel, index) => {
+            console.log(`  Selected ${index + 1} (${hotel.name}):`, {
+                latitude: hotel.latitude,
+                longitude: hotel.longitude,
+                coordinates: hotel.coordinates
+            });
+        });
+    }
+}
+
+// Test function to validate coordinate extraction
+function testCoordinateExtraction(hotel) {
+    console.log('🔧 === TESTING COORDINATE EXTRACTION ===');
+    console.log('Input hotel data:', hotel);
+    
+    let finalLat = hotel.latitude || hotel.lat;
+    let finalLng = hotel.longitude || hotel.lng;
+    
+    console.log('Initial extraction:', { 
+        finalLat, 
+        finalLng,
+        coordinatesType: typeof hotel.coordinates,
+        coordinatesIsArray: Array.isArray(hotel.coordinates),
+        coordinates: hotel.coordinates
+    });
+    
+    // Check if coordinates is an array format [lng, lat] or [lat, lng]
+    if (hotel.coordinates && Array.isArray(hotel.coordinates) && hotel.coordinates.length >= 2) {
+        // Array format - assume [lng, lat] based on GeoJSON standard
+        finalLng = hotel.coordinates[0];
+        finalLat = hotel.coordinates[1];
+        console.log(`📍 Extracted from coordinates array: [${finalLng}, ${finalLat}]`);
+    }
+    // Check if coordinates is an object with latitude/longitude properties (FROM STEP PROCESS NORMALIZATION)
+    else if (hotel.coordinates && typeof hotel.coordinates === 'object' && !Array.isArray(hotel.coordinates)) {
+        // The normalization in displayHotelsInStepProcess creates {latitude: ..., longitude: ...} format
+        if (hotel.coordinates.latitude !== undefined && hotel.coordinates.longitude !== undefined) {
+            finalLat = hotel.coordinates.latitude;
+            finalLng = hotel.coordinates.longitude;
+            console.log(`📍 Extracted from normalized coordinates object: {lat: ${finalLat}, lng: ${finalLng}}`);
+        } else {
+            // Fallback for other object formats
+            finalLat = hotel.coordinates.lat || hotel.coordinates.latitude || finalLat;
+            finalLng = hotel.coordinates.lng || hotel.coordinates.longitude || finalLng;
+            console.log(`📍 Extracted from generic coordinates object: {lat: ${finalLat}, lng: ${finalLng}}`);
+        }
+    }
+    // Check coordsArray if available (from normalization)
+    else if (hotel.coordsArray && Array.isArray(hotel.coordsArray) && hotel.coordsArray.length >= 2) {
+        finalLng = hotel.coordsArray[0];
+        finalLat = hotel.coordsArray[1];
+        console.log(`📍 Extracted from coordsArray: [${finalLng}, ${finalLat}]`);
+    }
+    
+    finalLat = parseFloat(finalLat);
+    finalLng = parseFloat(finalLng);
+    
+    const result = {
+        finalLat,
+        finalLng,
+        isValid: !isNaN(finalLat) && !isNaN(finalLng) && finalLat !== null && finalLng !== null,
+        extractedCoords: {
+            latitude: finalLat,
+            longitude: finalLng
+        }
+    };
+    
+    console.log('🏆 Extraction result:', result);
+    return result;
+}
+
+// Validation function to check coordinate consistency
+function validateCoordinateConsistency() {
+    console.log('🔍 === VALIDATING COORDINATE CONSISTENCY ===');
+    
+    let isConsistent = true;
+    let issues = [];
+    
+    // Check if any coordinates are Seoul coordinates (the problem)
+    const seoulLat = 37.5665;
+    const seoulLng = 126.978;
+    
+    if (window.selectedHotelsData && window.selectedHotelsData.length > 0) {
+        window.selectedHotelsData.forEach((hotel, index) => {
+            if (hotel.latitude && hotel.longitude) {
+                const isSeoul = (Math.abs(hotel.latitude - seoulLat) < 0.01) && 
+                               (Math.abs(hotel.longitude - seoulLng) < 0.01);
+                
+                if (isSeoul) {
+                    issues.push(`❌ Hotel "${hotel.name}" has Seoul coordinates instead of actual location`);
+                    isConsistent = false;
+                } else {
+                    console.log(`✅ Hotel "${hotel.name}" has valid coordinates: [${hotel.latitude}, ${hotel.longitude}]`);
+                }
+            }
+        });
+    }
+    
+    if (window.hotelMarkers && window.hotelMarkers.length > 0) {
+        window.hotelMarkers.forEach((marker, index) => {
+            if (marker._hotelData && marker._hotelData.latitude && marker._hotelData.longitude) {
+                const isSeoul = (Math.abs(marker._hotelData.latitude - seoulLat) < 0.01) && 
+                               (Math.abs(marker._hotelData.longitude - seoulLng) < 0.01);
+                
+                if (isSeoul) {
+                    issues.push(`❌ Marker "${marker._hotelData.name}" has Seoul coordinates instead of actual location`);
+                    isConsistent = false;
+                } else {
+                    console.log(`✅ Marker "${marker._hotelData.name}" has valid coordinates: [${marker._hotelData.latitude}, ${marker._hotelData.longitude}]`);
+                }
+            }
+        });
+    }
+    
+    console.log('🏆 === VALIDATION RESULT ===');
+    if (isConsistent) {
+        console.log('✅ COORDINATE CONSISTENCY: PASSED');
+        console.log('All hotels have valid, non-Seoul coordinates.');
+    } else {
+        console.log('❌ COORDINATE CONSISTENCY: FAILED');
+        issues.forEach(issue => console.log(issue));
+    }
+    
+    return { isConsistent, issues };
+}
+
+// Debug function to simulate hotel selection and test coordinates
+function simulateHotelSelection() {
+    console.log('🔧 === SIMULATING HOTEL SELECTION FROM HORIZONTAL LIST ===');
+    
+    // Find horizontal hotel cards
+    const hotelCards = document.querySelectorAll('.hotel-card.api-loaded');
+    if (hotelCards.length === 0) {
+        console.log('❌ No horizontal hotel cards found. Make sure hotels are loaded first.');
+        return;
+    }
+    
+    // Test the first hotel card
+    const firstCard = hotelCards[0];
+    console.log('🏨 Testing first hotel card:', firstCard);
+    
+    // Try to trigger the selection to see what happens
+    if (firstCard.onclick) {
+        console.log('⚡ Triggering hotel selection...');
+        firstCard.click();
+    } else {
+        console.log('❌ No click handler found on hotel card');
+    }
+}
+
+// Debug function to check all hotel cards for coordinate data
+function debugAllHotelCards() {
+    console.log('🔧 === DEBUGGING ALL HOTEL CARDS ===');
+    
+    const hotelCards = document.querySelectorAll('.hotel-card.api-loaded');
+    console.log(`Found ${hotelCards.length} hotel cards`);
+    
+    hotelCards.forEach((card, index) => {
+        console.log(`\n🏨 === Hotel Card ${index + 1} ===`);
+        console.log('Card element:', card);
+        console.log('Dataset:', card.dataset);
+        
+        // Check if there's stored hotel data
+        if (window.hotelDataForStepProcess && window.hotelDataForStepProcess[index]) {
+            const hotel = window.hotelDataForStepProcess[index];
+            console.log('Stored hotel data:', hotel);
+            testCoordinateExtraction(hotel);
+        } else {
+            console.log('❌ No stored hotel data found for this card');
+        }
+    });
+}
+
+// Enhanced coordinate extraction test for debugging 
+function testRealTimeCoordinateExtraction() {
+    console.log('🔧 === REAL-TIME COORDINATE EXTRACTION TEST ===');
+    
+    if (!window.hotelDataForStepProcess || window.hotelDataForStepProcess.length === 0) {
+        console.log('❌ No hotel data available. Load hotels first with fetchHotelsForStepProcess()');
+        return;
+    }
+    
+    const firstHotel = window.hotelDataForStepProcess[0];
+    console.log('🏨 Testing with first hotel:', firstHotel.name);
+    console.log('📊 Original hotel data:', firstHotel);
+    
+    // Test the extraction logic step by step
+    console.log('\n🔍 Step-by-step coordinate extraction:');
+    
+    let finalLat = firstHotel.latitude || firstHotel.lat;
+    let finalLng = firstHotel.longitude || firstHotel.lng;
+    
+    console.log('1️⃣ Initial extraction from direct properties:');
+    console.log(`   finalLat = ${finalLat} (from hotel.latitude: ${firstHotel.latitude} || hotel.lat: ${firstHotel.lat})`);
+    console.log(`   finalLng = ${finalLng} (from hotel.longitude: ${firstHotel.longitude} || hotel.lng: ${firstHotel.lng})`);
+    
+    // Check coordinates object
+    if (firstHotel.coordinates && typeof firstHotel.coordinates === 'object' && !Array.isArray(firstHotel.coordinates)) {
+        console.log('2️⃣ Found coordinates object:', firstHotel.coordinates);
+        if (firstHotel.coordinates.latitude !== undefined && firstHotel.coordinates.longitude !== undefined) {
+            finalLat = firstHotel.coordinates.latitude;
+            finalLng = firstHotel.coordinates.longitude;
+            console.log(`   ✅ Using normalized coordinates: lat=${finalLat}, lng=${finalLng}`);
+        }
+    }
+    
+    // Check coordsArray
+    if (firstHotel.coordsArray && Array.isArray(firstHotel.coordsArray) && firstHotel.coordsArray.length >= 2) {
+        console.log('3️⃣ Found coordsArray:', firstHotel.coordsArray);
+        finalLng = firstHotel.coordsArray[0];
+        finalLat = firstHotel.coordsArray[1];
+        console.log(`   ✅ Using coordsArray: lat=${finalLat}, lng=${finalLng}`);
+    }
+    
+    // Parse and validate
+    finalLat = parseFloat(finalLat);
+    finalLng = parseFloat(finalLng);
+    
+    console.log('\n🏆 FINAL RESULT:');
+    console.log(`   Final coordinates: lat=${finalLat}, lng=${finalLng}`);
+    console.log(`   Valid: ${!isNaN(finalLat) && !isNaN(finalLng) && finalLat !== null && finalLng !== null}`);
+    
+    const extractedCoords = {
+        latitude: finalLat,
+        longitude: finalLng
+    };
+    console.log('   extractedCoords object:', extractedCoords);
+    
+    return extractedCoords;
+}
+
+// Helper function to retrieve coordinate data from hotel card
+function getCoordinateDataFromCard(cardElement) {
+    console.log('📋 Retrieving coordinate data from hotel card...');
+    
+    if (!cardElement) {
+        console.warn('❌ No card element provided');
+        return null;
+    }
+    
+    // Method 1: Try to get data from _hotelData property
+    if (cardElement._hotelData) {
+        console.log('✅ Retrieved coordinate data from _hotelData:', cardElement._hotelData);
+        return cardElement._hotelData;
+    }
+    
+    // Method 2: Try to get data from dataset
+    if (cardElement.dataset.coordinates) {
+        try {
+            const coordinateData = JSON.parse(cardElement.dataset.coordinates);
+            console.log('✅ Retrieved coordinate data from dataset:', coordinateData);
+            return coordinateData;
+        } catch (error) {
+            console.warn('⚠️ Failed to parse coordinate data from dataset:', error);
+        }
+    }
+    
+    // Method 3: Fallback to dataset individual values
+    if (cardElement.dataset.latitude && cardElement.dataset.longitude) {
+        const fallbackData = {
+            latitude: parseFloat(cardElement.dataset.latitude),
+            longitude: parseFloat(cardElement.dataset.longitude),
+            lat: parseFloat(cardElement.dataset.latitude),
+            lng: parseFloat(cardElement.dataset.longitude),
+            coordinates: {
+                latitude: parseFloat(cardElement.dataset.latitude),
+                longitude: parseFloat(cardElement.dataset.longitude)
+            },
+            coordsArray: [parseFloat(cardElement.dataset.longitude), parseFloat(cardElement.dataset.latitude)]
+        };
+        console.log('✅ Retrieved coordinate data from individual dataset values:', fallbackData);
+        return fallbackData;
+    }
+    
+    console.warn('❌ No coordinate data found in hotel card');
+    return null;
+}
+
+// Enhanced function to test coordinate extraction from horizontal cards
+function testHorizontalCardCoordinates() {
+    console.log('🔧 === TESTING HORIZONTAL CARD COORDINATES ===');
+    
+    const hotelCards = document.querySelectorAll('.hotel-card.api-loaded');
+    if (hotelCards.length === 0) {
+        console.log('❌ No horizontal hotel cards found. Load hotels first.');
+        return;
+    }
+    
+    console.log(`📊 Found ${hotelCards.length} horizontal hotel cards`);
+    
+    hotelCards.forEach((card, index) => {
+        console.log(`\n🏨 === Testing Card ${index + 1} ===`);
+        
+        const hotelName = card.querySelector('h3')?.textContent || 'Unknown Hotel';
+        console.log(`Hotel Name: ${hotelName}`);
+        
+        // Test coordinate retrieval
+        const coordinateData = getCoordinateDataFromCard(card);
+        
+        if (coordinateData) {
+            console.log('📍 Coordinate data found:', {
+                latitude: coordinateData.latitude,
+                longitude: coordinateData.longitude,
+                coordinates: coordinateData.coordinates,
+                coordsArray: coordinateData.coordsArray
+            });
+            
+            // Test extraction with the coordinate extraction function
+            console.log('🧪 Testing coordinate extraction function...');
+            const extractionResult = testCoordinateExtraction(coordinateData);
+            console.log('Extraction result:', extractionResult);
+        } else {
+            console.log('❌ No coordinate data found for this card');
+        }
+    });
+    
+    console.log('\n🔧 === HORIZONTAL CARD COORDINATE TEST COMPLETE ===');
+}
+
+// Enhanced simulation function that uses stored coordinate data
+function simulateEnhancedHotelSelection() {
+    console.log('🔧 === ENHANCED HOTEL SELECTION SIMULATION ===');
+    
+    const hotelCards = document.querySelectorAll('.hotel-card.api-loaded');
+    if (hotelCards.length === 0) {
+        console.log('❌ No horizontal hotel cards found. Make sure hotels are loaded first.');
+        return;
+    }
+    
+    const firstCard = hotelCards[0];
+    const hotelName = firstCard.querySelector('h3')?.textContent || 'Test Hotel';
+    
+    console.log(`🏨 Testing enhanced selection with: ${hotelName}`);
+    
+    // Get coordinate data from the card
+    const coordinateData = getCoordinateDataFromCard(firstCard);
+    
+    if (coordinateData) {
+        console.log('📍 Coordinate data available for selection:', coordinateData);
+        
+        // Test the coordinate extraction
+        console.log('🧪 Testing coordinate extraction...');
+        const extractionResult = testCoordinateExtraction(coordinateData);
+        
+        if (extractionResult.isValid) {
+            console.log('✅ Coordinates are valid and ready for selection');
+            console.log('⚡ Triggering hotel selection...');
+            firstCard.click();
+        } else {
+            console.log('❌ Coordinates are not valid:', extractionResult);
+        }
+    } else {
+        console.log('❌ No coordinate data found in card');
+    }
+}
+
+// Comprehensive integration test for horizontal hotel list coordinate storage
+function testCompleteHotelCoordinateIntegration() {
+    console.log('🔧 === COMPLETE HOTEL COORDINATE INTEGRATION TEST ===');
+    
+    // Step 1: Check if hotels are loaded
+    if (!window.hotelDataForStepProcess || window.hotelDataForStepProcess.length === 0) {
+        console.log('❌ No hotel data available. Run fetchHotelsForStepProcess() first.');
+        return {
+            success: false,
+            message: 'No hotel data available'
+        };
+    }
+    
+    console.log(`✅ Found ${window.hotelDataForStepProcess.length} hotels in global data`);
+    
+    // Step 2: Check horizontal cards
+    const hotelCards = document.querySelectorAll('.hotel-card.api-loaded');
+    console.log(`✅ Found ${hotelCards.length} horizontal hotel cards in DOM`);
+    
+    if (hotelCards.length === 0) {
+        console.log('❌ No horizontal cards found. Hotel display may have failed.');
+        return {
+            success: false,
+            message: 'No horizontal cards found'
+        };
+    }
+    
+    // Step 3: Test coordinate storage in each card
+    let cardsWithValidCoords = 0;
+    let cardsWithInvalidCoords = 0;
+    
+    hotelCards.forEach((card, index) => {
+        const hotelName = card.querySelector('h3')?.textContent || `Hotel ${index + 1}`;
+        console.log(`\n🏨 Testing card ${index + 1}: ${hotelName}`);
+        
+        // Test coordinate retrieval
+        const coordinateData = getCoordinateDataFromCard(card);
+        
+        if (coordinateData && coordinateData.latitude && coordinateData.longitude) {
+            console.log(`✅ Valid coordinates found: [${coordinateData.latitude}, ${coordinateData.longitude}]`);
+            
+            // Test coordinate extraction
+            const extractionResult = testCoordinateExtraction(coordinateData);
+            if (extractionResult.isValid) {
+                console.log(`✅ Coordinate extraction successful`);
+                cardsWithValidCoords++;
+            } else {
+                console.log(`❌ Coordinate extraction failed:`, extractionResult);
+                cardsWithInvalidCoords++;
+            }
+        } else {
+            console.log(`❌ No valid coordinates found`);
+            cardsWithInvalidCoords++;
+        }
+    });
+    
+    // Step 4: Summary
+    const totalCards = hotelCards.length;
+    const successRate = (cardsWithValidCoords / totalCards) * 100;
+    
+    console.log('\n📊 === INTEGRATION TEST SUMMARY ===');
+    console.log(`Total Cards: ${totalCards}`);
+    console.log(`Cards with Valid Coordinates: ${cardsWithValidCoords}`);
+    console.log(`Cards with Invalid Coordinates: ${cardsWithInvalidCoords}`);
+    console.log(`Success Rate: ${successRate.toFixed(1)}%`);
+    
+    const result = {
+        success: successRate >= 90, // 90% success rate considered good
+        totalCards,
+        cardsWithValidCoords,
+        cardsWithInvalidCoords,
+        successRate,
+        message: successRate >= 90 
+            ? '✅ Integration test PASSED - Coordinates properly integrated'
+            : '⚠️ Integration test FAILED - Some coordinates missing or invalid'
+    };
+    
+    console.log(result.message);
+    console.log('🔧 === INTEGRATION TEST COMPLETE ===\n');
+    
+    return result;
+}
+
+// Make debug functions globally available
+window.debugCoordinateConsistency = debugCoordinateConsistency;
+window.validateCoordinateConsistency = validateCoordinateConsistency;
+window.testCoordinateExtraction = testCoordinateExtraction;
+window.simulateHotelSelection = simulateHotelSelection;
+window.debugAllHotelCards = debugAllHotelCards;
+window.testRealTimeCoordinateExtraction = testRealTimeCoordinateExtraction;
+window.getCoordinateDataFromCard = getCoordinateDataFromCard;
+window.testHorizontalCardCoordinates = testHorizontalCardCoordinates;
+window.simulateEnhancedHotelSelection = simulateEnhancedHotelSelection;
+window.testCompleteHotelCoordinateIntegration = testCompleteHotelCoordinateIntegration;
 
 </script>
 
