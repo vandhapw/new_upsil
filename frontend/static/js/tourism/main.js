@@ -71,6 +71,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.log("displayAttraction class not found or provinceDisplay not available, skipping attraction initialization");
         }
 
+        // Initialize DisplayLineResult for route optimization visualization
+        if (typeof DisplayLineResult !== 'undefined') {
+            const displayLineResultInstance = new DisplayLineResult();
+            window.displayLineResultInstance = displayLineResultInstance;
+            console.log("DisplayLineResult initialized for route optimization");
+        } else {
+            console.log("DisplayLineResult class not found, skipping route optimization display initialization");
+        }
+
         // if (typeof TripSummary !== 'undefined') {
         //     const tripSummaryInstance = new TripSummary();
         //     window.tripSummaryInstance = tripSummaryInstance;

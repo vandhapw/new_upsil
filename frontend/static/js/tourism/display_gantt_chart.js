@@ -1,9 +1,57 @@
 
-// Gantt Chart Visualization for Trip Planning
+// Immediate function exposure to prevent "not a function" errors
+(function() {
+    'use strict';
+    
+    // Pre-declare functions to be available immediately
+    if (typeof window !== 'undefined') {
+        // Create placeholder functions that will be replaced later
+        window.testAmChartsGantt = window.testAmChartsGantt || function() {
+            console.log('🔄 testAmChartsGantt placeholder called - script still loading...');
+            // Try again after a short delay
+            setTimeout(() => {
+                if (window._testAmChartsGanttActual) {
+                    window._testAmChartsGanttActual();
+                } else {
+                    console.warn('⚠️ testAmChartsGantt not ready yet');
+                }
+            }, 500);
+        };
+        
+        window.testBasicModal = window.testBasicModal || function() {
+            console.log('🔄 testBasicModal placeholder called - script still loading...');
+            setTimeout(() => {
+                if (window._testBasicModalActual) {
+                    window._testBasicModalActual();
+                } else {
+                    console.warn('⚠️ testBasicModal not ready yet');
+                }
+            }, 500);
+        };
+        
+        window.debugWindowFunctions = window.debugWindowFunctions || function() {
+            console.log('🔄 debugWindowFunctions placeholder called - script still loading...');
+            setTimeout(() => {
+                if (window._debugWindowFunctionsActual) {
+                    window._debugWindowFunctionsActual();
+                } else {
+                    console.log('Available window functions:', Object.keys(window).filter(k => 
+                        k.includes('test') || k.includes('gantt') || k.includes('chart')
+                    ));
+                }
+            }, 500);
+        };
+        
+        console.log('✅ Placeholder functions created immediately');
+    }
+})();
+
+// Gantt Chart Visualization for Trip Planning using amCharts 4
 class GanttChartManager {
     constructor() {
         this.currentEntryId = null;
         this.ganttData = null;
+        this.chart = null; // Store amCharts instance
         this.timelineColors = {
             travel: '#3498db',
             hotel: '#e74c3c',
@@ -12,6 +60,53 @@ class GanttChartManager {
             break: '#95a5a6',
             transport: '#9b59b6'
         };
+        
+        // Load amCharts 4 libraries if not already loaded
+        this.loadAmChartsLibraries();
+    }
+
+    // Load amCharts 4 libraries dynamically
+    async loadAmChartsLibraries() {
+        if (typeof am4core !== 'undefined') {
+            console.log('amCharts 4 already loaded');
+            return Promise.resolve();
+        }
+
+        return new Promise((resolve, reject) => {
+            // Load core library
+            const coreScript = document.createElement('script');
+            coreScript.src = 'https://www.amcharts.com/lib/4/core.js';
+            coreScript.onload = () => {
+                // Load charts library
+                const chartsScript = document.createElement('script');
+                chartsScript.src = 'https://www.amcharts.com/lib/4/charts.js';
+                chartsScript.onload = () => {
+                    // Load animated theme
+                    const themeScript = document.createElement('script');
+                    themeScript.src = 'https://www.amcharts.com/lib/4/themes/animated.js';
+                    themeScript.onload = () => {
+                        // Load export plugin
+                        const exportScript = document.createElement('script');
+                        exportScript.src = 'https://www.amcharts.com/lib/4/plugins/exporting.js';
+                        exportScript.onload = () => {
+                            console.log('amCharts 4 libraries loaded successfully');
+                            resolve();
+                        };
+                        exportScript.onerror = () => {
+                            console.warn('Export plugin failed to load, continuing without export functionality');
+                            resolve();
+                        };
+                        document.head.appendChild(exportScript);
+                    };
+                    themeScript.onerror = reject;
+                    document.head.appendChild(themeScript);
+                };
+                chartsScript.onerror = reject;
+                document.head.appendChild(chartsScript);
+            };
+            coreScript.onerror = reject;
+            document.head.appendChild(coreScript);
+        });
     }
 
     // Main function to display Gantt chart for a trip entry
@@ -549,22 +644,71 @@ class GanttChartManager {
 
     // Format time for display
     formatTime(date) {
-        return date.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false // Use 24-hour format for cleaner timeline display
-        });
+        try {
+            // Handle various date formats
+            let dateObj;
+            
+            if (!date) {
+                console.warn('⚠️ formatTime received null/undefined date, using current time');
+                dateObj = new Date();
+            } else if (date instanceof Date) {
+                dateObj = date;
+            } else if (typeof date === 'string') {
+                dateObj = new Date(date);
+            } else if (typeof date === 'number') {
+                dateObj = new Date(date);
+            } else {
+                console.warn('⚠️ formatTime received invalid date format:', date, 'using current time');
+                dateObj = new Date();
+            }
+            
+            // Validate that we have a valid Date object
+            if (isNaN(dateObj.getTime())) {
+                console.warn('⚠️ formatTime created invalid Date object from:', date, 'using current time');
+                dateObj = new Date();
+            }
+            
+            return dateObj.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false // Use 24-hour format for cleaner timeline display
+            });
+            
+        } catch (error) {
+            console.error('❌ Error in formatTime:', error, 'Input date:', date);
+            return new Date().toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+        }
     }
 
     // Show Gantt chart in modal
-    showGanttModal(tripData, ganttData, apiResults = null) {
+    async showGanttModal(tripData, ganttData, apiResults = null) {
+        console.log('🎬 showGanttModal called with:', {
+            tripData: tripData,
+            ganttDataLength: ganttData?.length,
+            ganttData: ganttData,
+            apiResults: apiResults,
+            amChartsLoaded: typeof am4core !== 'undefined'
+        });
+        
         // Remove existing modal if any
         const existingModal = document.getElementById('ganttChartModal');
         if (existingModal) {
+            console.log('🗑️ Removing existing modal');
+            if (this.chart) {
+                this.chart.dispose();
+                this.chart = null;
+            }
             existingModal.remove();
         }
 
-        const modalContent = this.generateGanttHTML(tripData, ganttData, apiResults);
+        // Ensure amCharts libraries are loaded
+        console.log('📚 Loading amCharts libraries...');
+        await this.loadAmChartsLibraries();
+        console.log('✅ amCharts libraries loaded');
         
         const modal = document.createElement('div');
         modal.id = 'ganttChartModal';
@@ -578,28 +722,262 @@ class GanttChartManager {
                             <button class="btn btn-sm btn-outline-primary" onclick="ganttChartManager.exportGanttChart()">
                                 <i class="fas fa-download"></i> Export
                             </button>
-                            <button class="modal-close" onclick="this.closest('.gantt-chart-modal').remove()">
+                            <button class="modal-close" onclick="ganttChartManager.closeModal()">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                     <div class="modal-body gantt-modal-body">
-                        ${modalContent}
+                        <div id="chartdiv" style="width: 100%; height: 500px;"></div>
+                        <div class="gantt-summary">
+                            <h5>Schedule Summary:</h5>
+                            <div class="summary-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Total Activities:</span>
+                                    <span class="stat-value">${ganttData.filter(item => !item.isHeader).length}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Schedule:</span>
+                                    <span class="stat-value">${tripData.startDate} - ${tripData.endDate}</span>
+                                </div>
+                                ${apiResults ? `
+                                <div class="stat-item">
+                                    <span class="stat-label">Optimization:</span>
+                                    <span class="stat-value">${apiResults.method || 'Optimized'}</span>
+                                </div>` : ''}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         `;
 
+        console.log('📝 Modal HTML created, appending to body...');
         document.body.appendChild(modal);
+        console.log('✅ Modal appended to body');
+        
         this.addGanttStyles();
+        console.log('🎨 Styles added');
         
         // Show modal with animation
+        console.log('🎬 Starting modal animation...');
         setTimeout(() => {
+            console.log('👁️ Adding show class to modal');
             modal.classList.add('show');
+            
+            // Check if modal is visible
+            const modalVisible = modal.offsetWidth > 0 && modal.offsetHeight > 0;
+            console.log('👀 Modal visibility check:', {
+                hasShowClass: modal.classList.contains('show'),
+                offsetWidth: modal.offsetWidth,
+                offsetHeight: modal.offsetHeight,
+                isVisible: modalVisible
+            });
+            
+            // Initialize amCharts after modal is shown
+            setTimeout(() => {
+                console.log('🔄 Initializing amCharts...');
+                this.initializeAmChart(ganttData, tripData, apiResults);
+            }, 100);
         }, 10);
     }
 
-    // Generate Gantt chart HTML
+    // Close modal and dispose chart
+    closeModal() {
+        if (this.chart) {
+            this.chart.dispose();
+            this.chart = null;
+        }
+        const modal = document.getElementById('ganttChartModal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+
+    // Initialize amCharts 4 Gantt Chart
+    initializeAmChart(ganttData, tripData, apiResults = null) {
+        console.log('🔄 initializeAmChart called with:', {
+            ganttDataLength: ganttData?.length,
+            ganttData: ganttData,
+            tripData: tripData,
+            amChartsAvailable: typeof am4core !== 'undefined',
+            chartDivExists: !!document.getElementById('chartdiv')
+        });
+        
+        try {
+            // Check if amCharts is available
+            if (typeof am4core === 'undefined') {
+                console.error('❌ am4core is not available');
+                throw new Error('amCharts libraries not loaded');
+            }
+            
+            // Apply amCharts theme
+            console.log('🎨 Applying amCharts theme...');
+            am4core.useTheme(am4themes_animated);
+
+            // Create chart instance
+            console.log('📊 Creating chart instance...');
+            this.chart = am4core.create("chartdiv", am4charts.XYChart);
+            this.chart.hiddenState.properties.opacity = 0;
+            console.log('✅ Chart instance created successfully');
+            
+            // Chart padding and formatting
+            this.chart.paddingRight = 30;
+            this.chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm";
+
+            // Color set for different activity types
+            const colorSet = new am4core.ColorSet();
+            colorSet.saturation = 0.6;
+
+            // Convert gantt data to amCharts format
+            const chartData = this.convertToAmChartsData(ganttData, tripData);
+            console.log('Converted chart data:', chartData);
+            
+            this.chart.data = chartData;
+
+            // Category axis (Y-axis) for activity names
+            const categoryAxis = this.chart.yAxes.push(new am4charts.CategoryAxis());
+            categoryAxis.dataFields.category = "name";
+            categoryAxis.renderer.grid.template.location = 0;
+            categoryAxis.renderer.inversed = true;
+            categoryAxis.renderer.minGridDistance = 20;
+
+            // Date axis (X-axis) for timeline
+            const dateAxis = this.chart.xAxes.push(new am4charts.DateAxis());
+            dateAxis.dateFormatter.dateFormat = "HH:mm";
+            dateAxis.renderer.minGridDistance = 70;
+            dateAxis.baseInterval = { count: 1, timeUnit: "hour" };
+            dateAxis.renderer.tooltipLocation = 0;
+            dateAxis.dateFormats.setKey('hour', 'HH:mm');
+            
+            // Set axis bounds based on trip data
+            const startDate = new Date(tripData.startDate + ' ' + (tripData.startTime || '08:00'));
+            const endDate = new Date(tripData.endDate + ' ' + (tripData.endTime || '18:00'));
+            
+            // Extend the range to show full day
+            const axisStart = new Date(startDate);
+            axisStart.setHours(6, 0, 0, 0);
+            const axisEnd = new Date(endDate);
+            axisEnd.setHours(22, 0, 0, 0);
+            
+            dateAxis.min = axisStart.getTime();
+            dateAxis.max = axisEnd.getTime();
+            dateAxis.strictMinMax = true;
+
+            // Column series for Gantt bars
+            const series = this.chart.series.push(new am4charts.ColumnSeries());
+            series.columns.template.tooltipText = "{name}: {openDateX.formatDate('HH:mm')} - {dateX.formatDate('HH:mm')} ({activityType})";
+            series.dataFields.openDateX = "fromDate";
+            series.dataFields.dateX = "toDate";
+            series.dataFields.categoryY = "name";
+            series.columns.template.propertyFields.fill = "color";
+            series.columns.template.propertyFields.stroke = "color";
+            series.columns.template.strokeOpacity = 1;
+            series.columns.template.height = am4core.percent(80);
+            
+            // Add rounded corners to bars
+            series.columns.template.column.cornerRadiusTopLeft = 3;
+            series.columns.template.column.cornerRadiusTopRight = 3;
+            series.columns.template.column.cornerRadiusBottomLeft = 3;
+            series.columns.template.column.cornerRadiusBottomRight = 3;
+
+            // Add legend
+            this.chart.legend = new am4charts.Legend();
+            this.chart.legend.position = "bottom";
+            this.chart.legend.scrollable = true;
+            this.chart.legend.data = this.getLegendData();
+
+            // Enable exporting if available
+            if (typeof am4plugins_exporting !== 'undefined') {
+                this.chart.exporting.menu = new am4plugins_exporting.ExportMenu();
+                this.chart.exporting.menu.items = [{
+                    "label": "Export",
+                    "menu": [
+                        { "type": "png", "label": "PNG" },
+                        { "type": "jpg", "label": "JPG" },
+                        { "type": "svg", "label": "SVG" },
+                        { "type": "pdf", "label": "PDF" }
+                    ]
+                }];
+            }
+
+            console.log('amCharts Gantt chart initialized successfully');
+            
+        } catch (error) {
+            console.error('Error initializing amCharts:', error);
+            // Fallback to show error message
+            document.getElementById('chartdiv').innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666;">
+                    <div style="text-align: center;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 16px;"></i>
+                        <p>Failed to load chart: ${error.message}</p>
+                        <button class="btn btn-primary" onclick="ganttChartManager.initializeAmChart(ganttChartManager.ganttData, ganttChartManager.tripData)">
+                            <i class="fas fa-redo"></i> Retry
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    // Convert gantt data to amCharts format
+    convertToAmChartsData(ganttData, tripData) {
+        const chartData = [];
+        
+        ganttData.forEach((item, index) => {
+            if (item.isHeader) return; // Skip header items
+            
+            // Parse dates
+            let fromDate, toDate;
+            
+            if (item.startTime && item.endTime) {
+                // Handle time-based activities
+                const baseDate = item.date || tripData.startDate;
+                fromDate = new Date(`${baseDate} ${item.startTime}`);
+                toDate = new Date(`${baseDate} ${item.endTime}`);
+            } else if (item.start && item.end) {
+                // Handle datetime-based activities
+                fromDate = new Date(item.start);
+                toDate = new Date(item.end);
+            } else {
+                // Fallback: create default duration
+                const baseDate = item.date || tripData.startDate;
+                fromDate = new Date(`${baseDate} ${item.time || '09:00'}`);
+                toDate = new Date(fromDate);
+                toDate.setHours(toDate.getHours() + (item.duration || 2)); // Default 2 hours
+            }
+            
+            // Get color based on activity type
+            const activityType = item.type || item.activityType || 'attraction';
+            const color = this.timelineColors[activityType] || this.timelineColors.attraction;
+            
+            chartData.push({
+                name: item.name || item.title || `Activity ${index + 1}`,
+                fromDate: fromDate,
+                toDate: toDate,
+                color: color,
+                activityType: activityType,
+                location: item.location || '',
+                description: item.description || ''
+            });
+        });
+        
+        return chartData;
+    }
+
+    // Get legend data for chart
+    getLegendData() {
+        return [
+            { "name": "Hotel", "fill": this.timelineColors.hotel },
+            { "name": "Attraction", "fill": this.timelineColors.attraction },
+            { "name": "Travel", "fill": this.timelineColors.travel },
+            { "name": "Meal", "fill": this.timelineColors.meal },
+            { "name": "Transport", "fill": this.timelineColors.transport },
+            { "name": "Break", "fill": this.timelineColors.break }
+        ];
+    }
+
+    // Generate Gantt chart HTML (keeping for backward compatibility)
     generateGanttHTML(tripData, ganttData, apiResults = null) {
         // Use API schedule dates if available, otherwise use trip data
         let startDate, endDate, totalHours;
@@ -718,46 +1096,205 @@ class GanttChartManager {
 
     // Generate individual Gantt bar
     generateGanttBar(item, startDate, pixelsPerHour) {
-        const startPosition = ((item.start - startDate) / (1000 * 60 * 60)) * pixelsPerHour;
-        const width = item.duration * pixelsPerHour;
-        
-        const barClass = item.isHeader || item.type === 'day_header' ? 'gantt-day-header' : 'gantt-task-bar';
-        
-        // Special handling for day headers
-        if (item.isHeader || item.type === 'day_header') {
+        try {
+            // Ensure dates are properly converted
+            const itemStart = item.start instanceof Date ? item.start : new Date(item.start || Date.now());
+            const itemEnd = item.end instanceof Date ? item.end : new Date(item.end || Date.now());
+            const baseStartDate = startDate instanceof Date ? startDate : new Date(startDate || Date.now());
+            
+            // Validate dates
+            if (isNaN(itemStart.getTime())) {
+                console.warn('⚠️ Invalid item.start date in generateGanttBar:', item.start, 'for item:', item.name);
+            }
+            if (isNaN(itemEnd.getTime())) {
+                console.warn('⚠️ Invalid item.end date in generateGanttBar:', item.end, 'for item:', item.name);
+            }
+            if (isNaN(baseStartDate.getTime())) {
+                console.warn('⚠️ Invalid startDate in generateGanttBar:', startDate);
+            }
+            
+            const startPosition = ((itemStart - baseStartDate) / (1000 * 60 * 60)) * pixelsPerHour;
+            const width = (item.duration || 1) * pixelsPerHour;
+            
+            const barClass = item.isHeader || item.type === 'day_header' ? 'gantt-day-header' : 'gantt-task-bar';
+            
+            // Special handling for day headers
+            if (item.isHeader || item.type === 'day_header') {
+                return `
+                    <div class="gantt-task ${barClass}" data-id="${item.id}">
+                        <div class="task-label day-header-label">
+                            <span class="task-name">${item.name}</span>
+                            <span class="task-time">${item.description}</span>
+                        </div>
+                        <div class="task-bar day-header-bar" 
+                             style="left: ${startPosition}px; width: ${width}px; background-color: ${item.color};"
+                             title="${item.description}">
+                            <span class="task-duration">${item.duration || 1}h</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Regular activity bars
             return `
                 <div class="gantt-task ${barClass}" data-id="${item.id}">
-                    <div class="task-label day-header-label">
+                    <div class="task-label">
                         <span class="task-name">${item.name}</span>
-                        <span class="task-time">${item.description}</span>
+                        <span class="task-time">${this.formatTime(itemStart)} - ${this.formatTime(itemEnd)}</span>
                     </div>
-                    <div class="task-bar day-header-bar" 
+                    <div class="task-bar" 
                          style="left: ${startPosition}px; width: ${width}px; background-color: ${item.color};"
-                         title="${item.description}">
-                        <span class="task-duration">${item.duration}h</span>
+                         title="${item.description}${item.coordinates ? ` | Coordinates: ${item.coordinates.join(', ')}` : ''}">
+                        <span class="task-duration">${item.duration || 1}h</span>
+                    </div>
+                </div>
+            `;
+            
+        } catch (error) {
+            console.error('❌ Error in generateGanttBar:', error, 'Item:', item);
+            // Return a fallback bar
+            return `
+                <div class="gantt-task gantt-task-bar" data-id="${item.id || 'unknown'}">
+                    <div class="task-label">
+                        <span class="task-name">${item.name || 'Unknown Activity'}</span>
+                        <span class="task-time">Time unavailable</span>
+                    </div>
+                    <div class="task-bar" 
+                         style="left: 0px; width: ${pixelsPerHour}px; background-color: ${item.color || '#cccccc'};"
+                         title="Error displaying this item">
+                        <span class="task-duration">1h</span>
                     </div>
                 </div>
             `;
         }
-        
-        // Regular activity bars
-        return `
-            <div class="gantt-task ${barClass}" data-id="${item.id}">
-                <div class="task-label">
-                    <span class="task-name">${item.name}</span>
-                    <span class="task-time">${this.formatTime(item.start)} - ${this.formatTime(item.end)}</span>
-                </div>
-                <div class="task-bar" 
-                     style="left: ${startPosition}px; width: ${width}px; background-color: ${item.color};"
-                     title="${item.description}${item.coordinates ? ` | Coordinates: ${item.coordinates.join(', ')}` : ''}">
-                    <span class="task-duration">${item.duration}h</span>
-                </div>
-            </div>
-        `;
     }
 
     // Export Gantt chart data
     exportGanttChart() {
+        if (!this.chart) {
+            alert('No Gantt chart available to export!');
+            return;
+        }
+
+        // Show export options
+        const exportOptions = document.createElement('div');
+        exportOptions.innerHTML = `
+            <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10002; display: flex; align-items: center; justify-content: center;">
+                <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); max-width: 400px; width: 90%;">
+                    <h4 style="margin: 0 0 20px 0; color: #2c3e50;">Export Gantt Chart</h4>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <button class="btn btn-primary" onclick="ganttChartManager.exportChart('png')" style="background: #3498db; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer;">
+                            <i class="fas fa-image"></i> Export as PNG
+                        </button>
+                        <button class="btn btn-primary" onclick="ganttChartManager.exportChart('jpg')" style="background: #2ecc71; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer;">
+                            <i class="fas fa-image"></i> Export as JPG
+                        </button>
+                        <button class="btn btn-primary" onclick="ganttChartManager.exportChart('svg')" style="background: #e67e22; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer;">
+                            <i class="fas fa-vector-square"></i> Export as SVG
+                        </button>
+                        <button class="btn btn-secondary" onclick="ganttChartManager.exportChartData()" style="background: #95a5a6; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer;">
+                            <i class="fas fa-download"></i> Export Data (JSON)
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="this.closest('div').remove()" style="background: transparent; color: #6c757d; border: 1px solid #6c757d; padding: 12px 20px; border-radius: 6px; cursor: pointer; margin-top: 10px;">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(exportOptions);
+    }
+
+    // Export chart as image
+    exportChart(format) {
+        if (!this.chart) return;
+
+        try {
+            const fileName = `gantt-chart-trip-${this.currentEntryId || 'export'}-${new Date().toISOString().split('T')[0]}`;
+            
+            // Use amCharts export functionality
+            if (typeof am4plugins_exporting !== 'undefined' && this.chart.exporting) {
+                this.chart.exporting.export(format, {
+                    fileName: fileName
+                });
+            } else {
+                // Fallback: use HTML5 canvas if export plugin not available
+                this.fallbackExport(format, fileName);
+            }
+            
+            // Close export dialog
+            document.querySelectorAll('div').forEach(div => {
+                if (div.style.position === 'fixed' && div.style.zIndex === '10002') {
+                    div.remove();
+                }
+            });
+            
+            console.log(`Gantt chart exported as ${format.toUpperCase()}`);
+        } catch (error) {
+            console.error('Export failed:', error);
+            alert('Export failed. Please try again.');
+        }
+    }
+
+    // Fallback export method
+    fallbackExport(format, fileName) {
+        try {
+            // Get the SVG element from the chart
+            const svgElement = document.querySelector('#chartdiv svg');
+            if (!svgElement) {
+                throw new Error('Chart SVG not found');
+            }
+
+            if (format === 'svg') {
+                // Export as SVG
+                const svgData = new XMLSerializer().serializeToString(svgElement);
+                const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+                const svgUrl = URL.createObjectURL(svgBlob);
+                
+                const downloadLink = document.createElement('a');
+                downloadLink.href = svgUrl;
+                downloadLink.download = `${fileName}.svg`;
+                downloadLink.click();
+                URL.revokeObjectURL(svgUrl);
+            } else {
+                // Convert to canvas for PNG/JPG
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                const svgData = new XMLSerializer().serializeToString(svgElement);
+                const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+                const svgUrl = URL.createObjectURL(svgBlob);
+                
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    
+                    const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
+                    canvas.toBlob((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = url;
+                        downloadLink.download = `${fileName}.${format}`;
+                        downloadLink.click();
+                        URL.revokeObjectURL(url);
+                    }, mimeType);
+                    
+                    URL.revokeObjectURL(svgUrl);
+                };
+                
+                img.src = svgUrl;
+            }
+        } catch (error) {
+            console.error('Fallback export failed:', error);
+            alert('Export functionality is not available. Please try refreshing the page.');
+        }
+    }
+
+    // Export chart data as JSON
+    exportChartData() {
         if (!this.ganttData) {
             alert('No Gantt chart data to export!');
             return;
@@ -767,24 +1304,31 @@ class GanttChartManager {
             exportDate: new Date().toISOString(),
             tripId: this.currentEntryId,
             ganttData: this.ganttData,
+            chartData: this.chart ? this.chart.data : null,
             summary: {
-                totalActivities: this.ganttData.length,
-                totalDuration: this.ganttData.reduce((sum, item) => sum + item.duration, 0),
-                activityTypes: [...new Set(this.ganttData.map(item => item.type))]
+                totalActivities: this.ganttData.filter(item => !item.isHeader).length,
+                activityTypes: [...new Set(this.ganttData.map(item => item.type).filter(Boolean))]
             }
         };
 
         const dataStr = JSON.stringify(exportData, null, 2);
         const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
         
-        const exportFileDefaultName = `gantt-chart-trip-${this.currentEntryId}-${new Date().toISOString().split('T')[0]}.json`;
+        const exportFileDefaultName = `gantt-data-trip-${this.currentEntryId || 'export'}-${new Date().toISOString().split('T')[0]}.json`;
         
         const linkElement = document.createElement('a');
         linkElement.setAttribute('href', dataUri);
         linkElement.setAttribute('download', exportFileDefaultName);
         linkElement.click();
         
-        console.log('Gantt chart exported successfully');
+        // Close export dialog
+        document.querySelectorAll('div').forEach(div => {
+            if (div.style.position === 'fixed' && div.style.zIndex === '10002') {
+                div.remove();
+            }
+        });
+        
+        console.log('Gantt chart data exported successfully');
     }
 
     // Add CSS styles for Gantt chart
@@ -794,6 +1338,10 @@ class GanttChartManager {
         const style = document.createElement('style');
         style.id = 'ganttChartStyles';
         style.textContent = `
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            }
+
             .gantt-chart-modal {
                 position: fixed;
                 top: 0;
@@ -862,9 +1410,54 @@ class GanttChartManager {
             
             .gantt-modal-body {
                 padding: 20px;
-                overflow-x: auto;
-                overflow-y: auto;
+                overflow: hidden;
                 flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+
+            #chartdiv {
+                width: 100%;
+                height: 500px;
+                flex: 0 0 500px;
+            }
+
+            .gantt-summary {
+                margin-top: 20px;
+                padding: 15px;
+                background: #f8f9fa;
+                border-radius: 8px;
+                border: 1px solid #e9ecef;
+            }
+
+            .gantt-summary h5 {
+                margin: 0 0 15px 0;
+                color: #495057;
+                font-size: 1.1rem;
+            }
+
+            .summary-stats {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+            }
+
+            .stat-item {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .stat-label {
+                font-size: 0.9rem;
+                color: #6c757d;
+                font-weight: 500;
+            }
+
+            .stat-value {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #2c3e50;
             }
             
             .gantt-header {
@@ -1203,7 +1796,307 @@ async function testGanttAPI() {
 window.testGanttChart = testGanttChart;
 window.testGanttAPI = testGanttAPI;
 
+// Create global instance
+window.ganttChartManager = new GanttChartManager();
+
+// Test function with sample data
+function testAmChartsGantt() {
+    console.log('🧪 Starting amCharts Gantt test...');
+    
+    // Check if GanttChartManager class is available
+    if (typeof GanttChartManager === 'undefined') {
+        console.error('❌ GanttChartManager class not available');
+        alert('GanttChartManager class not loaded. Please refresh the page.');
+        return false;
+    }
+    
+    // Check if instance exists, if not create it
+    if (!window.ganttChartManager) {
+        console.log('🔄 Creating GanttChartManager instance...');
+        try {
+            window.ganttChartManager = new GanttChartManager();
+            console.log('✅ GanttChartManager instance created');
+        } catch (error) {
+            console.error('❌ Failed to create GanttChartManager:', error);
+            alert('Failed to create GanttChartManager. Error: ' + error.message);
+            return false;
+        }
+    }
+    
+    console.log('✅ GanttChartManager is available');
+    
+    const sampleGanttData = [
+        {
+            name: "Hotel Check-in",
+            type: "hotel",
+            startTime: "14:00",
+            endTime: "15:00",
+            date: "2025-10-18",
+            location: "Hotel Seoul",
+            description: "Check into hotel and settle in"
+        },
+        {
+            name: "Gyeongbokgung Palace",
+            type: "attraction",
+            startTime: "16:00",
+            endTime: "18:00",
+            date: "2025-10-18",
+            location: "Jung-gu, Seoul",
+            description: "Visit historical palace"
+        },
+        {
+            name: "Dinner at Myeongdong",
+            type: "meal",
+            startTime: "19:00",
+            endTime: "20:30",
+            date: "2025-10-18",
+            location: "Myeongdong",
+            description: "Traditional Korean cuisine"
+        },
+        {
+            name: "Bukchon Hanok Village",
+            type: "attraction",
+            startTime: "09:00",
+            endTime: "11:00",
+            date: "2025-10-19",
+            location: "Jongno-gu, Seoul",
+            description: "Traditional Korean village"
+        },
+        {
+            name: "N Seoul Tower",
+            type: "attraction",
+            startTime: "15:00",
+            endTime: "17:00",
+            date: "2025-10-19",
+            location: "Namsan Park",
+            description: "Iconic Seoul landmark"
+        }
+    ];
+    
+    const sampleTripData = {
+        startDate: "2025-10-18",
+        endDate: "2025-10-19",
+        startTime: "08:00",
+        endTime: "22:00"
+    };
+    
+    console.log('📊 Sample data prepared:', {
+        ganttDataLength: sampleGanttData.length,
+        tripData: sampleTripData
+    });
+    
+    window.ganttChartManager.ganttData = sampleGanttData;
+    
+    console.log('🎬 Calling showGanttModal...');
+    try {
+        window.ganttChartManager.showGanttModal(sampleTripData, sampleGanttData, {
+            method: "Sample Data Test",
+            schedule_start: "2025-10-18T08:00:00",
+            schedule_end: "2025-10-19T22:00:00"
+        });
+        console.log('✅ Test function completed successfully');
+        return true;
+    } catch (error) {
+        console.error('❌ Error calling showGanttModal:', error);
+        alert('Error showing Gantt chart: ' + error.message);
+        return false;
+    }
+}
+
+// Test function for basic modal functionality
+function testBasicModal() {
+    console.log('🧪 Testing basic modal functionality...');
+    
+    const testModal = document.createElement('div');
+    testModal.id = 'testModal';
+    testModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.8);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    
+    testModal.innerHTML = `
+        <div style="background: white; padding: 30px; border-radius: 10px; max-width: 500px;">
+            <h3>✅ Basic Modal Test</h3>
+            <p>If you can see this modal, the basic modal functionality works!</p>
+            <button onclick="this.closest('#testModal').remove()" style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Close Test Modal
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(testModal);
+    console.log('✅ Basic modal created and shown');
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (testModal.parentElement) {
+            testModal.remove();
+            console.log('🗑️ Basic modal auto-removed');
+        }
+    }, 5000);
+    
+    return true;
+}
+
+// Debugging function to check what's available
+function debugWindowFunctions() {
+    console.log('🔍 Debugging window functions...');
+    
+    const ganttFunctions = Object.keys(window).filter(key => 
+        key.toLowerCase().includes('gantt') || 
+        key.toLowerCase().includes('test') || 
+        key.toLowerCase().includes('chart')
+    );
+    
+    console.log('Available Gantt/Test functions:', ganttFunctions);
+    
+    console.log('Function availability check:', {
+        testAmChartsGantt: typeof window.testAmChartsGantt,
+        testBasicModal: typeof window.testBasicModal,
+        ganttChartManager: typeof window.ganttChartManager,
+        GanttChartManager: typeof window.GanttChartManager || typeof GanttChartManager
+    });
+    
+    return ganttFunctions;
+}
+
+// Make test functions globally available immediately and replace placeholders
+if (typeof window !== 'undefined') {
+    // Store actual functions in backup variables
+    window._testAmChartsGanttActual = testAmChartsGantt;
+    window._testBasicModalActual = testBasicModal;
+    window._debugWindowFunctionsActual = debugWindowFunctions;
+    
+    // Replace placeholder functions with actual functions
+    window.testAmChartsGantt = testAmChartsGantt;
+    window.testBasicModal = testBasicModal;
+    window.debugWindowFunctions = debugWindowFunctions;
+    
+    console.log('✅ Test functions exposed globally (replacing placeholders):', {
+        testAmChartsGantt: typeof window.testAmChartsGantt,
+        testBasicModal: typeof window.testBasicModal,
+        debugWindowFunctions: typeof window.debugWindowFunctions
+    });
+} else {
+    console.error('❌ Window object not available');
+}
+
+// Also expose when DOM is ready as a fallback
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window !== 'undefined') {
+        // Ensure actual functions are available and replace any remaining placeholders
+        window.testAmChartsGantt = testAmChartsGantt;
+        window.testBasicModal = testBasicModal;
+        window.debugWindowFunctions = debugWindowFunctions;
+        
+        console.log('✅ Test functions re-exposed on DOM ready:', {
+            testAmChartsGantt: typeof window.testAmChartsGantt,
+            testBasicModal: typeof window.testBasicModal,
+            debugWindowFunctions: typeof window.debugWindowFunctions
+        });
+        
+        // Test function availability
+        console.log('🧪 Testing function calls on DOM ready...');
+        try {
+            if (typeof window.debugWindowFunctions === 'function') {
+                window.debugWindowFunctions();
+            }
+        } catch (error) {
+            console.error('❌ Error testing functions:', error);
+        }
+    }
+});
+
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = GanttChartManager;
 }
+
+// Fallback function definitions for immediate availability
+(function() {
+    'use strict';
+    
+    // Immediate function to ensure functions are available
+    function ensureFunctionsAvailable() {
+        // Replace placeholders with actual functions if they exist
+        if (typeof testAmChartsGantt === 'function') {
+            console.log('✅ Replacing testAmChartsGantt placeholder with actual function');
+            window.testAmChartsGantt = testAmChartsGantt;
+        } else if (typeof window.testAmChartsGantt !== 'function') {
+            console.log('🔄 Setting up fallback testAmChartsGantt function...');
+            window.testAmChartsGantt = function() {
+                console.log('🧪 Fallback testAmChartsGantt called');
+                
+                if (typeof testAmChartsGantt === 'function') {
+                    return testAmChartsGantt();
+                } else {
+                    console.error('❌ testAmChartsGantt function not defined');
+                    alert('Gantt chart test function not available. Please refresh the page.');
+                    return false;
+                }
+            };
+        }
+        
+        if (typeof testBasicModal === 'function') {
+            console.log('✅ Replacing testBasicModal placeholder with actual function');
+            window.testBasicModal = testBasicModal;
+        } else if (typeof window.testBasicModal !== 'function') {
+            console.log('🔄 Setting up fallback testBasicModal function...');
+            window.testBasicModal = function() {
+                console.log('🧪 Fallback testBasicModal called');
+                
+                if (typeof testBasicModal === 'function') {
+                    return testBasicModal();
+                } else {
+                    console.error('❌ testBasicModal function not defined');
+                    alert('Basic modal test function not available. Please refresh the page.');
+                    return false;
+                }
+            };
+        }
+        
+        if (typeof debugWindowFunctions === 'function') {
+            console.log('✅ Replacing debugWindowFunctions placeholder with actual function');
+            window.debugWindowFunctions = debugWindowFunctions;
+        } else if (typeof window.debugWindowFunctions !== 'function') {
+            window.debugWindowFunctions = function() {
+                console.log('🧪 Fallback debugWindowFunctions called');
+                
+                if (typeof debugWindowFunctions === 'function') {
+                    return debugWindowFunctions();
+                } else {
+                    console.log('Available window properties with "test" or "gantt":');
+                    const relevantProps = Object.keys(window).filter(key => 
+                        key.toLowerCase().includes('test') || 
+                        key.toLowerCase().includes('gantt') ||
+                        key.toLowerCase().includes('chart')
+                    );
+                    console.log(relevantProps);
+                    return relevantProps;
+                }
+            };
+        }
+        
+        console.log('✅ Fallback functions ensured');
+    }
+    
+    // Run immediately
+    ensureFunctionsAvailable();
+    
+    // Also run when DOM loads
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', ensureFunctionsAvailable);
+    } else {
+        // DOM already loaded
+        setTimeout(ensureFunctionsAvailable, 100);
+    }
+    
+})();

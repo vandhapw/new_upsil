@@ -595,6 +595,7 @@
 
 <script>
 // Hotel integration for step process
+
 async function fetchHotelsForStepProcess() {
     console.log('🏨 Fetching hotels for step process...');
     
@@ -2015,10 +2016,6 @@ function extractAttractionAmenities(properties) {
 function displayAttractionsInStepProcess(attractions) {
     console.log('✅ Displaying attractions in step process...');
     
-    // Store attractions globally for displayAttraction instance to access
-    window.attractionDataForStepProcess = attractions;
-    console.log('📊 Stored attractions globally for displayAttraction instance:', attractions.length);
-    
     // Show the attractions container with message
     const attractionsContainer = document.getElementById('attractions-container');
     if (attractionsContainer) {
@@ -2218,16 +2215,7 @@ function populateHorizontalOverlayWithStepAttractions(attractions) {
 function createHorizontalAttractionCardForStep(attraction, index) {
     const div = document.createElement('div');
     div.className = 'attraction-card api-loaded';
-    
-    // Use consistent ID system for both step process and displayAttraction
-    const attractionId = attraction.id || index;
-    div.dataset.attractionId = attractionId;
-    div.dataset.attractionName = attraction.name;
-    div.dataset.attractionProvince = attraction.province || 'Unknown Province';
-    div.dataset.attractionCoordinates = `${attraction.longitude},${attraction.latitude}`;
-    div.dataset.attractionHours = '2'; // default hours
-    
-    console.log(`🎯 Creating horizontal card with ID: ${attractionId}, Name: ${attraction.name}`);
+    div.dataset.attractionId = attraction.id || index;
     
     // Generate amenity icons (matching existing structure)
     const amenities = attraction.amenities || ['Scenic Views', 'Photo Opportunities', 'Walkable'];
@@ -4199,17 +4187,511 @@ function validateTripData(tripData) {
 }
 
 // Function to save trip data to server
-async function saveTripDataToServer(tripData) {
+async function saveTripDataToServer() { //tripData
     console.log('💾 Saving trip data to server...');
     
     try {
-        const response = await fetch('/tourism/api/save_trip/', {
+        const dummyData = {
+    "timestamp": "2025-10-17T12:30:01.518Z",
+    "destination": {
+        "place_id": "51da48c8f6109b5b405997fd5f1a2bf61bc0f00101f9011c50800000000000c00208",
+        "formatted_address": "Semarang, Central Java, Indonesia",
+        "coordinates": {
+            "latitude": -6.9903988
+        },
+        "country": "South Korea",
+        "properties": {
+            "datasource": {
+                "sourcename": "openstreetmap",
+                "attribution": "© OpenStreetMap contributors",
+                "license": "Open Database License",
+                "url": "https://www.openstreetmap.org/copyright"
+            },
+            "country": "Indonesia",
+            "country_code": "id",
+            "region": "Java",
+            "state": "Central Java",
+            "city": "Semarang",
+            "iso3166_2": "ID-JW",
+            "iso3166_2_sublevel": "ID-JT",
+            "lon": 110.4229104,
+            "lat": -6.9903988,
+            "result_type": "city",
+            "formatted": "Semarang, Central Java, Indonesia",
+            "address_line1": "Semarang",
+            "address_line2": "Central Java, Indonesia",
+            "category": "administrative",
+            "timezone": {
+                "name": "Asia/Jakarta",
+                "offset_STD": "+07:00",
+                "offset_STD_seconds": 25200,
+                "offset_DST": "+07:00",
+                "offset_DST_seconds": 25200,
+                "abbreviation_STD": "WIB",
+                "abbreviation_DST": "WIB"
+            },
+            "plus_code": "6P5G2C5F+R5",
+            "plus_code_short": "5F+R5 Semarang, Central Java, Indonesia",
+            "rank": {
+                "importance": 0.5680018483009508,
+                "popularity": 6.267038472902757,
+                "confidence": 1,
+                "confidence_city_level": 1,
+                "match_type": "full_match"
+            },
+            "place_id": "51da48c8f6109b5b405997fd5f1a2bf61bc0f00101f9011c50800000000000c00208"
+        }
+    },
+    "dates": {
+        "start_date": "2025-10-18",
+        "end_date": "2025-10-20",
+        "start_time": "21:26",
+        "end_time": "21:26",
+        "duration_days": 1,
+        "formatted": {}
+    },
+    "hotels": [
+        {
+            "id": "518c232070ee9b5b4059b3224130c4001cc0f00103f901bf439ee3020000009203194b6f7374204578636c7573697665205769736d612052617961",
+            "name": "Kost Exclusive Wisma Raya",
+            "rating": "4.5",
+            "price": "$179",
+            "address": "Kost Exclusive Wisma Raya, Jalan Peterongan Timur 348, Semarang 50242, Central Java, Indonesia",
+            "location": "Kost Exclusive Wisma Raya",
+            "coordinates": {
+                "latitude": -7.0007483997111875,
+                "longitude": 110.4364281
+            },
+            "amenities": [
+                "WiFi",
+                "AC",
+                "Phone Service",
+                "Website"
+            ],
+            "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+            "description": "Comfortable accommodation with modern amenities",
+            "contact": {
+                "phone": "+62 8174 183 553",
+                "email": "kost.peterongan.timur@gmail.com"
+            },
+            "website": "https://kostexclusivesemarang.wordpress.com/",
+            "properties": {
+                "name": "Kost Exclusive Wisma Raya",
+                "country": "Indonesia",
+                "country_code": "id",
+                "region": "Java",
+                "state": "Central Java",
+                "city": "Semarang",
+                "village": "Peterongan",
+                "postcode": "50242",
+                "district": "Semarang Selatan",
+                "neighbourhood": "RW 06",
+                "street": "Jalan Peterongan Timur",
+                "housenumber": "348",
+                "iso3166_2": "ID-JW",
+                "iso3166_2_sublevel": "ID-JT",
+                "lon": 110.4364281,
+                "lat": -7.0007484,
+                "formatted": "Kost Exclusive Wisma Raya, Jalan Peterongan Timur 348, Semarang 50242, Central Java, Indonesia",
+                "address_line1": "Kost Exclusive Wisma Raya",
+                "address_line2": "Jalan Peterongan Timur 348, Semarang 50242, Central Java, Indonesia",
+                "categories": [
+                    "accommodation",
+                    "accommodation.hotel",
+                    "internet_access",
+                    "internet_access.free"
+                ],
+                "details": [
+                    "details",
+                    "details.accommodation",
+                    "details.contact",
+                    "details.facilities",
+                    "details.payment",
+                    "details.wiki_and_media"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "Kost Exclusive Wisma Raya",
+                        "brand": "Kost Exclusive Wisma Raya",
+                        "email": "kost.peterongan.timur@gmail.com",
+                        "image": "https://kostexclusivesemarang.wordpress.com/wp-content/uploads/2019/01/mb-sri-kost.png",
+                        "phone": "+62 8174 183 553",
+                        "rooms": "16 rooms",
+                        "mobile": "+62 8174183553",
+                        "osm_id": 12408734655,
+                        "tourism": "hotel",
+                        "website": "https://kostexclusivesemarang.wordpress.com/",
+                        "loc_name": "Kost Exclusive Wisma Raya",
+                        "osm_type": "n",
+                        "addr:city": "Semarang",
+                        "addr:street": "Jalan Peterongan Timur",
+                        "reservation": "yes",
+                        "payment:cash": "yes",
+                        "addr:district": "Kelurahan Peterongan",
+                        "addr:postcode": 50242,
+                        "addr:province": "Central Java",
+                        "opening_hours": "08:00-22:00",
+                        "internet_access": "yes",
+                        "addr:housenumber": 348,
+                        "addr:subdistrict": "RT 05 RW 06",
+                        "air_conditioning": "yes",
+                        "contact:facebook": "https://www.facebook.com/Kost-Exclusive-Semarang-Wisma-Raya-333943177214766/",
+                        "internet_access:fee": "no",
+                        "payment:account_cards": "yes"
+                    }
+                },
+                "website": "https://kostexclusivesemarang.wordpress.com/",
+                "opening_hours": "08:00-22:00",
+                "brand": "Kost Exclusive Wisma Raya",
+                "name_other": {
+                    "loc_name": "Kost Exclusive Wisma Raya"
+                },
+                "contact": {
+                    "phone": "+62 8174 183 553",
+                    "email": "kost.peterongan.timur@gmail.com"
+                },
+                "facilities": {
+                    "internet_access": true,
+                    "air_conditioning": true
+                },
+                "wiki_and_media": {
+                    "image": "https://kostexclusivesemarang.wordpress.com/wp-content/uploads/2019/01/mb-sri-kost.png"
+                },
+                "payment_options": {
+                    "cash": true,
+                    "account_cards": true
+                },
+                "accommodation": {
+                    "rooms": "16 rooms",
+                    "reservation": "required"
+                },
+                "place_id": "518c232070ee9b5b4059b3224130c4001cc0f00103f901bf439ee3020000009203194b6f7374204578636c7573697665205769736d612052617961"
+            },
+            "latitude": -7.0007483997111875,
+            "longitude": 110.4364281,
+            "booking": {
+                "checkInDate": "2025-10-18",
+                "checkOutDate": "2025-10-19",
+                "dateRange": "Sat, Oct 18, 2025 to Sun, Oct 19, 2025",
+                "dayNumber": 1,
+                "stayDate": "2025-10-18",
+                "isDateRange": true
+            },
+            "tripDates": {}
+        },
+        {
+            "id": "51680586acee9b5b405965687f8483001cc0f00103f90104b79ee30200000092031e4b6f73742053656d6172616e672050657465726f6e67616e2054696d7572",
+            "name": "Kost Semarang Peterongan Timur",
+            "rating": "4.6",
+            "price": "$220",
+            "address": "Kost Semarang Peterongan Timur, Jalan Peterongan Timur 349, Semarang 50242, Central Java, Indonesia",
+            "location": "Kost Semarang Peterongan Timur",
+            "coordinates": {
+                "latitude": -7.000501699711184,
+                "longitude": 110.4364425
+            },
+            "amenities": [
+                "WiFi",
+                "AC",
+                "Phone Service",
+                "Website"
+            ],
+            "image": "https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+            "description": "Comfortable accommodation with modern amenities",
+            "contact": {
+                "phone": "+62 857 1330 5337",
+                "email": "kost.peterongan.timur@gmail.com"
+            },
+            "website": "https://boardinghousesemarangpeterongantimur.wordpress.com/",
+            "properties": {
+                "name": "Kost Semarang Peterongan Timur",
+                "country": "Indonesia",
+                "country_code": "id",
+                "region": "Java",
+                "state": "Central Java",
+                "city": "Semarang",
+                "village": "Peterongan",
+                "postcode": "50242",
+                "district": "Semarang Selatan",
+                "neighbourhood": "RW 06",
+                "street": "Jalan Peterongan Timur",
+                "housenumber": "349",
+                "iso3166_2": "ID-JW",
+                "iso3166_2_sublevel": "ID-JT",
+                "lon": 110.4364425,
+                "lat": -7.0005017,
+                "formatted": "Kost Semarang Peterongan Timur, Jalan Peterongan Timur 349, Semarang 50242, Central Java, Indonesia",
+                "address_line1": "Kost Semarang Peterongan Timur",
+                "address_line2": "Jalan Peterongan Timur 349, Semarang 50242, Central Java, Indonesia",
+                "categories": [
+                    "accommodation",
+                    "accommodation.hotel",
+                    "internet_access",
+                    "internet_access.free"
+                ],
+                "details": [
+                    "details",
+                    "details.accommodation",
+                    "details.contact",
+                    "details.facilities",
+                    "details.wiki_and_media"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "Kost Semarang Peterongan Timur",
+                        "brand": "Kost Semarang Peterongan Timur",
+                        "email": "kost.peterongan.timur@gmail.com",
+                        "image": "https://boardinghousesemarangpeterongantimur.wordpress.com/wp-content/uploads/2017/04/rsz_kost_semarang_peterongan_timur17.jpg",
+                        "phone": "+62 857 1330 5337",
+                        "rooms": 14,
+                        "mobile": "+62 857 1330 5337",
+                        "osm_id": 12408764164,
+                        "tourism": "hotel",
+                        "website": "https://boardinghousesemarangpeterongantimur.wordpress.com/",
+                        "osm_type": "n",
+                        "addr:city": "Semarang",
+                        "check_date": "2024-12-10",
+                        "addr:street": "Jalan Peterongan Timur",
+                        "reservation": "yes",
+                        "addr:district": "Kelurahan Peterongan",
+                        "addr:postcode": 50242,
+                        "addr:province": "Central Java",
+                        "opening_hours": "Mo-Su 09:00-21:00",
+                        "internet_access": "yes",
+                        "addr:housenumber": 349,
+                        "addr:subdistrict": "RT 05 RW 06",
+                        "air_conditioning": "yes",
+                        "contact:facebook": "https://www.facebook.com/sewakostbupuji/",
+                        "internet_access:fee": "no"
+                    }
+                },
+                "website": "https://boardinghousesemarangpeterongantimur.wordpress.com/",
+                "opening_hours": "Mo-Su 09:00-21:00",
+                "brand": "Kost Semarang Peterongan Timur",
+                "contact": {
+                    "phone": "+62 857 1330 5337",
+                    "email": "kost.peterongan.timur@gmail.com"
+                },
+                "facilities": {
+                    "internet_access": true,
+                    "air_conditioning": true
+                },
+                "wiki_and_media": {
+                    "image": "https://boardinghousesemarangpeterongantimur.wordpress.com/wp-content/uploads/2017/04/rsz_kost_semarang_peterongan_timur17.jpg"
+                },
+                "accommodation": {
+                    "rooms": 14,
+                    "reservation": "required"
+                },
+                "place_id": "51680586acee9b5b405965687f8483001cc0f00103f90104b79ee30200000092031e4b6f73742053656d6172616e672050657465726f6e67616e2054696d7572"
+            },
+            "latitude": -7.000501699711184,
+            "longitude": 110.4364425,
+            "booking": {
+                "checkInDate": "2025-10-19",
+                "checkOutDate": "2025-10-20",
+                "dateRange": "Sun, Oct 19, 2025 to Mon, Oct 20, 2025",
+                "dayNumber": 2,
+                "stayDate": "2025-10-19",
+                "isDateRange": true
+            },
+            "tripDates": {}
+        }
+    ],
+    "attractions": [
+        {
+            "id": "51cef491207f995b4059770403ecc5fb1bc0f00102f901fece2622000000009203164b656c656e74656e672053616d20506f6f204b6f6e67",
+            "name": "Kelenteng Sam Poo Kong",
+            "type": "Tourist Attraction",
+            "rating": "4.3",
+            "price": "Free",
+            "address": "Kelenteng Sam Poo Kong, Jalan Simongan, Semarang 50233, Central Java, Indonesia",
+            "location": "Kelenteng Sam Poo Kong",
+            "coordinates": {
+                "latitude": -6.995872199711008,
+                "longitude": 110.39838423017065
+            },
+            "amenities": [
+                "Website"
+            ],
+            "image": "https://images.unsplash.com/photo-1539650116574-75c0c6d89b05?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "https://linktr.ee/sampookong",
+            "properties": {
+                "name": "Kelenteng Sam Poo Kong",
+                "country": "Indonesia",
+                "country_code": "id",
+                "region": "Java",
+                "state": "Central Java",
+                "city": "Semarang",
+                "village": "Bongsari",
+                "postcode": "50233",
+                "district": "Semarang Barat",
+                "neighbourhood": "RW 02",
+                "street": "Jalan Simongan",
+                "iso3166_2": "ID-JW",
+                "iso3166_2_sublevel": "ID-JT",
+                "lon": 110.39838423017065,
+                "lat": -6.9958722,
+                "formatted": "Kelenteng Sam Poo Kong, Jalan Simongan, Semarang 50233, Central Java, Indonesia",
+                "address_line1": "Kelenteng Sam Poo Kong",
+                "address_line2": "Jalan Simongan, Semarang 50233, Central Java, Indonesia",
+                "categories": [
+                    "religion",
+                    "religion.place_of_worship",
+                    "tourism",
+                    "tourism.attraction",
+                    "tourism.sights.place_of_worship"
+                ],
+                "details": [
+                    "details",
+                    "details.place_of_worship",
+                    "details.wiki_and_media"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "Kelenteng Sam Poo Kong",
+                        "osm_id": 572968702,
+                        "amenity": "place_of_worship",
+                        "landuse": "religious",
+                        "name:zh": "三保洞",
+                        "tourism": "attraction",
+                        "website": "https://linktr.ee/sampookong",
+                        "alt_name": "Sam Poo Kong Vihara Buddhagaya",
+                        "osm_type": "w",
+                        "religion": "buddhist;muslim",
+                        "wikidata": "Q2128689",
+                        "addr:city": "Semarang",
+                        "addr:full": "Jalan Pamularsih",
+                        "wikipedia": "id:Kelenteng Sam Poo Kong",
+                        "alt_name:zh": "三宝洞;三保宫"
+                    }
+                },
+                "website": "https://linktr.ee/sampookong",
+                "name_other": {
+                    "alt_name": "Sam Poo Kong Vihara Buddhagaya"
+                },
+                "name_international": {
+                    "zh": "三保洞"
+                },
+                "wiki_and_media": {
+                    "wikidata": "Q2128689",
+                    "wikipedia": "id:Kelenteng Sam Poo Kong"
+                },
+                "place_of_worship": {
+                    "religion": "buddhist;muslim"
+                },
+                "place_id": "51cef491207f995b4059770403ecc5fb1bc0f00102f901fece2622000000009203164b656c656e74656e672053616d20506f6f204b6f6e67"
+            },
+            "latitude": -6.995872199711008,
+            "longitude": 110.39838423017065
+        },
+        {
+            "id": "514d79f494639b5b4059d14b8a8422e61bc0f00102f901a517be4d000000009203135061736172204d616c616d2053656d61776973",
+            "name": "Pasar Malam Semawis",
+            "type": "Tourist Attraction",
+            "rating": "4.6",
+            "price": "Free",
+            "address": "Night Market Semawis, Jalan Gang Tengah, Semarang 50137, Central Java, Indonesia",
+            "location": "Night Market Semawis",
+            "coordinates": {
+                "latitude": -6.974741049710205,
+                "longitude": 110.42795299410245
+            },
+            "amenities": [
+                "Scenic Views",
+                "Photo Opportunities",
+                "Walkable"
+            ],
+            "image": "https://images.unsplash.com/photo-1545558014-8692077e9b5c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "",
+            "properties": {
+                "name": "Pasar Malam Semawis",
+                "country": "Indonesia",
+                "country_code": "id",
+                "region": "Java",
+                "state": "Central Java",
+                "city": "Semarang",
+                "village": "Kranggan",
+                "postcode": "50137",
+                "district": "Semarang Tengah",
+                "neighbourhood": "RW 03",
+                "street": "Jalan Gang Tengah",
+                "iso3166_2": "ID-JW",
+                "iso3166_2_sublevel": "ID-JT",
+                "lon": 110.42795299410247,
+                "lat": -6.97474105,
+                "formatted": "Night Market Semawis, Jalan Gang Tengah, Semarang 50137, Central Java, Indonesia",
+                "address_line1": "Night Market Semawis",
+                "address_line2": "Jalan Gang Tengah, Semarang 50137, Central Java, Indonesia",
+                "categories": [
+                    "tourism",
+                    "tourism.attraction"
+                ],
+                "details": [
+                    "details",
+                    "details.wiki_and_media"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "Pasar Malam Semawis",
+                        "osm_id": 1304303525,
+                        "landuse": "retail",
+                        "name:en": "Night Market Semawis",
+                        "tourism": "attraction",
+                        "osm_type": "w",
+                        "wikidata": "Q12503477",
+                        "wikipedia": "id:Pasar Semawis",
+                        "opening_hours": "Fr-Su 17:00-00:00"
+                    }
+                },
+                "opening_hours": "Fr-Su 17:00-00:00",
+                "name_international": {
+                    "en": "Night Market Semawis"
+                },
+                "wiki_and_media": {
+                    "wikidata": "Q12503477",
+                    "wikipedia": "id:Pasar Semawis"
+                },
+                "place_id": "514d79f494639b5b4059d14b8a8422e61bc0f00102f901a517be4d000000009203135061736172204d616c616d2053656d61776973"
+            },
+            "latitude": -6.974741049710205,
+            "longitude": 110.42795299410245
+        }
+    ],
+    "summary": {
+        "isComplete": true,
+        "totalItems": 13,
+        "errors": []
+    }
+}
+        const response = await fetch('/tourism/api/test_api_call_3/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
             },
-            body: JSON.stringify(tripData)
+            // body: JSON.stringify(tripData)
+            body: JSON.stringify(dummyData)  // Using dummy data for testing
         });
         
         if (!response.ok) {
@@ -4218,6 +4700,9 @@ async function saveTripDataToServer(tripData) {
         
         const result = await response.json();
         console.log('✅ Trip data saved successfully:', result);
+        
+        // Display the route optimization results immediately
+        displayRouteResultsFromAPI(result);
         
         return {
             success: true,
@@ -4233,6 +4718,652 @@ async function saveTripDataToServer(tripData) {
             error: error.message,
             message: 'Failed to save trip data. Please try again.'
         };
+    }
+}
+
+// Function to display route optimization results from API response
+function displayRouteResultsFromAPI(apiResult) {
+    console.log('🗺️ Displaying route optimization results from API response...', apiResult);
+    
+    try {
+        // Check if DisplayLineResult class is available
+        if (typeof window.DisplayLineResult !== 'function') {
+            console.warn('⚠️ DisplayLineResult class not available, attempting to load...');
+            
+            // Try to get existing instance or create new one
+            if (window.displayLineResultInstance) {
+                console.log('✅ Using existing DisplayLineResult instance');
+                window.displayLineResultInstance.displayRouteResults(apiResult);
+            } else {
+                console.error('❌ DisplayLineResult not available and no existing instance found');
+                showRouteDisplayError('Route visualization component not available. Please refresh the page.');
+                return;
+            }
+        } else {
+            // Create or get DisplayLineResult instance
+            if (!window.displayLineResultInstance) {
+                console.log('🔄 Creating new DisplayLineResult instance...');
+                window.displayLineResultInstance = new DisplayLineResult();
+            }
+            
+            // Display the results using the DisplayLineResult class
+            window.displayLineResultInstance.displayRouteResults(apiResult);
+        }
+        
+        // Display Gantt chart with optimization results
+        displayGanttChartFromOptimization(apiResult);
+        
+        // Show success message
+        showRouteDisplaySuccess('Route optimization and Gantt chart displayed successfully!');
+        
+        console.log('✅ Route results and Gantt chart displayed successfully from API response');
+        
+    } catch (error) {
+        console.error('❌ Error displaying route results from API response:', error);
+        showRouteDisplayError('Failed to display route results: ' + error.message);
+    }
+}
+
+// Function to display Gantt chart from optimization results
+function displayGanttChartFromOptimization(apiResult) {
+    console.log('📊 Displaying Gantt chart from optimization results...', apiResult);
+    
+    try {
+        // Check if Gantt chart manager is available
+        console.log('🔍 Checking GanttChartManager availability:', {
+            ganttChartManager: !!window.ganttChartManager,
+            showGanttModal: window.ganttChartManager?.showGanttModal,
+            ganttChartManagerType: typeof window.ganttChartManager
+        });
+        
+        if (!window.ganttChartManager) {
+            console.error('❌ GanttChartManager not available');
+            
+            // Try to initialize it if it doesn't exist
+            if (typeof GanttChartManager !== 'undefined') {
+                console.log('🔄 Attempting to create GanttChartManager instance...');
+                window.ganttChartManager = new GanttChartManager();
+                console.log('✅ GanttChartManager instance created successfully');
+            } else {
+                console.error('❌ GanttChartManager class not loaded');
+                showRouteDisplayError('Gantt chart component not loaded. Please refresh the page.');
+                return;
+            }
+        }
+        
+        // Transform API result into Gantt chart data
+        console.log('🔄 Starting data transformation...');
+        const ganttData = transformOptimizationToGanttData(apiResult);
+        console.log('📊 Gantt data after transformation:', ganttData);
+        
+        if (!ganttData || ganttData.length === 0) {
+            console.warn('⚠️ No Gantt chart data could be extracted from optimization results');
+            console.log('🔍 Creating fallback Gantt data...');
+            
+            // Create fallback data to ensure Gantt chart shows
+            const fallbackData = createFallbackGanttData(apiResult);
+            if (fallbackData && fallbackData.length > 0) {
+                console.log('✅ Using fallback Gantt data:', fallbackData);
+                showGanttChartWithData(apiResult, fallbackData);
+            } else {
+                console.error('❌ Could not create any Gantt chart data');
+            }
+            return;
+        }
+        
+        // Show Gantt chart with transformed data
+        showGanttChartWithData(apiResult, ganttData);
+        
+    } catch (error) {
+        console.error('❌ Error displaying Gantt chart from optimization:', error);
+        console.error('Error stack:', error.stack);
+        showRouteDisplayError('Failed to display Gantt chart: ' + error.message);
+    }
+}
+
+// Helper function to show Gantt chart with data
+function showGanttChartWithData(apiResult, ganttData) {
+    try {
+        // Prepare trip data for Gantt chart
+        const tripData = {
+            startDate: extractStartDate(apiResult),
+            endDate: extractEndDate(apiResult),
+            startTime: "08:00",
+            endTime: "22:00"
+        };
+        
+        console.log('📅 Trip data for Gantt chart:', tripData);
+        console.log('📊 Final Gantt data:', ganttData);
+        
+        // Show the Gantt chart modal with optimization results
+        console.log('🎬 Calling showGanttModal...');
+        window.ganttChartManager.showGanttModal(tripData, ganttData, {
+            method: "Route Optimization",
+            schedule_start: `${tripData.startDate}T${tripData.startTime}:00`,
+            schedule_end: `${tripData.endDate}T${tripData.endTime}:00`,
+            optimization_source: "API Response"
+        });
+        
+        console.log('✅ Gantt chart displayed successfully from optimization results');
+        
+    } catch (error) {
+        console.error('❌ Error in showGanttChartWithData:', error);
+        throw error;
+    }
+}
+
+// Function to create fallback Gantt data
+function createFallbackGanttData(apiResult) {
+    console.log('🔄 Creating fallback Gantt data from API result...');
+    
+    try {
+        const fallbackData = [];
+        const baseDate = getCurrentDate();
+        
+        // If we have route optimization data, create timeline from it
+        if (apiResult.optimized_routes) {
+            console.log('📍 Found optimized_routes data');
+            
+            fallbackData.push({
+                name: "Route Optimization Complete",
+                type: "system",
+                startTime: "08:00",
+                endTime: "08:30",
+                date: baseDate,
+                location: "System Generated",
+                description: "Route optimization completed successfully"
+            });
+            
+            // Add a travel activity
+            fallbackData.push({
+                name: "Travel Itinerary",
+                type: "attraction",
+                startTime: "09:00", 
+                endTime: "18:00",
+                date: baseDate,
+                location: "Multiple Locations",
+                description: "Optimized travel route with multiple stops"
+            });
+        }
+        
+        // If we have dummy data structure
+        if (apiResult.destination) {
+            console.log('📍 Found destination data');
+            
+            fallbackData.push({
+                name: "Destination: " + (apiResult.destination.formatted_address || "Selected Location"),
+                type: "destination",
+                startTime: "10:00",
+                endTime: "11:00", 
+                date: baseDate,
+                location: apiResult.destination.formatted_address || "Unknown Location",
+                description: "Visit selected destination"
+            });
+        }
+        
+        // If we have hotels data
+        if (apiResult.hotels && Array.isArray(apiResult.hotels)) {
+            console.log('📍 Found hotels data:', apiResult.hotels.length, 'hotels');
+            
+            apiResult.hotels.forEach((hotel, index) => {
+                const startHour = 14 + index; // Check-in times starting from 2 PM
+                fallbackData.push({
+                    name: hotel.name || `Hotel ${index + 1}`,
+                    type: "hotel",
+                    startTime: `${startHour}:00`,
+                    endTime: `${startHour + 1}:00`,
+                    date: baseDate,
+                    location: hotel.location || hotel.address || "Hotel Location",
+                    description: `Hotel accommodation - ${hotel.name || 'Unnamed Hotel'}`
+                });
+            });
+        }
+        
+        // If we have attractions data
+        if (apiResult.attractions && Array.isArray(apiResult.attractions)) {
+            console.log('📍 Found attractions data:', apiResult.attractions.length, 'attractions');
+            
+            apiResult.attractions.forEach((attraction, index) => {
+                const startHour = 16 + index; // Visit times starting from 4 PM
+                fallbackData.push({
+                    name: attraction.name || `Attraction ${index + 1}`,
+                    type: "attraction", 
+                    startTime: `${startHour}:00`,
+                    endTime: `${startHour + 2}:00`,
+                    date: baseDate,
+                    location: attraction.location || attraction.address || "Attraction Location",
+                    description: `Visit ${attraction.name || 'attraction'}`
+                });
+            });
+        }
+        
+        console.log('✅ Fallback Gantt data created:', fallbackData);
+        return fallbackData;
+        
+    } catch (error) {
+        console.error('❌ Error creating fallback Gantt data:', error);
+        return [];
+    }
+}
+
+// Function to transform optimization results into Gantt chart data format
+function transformOptimizationToGanttData(apiResult) {
+    console.log('🔄 Transforming optimization results to Gantt data...', apiResult);
+    
+    try {
+        const ganttData = [];
+        
+        // Check if we have optimized routes data
+        if (apiResult.optimized_routes && apiResult.optimized_routes.path_lines) {
+            const pathLines = apiResult.optimized_routes.path_lines;
+            let currentTime = "08:00"; // Start time
+            
+            pathLines.forEach((segment, index) => {
+                // Calculate start and end times for each segment
+                const startTime = currentTime;
+                const endTime = addMinutesToTime(currentTime, 60 + (index * 15)); // 60 minutes base + 15 minutes per segment
+                
+                // Determine activity type
+                let activityType = "attraction";
+                let activityName = `Stop ${index + 1}`;
+                
+                // Try to extract meaningful information from segment
+                if (segment.source_name) {
+                    activityName = segment.source_name;
+                    activityType = segment.source_name.toLowerCase().includes('hotel') ? 'hotel' : 'attraction';
+                } else if (segment.destination_name) {
+                    activityName = segment.destination_name;
+                    activityType = segment.destination_name.toLowerCase().includes('hotel') ? 'hotel' : 'attraction';
+                }
+                
+                ganttData.push({
+                    name: activityName,
+                    type: activityType,
+                    startTime: startTime,
+                    endTime: endTime,
+                    date: getCurrentDate(),
+                    location: segment.source_name || segment.destination_name || `Location ${index + 1}`,
+                    description: `Optimized route segment ${index + 1}`,
+                    coordinates: segment.source_coordinates || segment.destination_coordinates
+                });
+                
+                currentTime = endTime; // Update current time for next segment
+            });
+        }
+        
+        // If no path_lines data, try to extract from other parts of the response
+        if (ganttData.length === 0 && apiResult.optimized_gantt_chart) {
+            return transformGanttChartData(apiResult.optimized_gantt_chart);
+        }
+        
+        // If still no data, create sample data based on the response structure
+        if (ganttData.length === 0) {
+            ganttData.push({
+                name: "Optimization Complete",
+                type: "system",
+                startTime: "08:00",
+                endTime: "09:00",
+                date: getCurrentDate(),
+                location: "System Generated",
+                description: "Route optimization completed successfully"
+            });
+        }
+        
+        console.log('✅ Gantt data transformed successfully:', ganttData);
+        return ganttData;
+        
+    } catch (error) {
+        console.error('❌ Error transforming optimization data:', error);
+        return [];
+    }
+}
+
+// Helper function to transform existing Gantt chart data
+function transformGanttChartData(ganttChartData) {
+    if (!ganttChartData || !Array.isArray(ganttChartData)) {
+        return [];
+    }
+    
+    return ganttChartData.map((item, index) => ({
+        name: item.name || item.activity || `Activity ${index + 1}`,
+        type: item.type || 'attraction',
+        startTime: item.start_time || item.startTime || '08:00',
+        endTime: item.end_time || item.endTime || '09:00',
+        date: item.date || getCurrentDate(),
+        location: item.location || item.place || 'Unknown Location',
+        description: item.description || item.details || `Activity ${index + 1}`
+    }));
+}
+
+// Helper functions
+function extractStartDate(apiResult) {
+    // Try to extract start date from various possible locations in the API result
+    if (apiResult.schedule && apiResult.schedule.start_date) {
+        return apiResult.schedule.start_date;
+    }
+    if (apiResult.dates && apiResult.dates.start_date) {
+        return apiResult.dates.start_date;
+    }
+    return getCurrentDate(); // Fallback to current date
+}
+
+function extractEndDate(apiResult) {
+    // Try to extract end date from various possible locations in the API result
+    if (apiResult.schedule && apiResult.schedule.end_date) {
+        return apiResult.schedule.end_date;
+    }
+    if (apiResult.dates && apiResult.dates.end_date) {
+        return apiResult.dates.end_date;
+    }
+    return getCurrentDate(); // Fallback to current date
+}
+
+function getCurrentDate() {
+    return new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+}
+
+function addMinutesToTime(timeString, minutes) {
+    const [hours, mins] = timeString.split(':').map(Number);
+    const totalMinutes = (hours * 60) + mins + minutes;
+    const newHours = Math.floor(totalMinutes / 60) % 24;
+    const newMins = totalMinutes % 60;
+    return `${String(newHours).padStart(2, '0')}:${String(newMins).padStart(2, '0')}`;
+}
+
+// Function to show route display success message
+function showRouteDisplaySuccess(message) {
+    // Create success notification
+    const notification = document.createElement('div');
+    notification.className = 'route-display-notification success';
+    notification.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 350px;
+        font-size: 14px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    `;
+    
+    notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-route" style="font-size: 16px;"></i>
+            <i class="fas fa-chart-gantt" style="font-size: 16px;"></i>
+        </div>
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; margin-left: auto; cursor: pointer; font-size: 18px; padding: 0 5px;">×</button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Function to show route display error message
+function showRouteDisplayError(message) {
+    // Create error notification
+    const notification = document.createElement('div');
+    notification.className = 'route-display-notification error';
+    notification.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 350px;
+        font-size: 14px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    `;
+    
+    notification.innerHTML = `
+        <i class="fas fa-exclamation-triangle" style="font-size: 16px;"></i>
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; margin-left: auto; cursor: pointer; font-size: 18px; padding: 0 5px;">×</button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 8 seconds (longer for errors)
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 8000);
+}
+
+// Function to show trip submission success message
+function showTripSubmissionSuccess(message, result) {
+    // Create success notification
+    const notification = document.createElement('div');
+    notification.className = 'trip-submission-notification success';
+    notification.style.cssText = `
+        position: fixed;
+        top: 120px;
+        right: 20px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 20px 25px;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4);
+        z-index: 10001;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-width: 400px;
+        font-size: 14px;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        animation: slideInFromRight 0.5s ease;
+    `;
+    
+    notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-check-circle" style="font-size: 20px;"></i>
+            <span style="font-weight: 600; font-size: 16px;">Trip Optimization Complete!</span>
+            <button onclick="this.closest('.trip-submission-notification').remove()" 
+                    style="background: none; border: none; color: white; margin-left: auto; cursor: pointer; font-size: 20px; padding: 0 5px;">×</button>
+        </div>
+        <div style="font-size: 13px; opacity: 0.9;">
+            ${message}
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 8px;">
+            <button onclick="viewOptimizationDetails()" 
+                    style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                <i class="fas fa-eye me-1"></i>View Details
+            </button>
+            <button onclick="downloadOptimizationResults()" 
+                    style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                <i class="fas fa-download me-1"></i>Download
+            </button>
+        </div>
+    `;
+    
+    // Add CSS animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInFromRight {
+            0% { transform: translateX(100%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(notification);
+    
+    // Store result for detail viewing
+    window.currentOptimizationResult = result;
+    
+    // Auto-remove after 10 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.style.animation = 'slideInFromRight 0.5s ease reverse';
+            setTimeout(() => notification.remove(), 500);
+        }
+    }, 10000);
+}
+
+// Function to show trip submission error message
+function showTripSubmissionError(message) {
+    // Create error notification
+    const notification = document.createElement('div');
+    notification.className = 'trip-submission-notification error';
+    notification.style.cssText = `
+        position: fixed;
+        top: 120px;
+        right: 20px;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        padding: 20px 25px;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(239, 68, 68, 0.4);
+        z-index: 10001;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-width: 400px;
+        font-size: 14px;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        animation: slideInFromRight 0.5s ease;
+    `;
+    
+    notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 20px;"></i>
+            <span style="font-weight: 600; font-size: 16px;">Submission Failed</span>
+            <button onclick="this.closest('.trip-submission-notification').remove()" 
+                    style="background: none; border: none; color: white; margin-left: auto; cursor: pointer; font-size: 20px; padding: 0 5px;">×</button>
+        </div>
+        <div style="font-size: 13px; opacity: 0.9;">
+            ${message}
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 8px;">
+            <button onclick="retryTripSubmission()" 
+                    style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                <i class="fas fa-redo me-1"></i>Retry
+            </button>
+            <button onclick="saveLocally()" 
+                    style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                <i class="fas fa-save me-1"></i>Save Locally
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 12 seconds (longer for errors)
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.style.animation = 'slideInFromRight 0.5s ease reverse';
+            setTimeout(() => notification.remove(), 500);
+        }
+    }, 12000);
+}
+
+// Function to view optimization details
+function viewOptimizationDetails() {
+    if (window.currentOptimizationResult) {
+        console.log('📊 Optimization Details:', window.currentOptimizationResult);
+        
+        // Create a detailed modal or expand the existing one
+        const detailsModal = document.createElement('div');
+        detailsModal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 10002;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        `;
+        
+        detailsModal.innerHTML = `
+            <div style="background: white; padding: 30px; border-radius: 15px; max-width: 600px; max-height: 80%; overflow-y: auto; position: relative;">
+                <button onclick="this.closest('div').remove()" 
+                        style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">×</button>
+                <h3 style="margin-bottom: 20px; color: #2563eb;"><i class="fas fa-chart-line me-2"></i>Optimization Results</h3>
+                <pre style="background: #f8f9fa; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 12px; line-height: 1.4;">${JSON.stringify(window.currentOptimizationResult, null, 2)}</pre>
+            </div>
+        `;
+        
+        document.body.appendChild(detailsModal);
+        
+        // Close modal when clicking outside
+        detailsModal.addEventListener('click', (e) => {
+            if (e.target === detailsModal) {
+                detailsModal.remove();
+            }
+        });
+    } else {
+        alert('No optimization results available to view.');
+    }
+}
+
+// Function to download optimization results
+function downloadOptimizationResults() {
+    if (window.currentOptimizationResult) {
+        const dataStr = JSON.stringify(window.currentOptimizationResult, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = `trip_optimization_results_${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        
+        console.log('📁 Optimization results downloaded');
+    } else {
+        alert('No optimization results available to download.');
+    }
+}
+
+// Function to retry trip submission
+function retryTripSubmission() {
+    // Remove current notification
+    document.querySelectorAll('.trip-submission-notification').forEach(n => n.remove());
+    
+    // Retry submission
+    submitTripProcess();
+}
+
+// Function to save locally as fallback
+function saveLocally() {
+    try {
+        const tripData = collectTripData();
+        const localSaveResult = saveTripDataLocally(tripData);
+        
+        if (localSaveResult.success) {
+            showTripSubmissionSuccess('Trip data saved locally successfully!', { data: tripData });
+        } else {
+            throw new Error(localSaveResult.message);
+        }
+    } catch (error) {
+        showTripSubmissionError('Failed to save locally: ' + error.message);
     }
 }
 
@@ -4468,109 +5599,143 @@ async function submitTripProcess() {
     const originalText = submitBtn.innerHTML;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
     submitBtn.disabled = true;
+
+    let saveResult = await saveTripDataToServer();
     
     try {
-        // Run coordinate debug check before collection
-        console.log('🔍 Running coordinate debug check before submission...');
-        debugCoordinates();
-        
-        // Clean up map markers - show only selected items
-        console.log('🧹 Cleaning up map markers before submission...');
-        showOnlySelectedMarkers();
-        
-        // Collect all trip data
-        const tripData = collectTripData();
-        
-        // Additional coordinate validation before submission
-        console.log('📊 Final coordinate validation before submission:');
-        
-        // Check hotels coordinates
-        const hotelsWithoutCoords = tripData.hotels.filter(h => 
-            !h.coordinates.latitude || !h.coordinates.longitude || 
-            isNaN(h.coordinates.latitude) || isNaN(h.coordinates.longitude)
-        );
-        
-        if (hotelsWithoutCoords.length > 0) {
-            console.warn('⚠️ Hotels without valid coordinates:', hotelsWithoutCoords.map(h => h.name));
-        }
-        
-        // Check attractions coordinates
-        const attractionsWithoutCoords = tripData.attractions.filter(a => 
-            !a.coordinates.latitude || !a.coordinates.longitude || 
-            isNaN(a.coordinates.latitude) || isNaN(a.coordinates.longitude)
-        );
-        
-        if (attractionsWithoutCoords.length > 0) {
-            console.warn('⚠️ Attractions without valid coordinates:', attractionsWithoutCoords.map(a => a.name));
-        }
-        
-        // Log final coordinate summary
-        console.log('📍 Final coordinate summary:', {
-            destination: {
-                hasCoords: !!(tripData.destination?.coordinates?.latitude && tripData.destination?.coordinates?.longitude),
-                coords: tripData.destination?.coordinates
-            },
-            hotels: {
-                total: tripData.hotels.length,
-                withCoords: tripData.hotels.filter(h => h.coordinates.latitude && h.coordinates.longitude && !isNaN(h.coordinates.latitude) && !isNaN(h.coordinates.longitude)).length,
-                invalidCoords: hotelsWithoutCoords.length
-            },
-            attractions: {
-                total: tripData.attractions.length,
-                withCoords: tripData.attractions.filter(a => a.coordinates.latitude && a.coordinates.longitude && !isNaN(a.coordinates.latitude) && !isNaN(a.coordinates.longitude)).length,
-                invalidCoords: attractionsWithoutCoords.length
-            }
-        });
-        
-        // Validate trip data
-        const validation = validateTripData(tripData);
-        
-        if (!validation.isValid) {
-            throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
-        }
-        
-        // Show warnings if any
-        if (validation.warnings.length > 0) {
-            console.warn('⚠️ Validation warnings:', validation.warnings);
-        }
-        
-        // Try to save to server first
-        let saveResult = await saveTripDataToServer(tripData);
-        
-        // If server save fails, save locally
         if (!saveResult.success) {
-            console.log('🔄 Server save failed, trying local save...');
-            saveResult = saveTripDataLocally(tripData);
+            throw new Error(saveResult.message || 'Failed to save trip data to server');
         }
         
-        if (saveResult.success) {
-            // Show success message
-            alert(`✅ ${saveResult.message}`);
-            
-            // Remove unselected markers from map completely
-            removeUnselectedMarkersFromMap();
-            
-            // Display trip summary
-            displayTripSummary(tripData);
-            
-            // Reset form if needed
-            // resetTripForm();
-            
-            console.log('🎉 Trip submission completed successfully!');
-            
-        } else {
-            throw new Error(saveResult.message);
-        }
+        console.log('✅ Trip data saved and optimization complete:', saveResult);
+        
+        // Show success message
+        showTripSubmissionSuccess('Trip submitted and route optimization completed successfully!', saveResult);
+        
+        // Update button to success state
+        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Optimization Complete!';
+        submitBtn.className = 'btn btn-success';
+        
+        // Enable button after a delay
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.className = 'btn btn-primary';
+            submitBtn.disabled = false;
+        }, 3000);
         
     } catch (error) {
         console.error('❌ Trip submission failed:', error);
-        alert(`❌ Error: ${error.message}`);
         
-    } finally {
+        // Show error message
+        showTripSubmissionError('Failed to submit trip: ' + error.message);
+        
         // Restore button state
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
     }
+    
+    // try {
+    //     // Run coordinate debug check before collection
+    //     console.log('🔍 Running coordinate debug check before submission...');
+    //     debugCoordinates();
+        
+    //     // Clean up map markers - show only selected items
+    //     console.log('🧹 Cleaning up map markers before submission...');
+    //     showOnlySelectedMarkers();
+        
+    //     // Collect all trip data
+    //     const tripData = collectTripData();
+        
+    //     // Additional coordinate validation before submission
+    //     console.log('📊 Final coordinate validation before submission:');
+        
+    //     // Check hotels coordinates
+    //     const hotelsWithoutCoords = tripData.hotels.filter(h => 
+    //         !h.coordinates.latitude || !h.coordinates.longitude || 
+    //         isNaN(h.coordinates.latitude) || isNaN(h.coordinates.longitude)
+    //     );
+        
+    //     if (hotelsWithoutCoords.length > 0) {
+    //         console.warn('⚠️ Hotels without valid coordinates:', hotelsWithoutCoords.map(h => h.name));
+    //     }
+        
+    //     // Check attractions coordinates
+    //     const attractionsWithoutCoords = tripData.attractions.filter(a => 
+    //         !a.coordinates.latitude || !a.coordinates.longitude || 
+    //         isNaN(a.coordinates.latitude) || isNaN(a.coordinates.longitude)
+    //     );
+        
+    //     if (attractionsWithoutCoords.length > 0) {
+    //         console.warn('⚠️ Attractions without valid coordinates:', attractionsWithoutCoords.map(a => a.name));
+    //     }
+        
+    //     // Log final coordinate summary
+    //     console.log('📍 Final coordinate summary:', {
+    //         destination: {
+    //             hasCoords: !!(tripData.destination?.coordinates?.latitude && tripData.destination?.coordinates?.longitude),
+    //             coords: tripData.destination?.coordinates
+    //         },
+    //         hotels: {
+    //             total: tripData.hotels.length,
+    //             withCoords: tripData.hotels.filter(h => h.coordinates.latitude && h.coordinates.longitude && !isNaN(h.coordinates.latitude) && !isNaN(h.coordinates.longitude)).length,
+    //             invalidCoords: hotelsWithoutCoords.length
+    //         },
+    //         attractions: {
+    //             total: tripData.attractions.length,
+    //             withCoords: tripData.attractions.filter(a => a.coordinates.latitude && a.coordinates.longitude && !isNaN(a.coordinates.latitude) && !isNaN(a.coordinates.longitude)).length,
+    //             invalidCoords: attractionsWithoutCoords.length
+    //         }
+    //     });
+        
+    //     // Validate trip data
+    //     const validation = validateTripData(tripData);
+        
+    //     if (!validation.isValid) {
+    //         throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
+    //     }
+        
+    //     // Show warnings if any
+    //     if (validation.warnings.length > 0) {
+    //         console.warn('⚠️ Validation warnings:', validation.warnings);
+    //     }
+        
+    //     // Try to save to server first
+    //     let saveResult = await saveTripDataToServer(tripData);
+        
+    //     // If server save fails, save locally
+    //     if (!saveResult.success) {
+    //         console.log('🔄 Server save failed, trying local save...');
+    //         saveResult = saveTripDataLocally(tripData);
+    //     }
+        
+    //     if (saveResult.success) {
+    //         // Show success message
+    //         alert(`✅ ${saveResult.message}`);
+            
+    //         // Remove unselected markers from map completely
+    //         removeUnselectedMarkersFromMap();
+            
+    //         // Display trip summary
+    //         displayTripSummary(tripData);
+            
+    //         // Reset form if needed
+    //         // resetTripForm();
+            
+    //         console.log('🎉 Trip submission completed successfully!');
+            
+    //     } else {
+    //         throw new Error(saveResult.message);
+    //     }
+        
+    // } catch (error) {
+    //     console.error('❌ Trip submission failed:', error);
+    //     alert(`❌ Error: ${error.message}`);
+        
+    // } finally {
+    //     // Restore button state
+    //     submitBtn.innerHTML = originalText;
+    //     submitBtn.disabled = false;
+    // }
 }
 
 // Attach event listener to submit button
@@ -4783,6 +5948,157 @@ function openDatetimeModal() {
 window.setDateTimeData = setDateTimeData;
 window.openDatetimeModal = openDatetimeModal;
 window.debugCoordinates = debugCoordinates;
+
+// Test function for full optimization workflow
+function testFullOptimizationWorkflow() {
+    console.log('🚀 Testing full optimization workflow...');
+    
+    // Create a mock API result that mimics what saveTripDataToServer() would return
+    const mockOptimizationResult = {
+        success: true,
+        message: "Route optimization completed successfully",
+        optimized_routes: {
+            best_distance: 15420.5,
+            execution_time: "2.34 seconds",
+            improvement_percentage: "23.5%",
+            path_lines: [
+                {
+                    source_name: "Hotel Seoul Plaza",
+                    source_coordinates: [37.5665, 126.9780],
+                    destination_name: "Gyeongbokgung Palace",
+                    destination_coordinates: [37.5796, 126.9770],
+                    path_coordinates: [
+                        [37.5665, 126.9780],
+                        [37.5720, 126.9775],
+                        [37.5796, 126.9770]
+                    ]
+                },
+                {
+                    source_name: "Gyeongbokgung Palace", 
+                    source_coordinates: [37.5796, 126.9770],
+                    destination_name: "Bukchon Hanok Village",
+                    destination_coordinates: [37.5824, 126.9854],
+                    path_coordinates: [
+                        [37.5796, 126.9770],
+                        [37.5810, 126.9812],
+                        [37.5824, 126.9854]
+                    ]
+                },
+                {
+                    source_name: "Bukchon Hanok Village",
+                    source_coordinates: [37.5824, 126.9854],
+                    destination_name: "N Seoul Tower",
+                    destination_coordinates: [37.5512, 126.9882],
+                    path_coordinates: [
+                        [37.5824, 126.9854],
+                        [37.5700, 126.9870],
+                        [37.5512, 126.9882]
+                    ]
+                }
+            ]
+        },
+        optimized_gantt_chart: [
+            {
+                name: "Hotel Check-in",
+                type: "hotel",
+                start_time: "14:00",
+                end_time: "15:00",
+                date: "2025-10-18",
+                location: "Hotel Seoul Plaza",
+                activity: "Check into hotel and settle in"
+            },
+            {
+                name: "Gyeongbokgung Palace",
+                type: "attraction", 
+                start_time: "16:00",
+                end_time: "18:00",
+                date: "2025-10-18",
+                location: "Jung-gu, Seoul",
+                activity: "Visit historical palace with changing of the guard ceremony"
+            },
+            {
+                name: "Bukchon Hanok Village",
+                type: "attraction",
+                start_time: "09:00", 
+                end_time: "11:00",
+                date: "2025-10-19",
+                location: "Jongno-gu, Seoul",
+                activity: "Explore traditional Korean architecture"
+            },
+            {
+                name: "N Seoul Tower",
+                type: "attraction",
+                start_time: "15:00",
+                end_time: "17:00", 
+                date: "2025-10-19",
+                location: "Namsan Park",
+                activity: "Iconic Seoul landmark with city views"
+            }
+        ],
+        schedule: {
+            start_date: "2025-10-18",
+            end_date: "2025-10-19",
+            start_time: "08:00",
+            end_time: "22:00",
+            duration_days: 2
+        }
+    };
+    
+    console.log('📊 Mock optimization result created:', mockOptimizationResult);
+    
+    // Display both route optimization and Gantt chart using the same function that saveTripDataToServer() calls
+    displayRouteResultsFromAPI(mockOptimizationResult);
+    
+    // Show a confirmation message
+    setTimeout(() => {
+        console.log('✅ Full optimization workflow test completed!');
+        console.log('🗺️ Check the map for route visualization with markers and path lines');
+        console.log('📊 Check for the Gantt chart modal showing optimized schedule');
+    }, 1000);
+}
+
+// Make test function globally available
+window.testFullOptimizationWorkflow = testFullOptimizationWorkflow;
+
+/*
+ * ============================================================================
+ * ROUTE OPTIMIZATION + GANTT CHART INTEGRATION SUMMARY
+ * ============================================================================
+ * 
+ * This integration provides a complete workflow where:
+ * 1. User submits trip data via saveTripDataToServer()
+ * 2. API returns route optimization results
+ * 3. System immediately displays:
+ *    - Route visualization with markers and path lines on the map
+ *    - Professional amCharts 4 Gantt chart with optimized schedule
+ * 
+ * KEY COMPONENTS:
+ * ---------------
+ * - saveTripDataToServer(): Sends trip data to Django API
+ * - displayRouteResultsFromAPI(): Main integration function that handles API response
+ * - displayGanttChartFromOptimization(): Transforms API results into Gantt chart
+ * - transformOptimizationToGanttData(): Data transformation utility
+ * - DisplayLineResult class: Handles route visualization on map
+ * - GanttChartManager class: Handles amCharts 4 Gantt chart display
+ * 
+ * WORKFLOW:
+ * ---------
+ * saveTripDataToServer() → API Response → displayRouteResultsFromAPI() 
+ * ↓
+ * ├─ DisplayLineResult.displayRouteResults() → Map visualization
+ * └─ displayGanttChartFromOptimization() → Gantt chart modal
+ * 
+ * TEST FUNCTIONALITY:
+ * ------------------
+ * - testFullOptimizationWorkflow(): Complete integration test with mock data
+ * - testAmChartsGantt(): Individual Gantt chart test
+ * - testDisplayLineResult(): Individual route display test
+ * 
+ * The system automatically handles data transformation from API responses to
+ * both map visualization and Gantt chart formats, providing immediate visual
+ * feedback to users after trip optimization submission.
+ * ============================================================================
+ */
 
 // ============= CURRENT ACTIVITY & HISTORY FUNCTIONALITY =============
 
@@ -5322,62 +6638,6 @@ function removeAttractionFromActivity(attractionId) {
     }
 }
 
-// Function to select hotel dates - wrapper for showHotelDateSelection
-function selectHotelDates(hotelId, hotelName) {
-    console.log('🏨 selectHotelDates called for:', hotelName, 'ID:', hotelId);
-    
-    // Find the hotel data from selected hotels or step process hotels
-    let hotelData = null;
-    
-    // First try to find in selectedHotelsData
-    if (window.selectedHotelsData && window.selectedHotelsData.length > 0) {
-        hotelData = window.selectedHotelsData.find(hotel => 
-            (hotel.id === hotelId || hotel.index === hotelId)
-        );
-    }
-    
-    // If not found, try to find in step process hotel data
-    if (!hotelData && window.stepProcessHotels && window.stepProcessHotels.length > 0) {
-        hotelData = window.stepProcessHotels.find(hotel => 
-            (hotel.id === hotelId || hotel.index === hotelId)
-        );
-    }
-    
-    // If still not found, try to find by name
-    if (!hotelData) {
-        if (window.selectedHotelsData && window.selectedHotelsData.length > 0) {
-            hotelData = window.selectedHotelsData.find(hotel => hotel.name === hotelName);
-        }
-        if (!hotelData && window.stepProcessHotels && window.stepProcessHotels.length > 0) {
-            hotelData = window.stepProcessHotels.find(hotel => hotel.name === hotelName);
-        }
-    }
-    
-    if (!hotelData) {
-        console.warn('⚠️ Hotel data not found for:', hotelName, 'ID:', hotelId);
-        // Create basic hotel data if not found
-        hotelData = {
-            id: hotelId,
-            name: hotelName,
-            address: 'Address not available',
-            coordinates: {
-                latitude: 0,
-                longitude: 0
-            }
-        };
-    }
-    
-    console.log('📍 Found hotel data:', hotelData);
-    
-    // Check if showHotelDateSelection function exists
-    if (typeof window.showHotelDateSelection === 'function') {
-        console.log('🎯 Calling showHotelDateSelection...');
-        window.showHotelDateSelection(hotelData, null);
-    } else {
-        console.error('❌ showHotelDateSelection function not available');
-        alert('⚠️ Hotel date selection not available. Please ensure the hotel modal is loaded.');
-    }
-}
 
 // Function to confirm hotel dates
 function confirmHotelDates(hotelId, hotelName) {
@@ -6599,6 +7859,68 @@ window.simulateEnhancedHotelSelection = simulateEnhancedHotelSelection;
 window.testCompleteHotelCoordinateIntegration = testCompleteHotelCoordinateIntegration;
 
 </script>
+
+    <!-- Test Controls Section -->
+    <div class="test-controls" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
+        <h6 style="margin-bottom: 15px; color: #28a745;"><i class="fas fa-vial"></i> Test Controls</h6>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <button type="button" class="btn btn-success btn-sm" onclick="window.testFullOptimizationWorkflow()" 
+                        style="width: 100%; font-weight: 600;">
+                    <i class="fas fa-rocket"></i> Test Full Optimization Workflow
+                    <small class="d-block" style="font-size: 10px; opacity: 0.8;">Route + Gantt Chart Integration</small>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <button type="button" class="btn btn-outline-success btn-sm mb-2" onclick="window.testAmChartsGantt()" 
+                        style="width: 100%;">
+                    <i class="fas fa-chart-gantt"></i> Test amCharts Gantt Chart
+                </button>
+            </div>
+            <div class="col-md-6">
+                <button type="button" class="btn btn-outline-primary btn-sm mb-2" onclick="window.testDisplayLineResult()" 
+                        style="width: 100%;">
+                    <i class="fas fa-route"></i> Test Route Display
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <button type="button" class="btn btn-outline-secondary btn-sm mb-2" onclick="window.testBasicModal()" 
+                        style="width: 100%;">
+                    <i class="fas fa-window-maximize"></i> Test Basic Modal
+                </button>
+            </div>
+            <div class="col-md-6">
+                <button type="button" class="btn btn-outline-dark btn-sm mb-2" onclick="window.debugWindowFunctions && window.debugWindowFunctions() || console.log('debugWindowFunctions not available')" 
+                        style="width: 100%;">
+                    <i class="fas fa-bug"></i> Debug Functions
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <button type="button" class="btn btn-outline-info btn-sm mb-2" onclick="window.testCompleteHotelCoordinateIntegration()" 
+                        style="width: 100%;">
+                    <i class="fas fa-map-marker-alt"></i> Test Hotel Coordinates
+                </button>
+            </div>
+            <div class="col-md-6">
+                <button type="button" class="btn btn-outline-warning btn-sm mb-2" onclick="console.log('Available Functions:', Object.keys(window).filter(k => k.includes('test') || k.includes('gantt') || k.includes('display')))" 
+                        style="width: 100%;">
+                    <i class="fas fa-list"></i> List Available Tests
+                </button>
+            </div>
+        </div>
+        <small class="text-muted">
+            <i class="fas fa-info-circle"></i> 
+            <strong>Full Workflow Test:</strong> Simulates complete saveTripDataToServer() → API response → Route + Gantt display integration.
+            <br>
+            <strong>Individual Tests:</strong> Test specific components separately. Check browser console for detailed logs.
+        </small>
+    </div>
 
     <!-- Progress Bar -->
     <!-- <div class="progress-container">

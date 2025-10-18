@@ -6,6 +6,7 @@ import requests
 from django.views.decorators.csrf import csrf_exempt
 import json, datetime
 import uuid
+import pandas as pd 
 
 from tourism.optimization import dummy_schedule
 
@@ -839,19 +840,70 @@ def test_api_call_2(request):
 
     return JsonResponse(routes if routes else {"message": "No data found"})
 
+@csrf_exempt
 def test_api_call_3(request):
-    from tourism.external_api.geopify import GeopifyAPI
+    if request.method == 'POST':
+        try:
+            # Parse the incoming JSON data
+            data = json.loads(request.body)
 
-    geopify = GeopifyAPI()
-    # country_code = 
-    if request.method == 'GET':
-        place_id = request.GET.get('place_id', None)
-        if not place_id:
-            return JsonResponse({"error": "Missing 'place_id' query parameter"}, status=400)
-        results = geopify.get_attraction_list({"place_id": place_id})
-        # print(suggestions)
-        return JsonResponse(results)
-    
+            save_data = {
+                'destination': {
+                    'city': data.get('destination', {}).get('properties', {}).get('city', 'Unknown'),
+                    'country': data.get('destination', {}).get('country', 'Unknown'),
+                    'country_code': data.get('destination', {}).get('country_code', {}),
+                    'country_place_id': data.get('destination', {}).get('place_id', 'Unknown'),
+                    'city_place_id': data.get('destination', {}).get('properties', {}).get('place_id', 'Unknown'),
+                    'city_coordinates': (data.get('destination', {}).get('properties', {}).get('lat', 0), data.get('destination', {}).get('properties', {}).get('lon', 0))
+                },
+                'dates': {
+                    'start_date': data.get('dates', {}).get('start_date', 'Not set'),
+                    'end_date': data.get('dates', {}).get('end_date', 'Not set'),
+                    'start_time': data.get('dates', {}).get('start_time', 'Not set'),
+                    'end_time': data.get('dates', {}).get('end_time', 'Not set'),
+                },
+                'hotels': data.get('hotels', []),
+                'attractions': data.get('attractions', [])
+            }
 
+            optimize_data = {
+                'destination': {
+                    'city': data.get('destination', {}).get('properties', {}).get('city', 'Unknown'),
+                    'country': data.get('destination', {}).get('country', 'Unknown'),
+                    'country_code': data.get('destination', {}).get('country_code', {}),
+                    'country_place_id': data.get('destination', {}).get('place_id', 'Unknown'),
+                    'city_place_id': data.get('destination', {}).get('properties', {}).get('place_id', 'Unknown'),
+                    'city_coordinates': (data.get('destination', {}).get('properties', {}).get('lat', 0), data.get('destination', {}).get('properties', {}).get('lon', 0))
+                },
+                'dates': {
+                    'start_date': data.get('dates', {}).get('start_date', 'Not set'),
+                    'end_date': data.get('dates', {}).get('end_date', 'Not set'),
+                    'start_time': data.get('dates', {}).get('start_time', 'Not set'),
+                    'end_time': data.get('dates', {}).get('end_time', 'Not set'),
+                },
+                'hotels': data.get('hotels', []),
+                'attractions': data.get('attractions', [])
+            }
 
+            distance_matrix_data = calculate_distance_matrix_test(data=optimize_data)
+
+            
+            return JsonResponse({
+                'success': True,
+                # 'data_received': data,
+                # 'data_saved': optimize_data
+                'results': distance_matrix_data    
+            }, status=200)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+def calculate_distance_matrix_test(data=None):
+    from tourism.external_api.geopify import GeopifyAPI 
+
+    geo = GeopifyAPI()
+
+    distance_matrix_data = geo.calculate_distance_matrix(data)
+    return distance_matrix_data
 
