@@ -109,7 +109,7 @@ if is_server():
         'NAME': 'server_db',
         'CLIENT': {
             'host': '127.0.0.1',
-            'port': 27017,
+            'port': 27019,
             'authSource': 'admin',
         }
     }

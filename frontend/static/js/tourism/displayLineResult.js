@@ -208,11 +208,20 @@ class DisplayLineResult {
         if (resultsData && resultsData.data && resultsData.data.results) {
             // New format: { success: true, data: { success: true, results: {...} } }
             actualResults = resultsData.data.results;
+        } else if (resultsData && resultsData.optimize_result) {
+            // API format: { success: true, optimize_result: {...} }
+            actualResults = resultsData.optimize_result;
+            console.log("✅ Found optimize_result in API response");
         } else if (resultsData && resultsData.results) {
             // Legacy format: { success: true, results: {...} }
             actualResults = resultsData.results;
+        } else if (resultsData && resultsData.path_lines) {
+            // Direct format: Already the route data
+            actualResults = resultsData;
+            console.log("✅ Using resultsData directly (has path_lines)");
         } else {
             console.error("Invalid results data provided - no results found");
+            console.error("Available keys:", resultsData ? Object.keys(resultsData) : 'null');
             this.showError("Invalid route data received from API");
             return;
         }

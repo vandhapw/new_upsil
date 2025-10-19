@@ -477,10 +477,10 @@
                                 console.log('🔄 Double-checked horizontal overlay visibility');
                             }
                             
-                            if (!isVisible) {
-                                console.error('❌ Modal failed to show');
-                                alert('⚠️ Modal failed to open. Please try again.');
-                            }
+                            // if (!isVisible) {
+                            //     console.error('❌ Modal failed to show');
+                            //     alert('⚠️ Modal failed to open. Please try again.');
+                            // }
                         }, 100);
                         
                     } catch (error) {
@@ -841,4 +841,32 @@
             validation
         };
     };
+
+    // Add alias for backward compatibility with old function name
+    window.selectHotelDates = function(hotelId, hotelName) {
+        console.log('🔄 selectHotelDates (alias) called for:', hotelName);
+        
+        // Try to find the hotel data
+        let hotelData = {
+            id: hotelId,
+            name: hotelName
+        };
+        
+        // If we have selectedHotelsData, try to find the full hotel data
+        if (window.selectedHotelsData && Array.isArray(window.selectedHotelsData)) {
+            const foundHotel = window.selectedHotelsData.find(h => h.id === hotelId || h.name === hotelName);
+            if (foundHotel) {
+                hotelData = foundHotel;
+            }
+        }
+        
+        // Call the actual function
+        if (typeof window.showHotelDateSelection === 'function') {
+            window.showHotelDateSelection(hotelData);
+        } else {
+            console.error('❌ showHotelDateSelection function not available');
+        }
+    };
+    
+    console.log('✅ selectHotelDates alias created successfully');
 </script>

@@ -1052,6 +1052,10 @@
                     <i class="fas fa-history"></i>
                     <span>History</span>
                 </button>
+                <button class="header-history-button" id="headerNewButton" onclick="showNewTripModal()" title="Create New Trip">
+                    <i class="fas fa-plus"></i>
+                    <span>New Trip</span>
+                </button>
             </div>
             <div class="header-actions">
                 <button class="menu-toggle" id="menuToggle">
@@ -1076,6 +1080,8 @@
             <!-- {% include 'dashboard/tourism/korean_tourism/modals/datetime_selected.html' %} -->
 
             {% include 'dashboard/tourism/korean_tourism/modals/hotel_date_selection_modal.html' %}
+
+            {% include 'dashboard/tourism/korean_tourism/modals/history_data.html' %}
 
             <!-- {% include 'dashboard/tourism/korean_tourism/modals/hotel_lists.html' %} -->
 
@@ -2371,523 +2377,123 @@
             console.log('Horizontal attraction scroll overlay initialized successfully');
         }
         
-        // Show user history modal
-        function showUserHistoryModal() {
-            // Create the history modal if it doesn't exist
-            let historyModal = document.getElementById('user-history-modal');
+        // Show user history modal - This function is now defined in history_data.html
+        // The modal include file contains its own showUserHistoryModal() function
+        // No need to redefine it here
+
+        // Function to clear all selections and start a new trip
+        function showNewTripModal() {
+            console.log('🆕 Starting new trip - clearing all selections...');
             
-            if (!historyModal) {
-                historyModal = document.createElement('div');
-                historyModal.id = 'user-history-modal';
-                historyModal.className = 'history-modal-overlay';
-                
-                historyModal.innerHTML = `
-                    <div class="history-modal-content">
-                        <div class="history-modal-header">
-                            <h3><i class="fas fa-history"></i> Activity History</h3>
-                            <button class="close-history-modal" onclick="closeUserHistoryModal()">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                        <div class="history-modal-body">
-                            <div class="history-controls">
-                                <div class="history-stats">
-                                    <div class="stat-item">
-                                        <span class="stat-number">15</span>
-                                        <span class="stat-label">Total Activities</span>
-                                    </div>
-                                    <div class="stat-item">
-                                        <span class="stat-number">8</span>
-                                        <span class="stat-label">Hotels Viewed</span>
-                                    </div>
-                                    <div class="stat-item">
-                                        <span class="stat-number">4</span>
-                                        <span class="stat-label">Attractions</span>
-                                    </div>
-                                    <div class="stat-item">
-                                        <span class="stat-number">3</span>
-                                        <span class="stat-label">Searches</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="table-responsive mt-3">
-                                <table id="unifiedHistoryTable" class="table table-striped table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Type</th>
-                                            <th>Item Name</th>
-                                            <th>Location/Category</th>
-                                            <th>Rating/Info</th>
-                                            <th>Date</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Hotels -->
-                                        <tr>
-                                            <td><span class="badge bg-primary"><i class="fas fa-hotel"></i> Hotel</span></td>
-                                            <td><strong>Grand Hyatt Seoul</strong></td>
-                                            <td>Seoul, Yongsan-gu</td>
-                                            <td><span class="badge bg-warning">4.5 ⭐</span></td>
-                                            <td data-sort="2025-10-16 14:00">2 hours ago</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('hotel', 'Grand Hyatt Seoul')" title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('hotel', 'Grand Hyatt Seoul')" title="Remove">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="badge bg-info"><i class="fas fa-map-marker-alt"></i> Attraction</span></td>
-                                            <td><strong>Gyeongbokgung Palace</strong></td>
-                                            <td>Seoul, Jongno-gu</td>
-                                            <td><span class="badge bg-success">Historical</span></td>
-                                            <td data-sort="2025-10-16 13:00">3 hours ago</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('attraction', 'Gyeongbokgung Palace')" title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('attraction', 'Gyeongbokgung Palace')" title="Remove">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="badge bg-success"><i class="fas fa-search"></i> Search</span></td>
-                                            <td><strong>Seoul luxury hotels</strong></td>
-                                            <td>Hotels Category</td>
-                                            <td><span class="badge bg-secondary">25 results</span></td>
-                                            <td data-sort="2025-10-16 12:00">4 hours ago</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-success" onclick="repeatSearch('Seoul luxury hotels')" title="Repeat Search">
-                                                    <i class="fas fa-redo"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('search', 'Seoul luxury hotels')" title="Remove">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="badge bg-primary"><i class="fas fa-hotel"></i> Hotel</span></td>
-                                            <td><strong>Lotte Hotel Busan</strong></td>
-                                            <td>Busan, Busanjin-gu</td>
-                                            <td><span class="badge bg-warning">4.3 ⭐</span></td>
-                                            <td data-sort="2025-10-15 16:00">1 day ago</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('hotel', 'Lotte Hotel Busan')" title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('hotel', 'Lotte Hotel Busan')" title="Remove">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="badge bg-success"><i class="fas fa-search"></i> Search</span></td>
-                                            <td><strong>Jeju Island attractions</strong></td>
-                                            <td>Attractions Category</td>
-                                            <td><span class="badge bg-secondary">18 results</span></td>
-                                            <td data-sort="2025-10-15 14:00">1 day ago</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-success" onclick="repeatSearch('Jeju Island attractions')" title="Repeat Search">
-                                                    <i class="fas fa-redo"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('search', 'Jeju Island attractions')" title="Remove">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="badge bg-info"><i class="fas fa-map-marker-alt"></i> Attraction</span></td>
-                                            <td><strong>Bukchon Hanok Village</strong></td>
-                                            <td>Seoul, Jongno-gu</td>
-                                            <td><span class="badge bg-success">Cultural</span></td>
-                                            <td data-sort="2025-10-14 10:00">2 days ago</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('attraction', 'Bukchon Hanok Village')" title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('attraction', 'Bukchon Hanok Village')" title="Remove">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="badge bg-primary"><i class="fas fa-hotel"></i> Hotel</span></td>
-                                            <td><strong>Paradise Hotel Incheon</strong></td>
-                                            <td>Incheon, Jung-gu</td>
-                                            <td><span class="badge bg-warning">4.2 ⭐</span></td>
-                                            <td data-sort="2025-10-14 08:00">2 days ago</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('hotel', 'Paradise Hotel Incheon')" title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('hotel', 'Paradise Hotel Incheon')" title="Remove">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="badge bg-success"><i class="fas fa-search"></i> Search</span></td>
-                                            <td><strong>Busan beach resorts</strong></td>
-                                            <td>Hotels Category</td>
-                                            <td><span class="badge bg-secondary">12 results</span></td>
-                                            <td data-sort="2025-10-13 15:00">3 days ago</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-success" onclick="repeatSearch('Busan beach resorts')" title="Repeat Search">
-                                                    <i class="fas fa-redo"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('search', 'Busan beach resorts')" title="Remove">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="badge bg-primary"><i class="fas fa-hotel"></i> Hotel</span></td>
-                                            <td><strong>Shilla Jeju</strong></td>
-                                            <td>Jeju-do, Seogwipo</td>
-                                            <td><span class="badge bg-warning">4.7 ⭐</span></td>
-                                            <td data-sort="2025-10-13 09:00">3 days ago</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('hotel', 'Shilla Jeju')" title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('hotel', 'Shilla Jeju')" title="Remove">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="badge bg-info"><i class="fas fa-map-marker-alt"></i> Attraction</span></td>
-                                            <td><strong>Hallasan National Park</strong></td>
-                                            <td>Jeju-do</td>
-                                            <td><span class="badge bg-success">Nature</span></td>
-                                            <td data-sort="2025-10-12 11:00">4 days ago</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('attraction', 'Hallasan National Park')" title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('attraction', 'Hallasan National Park')" title="Remove">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="badge bg-primary"><i class="fas fa-hotel"></i> Hotel</span></td>
-                                            <td><strong>Hotel Nongshim Busan</strong></td>
-                                            <td>Busan, Dongnae-gu</td>
-                                            <td><span class="badge bg-warning">4.1 ⭐</span></td>
-                                            <td data-sort="2025-10-11 16:00">5 days ago</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('hotel', 'Hotel Nongshim Busan')" title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('hotel', 'Hotel Nongshim Busan')" title="Remove">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><span class="badge bg-info"><i class="fas fa-map-marker-alt"></i> Attraction</span></td>
-                                            <td><strong>Busan Gamcheon Culture Village</strong></td>
-                                            <td>Busan, Saha-gu</td>
-                                            <td><span class="badge bg-warning">Cultural</span></td>
-                                            <td data-sort="2025-10-10 14:00">6 days ago</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-primary" onclick="viewItemDetails('attraction', 'Busan Gamcheon Culture Village')" title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="removeFromHistory('attraction', 'Busan Gamcheon Culture Village')" title="Remove">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="history-modal-footer">
-                            <button class="clear-history-btn" onclick="clearUserHistory()">
-                                <i class="fas fa-trash"></i> Clear All History
-                            </button>
-                            <button class="export-history-btn" onclick="exportHistory()">
-                                <i class="fas fa-download"></i> Export History
-                            </button>
-                        </div>
-                    </div>
-                `;
-                
-                document.body.appendChild(historyModal);
-                
-                // Initialize unified DataTable after modal is added to DOM
-                setTimeout(() => {
-                    initializeUnifiedHistoryDataTable();
-                }, 100);
-            }
+            // Confirm with user before clearing everything
+            const confirmClear = confirm('Start a new trip? This will clear all current selections including hotels, attractions, dates, and routes.');
             
-            // Show the modal
-            historyModal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-            
-            // Add fade-in animation
-            setTimeout(() => {
-                historyModal.classList.add('show');
-            }, 10);
-        }
-        
-        // Initialize unified DataTable for history modal
-        function initializeUnifiedHistoryDataTable() {
-            // Initialize unified history DataTable
-            if ($.fn.DataTable.isDataTable('#unifiedHistoryTable')) {
-                $('#unifiedHistoryTable').DataTable().destroy();
-            }
-            
-            $('#unifiedHistoryTable').DataTable({
-                responsive: true,
-                pageLength: 10,
-                lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
-                order: [[4, 'desc']], // Sort by date (newest first)
-                columnDefs: [
-                    { orderable: false, targets: [5] }, // Disable sorting for Actions column
-                    { type: 'date', targets: [4] }, // Date column
-                    { width: '12%', targets: [0] }, // Type column
-                    { width: '25%', targets: [1] }, // Item Name column
-                    { width: '20%', targets: [2] }, // Location column
-                    { width: '15%', targets: [3] }, // Rating/Info column
-                    { width: '15%', targets: [4] }, // Date column
-                    { width: '13%', targets: [5] }  // Actions column
-                ],
-                language: {
-                    search: "Search History:",
-                    lengthMenu: "Show _MENU_ activities per page",
-                    info: "Showing _START_ to _END_ of _TOTAL_ activities",
-                    emptyTable: "No activity history found",
-                    zeroRecords: "No matching activities found"
-                },
-                dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
-                     '<"row"<"col-sm-12"tr>>' +
-                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
-                drawCallback: function() {
-                    // Re-initialize tooltips after table redraw
-                    $('[title]').tooltip();
-                }
-            });
-            
-            // Initialize Bootstrap tooltips
-            $('[title]').tooltip();
-        }
-        
-        // Unified view item details function
-        function viewItemDetails(type, itemName) {
-            let details = {};
-            
-            switch(type) {
-                case 'hotel':
-                    details = {
-                        title: itemName,
-                        html: `
-                            <div class="text-left">
-                                <p><strong>Type:</strong> Hotel</p>
-                                <p><strong>Location:</strong> Seoul, South Korea</p>
-                                <p><strong>Rating:</strong> 4.5/5 ⭐</p>
-                                <p><strong>Price Range:</strong> $200-400/night</p>
-                                <p><strong>Amenities:</strong> Pool, Spa, Restaurant, Wi-Fi</p>
-                                <p><strong>Contact:</strong> +82-2-797-1234</p>
-                            </div>
-                        `,
-                        confirmText: 'Book Now'
-                    };
-                    break;
-                case 'attraction':
-                    details = {
-                        title: itemName,
-                        html: `
-                            <div class="text-left">
-                                <p><strong>Type:</strong> Tourist Attraction</p>
-                                <p><strong>Location:</strong> Seoul, South Korea</p>
-                                <p><strong>Category:</strong> Historical Palace</p>
-                                <p><strong>Opening Hours:</strong> 9:00 AM - 6:00 PM</p>
-                                <p><strong>Entrance Fee:</strong> ₩3,000 (~$2.50)</p>
-                                <p><strong>Best Time to Visit:</strong> Spring & Autumn</p>
-                            </div>
-                        `,
-                        confirmText: 'Get Directions'
-                    };
-                    break;
-                default:
-                    return;
-            }
-            
-            Swal.fire({
-                title: details.title,
-                html: details.html,
-                icon: 'info',
-                showCancelButton: true,
-                confirmButtonText: details.confirmText,
-                cancelButtonText: 'Close',
-                confirmButtonColor: '#3498db'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    if (type === 'hotel') {
-                        Swal.fire('Redirecting...', 'Taking you to booking page', 'success');
-                    } else {
-                        Swal.fire('Opening Maps...', 'Redirecting to navigation', 'success');
-                    }
-                }
-            });
-        }
-        
-        // Repeat search function
-        function repeatSearch(query) {
-            Swal.fire({
-                title: 'Repeat Search',
-                text: `Do you want to search again for "${query}"?`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, Search Again',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Simulate search
-                    Swal.fire('Searching...', `Looking for "${query}"`, 'info');
-                    setTimeout(() => {
-                        Swal.fire('Search Complete!', 'Results updated', 'success');
-                    }, 1500);
-                }
-            });
-        }
-        
-        // Remove from history function
-        function removeFromHistory(type, item) {
-            Swal.fire({
-                title: 'Remove from History',
-                text: `Are you sure you want to remove "${item}" from your ${type} history?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, Remove',
-                cancelButtonText: 'Cancel',
-                confirmButtonColor: '#d33'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Find and remove the row from the unified DataTable
-                    if ($.fn.DataTable.isDataTable('#unifiedHistoryTable')) {
-                        const table = $('#unifiedHistoryTable').DataTable();
-                        table.rows().every(function() {
-                            const data = this.data();
-                            // Check if the item name matches
-                            if (data[1].includes(item)) {
-                                this.remove();
-                            }
-                        });
-                        table.draw();
-                        
-                        Swal.fire('Removed!', `${item} has been removed from your history.`, 'success');
-                    }
-                }
-            });
-        }
-        
-        // Export history function
-        function exportHistory() {
-            Swal.fire({
-                title: 'Export History',
-                text: 'Choose export format:',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Export as PDF',
-                cancelButtonText: 'Export as CSV',
-                showDenyButton: true,
-                denyButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Export as PDF
-                    Swal.fire('Exporting...', 'Generating PDF report', 'info');
-                    setTimeout(() => {
-                        Swal.fire('Export Complete!', 'PDF downloaded successfully', 'success');
-                    }, 2000);
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    // Export as CSV
-                    Swal.fire('Exporting...', 'Generating CSV file', 'info');
-                    setTimeout(() => {
-                        Swal.fire('Export Complete!', 'CSV downloaded successfully', 'success');
-                    }, 1500);
-                }
-            });
-        }
-        
-        // Close user history modal
-        function closeUserHistoryModal() {
-            const historyModal = document.getElementById('user-history-modal');
-            if (historyModal) {
-                historyModal.classList.remove('show');
-                setTimeout(() => {
-                    historyModal.style.display = 'none';
-                    document.body.style.overflow = 'auto';
-                }, 300);
-            }
-        }
-        
-        // Clear user history
-        function clearUserHistory() {
-            Swal.fire({
-                title: 'Clear All History',
-                text: 'Are you sure you want to clear all activity history? This action cannot be undone.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, Clear All',
-                cancelButtonText: 'Cancel',
-                confirmButtonColor: '#d33'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Clear unified DataTable
-                    if ($.fn.DataTable.isDataTable('#unifiedHistoryTable')) {
-                        const table = $('#unifiedHistoryTable').DataTable();
-                        table.clear().draw();
-                    }
-                    
-                    Swal.fire({
-                        title: 'History Cleared!',
-                        text: 'All activity history has been successfully cleared.',
-                        icon: 'success',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                }
-            });
-        }
-        
-        // Test hotel date modal functionality
-        function testHotelDateModal() {
-            console.log('🧪 TESTING HOTEL DATE MODAL FUNCTIONALITY');
-            console.log('==========================================');
-            
-            // Check modal availability
-            const available = window.testHotelDateModal();
-            
-            if (!available) {
-                alert('❌ Modal function not available. Please refresh and try again.');
+            if (!confirmClear) {
+                console.log('❌ New trip cancelled by user');
                 return;
             }
             
-            // Check if trip dates are set
-            const tripData = window.selectedDateTimeData || window.selectedDatetimeData;
-            if (!tripData || !tripData.startDate || !tripData.endDate) {
-                alert('⚠️ Please select travel dates first before testing hotel selection!');
-                return;
+            try {
+                // 1. Clear selected hotels
+                if (window.displayHotelInstance) {
+                    console.log('🏨 Clearing all hotel data...');
+                    window.displayHotelInstance.clearAllHotelData();
+                }
+                
+                // 2. Clear selected attractions
+                if (window.displayAttractionInstance) {
+                    console.log('🎯 Clearing all attraction data...');
+                    window.displayAttractionInstance.clearSelectedAttractions();
+                }
+                
+                // 3. Clear date selections
+                console.log('📅 Clearing date selections...');
+                const startDateInput = document.getElementById('startDate');
+                const endDateInput = document.getElementById('endDate');
+                const startTimeInput = document.getElementById('startTime');
+                const endTimeInput = document.getElementById('endTime');
+                
+                if (startDateInput) startDateInput.value = '';
+                if (endDateInput) endDateInput.value = '';
+                if (startTimeInput) startTimeInput.value = '09:00';
+                if (endTimeInput) endTimeInput.value = '18:00';
+                
+                // 4. Clear route/optimization results
+                if (window.displayLineResultInstance) {
+                    console.log('🗺️ Clearing route display...');
+                    window.displayLineResultInstance.clearRouteVisualization();
+                }
+                
+                // 5. Clear global data stores
+                if (window.selectedHotelsData) {
+                    window.selectedHotelsData = [];
+                }
+                if (window.selectedAttractionsData) {
+                    window.selectedAttractionsData = [];
+                }
+                
+                // 6. Clear localStorage
+                console.log('💾 Clearing localStorage...');
+                localStorage.removeItem('hotelBookings');
+                localStorage.removeItem('tripData');
+                localStorage.removeItem('selectedProvince');
+                localStorage.removeItem('selectedDates');
+                localStorage.removeItem('attractionSelections');
+                localStorage.removeItem('selectedAttractions');
+                localStorage.removeItem('tripAttractionData');
+                
+                // 7. Reset step buttons to initial state
+                console.log('🔘 Resetting step buttons...');
+                const datetimeBtn = document.getElementById('DateTime');
+                if (datetimeBtn) {
+                    datetimeBtn.innerHTML = 'Choose Dates <i class="fa-solid fa-calendar-days"></i>';
+                    datetimeBtn.className = 'btn btn-primary';
+                }
+                
+                const hotelBtn = document.getElementById('Hotel');
+                if (hotelBtn) {
+                    hotelBtn.innerHTML = 'Choose Hotels <i class="fa-solid fa-hotel"></i>';
+                    hotelBtn.className = 'btn btn-primary';
+                }
+                
+                const attractionBtn = document.getElementById('Attraction');
+                if (attractionBtn) {
+                    attractionBtn.innerHTML = 'Choose Attractions <i class="fa-solid fa-map-marker-alt"></i>';
+                    attractionBtn.className = 'btn btn-primary';
+                }
+                
+                // 8. Reset map view to Korea center
+                if (window.mapInstance) {
+                    console.log('🗺️ Resetting map view...');
+                    const map = window.mapInstance.getMap();
+                    if (map) {
+                        map.setView([36.5, 127.5], 7); // Korea center coordinates
+                    }
+                }
+                
+                // 9. Close any open overlays
+                const hotelOverlay = document.getElementById('horizontal-hotel-overlay');
+                if (hotelOverlay && hotelOverlay.style.display === 'block') {
+                    hotelOverlay.style.display = 'none';
+                }
+                
+                const attractionOverlay = document.getElementById('horizontal-attraction-overlay');
+                if (attractionOverlay && attractionOverlay.style.display === 'block') {
+                    attractionOverlay.style.display = 'none';
+                }
+                
+                console.log('✅ All selections cleared! Ready for new trip planning.');
+                alert('✅ Ready to plan your new trip! Start by selecting a region and dates.');
+                
+            } catch (error) {
+                console.error('❌ Error clearing selections:', error);
+                alert('An error occurred while clearing selections. Please refresh the page.');
             }
-            
-            // Test the direct function (same as marker popup)
-            console.log('� Testing direct modal function...');
-            window.openHotelDateModalDirect(
-                'test-hotel-direct',
-                'Test Hotel from Direct Function',
-                'Test Address, Seoul, South Korea',
-                [126.9780, 37.5665]
-            );
         }
+        
+        // Make function globally available
+        window.showNewTripModal = showNewTripModal;
+       
     </script>
 
     <!-- Footer -->

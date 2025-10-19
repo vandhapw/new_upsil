@@ -16,6 +16,11 @@ urlpatterns = [
     path('api/insert_graphml/', api_insert_graphml, name='api_insert_graphml'),
     path('api/get_graphml/<str:file_id>/', api_get_graphml, name='api_get_graphml'),
     path('api/test_graphml/', calling_test_api, name='test_graphml'),
+    path('api/display_history_trip/', get_trip_optimization_data, name='display_history_trip'),
+    
+    # Trip deletion endpoints
+    path('api/delete_trip/<str:trip_id>/', delete_trip_optimization, name='delete_trip_optimization'),
+    path('api/delete_all_trips/', delete_all_trip_optimizations, name='delete_all_trip_optimizations'),
 
     path('api/test_api_call/', test_api_call, name='test_api_call'),
     path('api/test_api_call_2/', test_api_call_2, name='test_api_call_2'),

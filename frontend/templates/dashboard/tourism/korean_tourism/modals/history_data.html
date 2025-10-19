@@ -1,0 +1,1097 @@
+<!-- Trip History Modal with DataTable -->
+<div class="history-modal-overlay" id="historyModalOverlay">
+    <div class="history-modal-content">
+        <!-- Modal Header -->
+        <div class="history-modal-header">
+            <h3>
+                <i class="fas fa-history"></i>
+                Trip Planning History
+            </h3>
+            <button class="close-history-modal" onclick="closeHistoryModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="history-modal-body">
+            <!-- History Stats -->
+            <div class="history-stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="totalTripsCount">0</span>
+                    <span class="stat-label">Total Trips</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="totalCountriesCount">0</span>
+                    <span class="stat-label">Countries</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="totalHotelsCount">0</span>
+                    <span class="stat-label">Hotels</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="totalAttractionsCount">0</span>
+                    <span class="stat-label">Attractions</span>
+                </div>
+            </div>
+
+            <!-- DataTable Container -->
+            <div class="table-responsive">
+                <table id="tripHistoryDataTable" class="table table-bordered table-hover dt-responsive" style="width:100%">
+                    <caption class="text-center">Your trip planning history</caption>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Country</th>
+                            <th>City</th>
+                            <th>Hotels</th>
+                            <th>Attractions</th>
+                            <th>Dates</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be populated dynamically -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="7" class="text-center">
+                                <small class="text-muted">Trip history data from your planning sessions</small>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="history-modal-footer">
+            <button class="clear-history-btn" onclick="clearTripHistory()">
+                <i class="fas fa-trash-alt"></i>
+                Clear All History
+            </button>
+            <button class="export-history-btn" onclick="exportTripHistory()">
+                <i class="fas fa-download"></i>
+                Export to CSV
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* History Modal Styles */
+.history-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.history-modal-overlay.show {
+    display: flex;
+    opacity: 1;
+}
+
+.history-modal-content {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    border-radius: 20px;
+    width: 95%;
+    max-width: 1200px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.history-modal-overlay.show .history-modal-content {
+    transform: scale(1);
+}
+
+.history-modal-header {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    padding: 20px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.history-modal-header h3 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.close-history-modal {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.close-history-modal:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.history-modal-body {
+    padding: 25px;
+    max-height: calc(90vh - 200px);
+    overflow-y: auto;
+}
+
+/* History Stats */
+.history-stats {
+    display: flex;
+    justify-content: space-around;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.stat-item {
+    text-align: center;
+    flex: 1;
+    padding: 0 15px;
+}
+
+.stat-item:not(:last-child) {
+    border-right: 1px solid #dee2e6;
+}
+
+.stat-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #3498db;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* DataTable Customization */
+.table-responsive {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+#tripHistoryDataTable {
+    margin-bottom: 0 !important;
+    font-size: 14px;
+}
+
+#tripHistoryDataTable caption {
+    padding: 15px;
+    font-size: 14px;
+    color: #6c757d;
+    font-style: italic;
+    background: #f8f9fa;
+}
+
+#tripHistoryDataTable thead th {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    font-weight: 600;
+    padding: 15px 12px;
+    text-align: center;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#tripHistoryDataTable tbody td {
+    padding: 12px 10px;
+    vertical-align: middle;
+    border-color: #dee2e6;
+    text-align: center;
+}
+
+#tripHistoryDataTable tbody tr:hover {
+    background: rgba(52, 152, 219, 0.08);
+}
+
+#tripHistoryDataTable tfoot td {
+    background: #f8f9fa;
+    border: none;
+    padding: 15px;
+}
+
+/* Badge Styles */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.badge-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.badge-success {
+    background: linear-gradient(135deg, #27ae60, #229954);
+}
+
+.badge-info {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+}
+
+.badge-warning {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+/* Action Buttons */
+.btn-action {
+    padding: 6px 12px;
+    margin: 0 3px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-view {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+}
+
+.btn-view:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #27ae60, #229954);
+    color: white;
+}
+
+.btn-edit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.btn-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+}
+
+/* Modal Footer */
+.history-modal-footer {
+    background: #f8f9fa;
+    padding: 20px 25px;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.clear-history-btn,
+.export-history-btn {
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.clear-history-btn {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.clear-history-btn:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+.export-history-btn {
+    background: linear-gradient(135deg, #27ae60, #229954);
+    color: white;
+}
+
+.export-history-btn:hover {
+    background: linear-gradient(135deg, #229954, #1e8449);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+}
+
+/* DataTables Custom Styling */
+.dataTables_wrapper .dataTables_length select {
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 6px 10px;
+    margin: 0 8px;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 8px 14px;
+    margin-left: 8px;
+}
+
+.dataTables_wrapper .dataTables_info {
+    color: #6c757d;
+    font-size: 0.875rem;
+    padding-top: 10px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    padding: 0.5rem 0.85rem;
+    margin: 0 3px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background: white;
+    color: #3498db !important;
+    font-weight: 500;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #3498db !important;
+    color: white !important;
+    border-color: #3498db;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #3498db !important;
+    color: white !important;
+    border-color: #3498db;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .history-modal-content {
+        width: 98%;
+        max-width: 100%;
+    }
+    
+    .history-stats {
+        flex-wrap: wrap;
+    }
+    
+    .stat-item {
+        flex: 0 0 50%;
+        border-right: none !important;
+        border-bottom: 1px solid #dee2e6;
+        padding: 15px;
+    }
+    
+    .stat-item:nth-child(3),
+    .stat-item:nth-child(4) {
+        border-bottom: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .history-modal-header h3 {
+        font-size: 18px;
+    }
+    
+    .stat-number {
+        font-size: 1.8rem;
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+    }
+    
+    #tripHistoryDataTable {
+        font-size: 12px;
+    }
+    
+    #tripHistoryDataTable thead th,
+    #tripHistoryDataTable tbody td {
+        padding: 8px 6px;
+    }
+    
+    .btn-action {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+    
+    .history-modal-footer {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 576px) {
+    .stat-item {
+        flex: 0 0 100%;
+    }
+    
+    .stat-item:not(:last-child) {
+        border-bottom: 1px solid #dee2e6;
+    }
+}
+</style>
+
+<script>
+// Global variable to store DataTable instance
+let tripHistoryTable;
+
+// Function to open history modal
+function showUserHistoryModal() {
+    console.log('Opening trip history modal...');
+    const modal = document.getElementById('historyModalOverlay');
+    
+    if (!modal) {
+        console.error('History modal not found!');
+        return;
+    }
+    
+    // Set display first
+    modal.style.display = 'flex';
+    
+    // Use setTimeout to ensure display is applied before adding show class
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
+    
+    // Initialize DataTable if not already initialized
+    if (!tripHistoryTable) {
+        initializeTripHistoryDataTable();
+    }
+    
+    // Load data
+    loadTripHistoryData();
+    updateHistoryStats();
+}
+
+// Function to close history modal
+function closeHistoryModal() {
+    const modal = document.getElementById('historyModalOverlay');
+    modal.classList.remove('show');
+    
+    // Hide the modal after transition
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300); // Match the transition duration
+}
+
+// Initialize DataTable
+function initializeTripHistoryDataTable() {
+    console.log('Initializing trip history DataTable...');
+    
+    // Check if jQuery and DataTables are available
+    if (typeof jQuery === 'undefined') {
+        console.error('jQuery is not loaded!');
+        return;
+    }
+    
+    if (typeof $.fn.DataTable === 'undefined') {
+        console.error('DataTables library is not loaded!');
+        return;
+    }
+    
+    try {
+        tripHistoryTable = $('#tripHistoryDataTable').DataTable({
+            responsive: true,
+            pageLength: 10,
+            lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+            order: [[0, 'desc']], // Sort by ID descending
+            columnDefs: [
+                { 
+                    targets: 0, // ID column
+                    width: '60px'
+                },
+                { 
+                    targets: [3, 4], // Hotels and Attractions columns
+                    orderable: false
+                },
+                { 
+                    targets: 6, // Actions column
+                    orderable: false,
+                    width: '180px'
+                }
+            ],
+            language: {
+                search: "Search trips:",
+                lengthMenu: "Show _MENU_ trips",
+                info: "Showing _START_ to _END_ of _TOTAL_ trips",
+                infoEmpty: "No trips found",
+                infoFiltered: "(filtered from _MAX_ total trips)",
+                emptyTable: "No trip history available",
+                zeroRecords: "No matching trips found"
+            }
+        });
+        console.log('✅ DataTable initialized successfully');
+    } catch (error) {
+        console.error('Error initializing DataTable:', error);
+    }
+}
+
+// Global storage for trip data (needed for viewTrip function)
+let globalTripHistoryData = [];
+
+// Function to load trip history data from API
+function loadTripHistoryData() {
+    console.log('Loading trip history data from API...');
+    
+    // Show loading indicator
+    if (tripHistoryTable) {
+        tripHistoryTable.clear().draw();
+    }
+    
+    // Fetch data from API
+    fetch('/tourism/api/display_history_trip/')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('✅ API Response:', data);
+            
+            if (!tripHistoryTable) {
+                console.error('❌ tripHistoryTable is not initialized!');
+                return;
+            }
+            
+            // Clear existing data
+            tripHistoryTable.clear();
+            
+            // Check if data exists and extract trip_optimization_data array
+            const trips = data.trip_optimization_data || [];
+            
+            // Store trips globally for viewTrip function
+            globalTripHistoryData = trips;
+            
+            if (trips.length === 0) {
+                console.log('No trip history found');
+                tripHistoryTable.draw();
+                return;
+            }
+            
+            // Add rows from API data
+            trips.forEach(trip => {
+                // Handle hotels data
+                const hotelsCount = trip.hotels ? 
+                    (Array.isArray(trip.hotels) ? trip.hotels.length : Object.keys(trip.hotels).length) : 0;
+                
+                // Handle attractions data
+                const attractionsCount = trip.attractions ? 
+                    (Array.isArray(trip.attractions) ? trip.attractions.length : Object.keys(trip.attractions).length) : 0;
+                
+                // Extract destination data
+                const city = trip.destination?.city || 'N/A';
+                const country = trip.destination?.country || 'N/A';
+                
+                // Format dates from dates object
+                const startDate = trip.dates?.start_date || 'N/A';
+                const endDate = trip.dates?.end_date || 'N/A';
+                const dateRange = (startDate !== 'N/A' && endDate !== 'N/A') ? 
+                    `${formatDate(startDate)} - ${formatDate(endDate)}` : 'No dates';
+                
+                // Use _id from MongoDB
+                const tripId = trip._id || '-';
+                
+                tripHistoryTable.row.add([
+                    tripId,
+                    country,
+                    city,
+                    `<span class="badge badge-primary">${hotelsCount} hotel(s)</span>`,
+                    `<span class="badge badge-success">${attractionsCount} attraction(s)</span>`,
+                    `<small>${dateRange}</small>`,
+                    `
+                        <button class="btn-action btn-view" onclick="viewTrip('${tripId}')" title="Show Routes">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="btn-action btn-edit" onclick="editTrip('${tripId}')" title="Edit Trip">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn-action btn-delete" onclick="deleteTrip('${tripId}')" title="Delete Trip">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    `
+                ]);
+            });
+            
+            tripHistoryTable.draw();
+            console.log(`✅ Loaded ${trips.length} trips into DataTable`);
+            
+            // Update statistics after loading data
+            updateHistoryStatsFromData(trips);
+        })
+        .catch(error => {
+            console.error('❌ Error loading trip history:', error);
+            
+            // Show error message in table
+            if (tripHistoryTable) {
+                tripHistoryTable.clear().draw();
+            }
+            
+            // Optional: Show user-friendly error message
+            alert('Failed to load trip history. Please try again later.');
+        });
+}
+
+// Update history statistics
+function updateHistoryStats() {
+    // Fetch data from API to update stats
+    fetch('/tourism/api/display_history_trip/')
+        .then(response => response.json())
+        .then(data => {
+            const trips = data.trip_optimization_data || [];
+            updateHistoryStatsFromData(trips);
+        })
+        .catch(error => {
+            console.error('Error updating stats:', error);
+            // Set default values on error
+            document.getElementById('totalTripsCount').textContent = '0';
+            document.getElementById('totalCountriesCount').textContent = '0';
+            document.getElementById('totalHotelsCount').textContent = '0';
+            document.getElementById('totalAttractionsCount').textContent = '0';
+        });
+}
+
+// Helper function to calculate and update stats from data
+function updateHistoryStatsFromData(trips) {
+    const totalTrips = trips.length;
+    
+    // Calculate unique countries
+    const countries = new Set();
+    let totalHotels = 0;
+    let totalAttractions = 0;
+    
+    trips.forEach(trip => {
+        // Get country from destination object
+        if (trip.destination && trip.destination.country) {
+            countries.add(trip.destination.country);
+        }
+        
+        // Count hotels
+        if (trip.hotels) {
+            totalHotels += Array.isArray(trip.hotels) ? 
+                trip.hotels.length : Object.keys(trip.hotels).length;
+        }
+        
+        // Count attractions
+        if (trip.attractions) {
+            totalAttractions += Array.isArray(trip.attractions) ? 
+                trip.attractions.length : Object.keys(trip.attractions).length;
+        }
+    });
+    
+    // Update DOM
+    document.getElementById('totalTripsCount').textContent = totalTrips;
+    document.getElementById('totalCountriesCount').textContent = countries.size;
+    document.getElementById('totalHotelsCount').textContent = totalHotels;
+    document.getElementById('totalAttractionsCount').textContent = totalAttractions;
+}
+
+// Action functions
+function viewTrip(tripId) {
+    console.log('Viewing trip:', tripId);
+    
+    // Find the trip in global data
+    const trip = globalTripHistoryData.find(t => t._id === tripId);
+    
+    if (!trip) {
+        alert('Trip not found');
+        return;
+    }
+    
+    // Check if optimize_result exists
+    if (!trip.optimize_result || !trip.optimize_result) {
+        alert('No route data available for this trip');
+        return;
+    }
+    
+    console.log('Route data found:', trip.optimize_result);
+    
+    // Close the history modal
+    closeHistoryModal();
+    
+    // Display the route on the map using DisplayLineResult
+    if (window.displayLineResultInstance) {
+        window.displayLineResultInstance.displayRouteResults({
+            data: { 
+                results: trip.optimize_result 
+            }
+        });
+        console.log('✅ Route displayed successfully');
+    } else {
+        console.error('❌ DisplayLineResult instance not found');
+        alert('Route visualization is not available');
+    }
+}
+
+function editTrip(tripId) {
+    console.log('Editing trip:', tripId);
+    // Implement edit trip functionality
+    alert(`Editing trip #${tripId}`);
+}
+
+function deleteTrip(tripId) {
+    if (confirm(`Are you sure you want to delete this trip? This action cannot be undone.`)) {
+        console.log('Deleting trip:', tripId);
+        
+        // Show loading indicator
+        const deleteButton = event.target.closest('.btn-delete');
+        if (deleteButton) {
+            deleteButton.disabled = true;
+            deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+        }
+        
+        // Call delete API
+        fetch(`/tourism/api/delete_trip/${tripId}/`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.error || `HTTP error! status: ${response.status}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('✅ Trip deleted successfully:', data);
+            
+            // Show success message
+            showNotification('Trip deleted successfully!', 'success');
+            
+            // Refresh the data table
+            loadTripHistoryData();
+            updateHistoryStats();
+        })
+        .catch(error => {
+            console.error('❌ Error deleting trip:', error);
+            
+            // Show error message
+            showNotification(`Failed to delete trip: ${error.message}`, 'error');
+            
+            // Re-enable button
+            if (deleteButton) {
+                deleteButton.disabled = false;
+                deleteButton.innerHTML = '<i class="fas fa-trash"></i> Delete';
+            }
+        });
+    }
+}
+
+function clearTripHistory() {
+    if (confirm('Are you sure you want to clear ALL trip history? This action cannot be undone.')) {
+        console.log('Clearing all trip history');
+        
+        // Show loading state
+        const clearButton = event.target;
+        if (clearButton) {
+            clearButton.disabled = true;
+            clearButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Clearing...';
+        }
+        
+        // Call delete all API
+        fetch('/tourism/api/delete_all_trips/', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.error || `HTTP error! status: ${response.status}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('✅ All trips deleted successfully:', data);
+            
+            // Show success message with count
+            showNotification(`Successfully deleted ${data.deleted_count} trip(s)!`, 'success');
+            
+            // Clear and refresh the data table
+            if (tripHistoryTable) {
+                tripHistoryTable.clear().draw();
+            }
+            
+            // Update statistics
+            updateHistoryStats();
+            
+            // Re-enable button
+            if (clearButton) {
+                clearButton.disabled = false;
+                clearButton.innerHTML = '<i class="fas fa-trash-alt"></i> Clear All History';
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error clearing trip history:', error);
+            
+            // Show error message
+            showNotification(`Failed to clear trip history: ${error.message}`, 'error');
+            
+            // Re-enable button
+            if (clearButton) {
+                clearButton.disabled = false;
+                clearButton.innerHTML = '<i class="fas fa-trash-alt"></i> Clear All History';
+            }
+        });
+    }
+}
+
+function exportTripHistory() {
+    console.log('Exporting trip history to CSV');
+    
+    // Fetch data from API
+    fetch('/tourism/api/display_history_trip/')
+        .then(response => response.json())
+        .then(data => {
+            const trips = data.trip_optimization_data || [];
+            
+            if (trips.length === 0) {
+                alert('No trip history to export');
+                return;
+            }
+            
+            // Create CSV content with optimize_result data
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "ID,Country,City,Hotels,Attractions,Start Date,End Date,Total Distance (km),Best Fitness Score\n";
+            
+            trips.forEach(trip => {
+                const hotelsCount = trip.hotels ? 
+                    (Array.isArray(trip.hotels) ? trip.hotels.length : Object.keys(trip.hotels).length) : 0;
+                const attractionsCount = trip.attractions ? 
+                    (Array.isArray(trip.attractions) ? trip.attractions.length : Object.keys(trip.attractions).length) : 0;
+                
+                // Get destination data
+                const city = trip.destination?.city || 'N/A';
+                const country = trip.destination?.country || 'N/A';
+                
+                // Get dates from dates object
+                const startDate = trip.dates?.start_date || 'N/A';
+                const endDate = trip.dates?.end_date || 'N/A';
+                
+                // Get optimize_result data
+                const totalDistance = trip.optimize_result?.results?.total_distance || 'N/A';
+                const bestFitness = trip.optimize_result?.best_fitness || 'N/A';
+                
+                const tripId = trip._id || 'N/A';
+                
+                csvContent += `${tripId},${country},${city},${hotelsCount},${attractionsCount},${startDate},${endDate},${totalDistance},${bestFitness}\n`;
+            });
+            
+            // Create download link
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `trip_history_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            console.log('✅ CSV export completed');
+        })
+        .catch(error => {
+            console.error('❌ Error exporting trip history:', error);
+            alert('Failed to export trip history');
+        });
+}
+
+// Helper function to format dates
+function formatDate(dateString) {
+    try {
+        if (!dateString || dateString === 'N/A') {
+            return 'N/A';
+        }
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            return dateString; // Return original if invalid
+        }
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch (error) {
+        console.error('Error formatting date:', error);
+        return dateString;
+    }
+}
+
+// Helper function to show notification messages
+function showNotification(message, type = 'info') {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.trip-notification');
+    existingNotifications.forEach(notif => notif.remove());
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `trip-notification trip-notification-${type}`;
+    
+    // Set icon based on type
+    let icon = 'fa-info-circle';
+    let bgColor = '#3498db';
+    
+    if (type === 'success') {
+        icon = 'fa-check-circle';
+        bgColor = '#27ae60';
+    } else if (type === 'error') {
+        icon = 'fa-exclamation-circle';
+        bgColor = '#e74c3c';
+    } else if (type === 'warning') {
+        icon = 'fa-exclamation-triangle';
+        bgColor = '#f39c12';
+    }
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${bgColor};
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 20000;
+        min-width: 300px;
+        max-width: 500px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: Arial, sans-serif;
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    notification.innerHTML = `
+        <i class="fas ${icon}" style="font-size: 20px;"></i>
+        <span style="flex: 1;">${message}</span>
+        <button onclick="this.parentElement.remove()" style="
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        ">×</button>
+    `;
+    
+    // Add animation keyframes if not exists
+    if (!document.getElementById('notificationAnimations')) {
+        const style = document.createElement('style');
+        style.id = 'notificationAnimations';
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 300);
+    }, 5000);
+}
+
+// Initialize event listeners only once when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHistoryModalEventListeners);
+} else {
+    initHistoryModalEventListeners();
+}
+
+function initHistoryModalEventListeners() {
+    // Prevent duplicate event listener registration
+    if (window.historyModalListenersInitialized) {
+        return;
+    }
+    window.historyModalListenersInitialized = true;
+
+    // Close modal when clicking outside
+    document.addEventListener('click', function(e) {
+        const modal = document.getElementById('historyModalOverlay');
+        if (modal && e.target === modal) {
+            closeHistoryModal();
+        }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('historyModalOverlay');
+        if (modal && e.key === 'Escape') {
+            closeHistoryModal();
+        }
+    });
+}
+</script>

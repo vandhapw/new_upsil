@@ -228,11 +228,34 @@ def get_trip_optimization_data(request):
         # Fetch all trip optimization data from the collection
         trip_data_cursor = trip_optimization_collection.find()
         trip_data_list = []
-
+        # username = "pknu"
+        # user_id = "adfbd455-6735-491e-87a3-8728ccd3a34a"
+        username = request.session.get('username', 'Guest')
+        user_id = request.session.get('id', None)
         for trip in trip_data_cursor:
             # Convert MongoDB ObjectId to string for JSON serialization
             trip['_id'] = str(trip['_id'])
             trip_data_list.append(trip)
+            # Get user information for filtering
+            # Get user information for filtering
+            # request_user_id = request.GET.get('user_id', user_id)
+
+            # Filter trip data based on user_id if provided
+            if username:
+                # If we have a user_id, filter the results
+                filtered_trip_data = []
+                for trip in trip_data_list:
+                    # Check if trip has user field and user_id matches
+                    if (trip.get('user', {}).get('username') == username or
+                        trip.get('user_id') == user_id):
+                        filtered_trip_data.append(trip)
+                trip_data_list = filtered_trip_data
+
+            # Add user information to response
+            user_info = {
+                'username': username,
+                'user_id': user_id
+            }
 
         return JsonResponse({
             'success': True,
@@ -243,6 +266,8 @@ def get_trip_optimization_data(request):
             'success': False,
             'error': str(e)
         }, status=500)
+
+
     
 def convert_keys_to_strings(obj):
     """
@@ -263,12 +288,16 @@ def serialize_for_mongodb(data):
     Convert data structure to be MongoDB-compatible
     """
     import json
-    from datetime import datetime
+    from datetime import datetime, time, date
     import numpy as np
     
     def json_serializer(obj):
         """Handle non-serializable objects"""
         if isinstance(obj, datetime):
+            return obj.isoformat()
+        elif isinstance(obj, time):
+            return obj.isoformat()  # Convert datetime.time to string
+        elif isinstance(obj, date):
             return obj.isoformat()
         elif isinstance(obj, np.integer):
             return int(obj)
@@ -842,41 +871,61 @@ def test_api_call_2(request):
 
 @csrf_exempt
 def test_api_call_3(request):
+    from django.conf import settings
+    import os
     if request.method == 'POST':
         try:
             # Parse the incoming JSON data
             data = json.loads(request.body)
+            # data = None
+            # result_data = None
 
             # username = request.session.get('username', 'test')
             # user_id = request.session.get('id', 'test')
+            username = "pknu"
+            user_id = "adfbd455-6735-491e-87a3-8728ccd3a34a"
 
-            save_data = {
-                'destination': {
-                    'city': data.get('destination', {}).get('properties', {}).get('city', 'Unknown'),
-                    'country': data.get('destination', {}).get('country', 'Unknown'),
-                    'country_code': data.get('destination', {}).get('country_code', {}),
-                    'country_place_id': data.get('destination', {}).get('place_id', 'Unknown'),
-                    'city_place_id': data.get('destination', {}).get('properties', {}).get('place_id', 'Unknown'),
-                    'city_coordinates': (data.get('destination', {}).get('properties', {}).get('lat', 0), data.get('destination', {}).get('properties', {}).get('lon', 0))
-                },
-                'dates': {
-                    'start_date': data.get('dates', {}).get('start_date', 'Not set'),
-                    'end_date': data.get('dates', {}).get('end_date', 'Not set'),
-                    'start_time': data.get('dates', {}).get('start_time', 'Not set'),
-                    'end_time': data.get('dates', {}).get('end_time', 'Not set'),
-                },
-                'hotels': data.get('hotels', []),
-                'attractions': data.get('attractions', [])
-            }
+            # Load dummy JSON data
+           
+            
+            # data_json_path = os.path.join(settings.BASE_DIR, 'frontend', 'static', 'js', 'tourism', 'dummy_json_data', 'testdata1.json')
+            # try:
+            #     if os.path.exists(data_json_path):
+            #         with open(data_json_path, 'r', encoding='utf-8') as f:
+            #             data = json.load(f)
+            #     else:
+            #         data = {}
+            # except (FileNotFoundError, json.JSONDecodeError, PermissionError) as e:
+            #     print(f"Error loading test data: {e}")
+            #     data = {}
+            
+            # result_json_path = os.path.join(settings.BASE_DIR, 'frontend', 'static', 'js', 'tourism', 'dummy_json_data', 'result1.json')
+            # try:
+            #     if os.path.exists(result_json_path):
+            #         with open(result_json_path, 'r', encoding='utf-8') as f:
+            #             result_data = json.load(f)
+            #     else:
+            #         result_data = {}
+            # except (FileNotFoundError, json.JSONDecodeError, PermissionError) as e:
+            #     print(f"Error loading result data: {e}")
+            #     result_data = {}
+
+            # Extract destination data with proper fallbacks
+            destination = data.get('destination', {})
+            dest_properties = destination.get('properties', {})
+            dest_coordinates = destination.get('coordinates', {})
 
             optimize_data = {
                 'destination': {
-                    'city': data.get('destination', {}).get('properties', {}).get('city', 'Unknown'),
-                    'country': data.get('destination', {}).get('country', 'Unknown'),
-                    'country_code': data.get('destination', {}).get('country_code', {}),
-                    'country_place_id': data.get('destination', {}).get('place_id', 'Unknown'),
-                    'city_place_id': data.get('destination', {}).get('properties', {}).get('place_id', 'Unknown'),
-                    'city_coordinates': (data.get('destination', {}).get('properties', {}).get('lat', 0), data.get('destination', {}).get('properties', {}).get('lon', 0))
+                    'city': dest_properties.get('city', destination.get('name', 'Unknown')),
+                    'country': destination.get('country', dest_properties.get('country', 'Unknown')),
+                    'country_code': dest_properties.get('country_code', destination.get('country_code', '')),
+                    'country_place_id': destination.get('place_id', dest_properties.get('place_id', 'Unknown')),
+                    'city_place_id': dest_properties.get('place_id', destination.get('place_id', 'Unknown')),
+                    'city_coordinates': [
+                        dest_properties.get('lat', dest_coordinates.get('latitude', 0)),
+                        dest_properties.get('lon', dest_coordinates.get('longitude', 0))
+                    ]
                 },
                 'dates': {
                     'start_date': data.get('dates', {}).get('start_date', 'Not set'),
@@ -889,37 +938,202 @@ def test_api_call_3(request):
             }
 
             distance_matrix_data = calculate_distance_matrix_test(data=optimize_data)
+            
+            # Serialize optimize_result to make it MongoDB-compatible
+            serialized_distance_matrix = serialize_for_mongodb(distance_matrix_data)
 
-            # # Store the distance matrix data in MongoDB
-            # storage_document = {
-            #     'user_id': user_id,
-            #     'username': username,
-            #     'timestamp': datetime.datetime.now(),
-            #     'destination': optimize_data['destination'],
-            #     'dates': optimize_data['dates'],
-            #     'hotels_count': len(optimize_data['hotels']),
-            #     'attractions_count': len(optimize_data['attractions']),
-            #     'distance_matrix_data': distance_matrix_data,
-            #     'status': 'calculated',
-            #     'created_at': datetime.datetime.now()
-            # }
+            save_data = {
+                'destination': {
+                    'city': dest_properties.get('city', destination.get('name', 'Unknown')),
+                    'country': destination.get('country', dest_properties.get('country', 'Unknown')),
+                    'country_code': dest_properties.get('country_code', destination.get('country_code', '')),
+                    'country_place_id': destination.get('place_id', dest_properties.get('place_id', 'Unknown')),
+                    'city_place_id': dest_properties.get('place_id', destination.get('place_id', 'Unknown')),
+                    'city_coordinates': [
+                        dest_properties.get('lat', dest_coordinates.get('latitude', 0)),
+                        dest_properties.get('lon', dest_coordinates.get('longitude', 0))
+                    ]
+                },
+                'dates': {
+                    'start_date': data.get('dates', {}).get('start_date', 'Not set'),
+                    'end_date': data.get('dates', {}).get('end_date', 'Not set'),
+                    'start_time': data.get('dates', {}).get('start_time', 'Not set'),
+                    'end_time': data.get('dates', {}).get('end_time', 'Not set'),
+                },
+                'hotels': data.get('hotels', []),
+                'attractions': data.get('attractions', []),
+                'user': {
+                    'user_id': user_id,
+                    'username': username
+                },
+                'optimize_result': serialized_distance_matrix,
+                'created_at': datetime.datetime.now(),  
+                'updated_at': datetime.datetime.now(),
 
-            # result = trip_optimization_collection.insert_one(storage_document)
+            }
 
-            # if not result.inserted_id:
-            #     return JsonResponse({'error': 'Failed to store distance matrix data'}, status=500)
+            # Try to insert into MongoDB with error handling
+            try:
+                result = trip_optimization_collection.insert_one(save_data)
+                
+                if not result.inserted_id:
+                    return JsonResponse({'error': 'Failed to store distance matrix data'}, status=500)
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Data saved successfully',
+                    'inserted_id': str(result.inserted_id),
+                    'optimize_result': distance_matrix_data
+                }, status=200)
+                
+            except Exception as mongo_error:
+                # Log MongoDB errors with detailed information
+                print(f"MongoDB Error: {str(mongo_error)}")
+                print(f"Problematic data structure: {save_data}")
+                return JsonResponse({
+                    'error': 'Database error',
+                    'details': str(mongo_error)
+                }, status=500)
+                
+        except json.JSONDecodeError as e:
+            print(f"JSON Decode Error: {str(e)}")
+            return JsonResponse({'error': 'Invalid JSON', 'details': str(e)}, status=400)
+        except Exception as e:
+            # Catch any other errors
+            print(f"Unexpected Error: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return JsonResponse({
+                'error': 'Internal server error',
+                'details': str(e)
+            }, status=500)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
 
+@csrf_exempt
+def delete_trip_optimization(request, trip_id):
+    """
+    Delete a trip optimization record from MongoDB by trip_id
+    """
+    if request.method == 'DELETE':
+        try:
+            from bson import ObjectId
+            
+            # Get user information from session
+            username = request.session.get('username', 'Guest')
+            user_id = request.session.get('id', None)
+            
+            # Validate trip_id format
+            if not trip_id:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Trip ID is required'
+                }, status=400)
+            
+            # Convert trip_id string to MongoDB ObjectId
+            try:
+                object_id = ObjectId(trip_id)
+            except Exception as e:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Invalid trip ID format',
+                    'details': str(e)
+                }, status=400)
+            
+            # First, check if the trip exists and belongs to the current user
+            trip = trip_optimization_collection.find_one({'_id': object_id})
+            
+            if not trip:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Trip not found'
+                }, status=404)
+            
+            # Verify ownership - check if trip belongs to current user
+            trip_username = trip.get('user', {}).get('username')
+            trip_user_id = trip.get('user', {}).get('user_id')
+            
+            if trip_username != username and trip_user_id != user_id:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Unauthorized: You can only delete your own trips'
+                }, status=403)
+            
+            # Delete the trip
+            result = trip_optimization_collection.delete_one({'_id': object_id})
+            
+            if result.deleted_count == 1:
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Trip deleted successfully',
+                    'deleted_id': trip_id
+                }, status=200)
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Failed to delete trip'
+                }, status=500)
+                
+        except Exception as e:
+            print(f"Error deleting trip: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return JsonResponse({
+                'success': False,
+                'error': 'Internal server error',
+                'details': str(e)
+            }, status=500)
+    else:
+        return JsonResponse({
+            'success': False,
+            'error': 'Method not allowed. Use DELETE method.'
+        }, status=405)
+
+@csrf_exempt
+def delete_all_trip_optimizations(request):
+    """
+    Delete all trip optimization records for the current user
+    """
+    if request.method == 'DELETE':
+        try:
+            # Get user information from session
+            username = request.session.get('username', 'Guest')
+            user_id = request.session.get('id', None)
+            
+            if not username or not user_id:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'User not authenticated'
+                }, status=401)
+            
+            # Delete all trips for this user
+            result = trip_optimization_collection.delete_many({
+                '$or': [
+                    {'user.username': username},
+                    {'user.user_id': user_id}
+                ]
+            })
             
             return JsonResponse({
                 'success': True,
-                # 'data_received': data,
-                # 'data_saved': optimize_data
-                'results': distance_matrix_data    
+                'message': f'Successfully deleted {result.deleted_count} trip(s)',
+                'deleted_count': result.deleted_count
             }, status=200)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+                
+        except Exception as e:
+            print(f"Error deleting all trips: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return JsonResponse({
+                'success': False,
+                'error': 'Internal server error',
+                'details': str(e)
+            }, status=500)
     else:
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
+        return JsonResponse({
+            'success': False,
+            'error': 'Method not allowed. Use DELETE method.'
+        }, status=405)
 
 def calculate_distance_matrix_test(data=None):
     from tourism.external_api.geopify import GeopifyAPI 

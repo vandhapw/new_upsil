@@ -4,6 +4,7 @@ import pymongo
 
 dbLocation = None
 
+
 def get_mongo_client():
     """
     Returns a pymongo.MongoClient instance based on the current environment.
@@ -12,6 +13,19 @@ def get_mongo_client():
     try:
         if settings.CURRENT_ENVIRONMENT == 'server':
             print("Running in 'server' environment. Skipping database connection.")
+            client = pymongo.MongoClient('localhost', 27019)
+            client.admin.command('ping')  # Check if the database is reachable
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'djongo',
+                    'NAME': 'server_db',
+                    'CLIENT': {
+                        'host': '127.0.0.1',
+                        'port': 27019,
+                        'authSource': 'admin',
+                    }
+                }
+            }
             return None
         else:
             print("Running in 'local' environment. Connecting to MongoDB.")

@@ -3854,7 +3854,7 @@ function collectTripData() {
                 latitude: window.selectedProvinceData.geometry?.coordinates?.[1] || window.selectedProvinceData.lat,
                 longitude: window.selectedProvinceData.geometry?.coordinates?.[0] || window.selectedProvinceData.lng
             },
-            country: 'South Korea',
+            country: window.selectedProvinceData.properties?.country || window.selectedProvinceData.country || 'Unknown',
             properties: window.selectedProvinceData.properties || {}
         };
         console.log('✅ Destination data collected:', tripData.destination.name);
@@ -3942,10 +3942,9 @@ function collectTripData() {
         console.log(`📋 Processing ${window.selectedHotelsData.length} selected hotels for trip data...`);
         tripData.hotels = window.selectedHotelsData.map((hotel, index) => {
             // Ensure coordinates are properly extracted with comprehensive fallbacks
-            // let latitude = hotel.latitude || hotel.coordinates?.latitude || hotel.lat;
-            // let longitude = hotel.longitude || hotel.coordinates?.longitude || hotel.lng || hotel.lon;
-            let latitude = hotel.properties.lat;
-            let longitude = hotel.properties.lon;
+            // Priority order: properties.lat/lon > direct lat/lng > coordinates object
+            let latitude = hotel.properties?.lat || hotel.latitude || hotel.coordinates?.latitude || hotel.lat;
+            let longitude = hotel.properties?.lon || hotel.longitude || hotel.coordinates?.longitude || hotel.lng || hotel.lon;
             
             console.log(`🏨 Hotel ${index + 1} "${hotel.name}" original data:`, {
                 hotel: hotel,
@@ -4233,6 +4232,36 @@ async function saveTripDataToServer(tripData) { //tripData
     console.log('💾 Saving trip data to server...');
     console.log('Trip data to be sent:', tripData);
     
+    // Validate trip data before sending
+    if (!tripData || typeof tripData !== 'object') {
+        throw new Error('Invalid trip data: data is null or not an object');
+    }
+    
+    if (!tripData.destination || !tripData.destination.name) {
+        console.warn('⚠️ Warning: No destination data in trip');
+    }
+    
+    if (!tripData.dates || !tripData.dates.start_date) {
+        console.warn('⚠️ Warning: No date data in trip');
+    }
+    
+    if (!tripData.hotels || tripData.hotels.length === 0) {
+        console.warn('⚠️ Warning: No hotels selected in trip');
+    }
+    
+    if (!tripData.attractions || tripData.attractions.length === 0) {
+        console.warn('⚠️ Warning: No attractions selected in trip');
+    }
+    
+    // Log the complete data structure being sent
+    console.log('📤 Sending trip data to server:');
+    console.log('- Destination:', tripData.destination?.name, '|', tripData.destination?.country);
+    console.log('- Country Code:', tripData.destination?.properties?.country_code || tripData.destination?.country_code);
+    console.log('- Coordinates:', tripData.destination?.coordinates);
+    console.log('- Hotels:', tripData.hotels?.length);
+    console.log('- Attractions:', tripData.attractions?.length);
+    console.log('- Full data:', JSON.stringify(tripData, null, 2));
+    
     try {
         // const dummyData = 
         const response = await fetch('/tourism/api/test_api_call_3/', {
@@ -4246,11 +4275,93 @@ async function saveTripDataToServer(tripData) { //tripData
         });
         
         if (!response.ok) {
-            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+            // Try to get error details from response
+            let errorDetail = '';
+            let errorData = null;
+            try {
+                // Clone the response so we can read it twice if needed
+                const clonedResponse = response.clone();
+                errorData = await clonedResponse.json();
+                errorDetail = errorData.error || errorData.message || JSON.stringify(errorData);
+                console.error('❌ Server error details:', errorData);
+                
+                // Show SweetAlert for server errors
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Server Error',
+                    html: `
+                        <div style="text-align: left;">
+                            <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                            <p><strong>Error:</strong> ${errorData.error || 'Unknown error'}</p>
+                            ${errorData.message ? `<p><strong>Message:</strong> ${errorData.message}</p>` : ''}
+                            ${errorData.details ? `<p><strong>Details:</strong> ${errorData.details}</p>` : ''}
+                        </div>
+                    `,
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#e74c3c',
+                    width: '600px'
+                });
+            } catch (e) {
+                // If JSON parsing fails, read as text from the original response
+                try {
+                    errorDetail = await response.text();
+                    console.error('❌ Server error text:', errorDetail);
+                    
+                    // Show SweetAlert for text errors
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Server Error',
+                        html: `
+                            <div style="text-align: left;">
+                                <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                                <p><strong>Details:</strong> ${errorDetail || 'Unable to read error response'}</p>
+                            </div>
+                        `,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#e74c3c',
+                        width: '600px'
+                    });
+                } catch (textError) {
+                    errorDetail = 'Unable to read error response';
+                    console.error('❌ Could not read error response:', textError);
+                }
+            }
+            throw new Error(`Server error: ${response.status} ${response.statusText}. Details: ${errorDetail}`);
         }
         
         const result = await response.json();
         console.log('✅ Trip data saved successfully:', result);
+        
+        // Check if optimize_result contains an error
+        if (result.optimize_result && result.optimize_result.error) {
+            console.error('❌ Optimization error:', result.optimize_result);
+            
+            // Show SweetAlert error with details
+            Swal.fire({
+                icon: 'error',
+                title: 'Optimization Failed',
+                html: `
+                    <div style="text-align: left;">
+                        <p><strong>Error:</strong> ${result.optimize_result.error}</p>
+                        <p><strong>Message:</strong> ${result.optimize_result.message || 'No message provided'}</p>
+                        <p><strong>Details:</strong> ${result.optimize_result.details || 'No details available'}</p>
+                    </div>
+                `,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#e74c3c',
+                width: '600px',
+                customClass: {
+                    popup: 'animated fadeInDown'
+                }
+            });
+            
+            return {
+                success: false,
+                error: result.optimize_result.error,
+                message: result.optimize_result.details || result.optimize_result.message,
+                data: result
+            };
+        }
         
         // Small delay to ensure map is ready after marker clearing
         setTimeout(() => {
@@ -5373,10 +5484,9 @@ function clearAllMarkersForOptimization() {
         
         console.log('✅ ALL markers cleared - map ready for route visualization');
         
-        // Verify map state after clearing
+        // Verify map state after clearing (basic check only - Leaflet doesn't have getLayers())
         console.log('🔍 Map state after clearing:', {
             mapExists: !!window.map,
-            mapLayers: window.map ? window.map.getLayers().length : 'no map',
             displayLineResultExists: !!window.displayLineResultInstance,
             routeLayerExists: window.displayLineResultInstance ? !!window.displayLineResultInstance.routeLayerGroup : false
         });
@@ -7223,11 +7333,9 @@ window.clearAllSelections = clearAllSelections;
 window.refreshCurrentActivity = refreshCurrentActivity;
 window.removeHotelFromActivity = removeHotelFromActivity;
 window.removeAttractionFromActivity = removeAttractionFromActivity;
-window.selectHotelDates = selectHotelDates;
+// Note: selectHotelDates is already defined globally in hotel_date_selection_modal.html
 window.confirmHotelDates = confirmHotelDates;
-window.selectFullTrip = selectFullTrip;
-window.selectFirstHalf = selectFirstHalf;
-window.selectSecondHalf = selectSecondHalf;
+// Note: selectFullTrip, selectFirstHalf, selectSecondHalf are not defined - removed
 window.viewHotelDetails = viewHotelDetails;
 window.editHotelStay = editHotelStay;
 window.viewAttractionDetails = viewAttractionDetails;
