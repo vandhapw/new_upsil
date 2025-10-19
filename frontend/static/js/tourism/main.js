@@ -99,6 +99,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.log("TripHistoryManager class not found, skipping trip history initialization");
         }
 
+        // Initialize route visualization integration
+        initializeRouteVisualizationIntegration();
+
         // Optimize Button 
         const optimizeButton = document.getElementById("optimizeButton");
 
@@ -154,7 +157,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     } catch (error) {
         console.error("Error initializing application:", error);
-        alert("Failed to initialize the application. Please refresh the page.");
+        // alert("Failed to initialize the application. Please refresh the page.");
     }
 });
 
@@ -1137,5 +1140,132 @@ function exportAPIResponse() {
         linkElement.click();
         
         console.log('API response exported successfully');
+    } else {
+        console.warn("No API response data available to export");
+        alert("No trip optimization data available to export. Please run an optimization first.");
     }
 }
+
+/**
+ * Initialize route visualization integration
+ */
+function initializeRouteVisualizationIntegration() {
+    console.log("Setting up route visualization integration...");
+    
+    // Listen for successful optimization results
+    document.addEventListener('optimizationSuccess', (event) => {
+        console.log("🎯 Optimization success detected, preparing route visualization");
+        
+        if (event.detail && event.detail.response) {
+            // Show route visualization automatically after successful optimization
+            setTimeout(() => {
+                showRouteVisualization(event.detail.response);
+            }, 1000);
+        }
+    });
+
+    // Listen for route visualization ready
+    document.addEventListener('routeVisualizationReady', (event) => {
+        console.log("✅ Route visualization system ready");
+        
+        // Add route visualization button to UI if it doesn't exist
+        addRouteVisualizationButton();
+    });
+}
+
+/**
+ * Show route visualization from API response
+ * @param {Object} apiResponse - The API response containing route data
+ */
+function showRouteVisualization(apiResponse) {
+    console.log("📍 Attempting to show route visualization with data:", apiResponse);
+    
+    if (window.displayLineResultInstance) {
+        try {
+            window.displayLineResultInstance.displayRouteFromAPI(apiResponse);
+            console.log("✅ Route visualization displayed successfully");
+            
+            // Show success notification
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Route Visualization',
+                    text: 'Multi-day route has been displayed on the map!',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            }
+            
+        } catch (error) {
+            console.error("❌ Error displaying route visualization:", error);
+            
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Visualization Error',
+                    text: 'Failed to display route on map: ' + error.message
+                });
+            }
+        }
+    } else {
+        console.warn("⚠️ DisplayLineResult instance not available");
+        
+        // Try to trigger route visualization after a delay
+        setTimeout(() => {
+            if (window.displayLineResultInstance) {
+                showRouteVisualization(apiResponse);
+            } else {
+                console.error("❌ Route visualization system not initialized");
+            }
+        }, 2000);
+    }
+}
+
+/**
+ * Add route visualization button to the UI
+ */
+function addRouteVisualizationButton() {
+    // Check if button already exists
+    if (document.getElementById('showRouteVisualizationBtn')) {
+        return;
+    }
+
+    // Try to find a suitable container for the button
+    const optimizeButton = document.getElementById('optimizeButton');
+    const clearHistoryButton = document.getElementById('clearHistoryButton');
+    
+    let targetContainer = null;
+    
+    if (optimizeButton && optimizeButton.parentElement) {
+        targetContainer = optimizeButton.parentElement;
+    } else if (clearHistoryButton && clearHistoryButton.parentElement) {
+        targetContainer = clearHistoryButton.parentElement;
+    }
+    
+    if (targetContainer) {
+        const routeButton = document.createElement('button');
+        routeButton.id = 'showRouteVisualizationBtn';
+        routeButton.className = 'btn btn-info ms-2';
+        routeButton.innerHTML = '<i class="fas fa-route"></i> Show Route';
+        routeButton.title = 'Display route visualization on map';
+        
+        routeButton.addEventListener('click', () => {
+            if (window.lastAPIResponse) {
+                showRouteVisualization(window.lastAPIResponse);
+            } else if (window.displayLineResultInstance) {
+                window.displayLineResultInstance.loadRouteFromAPI();
+            } else {
+                alert('No route data available. Please run optimization first.');
+            }
+        });
+        
+        targetContainer.appendChild(routeButton);
+        console.log("✅ Route visualization button added to UI");
+    } else {
+        console.warn("⚠️ Could not find suitable container for route visualization button");
+    }
+}
+
+// Make functions available globally
+window.showRouteVisualization = showRouteVisualization;
+window.initializeRouteVisualizationIntegration = initializeRouteVisualizationIntegration;

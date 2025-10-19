@@ -847,6 +847,9 @@ def test_api_call_3(request):
             # Parse the incoming JSON data
             data = json.loads(request.body)
 
+            # username = request.session.get('username', 'test')
+            # user_id = request.session.get('id', 'test')
+
             save_data = {
                 'destination': {
                     'city': data.get('destination', {}).get('properties', {}).get('city', 'Unknown'),
@@ -886,6 +889,25 @@ def test_api_call_3(request):
             }
 
             distance_matrix_data = calculate_distance_matrix_test(data=optimize_data)
+
+            # # Store the distance matrix data in MongoDB
+            # storage_document = {
+            #     'user_id': user_id,
+            #     'username': username,
+            #     'timestamp': datetime.datetime.now(),
+            #     'destination': optimize_data['destination'],
+            #     'dates': optimize_data['dates'],
+            #     'hotels_count': len(optimize_data['hotels']),
+            #     'attractions_count': len(optimize_data['attractions']),
+            #     'distance_matrix_data': distance_matrix_data,
+            #     'status': 'calculated',
+            #     'created_at': datetime.datetime.now()
+            # }
+
+            # result = trip_optimization_collection.insert_one(storage_document)
+
+            # if not result.inserted_id:
+            #     return JsonResponse({'error': 'Failed to store distance matrix data'}, status=500)
 
             
             return JsonResponse({

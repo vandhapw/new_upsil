@@ -223,34 +223,54 @@ class displayHotel {
         console.log(`🔍 Normalizing coordinates for hotel: ${hotel.name}`);
         console.log('Original hotel data:', hotel);
         
-        // Method 1: Array format [lng, lat] (from displayHotel.js API)
-        if (Array.isArray(hotel.coordinates) && hotel.coordinates.length >= 2) {
+        // Method 1: Properties format properties.lat and properties.lon (primary method)
+        if (hotel.properties && hotel.properties.lat && hotel.properties.lon) {
+            lat = hotel.properties.lat;
+            lng = hotel.properties.lon;
+            console.log(`📍 Using properties coordinates lat: ${lat}, lng: ${lng} for ${hotel.name}`);
+        }
+        // Method 2: Properties format properties.latitude and properties.longitude
+        else if (hotel.properties && hotel.properties.latitude && hotel.properties.longitude) {
+            lat = hotel.properties.latitude;
+            lng = hotel.properties.longitude;
+            console.log(`📍 Using properties lat/lng coordinates lat: ${lat}, lng: ${lng} for ${hotel.name}`);
+        }
+        // Method 3: Array format [lng, lat] (from displayHotel.js API)
+        else if (Array.isArray(hotel.coordinates) && hotel.coordinates.length >= 2) {
             lng = hotel.coordinates[0];
             lat = hotel.coordinates[1];
             console.log(`📍 Using array coordinates [${lng}, ${lat}] for ${hotel.name}`);
         }
-        // Method 2: Object format {latitude, longitude} (from step process)
+        // Method 4: Object format {latitude, longitude} (from step process)
         else if (hotel.coordinates && typeof hotel.coordinates === 'object') {
-            lat = hotel.coordinates.latitude;
-            lng = hotel.coordinates.longitude;
+            lat = hotel.coordinates.latitude || hotel.coordinates.lat;
+            lng = hotel.coordinates.longitude || hotel.coordinates.lng;
             console.log(`📍 Using object coordinates {lat: ${lat}, lng: ${lng}} for ${hotel.name}`);
         }
-        // Method 3: Direct properties (fallback)
+        // Method 5: Direct properties (fallback)
         else if (hotel.latitude && hotel.longitude) {
             lat = hotel.latitude;
             lng = hotel.longitude;
             console.log(`📍 Using direct properties lat: ${lat}, lng: ${lng} for ${hotel.name}`);
         }
-        // Method 4: Alternative property names
+        // Method 6: Alternative property names
         else if (hotel.lat && hotel.lng) {
             lat = hotel.lat;
             lng = hotel.lng;
             console.log(`📍 Using alt properties lat: ${lat}, lng: ${lng} for ${hotel.name}`);
         }
+        // Method 7: Check geometry coordinates (GeoJSON format)
+        else if (hotel.geometry && hotel.geometry.coordinates && Array.isArray(hotel.geometry.coordinates)) {
+            lng = hotel.geometry.coordinates[0];
+            lat = hotel.geometry.coordinates[1];
+            console.log(`📍 Using geometry coordinates [${lng}, ${lat}] for ${hotel.name}`);
+        }
         
         // Validate coordinates
         if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-            console.warn(`⚠️ Invalid coordinates for ${hotel.name}, using fallback`);
+            console.warn(`⚠️ Invalid coordinates for ${hotel.name}:`, { lat, lng });
+            console.warn('Hotel data structure:', hotel);
+            
             // Use province coordinates with offset as fallback
             if (window.selectedProvinceData) {
                 if (window.selectedProvinceData.geometry?.coordinates) {
@@ -267,13 +287,23 @@ class displayHotel {
                     lat += (Math.random() - 0.5) * offsetRange;
                     lng += (Math.random() - 0.5) * offsetRange;
                     console.log(`📍 Using province fallback with offset: [${lng}, ${lat}] for ${hotel.name}`);
+                } else {
+                    // Last resort: use Seoul coordinates
+                    lat = 37.5665;
+                    lng = 126.9780;
+                    console.log(`📍 Using Seoul fallback coordinates for ${hotel.name}`);
                 }
+            } else {
+                // Last resort: use Seoul coordinates
+                lat = 37.5665;
+                lng = 126.9780;
+                console.log(`📍 Using Seoul fallback coordinates for ${hotel.name}`);
             }
         }
         
         // Ensure we have valid numbers
-        lat = parseFloat(lat) || 0;
-        lng = parseFloat(lng) || 0;
+        lat = parseFloat(lat) || 37.5665; // Default to Seoul if parsing fails
+        lng = parseFloat(lng) || 126.9780;
         
         console.log(`✅ Final normalized coordinates for ${hotel.name}: [${lng}, ${lat}]`);
         

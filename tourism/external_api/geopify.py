@@ -55,13 +55,17 @@ class GeopifyAPI:
 
     def calculate_distance_matrix(self, data):
         from tourism.optimization.genetic_algorithm import GA
+        from tourism.optimization.ga_multi import GA_MultiOptimizer
         hotels_list = []
         for hotel in data['hotels']:
             name = hotel.get('name', 'N/A')
             coords = hotel.get('coordinates', {})
             latitude = coords.get('latitude', 'N/A')
             longitude = coords.get('longitude', 'N/A')
-            hotels_list.append({'Name': name, 'Latitude': latitude, 'Longitude': longitude, 'Type': 'Hotel'})
+            hotel_booking = hotel.get('booking', {})
+            checkInDate = hotel_booking.get('checkInDate', 'N/A')
+            checkOutDate = hotel_booking.get('checkOutDate', 'N/A')
+            hotels_list.append({'Name': name, 'Latitude': latitude, 'Longitude': longitude, 'Type': 'Hotel', 'checkIn': checkInDate, 'checkOut': checkOutDate})
 
         attractions_list = []
         for attraction in data['attractions']:
@@ -74,7 +78,7 @@ class GeopifyAPI:
         all_locations_df = pd.DataFrame(hotels_list + attractions_list)
         # Get coordinates from the DataFrame
         locations = all_locations_df[['Name', 'Latitude', 'Longitude']].to_records(index=False).tolist()
-
+        
         # Create a list to store distance data
         distance_data = []
 
@@ -137,7 +141,7 @@ class GeopifyAPI:
                     })
 
         df = pd.DataFrame(distance_data)
-        ga_method = GA(df)
+        ga_method = GA_MultiOptimizer(df, all_locations_df)
         ga_result = ga_method.main()
         # Create a DataFrame from the distance data
         return ga_result

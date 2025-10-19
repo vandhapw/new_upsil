@@ -1,0 +1,667 @@
+{
+    "timestamp": "2025-10-19T09:06:19.590Z",
+    "destination": {
+        "place_id": "51e55e605668226040596d697fb108974140f00101f9012291240000000000c00208",
+        "formatted_address": "Busan, South Korea",
+        "coordinates": {
+            "latitude": 35.1799528
+        },
+        "country": "South Korea",
+        "properties": {
+            "datasource": {
+                "sourcename": "openstreetmap",
+                "attribution": "© OpenStreetMap contributors",
+                "license": "Open Database License",
+                "url": "https://www.openstreetmap.org/copyright"
+            },
+            "old_name": "Pusan",
+            "country": "South Korea",
+            "country_code": "kr",
+            "city": "Busan",
+            "iso3166_2": "KR-26",
+            "lon": 129.0752365,
+            "lat": 35.1799528,
+            "result_type": "city",
+            "formatted": "Busan, South Korea",
+            "address_line1": "Busan",
+            "address_line2": "South Korea",
+            "category": "administrative",
+            "timezone": {
+                "name": "Asia/Seoul",
+                "offset_STD": "+09:00",
+                "offset_STD_seconds": 32400,
+                "offset_DST": "+09:00",
+                "offset_DST_seconds": 32400,
+                "abbreviation_STD": "KST",
+                "abbreviation_DST": "KST"
+            },
+            "plus_code": "8Q7F53HG+X3",
+            "plus_code_short": "53HG+X3 Busan, South Korea",
+            "rank": {
+                "importance": 0.6704362905592307,
+                "popularity": 2.8709452204086165,
+                "confidence": 1,
+                "confidence_city_level": 1,
+                "match_type": "full_match"
+            },
+            "place_id": "51e55e605668226040596d697fb108974140f00101f9012291240000000000c00208"
+        }
+    },
+    "dates": {
+        "start_date": "2025-10-20",
+        "end_date": "2025-10-22",
+        "start_time": "18:06",
+        "end_time": "18:05",
+        "duration_days": 1,
+        "formatted": {}
+    },
+    "hotels": [
+        {
+            "id": "5126f444219320604059ec8aae61e1894140f00103f90136006e0003000000920314486f74656c204772616220746865204f6365616e",
+            "name": "Hotel Grab the Ocean",
+            "rating": "4.4",
+            "price": "$118",
+            "address": "Hotel Grab the Ocean, 97 Songdohaebyeon-ro, Seo-gu, Busan, 49269, South Korea",
+            "location": "Hotel Grab the Ocean",
+            "coordinates": {
+                "latitude": 35.07719059965697,
+                "longitude": 129.0179602
+            },
+            "amenities": [
+                "WiFi",
+                "Room Service",
+                "Daily Cleaning"
+            ],
+            "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+            "description": "Comfortable accommodation with modern amenities",
+            "contact": {},
+            "website": "",
+            "properties": {
+                "name": "Hotel Grab the Ocean",
+                "country": "South Korea",
+                "country_code": "kr",
+                "city": "Busan",
+                "postcode": "49269",
+                "suburb": "Seo-gu",
+                "quarter": "Amnam-dong",
+                "street": "Songdohaebyeon-ro",
+                "housenumber": "97",
+                "iso3166_2": "KR-26",
+                "lon": 129.0179602,
+                "lat": 35.0771906,
+                "formatted": "Hotel Grab the Ocean, 97 Songdohaebyeon-ro, Seo-gu, Busan, 49269, South Korea",
+                "address_line1": "Hotel Grab the Ocean",
+                "address_line2": "97 Songdohaebyeon-ro, Seo-gu, Busan, 49269, South Korea",
+                "categories": [
+                    "accommodation",
+                    "accommodation.hotel"
+                ],
+                "details": [],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "Hotel Grab the Ocean",
+                        "osm_id": 12892110902,
+                        "tourism": "hotel",
+                        "osm_type": "n",
+                        "addr:street": "Songdohaebyeon-ro",
+                        "addr:housenumber": 97
+                    }
+                },
+                "place_id": "5126f444219320604059ec8aae61e1894140f00103f90136006e0003000000920314486f74656c204772616220746865204f6365616e"
+            },
+            "latitude": 35.07719059965697,
+            "longitude": 129.0179602,
+            "booking": {
+                "checkInDate": "2025-10-20",
+                "checkOutDate": "2025-10-21",
+                "dateRange": "Mon, Oct 20, 2025 to Tue, Oct 21, 2025",
+                "dayNumber": 1,
+                "stayDate": "2025-10-20",
+                "isDateRange": true,
+                "savedAt": "2025-10-19T09:05:50.780Z"
+            },
+            "tripDates": {}
+        },
+        {
+            "id": "51a8e628f646256040595a33d808c4944140f00103f901616bfbf90200000092031642656e696b656120486f74656c20486165756e646165",
+            "name": "Benikea Hotel Haeundae",
+            "rating": "4.9",
+            "price": "$228",
+            "address": "Benikea Hotel Haeundae, 317 Ha",
+            "location": "Benikea Hotel Haeundae",
+            "coordinates": {
+                "latitude": 37.5,
+                "longitude": 127
+            },
+            "amenities": [
+                "WiFi",
+                "Room Service",
+                "Daily Cleaning"
+            ],
+            "image": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+            "description": "Comfortable accommodation with modern amenities",
+            "contact": {},
+            "website": "",
+            "properties": {
+                "name": "Benikea Hotel Haeundae",
+                "country": "South Korea",
+                "country_code": "kr",
+                "city": "Busan",
+                "postcode": "48095",
+                "district": "Haeundae-gu",
+                "suburb": "Jung 1(il)-dong",
+                "street": "Haeundaehaebyeon-ro",
+                "housenumber": "317",
+                "iso3166_2": "KR-26",
+                "lon": 129.1649123,
+                "lat": 35.1622325,
+                "formatted": "Benikea Hotel Haeundae, 317 Haeundaehaebyeon-ro, Jung 1(il)-dong, Busan, 48095, South Korea",
+                "address_line1": "Benikea Hotel Haeundae",
+                "address_line2": "317 Haeundaehaebyeon-ro, Jung 1(il)-dong, Busan, 48095, South Korea",
+                "categories": [
+                    "accommodation",
+                    "accommodation.hotel"
+                ],
+                "details": [],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "Benikea Hotel Haeundae",
+                        "osm_id": 12783938401,
+                        "tourism": "hotel",
+                        "osm_type": "n",
+                        "addr:street": "해운대해변로",
+                        "addr:postcode": 48095,
+                        "addr:housenumber": 317
+                    }
+                },
+                "place_id": "51a8e628f646256040595a33d808c4944140f00103f901616bfbf90200000092031642656e696b656120486f74656c20486165756e646165"
+            },
+            "latitude": 37.5,
+            "longitude": 127,
+            "booking": {
+                "checkInDate": "2025-10-21",
+                "checkOutDate": "2025-10-22",
+                "dateRange": "Tue, Oct 21, 2025 to Wed, Oct 22, 2025",
+                "dayNumber": 2,
+                "stayDate": "2025-10-21",
+                "isDateRange": true
+            },
+            "tripDates": {}
+        }
+    ],
+    "attractions": [
+        {
+            "id": "5126a6666aed236040592572af11d2934140f00103f90109124ae90200000092031feab491ec9588eba6ac204d20eb939ceba1a020eb9dbcec9db4ed8ab8ec87bc",
+            "name": "광안리 M 드론 라이트쇼",
+            "type": "Tourist Attraction",
+            "rating": "4.2",
+            "price": "Free",
+            "address": "Gwangalli Saturday Night Marvelous Drone Show, 축제의 광장, Millak-dong, Busan, 48284, South Korea",
+            "location": "Gwangalli Saturday Night Marvelous Drone Show",
+            "coordinates": {
+                "latitude": 35.154848299662525,
+                "longitude": 129.12273139999996
+            },
+            "amenities": [
+                "Contact Available",
+                "Website"
+            ],
+            "image": "https://images.unsplash.com/photo-1539650116574-75c0c6d89b05?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {
+                "phone": "051-610-4882"
+            },
+            "website": "https://gwangallimdrone.co.kr",
+            "properties": {
+                "name": "광안리 M 드론 라이트쇼",
+                "country": "South Korea",
+                "country_code": "kr",
+                "city": "Busan",
+                "postcode": "48284",
+                "district": "Suyeong-gu",
+                "suburb": "Millak-dong",
+                "street": "축제의 광장",
+                "iso3166_2": "KR-26",
+                "lon": 129.1227314,
+                "lat": 35.1548483,
+                "formatted": "Gwangalli Saturday Night Marvelous Drone Show, 축제의 광장, Millak-dong, Busan, 48284, South Korea",
+                "address_line1": "Gwangalli Saturday Night Marvelous Drone Show",
+                "address_line2": "축제의 광장, Millak-dong, Busan, 48284, South Korea",
+                "categories": [
+                    "tourism",
+                    "tourism.attraction"
+                ],
+                "details": [
+                    "details",
+                    "details.contact"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "광안리 M 드론 라이트쇼",
+                        "phone": "051-610-4882",
+                        "osm_id": 12503880201,
+                        "name:en": "Gwangalli Saturday Night Marvelous Drone Show",
+                        "name:ko": "광안리 M 드론 라이트쇼",
+                        "tourism": "attraction",
+                        "website": "https://gwangallimdrone.co.kr",
+                        "osm_type": "n",
+                        "opening_hours": "Sa 19:00-19:10, 21:00-21:10"
+                    }
+                },
+                "website": "https://gwangallimdrone.co.kr",
+                "opening_hours": "Sa 19:00-19:10, 21:00-21:10",
+                "name_international": {
+                    "en": "Gwangalli Saturday Night Marvelous Drone Show",
+                    "ko": "광안리 M 드론 라이트쇼"
+                },
+                "contact": {
+                    "phone": "051-610-4882"
+                },
+                "place_id": "5126a6666aed236040592572af11d2934140f00103f90109124ae90200000092031feab491ec9588eba6ac204d20eb939ceba1a020eb9dbcec9db4ed8ab8ec87bc"
+            },
+            "latitude": 35.154848299662525,
+            "longitude": 129.12273139999996
+        },
+        {
+            "id": "5102dc1f90322260405907f6f4d95ca44140f00102f901abf8dc0700000000920309ebb294ec96b4ec82ac",
+            "name": "범어사",
+            "type": "Tourist Attraction",
+            "rating": "4.6",
+            "price": "Free",
+            "address": "250 Beomeosa-ro, Cheongnyongnopo-dong, Busan, 46200, South Korea",
+            "location": "250 Beomeosa-ro",
+            "coordinates": {
+                "latitude": 35.28408359967221,
+                "longitude": 129.06867223951855
+            },
+            "amenities": [
+                "Website"
+            ],
+            "image": "https://images.unsplash.com/photo-1545558014-8692077e9b5c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "https://www.beomeo.kr/",
+            "properties": {
+                "name": "범어사",
+                "country": "South Korea",
+                "country_code": "kr",
+                "city": "Busan",
+                "postcode": "46200",
+                "district": "Geumjeong-gu",
+                "suburb": "Cheongnyongnopo-dong",
+                "quarter": "Cheongnyong-dong",
+                "street": "Beomeosa-ro",
+                "housenumber": "250",
+                "iso3166_2": "KR-26",
+                "lon": 129.06867223951855,
+                "lat": 35.2840836,
+                "formatted": "250 Beomeosa-ro, Cheongnyongnopo-dong, Busan, 46200, South Korea",
+                "address_line1": "250 Beomeosa-ro",
+                "address_line2": "Cheongnyongnopo-dong, Busan, 46200, South Korea",
+                "categories": [
+                    "religion",
+                    "religion.place_of_worship",
+                    "religion.place_of_worship.buddhism",
+                    "tourism",
+                    "tourism.attraction",
+                    "tourism.sights.place_of_worship"
+                ],
+                "details": [
+                    "details",
+                    "details.place_of_worship",
+                    "details.wiki_and_media"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "범어사",
+                        "osm_id": 131922091,
+                        "amenity": "place_of_worship",
+                        "landuse": "religious",
+                        "name:az": "Pomosa məbədi",
+                        "name:de": "Beomeosa",
+                        "name:en": "Beomeosa",
+                        "name:ja": "梵魚寺",
+                        "name:ko": "범어사",
+                        "name:ru": "Храм Помоса",
+                        "name:vi": "Beomeosa",
+                        "name:zh": "梵鱼寺",
+                        "tourism": "attraction",
+                        "website": "https://www.beomeo.kr/",
+                        "osm_type": "w",
+                        "religion": "buddhist",
+                        "wikidata": "Q487662",
+                        "addr:city": "부산광역시",
+                        "wikipedia": "ko:범어사",
+                        "addr:street": "범어사로",
+                        "name:ko-Latn": "Beomeosa",
+                        "addr:district": "금정구",
+                        "addr:postcode": 46200,
+                        "addr:housenumber": 250,
+                        "addr:subdistrict": "청룡동"
+                    }
+                },
+                "website": "https://www.beomeo.kr/",
+                "name_international": {
+                    "az": "Pomosa məbədi",
+                    "de": "Beomeosa",
+                    "en": "Beomeosa",
+                    "ja": "梵魚寺",
+                    "ko": "범어사",
+                    "ru": "Храм Помоса",
+                    "vi": "Beomeosa",
+                    "zh": "梵鱼寺"
+                },
+                "wiki_and_media": {
+                    "wikidata": "Q487662",
+                    "wikipedia": "ko:범어사"
+                },
+                "place_of_worship": {
+                    "religion": "buddhist"
+                },
+                "place_id": "5102dc1f90322260405907f6f4d95ca44140f00102f901abf8dc0700000000920309ebb294ec96b4ec82ac"
+            },
+            "latitude": 35.28408359967221,
+            "longitude": 129.06867223951855
+        },
+        {
+            "id": "511e4d59014820604059109695c6548c4140f00102f9012e72cf1600000000920312eab090ecb29cebacb8ed9994eba788ec9d84",
+            "name": "감천문화마을",
+            "type": "Tourist Attraction",
+            "rating": "5.0",
+            "price": "Free",
+            "address": "Gamcheon Culture Village, 감내1로, Gamcheon 2(i)-dong, Busan, 49365, South Korea",
+            "location": "Gamcheon Culture Village",
+            "coordinates": {
+                "latitude": 35.096337149658325,
+                "longitude": 129.00878970567368
+            },
+            "amenities": [
+                "Website"
+            ],
+            "image": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "https://www.gamcheon.or.kr/",
+            "properties": {
+                "name": "감천문화마을",
+                "country": "South Korea",
+                "country_code": "kr",
+                "city": "Busan",
+                "postcode": "49365",
+                "district": "Saha-gu",
+                "suburb": "Gamcheon 2(i)-dong",
+                "street": "감내1로",
+                "iso3166_2": "KR-26",
+                "lon": 129.00878970567368,
+                "lat": 35.09633715,
+                "formatted": "Gamcheon Culture Village, 감내1로, Gamcheon 2(i)-dong, Busan, 49365, South Korea",
+                "address_line1": "Gamcheon Culture Village",
+                "address_line2": "감내1로, Gamcheon 2(i)-dong, Busan, 49365, South Korea",
+                "categories": [
+                    "tourism",
+                    "tourism.attraction"
+                ],
+                "details": [
+                    "details",
+                    "details.wiki_and_media"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "감천문화마을",
+                        "osm_id": 382693934,
+                        "name:en": "Gamcheon Culture Village",
+                        "name:ja": "甘川文化村",
+                        "name:zh": "甘川文化村",
+                        "tourism": "attraction",
+                        "website": "https://www.gamcheon.or.kr/",
+                        "osm_type": "w",
+                        "wikidata": "Q18641306",
+                        "wikipedia": "ko:감천문화마을"
+                    }
+                },
+                "website": "https://www.gamcheon.or.kr/",
+                "name_international": {
+                    "en": "Gamcheon Culture Village",
+                    "ja": "甘川文化村",
+                    "zh": "甘川文化村"
+                },
+                "wiki_and_media": {
+                    "wikidata": "Q18641306",
+                    "wikipedia": "ko:감천문화마을"
+                },
+                "place_id": "511e4d59014820604059109695c6548c4140f00102f9012e72cf1600000000920312eab090ecb29cebacb8ed9994eba788ec9d84"
+            },
+            "latitude": 35.096337149658325,
+            "longitude": 129.00878970567368
+        },
+        {
+            "id": "51d7c36d06082160405924a92672f78c4140f00102f9012964a51c0000000092030cebb680ec82b0ed8380ec9b8c",
+            "name": "부산타워",
+            "type": "Tourist Attraction",
+            "rating": "4.7",
+            "price": "Free",
+            "address": "Diamond Tower, 13 Daecheong-ro 116beon-gil, Gwangbok-dong, Busan, 48948, South Korea",
+            "location": "Diamond Tower",
+            "coordinates": {
+                "latitude": 35.10130144965868,
+                "longitude": 129.0322296279762
+            },
+            "amenities": [
+                "Contact Available"
+            ],
+            "image": "https://images.unsplash.com/photo-1551322312-6632ebe2b7e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "다이아몬드 타워(구 부산 타워)는 용두산 공원에 120미터 높이로 우뚝 서 있으며, 방문객들에게 부산과 아름다운 해안선의 숨막히는 전경을 제공합니다. 이 상징적인 랜드마크는 멋진 경관을 보여줄 뿐만 아니라 다양한 문화 행사를 개최하여 도시의 문화적 풍경의 활기찬 일부분이 됩니다. 다보탑에서 영감을 받은 독특한 디자인은 한국의 풍부한 유산을 반영하며, 관광객들이 이 지역의 자연미와 문화적 의미를 탐험하도록 초대합니다.",
+            "contact": {
+                "phone": "+82 51 257 9771"
+            },
+            "website": "",
+            "properties": {
+                "name": "부산타워",
+                "country": "South Korea",
+                "country_code": "kr",
+                "city": "Busan",
+                "postcode": "48948",
+                "district": "Jung-gu",
+                "suburb": "Gwangbok-dong",
+                "quarter": "Daecheong-dong 2(i)-ga",
+                "street": "Daecheong-ro 116beon-gil",
+                "housenumber": "13",
+                "iso3166_2": "KR-26",
+                "lon": 129.0322296279762,
+                "lat": 35.10130145,
+                "formatted": "Diamond Tower, 13 Daecheong-ro 116beon-gil, Gwangbok-dong, Busan, 48948, South Korea",
+                "address_line1": "Diamond Tower",
+                "address_line2": "13 Daecheong-ro 116beon-gil, Gwangbok-dong, Busan, 48948, South Korea",
+                "categories": [
+                    "access",
+                    "access.yes",
+                    "building",
+                    "building.tourism",
+                    "man_made",
+                    "man_made.tower",
+                    "tourism",
+                    "tourism.attraction",
+                    "tourism.attraction.viewpoint",
+                    "tourism.sights",
+                    "tourism.sights.tower"
+                ],
+                "details": [
+                    "details",
+                    "details.building",
+                    "details.contact",
+                    "details.wiki_and_media"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "부산타워",
+                        "phone": "+82 51 257 9771",
+                        "access": "yes",
+                        "height": 120,
+                        "osm_id": 480601129,
+                        "name:en": "Diamond Tower",
+                        "name:es": "Torre de Busan",
+                        "name:ja": "釜山タワー",
+                        "name:nl": "Busan Tower",
+                        "name:pt": "Busan Tower",
+                        "name:ru": "Пусанская башня",
+                        "name:vi": "Tháp Busan",
+                        "name:zh": "釜山塔",
+                        "tourism": "viewpoint",
+                        "building": "tower",
+                        "man_made": "tower",
+                        "osm_type": "w",
+                        "wikidata": "Q490777",
+                        "addr:city": "부산광역시",
+                        "direction": "0-360",
+                        "wikipedia": "ko:다이아몬드",
+                        "start_date": "1973-10-11",
+                        "tower:type": "observation",
+                        "addr:street": "대청로116번길",
+                        "description": "다이아몬드 타워(구 부산 타워)는 용두산 공원에 120미터 높이로 우뚝 서 있으며, 방문객들에게 부산과 아름다운 해안선의 숨막히는 전경을 제공합니다. 이 상징적인 랜드마크는 멋진 경관을 보여줄 뿐만 아니라 다양한 문화 행사를 개최하여 도시의 문화적 풍경의 활기찬 일부분이 됩니다. 다보탑에서 영감을 받은 독특한 디자인은 한국의 풍부한 유산을 반영하며, 관광객들이 이 지역의 자연미와 문화적 의미를 탐험하도록 초대합니다.",
+                        "name:ja_kana": "ぷさんたわー",
+                        "wikipedia:en": "Busan_Tower",
+                        "addr:district": "중구",
+                        "description:en": "Diamond Tower, formerly Busan Tower, stands 120 meters tall in Yongdusan Park, offering breathtaking panoramic views of Busan and its coastline. It combines stunning scenery with cultural events and a design inspired by the Dabotap Pagoda.",
+                        "description:ja": "ダイヤモンドタワー（旧釜山タワー）は、用頭山公園に120メートルの高さでそびえ立ち、訪れる人々に釜山と美しい海岸線の息をのむようなパノラマビューを提供します。この象徴的なランドマークは、素晴らしい景観を見せるだけでなく、さまざまな文化イベントを開催し、都市の文化的風景の活気ある一部となっています。ダボタプからインスパイアを受けた独特のデザインは、韓国の豊かな遺産を反映しており、観光客がこの地域の自然の美しさと文化的意義を探求することを促しています。",
+                        "description:ko": "다이아몬드 타워(구 부산 타워)는 용두산 공원에 120미터 높이로 우뚝 서 있으며, 방문객들에게 부산과 아름다운 해안선의 숨막히는 전경을 제공합니다. 이 상징적인 랜드마크는 멋진 경관을 보여줄 뿐만 아니라 다양한 문화 행사를 개최하여 도시의 문화적 풍경의 활기찬 일부분이 됩니다. 다보탑에서 영감을 받은 독특한 디자인은 한국의 풍부한 유산을 반영하며, 관광객들이 이 지역의 자연미와 문화적 의미를 탐험하도록 초대합니다.",
+                        "addr:housenumber": 13,
+                        "tower:construction": "monopole"
+                    }
+                },
+                "description": "다이아몬드 타워(구 부산 타워)는 용두산 공원에 120미터 높이로 우뚝 서 있으며, 방문객들에게 부산과 아름다운 해안선의 숨막히는 전경을 제공합니다. 이 상징적인 랜드마크는 멋진 경관을 보여줄 뿐만 아니라 다양한 문화 행사를 개최하여 도시의 문화적 풍경의 활기찬 일부분이 됩니다. 다보탑에서 영감을 받은 독특한 디자인은 한국의 풍부한 유산을 반영하며, 관광객들이 이 지역의 자연미와 문화적 의미를 탐험하도록 초대합니다.",
+                "description_international": {
+                    "en": "Diamond Tower, formerly Busan Tower, stands 120 meters tall in Yongdusan Park, offering breathtaking panoramic views of Busan and its coastline. It combines stunning scenery with cultural events and a design inspired by the Dabotap Pagoda.",
+                    "ja": "ダイヤモンドタワー（旧釜山タワー）は、用頭山公園に120メートルの高さでそびえ立ち、訪れる人々に釜山と美しい海岸線の息をのむようなパノラマビューを提供します。この象徴的なランドマークは、素晴らしい景観を見せるだけでなく、さまざまな文化イベントを開催し、都市の文化的風景の活気ある一部となっています。ダボタプからインスパイアを受けた独特のデザインは、韓国の豊かな遺産を反映しており、観光客がこの地域の自然の美しさと文化的意義を探求することを促しています。",
+                    "ko": "다이아몬드 타워(구 부산 타워)는 용두산 공원에 120미터 높이로 우뚝 서 있으며, 방문객들에게 부산과 아름다운 해안선의 숨막히는 전경을 제공합니다. 이 상징적인 랜드마크는 멋진 경관을 보여줄 뿐만 아니라 다양한 문화 행사를 개최하여 도시의 문화적 풍경의 활기찬 일부분이 됩니다. 다보탑에서 영감을 받은 독특한 디자인은 한국의 풍부한 유산을 반영하며, 관광객들이 이 지역의 자연미와 문화적 의미를 탐험하도록 초대합니다."
+                },
+                "name_international": {
+                    "en": "Diamond Tower",
+                    "es": "Torre de Busan",
+                    "ja": "釜山タワー",
+                    "nl": "Busan Tower",
+                    "pt": "Busan Tower",
+                    "ru": "Пусанская башня",
+                    "vi": "Tháp Busan",
+                    "zh": "釜山塔"
+                },
+                "contact": {
+                    "phone": "+82 51 257 9771"
+                },
+                "wiki_and_media": {
+                    "wikidata": "Q490777",
+                    "wikipedia": "ko:다이아몬드"
+                },
+                "restrictions": {
+                    "access": "permissive"
+                },
+                "building": {
+                    "type": "tower",
+                    "start_date": "1973-10-11",
+                    "height": 120
+                },
+                "place_id": "51d7c36d06082160405924a92672f78c4140f00102f9012964a51c0000000092030cebb680ec82b0ed8380ec9b8c"
+            },
+            "latitude": 35.10130144965868,
+            "longitude": 129.0322296279762
+        },
+        {
+            "id": "5142b5c189e820604059c916c77c408f4140f00103f9012a14449b0100000092030fec9db4ebb094eab5acecbaa0ed9484",
+            "name": "이바구캠프",
+            "type": "Tourist Attraction",
+            "rating": "5.0",
+            "price": "Free",
+            "address": "이바구캠프, 0514670289 Mangyang-ro 533beon-gil, Dong-gu, Busan, 48717, South Korea",
+            "location": "이바구캠프",
+            "coordinates": {
+                "latitude": 35.119155499659946,
+                "longitude": 129.028386
+            },
+            "amenities": [
+                "Contact Available",
+                "Website"
+            ],
+            "image": "https://images.unsplash.com/photo-1605649487212-47bdab064df7?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {
+                "phone": "0514670289"
+            },
+            "website": "http://www.ibagucamp.com",
+            "properties": {
+                "name": "이바구캠프",
+                "country": "South Korea",
+                "country_code": "kr",
+                "city": "Busan",
+                "postcode": "48717",
+                "district": "Choryang 6(yuk)-dong",
+                "suburb": "Dong-gu",
+                "street": "Mangyang-ro 533beon-gil",
+                "housenumber": "0514670289",
+                "iso3166_2": "KR-26",
+                "lon": 129.028386,
+                "lat": 35.1191555,
+                "formatted": "이바구캠프, 0514670289 Mangyang-ro 533beon-gil, Dong-gu, Busan, 48717, South Korea",
+                "address_line1": "이바구캠프",
+                "address_line2": "0514670289 Mangyang-ro 533beon-gil, Dong-gu, Busan, 48717, South Korea",
+                "categories": [
+                    "tourism",
+                    "tourism.attraction"
+                ],
+                "details": [
+                    "details",
+                    "details.contact"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "이바구캠프",
+                        "phone": "0514670289",
+                        "osm_id": 6899897386,
+                        "tourism": "attraction",
+                        "website": "http://www.ibagucamp.com",
+                        "osm_type": "n",
+                        "addr:housenumber": "0514670289"
+                    }
+                },
+                "website": "http://www.ibagucamp.com",
+                "contact": {
+                    "phone": "0514670289"
+                },
+                "place_id": "5142b5c189e820604059c916c77c408f4140f00103f9012a14449b0100000092030fec9db4ebb094eab5acecbaa0ed9484"
+            },
+            "latitude": 35.119155499659946,
+            "longitude": 129.028386
+        }
+    ],
+    "summary": {
+        "isComplete": true,
+        "totalItems": 7,
+        "errors": []
+    }
+}

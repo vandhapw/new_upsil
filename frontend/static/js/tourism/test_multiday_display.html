@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Day Route Visualization Test</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 15px 20px;
+            z-index: 1001;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            margin-top: 80px;
+        }
+        
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            z-index: 1002;
+            text-align: center;
+            display: none;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .route-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .control-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .info-panel {
+            position: fixed;
+            top: 100px;
+            left: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 300px;
+            z-index: 1000;
+        }
+        
+        .info-panel h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        
+        .info-panel p {
+            margin: 6px 0;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .day-legend {
+            margin-top: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 4px 0;
+            font-size: 12px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-route"></i> Multi-Day Tourism Route Visualization</h1>
+        <p>Interactive map displaying optimized multi-day tourism routes with path lines and scheduling</p>
+    </div>
+    
+    <div class="content">
+        <div id="map"></div>
+    </div>
+    
+    <div class="loading" id="loadingIndicator">
+        <i class="fas fa-spinner fa-spin" style="font-size: 24px; color: #3498db; margin-bottom: 10px;"></i>
+        <p>Loading multi-day route optimization results...</p>
+    </div>
+    
+    <div class="info-panel">
+        <h3><i class="fas fa-info-circle"></i> Route Information</h3>
+        <p><strong>Data Format:</strong> Multi-day tourism optimization</p>
+        <p><strong>Features:</strong> Day-specific routes, scheduling, path lines</p>
+        <p><strong>Visualization:</strong> Color-coded by day with detailed popups</p>
+        
+        <div class="day-legend">
+            <h4 style="margin: 12px 0 8px 0; font-size: 14px; color: #2c3e50;">Day Colors:</h4>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #e74c3c;"></div>
+                <span>Day 1 - Red</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #3498db;"></div>
+                <span>Day 2 - Blue</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #2ecc71;"></div>
+                <span>Day 3 - Green</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f39c12;"></div>
+                <span>Day 4+ - Orange/Purple</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="route-controls">
+        <button class="control-btn" onclick="loadMultiDayRoute()">
+            <i class="fas fa-download"></i> Load Multi-Day Route
+        </button>
+        <button class="control-btn" onclick="clearRoute()" style="background: #e74c3c;">
+            <i class="fas fa-trash"></i> Clear Route
+        </button>
+        <button class="control-btn" onclick="showSummary()" style="background: #27ae60;">
+            <i class="fas fa-chart-bar"></i> Show Summary
+        </button>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Mock displayMap class for testing -->
+    <script>
+        // Mock displayMap instance for testing
+        class MockDisplayMap {
+            constructor() {
+                this.map = null;
+                this.init();
+            }
+            
+            init() {
+                this.map = L.map('map').setView([-7.0, 110.4], 12);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors',
+                    maxZoom: 19
+                }).addTo(this.map);
+            }
+            
+            isMapReady() {
+                return !!this.map;
+            }
+            
+            getMap() {
+                return this.map;
+            }
+        }
+        
+        // Initialize mock display map
+        window.displayMapInstance = new MockDisplayMap();
+        window.map = window.displayMapInstance.getMap();
+    </script>
+    
+    <!-- Load the updated DisplayLineResult class -->
+    <script src="displayLineResult.js"></script>
+    
+    <script>
+        // Sample multi-day route data (matching the new API format)
+        const sampleMultiDayData = {
+            "success": true,
+            "data": {
+                "success": true,
+                "results": {
+                "best_fitness": 11330.2,
+                "best_is_feasible": true,
+                "n_days": 3,
+                "total_distance": 16186.0,
+                "execution_time": 3.19,
+                "feasible_solutions_pct": 100.0,
+                "improvement_percentage": 70.66,
+                "day1_schedule": {
+                    "timeline": [
+                        {
+                            "activity": "Start Journey",
+                            "from": "Kost Exclusive Wisma Raya",
+                            "to": "Pasar Malam Semawis",
+                            "start_time": "08:00:00",
+                            "end_time": "08:05:00",
+                            "duration_minutes": 5,
+                            "distance_meters": 4020,
+                            "type": "travel"
+                        },
+                        {
+                            "activity": "Visit Attraction",
+                            "location": "Pasar Malam Semawis",
+                            "start_time": "08:05:00",
+                            "end_time": "09:35:00",
+                            "duration_minutes": 90,
+                            "type": "visit"
+                        }
+                    ],
+                    "total_duration_minutes": 295,
+                    "feasible": true,
+                    "end_time": "12:50:00"
+                },
+                "day1_path_lines": [
+                    {
+                        "source_name": "Kost Exclusive Wisma Raya",
+                        "source_coords": [-7.0007484, 110.4364281],
+                        "destination_coords": [-6.9747410, 110.4279530],
+                        "destination_name": "Pasar Malam Semawis",
+                        "path_coordinates": [
+                            [-7.000736, 110.43631],
+                            [-7.000786, 110.436305],
+                            [-7.001187, 110.436241],
+                            [-6.999899, 110.432672],
+                            [-6.999688, 110.432594],
+                            [-6.997715, 110.432059],
+                            [-6.995981, 110.431987],
+                            [-6.994931, 110.432011],
+                            [-6.989005, 110.431812],
+                            [-6.986872, 110.431669],
+                            [-6.984917, 110.43158],
+                            [-6.982803, 110.431518],
+                            [-6.980992, 110.431463],
+                            [-6.979967, 110.431403],
+                            [-6.978217, 110.431321],
+                            [-6.978832, 110.428862],
+                            [-6.977551, 110.42833],
+                            [-6.976489, 110.42875],
+                            [-6.975939, 110.429445],
+                            [-6.975218, 110.429826],
+                            [-6.974952, 110.42974],
+                            [-6.974715, 110.4293],
+                            [-6.974631, 110.428289],
+                            [-6.974756, 110.427951]
+                        ],
+                        "day": 1,
+                        "segment": 1
+                    }
+                ],
+                "day2_path_lines": [
+                    {
+                        "source_name": "Hotel Day 2",
+                        "source_coords": [-7.000548, 110.5364281],
+                        "destination_coords": [-7.000548, 110.5364281],
+                        "destination_name": "Hotel Day 2",
+                        "path_coordinates": [
+                            [-7.000548, 110.5364281],
+                            [-7.000548, 110.5364281]
+                        ],
+                        "day": 2,
+                        "segment": 1
+                    }
+                ],
+                "day3_path_lines": [
+                    {
+                        "source_name": "Hotel Day 3",
+                        "source_coords": [-7.000501, 110.4364425],
+                        "destination_coords": [-7.000501, 110.4364425],
+                        "destination_name": "Hotel Day 3",
+                        "path_coordinates": [
+                            [-7.000501, 110.4364425],
+                            [-7.000501, 110.4364425]
+                        ],
+                        "day": 3,
+                        "segment": 1
+                    }
+                ],
+                "day1_distance": 16186.0,
+                "day2_distance": 0.0,
+                "day3_distance": 0.0
+                }
+            }
+        };
+        
+        // Initialize DisplayLineResult
+        let displayLineResult;
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for map to be ready
+            setTimeout(() => {
+                displayLineResult = new DisplayLineResult();
+                console.log("DisplayLineResult initialized for multi-day testing");
+            }, 1000);
+        });
+        
+        // Control functions
+        function loadMultiDayRoute() {
+            if (displayLineResult) {
+                // Show loading
+                document.getElementById('loadingIndicator').classList.add('show');
+                
+                setTimeout(() => {
+                    // Simulate API response
+                    displayLineResult.displayRouteResults(sampleMultiDayData);
+                    document.getElementById('loadingIndicator').classList.remove('show');
+                }, 1500);
+            } else {
+                alert('DisplayLineResult not initialized yet. Please wait a moment and try again.');
+            }
+        }
+        
+        function clearRoute() {
+            if (displayLineResult) {
+                displayLineResult.clearRouteVisualization();
+            }
+        }
+        
+        function showSummary() {
+            if (displayLineResult && displayLineResult.routeData) {
+                displayLineResult.showRouteSummary();
+            } else {
+                alert('No route data loaded. Please load a route first.');
+            }
+        }
+        
+        // Auto-load route after 2 seconds
+        setTimeout(() => {
+            if (displayLineResult) {
+                loadMultiDayRoute();
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
