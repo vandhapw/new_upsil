@@ -7,10 +7,11 @@ from django.views.decorators.csrf import csrf_exempt
 import json, datetime
 import uuid
 import pandas as pd 
+from production.utils import get_mongo_client
 
 from tourism.optimization import dummy_schedule
 
-client = MongoClient("mongodb://superUser:superUpsil!@localhost:27019/server_db?authSource=server_db")
+client = get_mongo_client()
 db = client["server_db"]
 korean_provinces_collection = db["korean_provinces"]
 korean_attractions_collection = db["tourism_attraction"]
@@ -239,8 +240,9 @@ def get_trip_optimization_data(request):
                 trip['_id'] = str(trip['_id'])
 
             # Filter by username or user_id
-            if (trip.get('user', {}).get('username') == username or
-                trip.get('user_id') == user_id):
+            if (trip.get('user', {}).get('user_id') == user_id or
+                trip.get('username') == username or
+                trip.get('email') == username):
                 trip_data_list.append(trip)
 
         return JsonResponse({

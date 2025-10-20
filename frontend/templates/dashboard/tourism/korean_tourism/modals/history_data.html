@@ -65,14 +65,14 @@
 
         <!-- Modal Footer -->
         <div class="history-modal-footer">
-            <button class="clear-history-btn" onclick="clearTripHistory()">
+            <!-- <button class="clear-history-btn" onclick="clearTripHistory()">
                 <i class="fas fa-trash-alt"></i>
                 Clear All History
             </button>
             <button class="export-history-btn" onclick="exportTripHistory()">
                 <i class="fas fa-download"></i>
                 Export to CSV
-            </button>
+            </button> -->
         </div>
     </div>
 </div>
@@ -472,6 +472,51 @@
         border-bottom: 1px solid #dee2e6;
     }
 }
+
+/* Loading Popup Styles */
+.loading-popup {
+    border-radius: 15px !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2) !important;
+    border: 2px solid #007bff !important;
+}
+
+.loading-content {
+    text-align: center !important;
+    padding: 20px !important;
+}
+
+.loading-spinner {
+    margin: 15px 0 !important;
+    color: #007bff !important;
+}
+
+.loading-spinner i {
+    animation: spin 1s linear infinite !important;
+    filter: drop-shadow(0 0 10px rgba(0, 123, 255, 0.3)) !important;
+}
+
+.loading-text {
+    font-size: 14px !important;
+    color: #666 !important;
+    margin-top: 10px !important;
+    transition: opacity 0.3s ease !important;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.error-popup {
+    border-radius: 15px !important;
+    box-shadow: 0 15px 40px rgba(220, 53, 69, 0.2) !important;
+    border: 2px solid #dc3545 !important;
+}
 </style>
 
 <script>
@@ -574,12 +619,68 @@ let globalTripHistoryData = [];
 
 // Function to load trip history data from API
 function loadTripHistoryData() {
-    console.log('Loading trip history data from API...');
+    console.log('🔄 Loading trip history data from API with enhanced loading animation...');
     
-    // Show loading indicator
+    // Show loading SweetAlert with animated text
+    Swal.fire({
+        title: 'Loading Trip History',
+        html: '<div class="loading-spinner"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i></div><p class="loading-text">Please wait while we fetch your trip data...</p>',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading();
+            // Add animated loading text
+            const loadingTexts = [
+                'Fetching your trip data...',
+                'Loading trip history...',
+                'Organizing your adventures...',
+                'Preparing your journey records...'
+            ];
+            let textIndex = 0;
+            const textInterval = setInterval(() => {
+                const loadingElement = document.querySelector('.loading-text');
+                if (loadingElement) {
+                    loadingElement.textContent = loadingTexts[textIndex];
+                    textIndex = (textIndex + 1) % loadingTexts.length;
+                } else {
+                    clearInterval(textInterval);
+                }
+            }, 1500);
+            
+            // Store interval for cleanup
+            window.loadingTextInterval = textInterval;
+        },
+        willClose: () => {
+            // Clean up interval
+            if (window.loadingTextInterval) {
+                clearInterval(window.loadingTextInterval);
+                window.loadingTextInterval = null;
+            }
+        },
+        customClass: {
+            popup: 'loading-popup',
+            htmlContainer: 'loading-content'
+        }
+    });
+    
+    // Show loading indicator in table
     if (tripHistoryTable) {
         tripHistoryTable.clear().draw();
     }
+    
+    // Set timeout safety net (30 seconds)
+    const timeoutId = setTimeout(() => {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Loading Timeout',
+            text: 'The request is taking longer than expected. Please check your connection and try again.',
+            confirmButtonText: 'OK',
+            customClass: {
+                popup: 'error-popup'
+            }
+        });
+    }, 30000);
     
     // Fetch data from API
     fetch('/tourism/api/display_history_trip/')
@@ -644,10 +745,10 @@ function loadTripHistoryData() {
                     `<small>${dateRange}</small>`,
                     `
                         <button class="btn-action btn-view" onclick="viewTrip('${tripId}')" title="Show Routes">
-                            <i class="fas fa-eye"></i> View
+                            <i class="fas fa-route"></i> Routes
                         </button>
-                        <button class="btn-action btn-edit" onclick="editTrip('${tripId}')" title="Edit Trip">
-                            <i class="fas fa-edit"></i> Edit
+                        <button class="btn-action" onclick="tableTrip('${tripId}')" title="Show Routes">
+                            <i class="fas fa-calendar"></i> Schedule
                         </button>
                         <button class="btn-action btn-delete" onclick="deleteTrip('${tripId}')" title="Delete Trip">
                             <i class="fas fa-trash"></i> Delete
@@ -661,6 +762,10 @@ function loadTripHistoryData() {
             
             // Update statistics after loading data
             updateHistoryStatsFromData(trips);
+            
+            // Clear timeout and close loading alert
+            clearTimeout(timeoutId);
+            Swal.close();
         })
         .catch(error => {
             console.error('❌ Error loading trip history:', error);
@@ -670,8 +775,17 @@ function loadTripHistoryData() {
                 tripHistoryTable.clear().draw();
             }
             
-            // Optional: Show user-friendly error message
-            alert('Failed to load trip history. Please try again later.');
+            // Clear timeout and show error
+            clearTimeout(timeoutId);
+            Swal.fire({
+                icon: 'error',
+                title: 'Loading Failed',
+                text: 'Failed to load trip history. Please try again later.',
+                confirmButtonText: 'OK',
+                customClass: {
+                    popup: 'error-popup'
+                }
+            });
         });
 }
 
@@ -770,6 +884,32 @@ function editTrip(tripId) {
     console.log('Editing trip:', tripId);
     // Implement edit trip functionality
     alert(`Editing trip #${tripId}`);
+}
+
+function tableTrip(tripId) {
+    console.log('🔄 Opening detailed table view for trip:', tripId);
+    // Find the trip in global data
+    const trip = globalTripHistoryData.find(t => t._id === tripId);
+    console.log('🛠️ Full trip object:', trip); // Debug: print full trip object
+    if (!trip) {
+        console.error('❌ Trip not found in globalTripHistoryData');
+        alert('Trip not found');
+        return;
+    }
+    // Use optimization_id if present, otherwise fallback to _id
+    let optimizationId = trip.optimization_id || trip.optimize_id || trip.id || (trip.optimize_result && trip.optimize_result.optimization_id) || trip._id;
+    if (!optimizationId) {
+        alert('No valid identifier found for this trip. Available keys: ' + Object.keys(trip).join(', '));
+        console.error('❌ No valid identifier found. Trip keys:', Object.keys(trip));
+        return;
+    }
+    console.log('✅ Using identifier for modal:', optimizationId);
+    // Always attempt to call showOptimizationDetails, fallback to no-op if not defined
+    if (typeof showOptimizationDetails === 'function') {
+        showOptimizationDetails(optimizationId);
+    } else {
+        // Fallback: do nothing, do not log or alert
+    }
 }
 
 function deleteTrip(tripId) {
@@ -1062,6 +1202,38 @@ function showNotification(message, type = 'info') {
             }
         }, 300);
     }, 5000);
+}
+
+// Test function for loading animation (for development/debugging)
+function testLoadingAnimation() {
+    console.log('Testing loading animation...');
+    
+    // Show loading SweetAlert
+    Swal.fire({
+        title: 'Testing Loading Animation',
+        html: '<div class="loading-spinner"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i></div><p class="loading-text">Testing animation...</p>',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading();
+        },
+        customClass: {
+            popup: 'loading-popup',
+            htmlContainer: 'loading-content'
+        }
+    });
+    
+    // Auto close after 3 seconds
+    setTimeout(() => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Test Complete!',
+            text: 'Loading animation is working correctly.',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    }, 3000);
 }
 
 // Initialize event listeners only once when DOM is ready

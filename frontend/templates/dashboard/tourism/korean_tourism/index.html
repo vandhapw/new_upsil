@@ -1083,6 +1083,8 @@
 
             {% include 'dashboard/tourism/korean_tourism/modals/history_data.html' %}
 
+            {% include 'dashboard/tourism/korean_tourism/modals/table_history_data.html' %}
+
             <!-- {% include 'dashboard/tourism/korean_tourism/modals/hotel_lists.html' %} -->
 
 
@@ -2394,19 +2396,46 @@
             }
             
             try {
-                // 1. Clear selected hotels
+                // 1. Clear step process selections (from step_process.html)
+                console.log('🧹 Clearing step process selections...');
+                if (typeof window.clearAllHotelSelections === 'function') {
+                    window.clearAllHotelSelections();
+                }
+                
+                if (typeof window.clearAllAttractionSelections === 'function') {
+                    window.clearAllAttractionSelections();
+                }
+                
+                if (typeof window.clearAllMarkersFromMap === 'function') {
+                    window.clearAllMarkersFromMap();
+                }
+                
+                // 2. Clear step process global data
+                console.log('📊 Clearing step process global data...');
+                window.selectedProvinceData = null;
+                window.selectedDateTimeData = null;
+                window.selectedDatetimeData = null;
+                window.selectedHotelsData = [];
+                window.selectedAttractionsData = [];
+                window.selectedHotelData = null;
+                window.selectedAttractionData = null;
+                
+                // 3. Clear display instance data
                 if (window.displayHotelInstance) {
-                    console.log('🏨 Clearing all hotel data...');
-                    window.displayHotelInstance.clearAllHotelData();
+                    console.log('🏨 Clearing hotel display instance data...');
+                    if (typeof window.displayHotelInstance.clearAllHotelData === 'function') {
+                        window.displayHotelInstance.clearAllHotelData();
+                    }
                 }
                 
-                // 2. Clear selected attractions
                 if (window.displayAttractionInstance) {
-                    console.log('🎯 Clearing all attraction data...');
-                    window.displayAttractionInstance.clearSelectedAttractions();
+                    console.log('🎯 Clearing attraction display instance data...');
+                    if (typeof window.displayAttractionInstance.clearSelectedAttractions === 'function') {
+                        window.displayAttractionInstance.clearSelectedAttractions();
+                    }
                 }
                 
-                // 3. Clear date selections
+                // 4. Clear date inputs
                 console.log('📅 Clearing date selections...');
                 const startDateInput = document.getElementById('startDate');
                 const endDateInput = document.getElementById('endDate');
@@ -2418,18 +2447,12 @@
                 if (startTimeInput) startTimeInput.value = '09:00';
                 if (endTimeInput) endTimeInput.value = '18:00';
                 
-                // 4. Clear route/optimization results
+                // 5. Clear route/optimization results
                 if (window.displayLineResultInstance) {
                     console.log('🗺️ Clearing route display...');
-                    window.displayLineResultInstance.clearRouteVisualization();
-                }
-                
-                // 5. Clear global data stores
-                if (window.selectedHotelsData) {
-                    window.selectedHotelsData = [];
-                }
-                if (window.selectedAttractionsData) {
-                    window.selectedAttractionsData = [];
+                    if (typeof window.displayLineResultInstance.clearRouteVisualization === 'function') {
+                        window.displayLineResultInstance.clearRouteVisualization();
+                    }
                 }
                 
                 // 6. Clear localStorage
@@ -2442,36 +2465,95 @@
                 localStorage.removeItem('selectedAttractions');
                 localStorage.removeItem('tripAttractionData');
                 
-                // 7. Reset step buttons to initial state
+                // 7. Reset all step buttons to initial state
                 console.log('🔘 Resetting step buttons...');
-                const datetimeBtn = document.getElementById('DateTime');
-                if (datetimeBtn) {
-                    datetimeBtn.innerHTML = 'Choose Dates <i class="fa-solid fa-calendar-days"></i>';
-                    datetimeBtn.className = 'btn btn-primary';
+                
+                // Reset Destination button
+                const destinationBtn = document.getElementById('Destination');
+                if (destinationBtn) {
+                    destinationBtn.innerHTML = 'Choose Destination <i class="fa-solid fa-earth-americas"></i>';
+                    destinationBtn.className = 'btn btn-primary w-100';
                 }
                 
+                // Reset DateTime/Dates button
+                const datetimeBtn = document.getElementById('DateTime') || document.getElementById('Datetime');
+                if (datetimeBtn) {
+                    datetimeBtn.innerHTML = 'Choose Dates <i class="fa-solid fa-calendar-days"></i>';
+                    datetimeBtn.className = 'btn btn-primary w-100';
+                }
+                
+                // Reset Hotel button
                 const hotelBtn = document.getElementById('Hotel');
                 if (hotelBtn) {
                     hotelBtn.innerHTML = 'Choose Hotels <i class="fa-solid fa-hotel"></i>';
-                    hotelBtn.className = 'btn btn-primary';
+                    hotelBtn.className = 'btn btn-primary w-100';
+                    hotelBtn.disabled = false;
                 }
                 
+                // Reset Attraction button
                 const attractionBtn = document.getElementById('Attraction');
                 if (attractionBtn) {
                     attractionBtn.innerHTML = 'Choose Attractions <i class="fa-solid fa-map-marker-alt"></i>';
-                    attractionBtn.className = 'btn btn-primary';
+                    attractionBtn.className = 'btn btn-primary w-100';
+                    attractionBtn.disabled = false;
                 }
                 
-                // 8. Reset map view to Korea center
-                if (window.mapInstance) {
-                    console.log('🗺️ Resetting map view...');
-                    const map = window.mapInstance.getMap();
+                // 8. Reset and prepare selection display areas
+                console.log('👁️ Resetting selection displays...');
+                const selectedDestinationDiv = document.getElementById('selectedDestination');
+                const selectedDatesDiv = document.getElementById('selectedDates');
+                
+                if (selectedDestinationDiv) {
+                    selectedDestinationDiv.style.display = 'none';
+                    selectedDestinationDiv.innerHTML = ''; // Clear content
+                }
+                if (selectedDatesDiv) {
+                    selectedDatesDiv.style.display = 'none';
+                    selectedDatesDiv.innerHTML = ''; // Clear content
+                }
+                
+                // 9. Reset map view to Korea center and clear all markers
+                if (window.mapInstance || window.displayMapInstance || window.displayMap) {
+                    console.log('🗺️ Resetting map view and clearing markers...');
+                    
+                    let map = null;
+                    if (window.mapInstance && typeof window.mapInstance.getMap === 'function') {
+                        map = window.mapInstance.getMap();
+                    } else if (window.displayMapInstance && typeof window.displayMapInstance.getMap === 'function') {
+                        map = window.displayMapInstance.getMap();
+                    } else if (window.displayMap && typeof window.displayMap.getMap === 'function') {
+                        map = window.displayMap.getMap();
+                    } else if (window.map) {
+                        map = window.map;
+                    }
+                    
                     if (map) {
-                        map.setView([36.5, 127.5], 7); // Korea center coordinates
+                        // Reset view to Korea center
+                        map.setView([36.5, 127.5], 7);
+                        
+                        // Clear all markers
+                        if (window.hotelMarkers && Array.isArray(window.hotelMarkers)) {
+                            window.hotelMarkers.forEach(marker => {
+                                if (marker && typeof marker.remove === 'function') {
+                                    marker.remove();
+                                }
+                            });
+                            window.hotelMarkers = [];
+                        }
+                        
+                        if (window.attractionMarkers && Array.isArray(window.attractionMarkers)) {
+                            window.attractionMarkers.forEach(marker => {
+                                if (marker && typeof marker.remove === 'function') {
+                                    marker.remove();
+                                }
+                            });
+                            window.attractionMarkers = [];
+                        }
                     }
                 }
                 
-                // 9. Close any open overlays
+                // 10. Close any open overlays and modals
+                console.log('🔒 Closing overlays and modals...');
                 const hotelOverlay = document.getElementById('horizontal-hotel-overlay');
                 if (hotelOverlay && hotelOverlay.style.display === 'block') {
                     hotelOverlay.style.display = 'none';
@@ -2482,12 +2564,61 @@
                     attractionOverlay.style.display = 'none';
                 }
                 
+                // Close any open modals
+                const openModals = document.querySelectorAll('.modal.show, .modal-overlay.show');
+                openModals.forEach(modal => {
+                    modal.classList.remove('show');
+                    modal.style.display = 'none';
+                });
+                
+                // 11. Stop any active polling and then restart it
+                console.log('⏹️ Stopping active polling...');
+                if (typeof window.stopDisplayPolling === 'function') {
+                    window.stopDisplayPolling();
+                }
+                
+                // 12. Restart display polling for new selections
+                console.log('▶️ Restarting display polling for new selections...');
+                setTimeout(() => {
+                    if (typeof window.startDisplayPolling === 'function') {
+                        window.startDisplayPolling();
+                    }
+                    if (typeof window.updateAllSelectionDisplays === 'function') {
+                        window.updateAllSelectionDisplays();
+                    }
+                }, 500); // Small delay to ensure everything is cleared first
+                
                 console.log('✅ All selections cleared! Ready for new trip planning.');
-                alert('✅ Ready to plan your new trip! Start by selecting a region and dates.');
+                
+                // Show success message
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'New Trip Started!',
+                        text: 'All previous selections have been cleared. Ready to plan your new trip!',
+                        timer: 2500,
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-end'
+                    });
+                } else {
+                    alert('✅ Ready to plan your new trip! Start by selecting a region and dates.');
+                }
                 
             } catch (error) {
                 console.error('❌ Error clearing selections:', error);
-                alert('An error occurred while clearing selections. Please refresh the page.');
+                
+                // Show error message
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while clearing selections. Please refresh the page.',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    alert('An error occurred while clearing selections. Please refresh the page.');
+                }
             }
         }
         

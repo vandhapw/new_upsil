@@ -1,0 +1,1410 @@
+<!-- Trip Optimization Detail Modal -->
+<div class="detail-modal-overlay" id="detailModalOverlay">
+    <div class="detail-modal-content">
+        <!-- Modal Header -->
+        <div class="detail-modal-header">
+            <h3>
+                <i class="fas fa-route"></i>
+                Optimization Results Details
+            </h3>
+            <button class="close-detail-modal" onclick="closeDetailModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="detail-modal-body">
+            <!-- Loading State -->
+            <div class="detail-loading" id="detailLoading">
+                <div class="loading-spinner"></div>
+                <p>Loading optimization details...</p>
+            </div>
+
+            <!-- Trip Summary Section -->
+            <div class="trip-summary-section" id="tripSummarySection" style="display: none;">
+                <div class="summary-header">
+                    <h4><i class="fas fa-info-circle"></i> Trip Summary</h4>
+                    <div class="optimization-id-badge">
+                        <span class="badge badge-primary" id="optimizationIdBadge">ID: Loading...</span>
+                    </div>
+                </div>
+                
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <div class="card-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="card-content">
+                            <h5 id="provinceName">Province</h5>
+                            <p class="text-muted" id="provinceCode">Code</p>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <div class="card-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="card-content">
+                            <h5 id="tripDuration">Duration</h5>
+                            <p class="text-muted" id="tripDates">Dates</p>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <div class="card-icon">
+                            <i class="fas fa-hotel"></i>
+                        </div>
+                        <div class="card-content">
+                            <h5 id="hotelCount">Hotels</h5>
+                            <p class="text-muted">Accommodations</p>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <div class="card-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="card-content">
+                            <h5 id="attractionCount">Attractions</h5>
+                            <p class="text-muted">Places to visit</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optimization Results Section -->
+            <div class="optimization-results-section" id="optimizationResultsSection" style="display: none;">
+                <div class="section-header">
+                    <h4><i class="fas fa-chart-line"></i> Optimization Results</h4>
+                </div>
+
+                <!-- Metrics Cards -->
+                <div class="metrics-grid" id="metricsGrid">
+                    <!-- Metrics will be populated dynamically -->
+                </div>
+
+                <!-- Routes Table -->
+                <div class="routes-section">
+                    <h5><i class="fas fa-route"></i> Optimized Routes by Day</h5>
+                    <div class="table-responsive">
+                        <table id="optimizedRoutesTable" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Hotel</th>
+                                    <th>Route</th>
+                                    <th>Total Distance</th>
+                                    <th>Total Time</th>
+                                    <th>Locations</th>
+                                </tr>
+                            </thead>
+                            <tbody id="routesTableBody">
+                                <!-- Routes data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Gantt Chart Section -->
+                <div class="gantt-section" id="ganttSection">
+                    <h5><i class="fas fa-clock"></i> Schedule Timeline</h5>
+                    <div class="gantt-container" id="ganttContainer">
+                        <!-- Gantt chart will be rendered here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hotels Detail Section -->
+            <div class="hotels-detail-section" id="hotelsDetailSection" style="display: none;">
+                <div class="section-header">
+                    <h4><i class="fas fa-hotel"></i> Hotel Details</h4>
+                </div>
+                <div class="hotels-grid" id="hotelsGrid">
+                    <!-- Hotels will be populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Attractions Detail Section -->
+            <div class="attractions-detail-section" id="attractionsDetailSection" style="display: none;">
+                <div class="section-header">
+                    <h4><i class="fas fa-star"></i> Selected Attractions</h4>
+                </div>
+                <div class="attractions-grid" id="attractionsGrid">
+                    <!-- Attractions will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="detail-modal-footer">
+            <button class="btn btn-secondary" onclick="closeDetailModal()">
+                <i class="fas fa-times"></i>
+                Close
+            </button>
+            <button class="btn btn-primary" onclick="exportOptimizationResults()">
+                <i class="fas fa-download"></i>
+                Export Results
+            </button>
+            <button class="btn btn-success" onclick="recreateTrip()">
+                <i class="fas fa-redo"></i>
+                Recreate Trip
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Detail Modal Styles */
+.detail-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(15px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10001;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.detail-modal-overlay.show {
+    display: flex;
+    opacity: 1;
+}
+
+.detail-modal-content {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    border-radius: 25px;
+    width: 95%;
+    max-width: 1400px;
+    max-height: 95vh;
+    overflow: hidden;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.detail-modal-overlay.show .detail-modal-content {
+    transform: scale(1);
+}
+
+.detail-modal-header {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: white;
+    padding: 25px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.detail-modal-header h3 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.close-detail-modal {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.close-detail-modal:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.detail-modal-body {
+    padding: 30px;
+    max-height: calc(95vh - 220px);
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+/* Loading State */
+.detail-loading {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Trip Summary Section */
+.trip-summary-section {
+    margin-bottom: 30px;
+    background: linear-gradient(135deg, #ecf0f1, #bdc3c7);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.summary-header h4 {
+    margin: 0;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.optimization-id-badge .badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.summary-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+}
+
+.summary-card:nth-child(1) .card-icon { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.summary-card:nth-child(2) .card-icon { background: linear-gradient(135deg, #3498db, #2980b9); }
+.summary-card:nth-child(3) .card-icon { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+.summary-card:nth-child(4) .card-icon { background: linear-gradient(135deg, #f39c12, #e67e22); }
+
+.card-content h5 {
+    margin: 0 0 5px 0;
+    font-size: 1.1rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.card-content p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Section Headers */
+.section-header {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+.section-header h4, .section-header h5 {
+    margin: 0;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Optimization Results Section */
+.optimization-results-section {
+    margin-bottom: 30px;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.metric-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #3498db;
+    transition: transform 0.3s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-3px);
+}
+
+.metric-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #3498db;
+    margin-bottom: 5px;
+}
+
+.metric-label {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Routes Section */
+.routes-section {
+    margin-bottom: 30px;
+}
+
+.routes-section h5 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#optimizedRoutesTable {
+    font-size: 14px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+#optimizedRoutesTable thead th {
+    background: linear-gradient(135deg, #34495e, #2c3e50);
+    color: white;
+    border: none;
+    font-weight: 600;
+    padding: 15px 12px;
+    text-align: center;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#optimizedRoutesTable tbody td {
+    padding: 12px 10px;
+    vertical-align: middle;
+    border-color: #ecf0f1;
+    text-align: center;
+}
+
+#optimizedRoutesTable tbody tr:hover {
+    background: rgba(52, 152, 219, 0.08);
+}
+
+.route-locations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+}
+
+.location-tag {
+    background: #3498db;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+/* Gantt Chart Section */
+.gantt-section {
+    margin-bottom: 30px;
+}
+
+.gantt-section h5 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.gantt-container {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #7f8c8d;
+}
+
+/* Hotels and Attractions Grid */
+.hotels-detail-section,
+.attractions-detail-section {
+    margin-bottom: 30px;
+}
+
+.hotels-grid,
+.attractions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.item-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.item-card:hover {
+    transform: translateY(-5px);
+}
+
+.item-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.item-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+}
+
+.hotel-icon { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+.attraction-icon { background: linear-gradient(135deg, #f39c12, #e67e22); }
+
+.item-title {
+    flex: 1;
+    margin: 0;
+    font-size: 1.1rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.item-details {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Modal Footer */
+.detail-modal-footer {
+    background: #f8f9fa;
+    padding: 20px 30px;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+.detail-modal-footer .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #27ae60, #229954);
+    color: white;
+}
+
+.detail-modal-footer .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .detail-modal-content {
+        width: 98%;
+        max-height: 98vh;
+        border-radius: 15px;
+    }
+    
+    .detail-modal-header {
+        padding: 20px;
+    }
+    
+    .detail-modal-header h3 {
+        font-size: 22px;
+    }
+    
+    .detail-modal-body {
+        padding: 20px;
+    }
+    
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .hotels-grid,
+    .attractions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .detail-modal-footer {
+        padding: 15px 20px;
+        flex-direction: column;
+    }
+    
+    .detail-modal-footer .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Custom Scrollbar */
+.detail-modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.detail-modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.detail-modal-body::-webkit-scrollbar-thumb {
+    background: #bdc3c7;
+    border-radius: 4px;
+}
+
+.detail-modal-body::-webkit-scrollbar-thumb:hover {
+    background: #95a5a6;
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
+<script>
+let currentOptimizationData = null;
+
+// Test function to check if modal elements exist
+function testModalElements() {
+    const modal = document.getElementById('detailModalOverlay');
+    const loading = document.getElementById('detailLoading');
+    
+    console.log('🧪 Testing modal elements...');
+    console.log('Modal element:', modal);
+    console.log('Loading element:', loading);
+    
+    if (modal) {
+        console.log('✅ Modal found, display:', getComputedStyle(modal).display);
+        console.log('✅ Modal classes:', modal.className);
+    } else {
+        console.error('❌ Modal not found!');
+    }
+    
+    return { modal, loading };
+}
+
+// Make test function globally available
+window.testModalElements = testModalElements;
+
+// Function to show optimization details
+function showOptimizationDetails(optimizationId) {
+    console.log('🔄 showOptimizationDetails called with ID:', optimizationId);
+    
+    const modal = document.getElementById('detailModalOverlay');
+    const loading = document.getElementById('detailLoading');
+    
+    if (!modal) {
+        console.error('❌ Detail modal not found!');
+        alert('Detail modal not found. Please refresh the page.');
+        return;
+    }
+    
+    if (!loading) {
+        console.error('❌ Loading element not found!');
+    }
+    
+    console.log('📱 Showing detail modal...');
+    
+    // Set display first, then add show class (same pattern as history modal)
+    modal.style.display = 'flex';
+    
+    // Use setTimeout to ensure display is applied before adding show class
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
+    
+    // Show loading state
+    if (loading) {
+        loading.style.display = 'block';
+    }
+    
+    // Hide all content sections
+    hideAllContentSections();
+    
+    // Fetch optimization details
+    fetchOptimizationDetails(optimizationId);
+}
+
+// Function to close detail modal
+function closeDetailModal() {
+    console.log('🔄 Closing detail modal...');
+    
+    const modal = document.getElementById('detailModalOverlay');
+    if (!modal) {
+        console.error('❌ Detail modal not found!');
+        return;
+    }
+    
+    modal.classList.remove('show');
+    
+    // Hide the modal after transition (same pattern as history modal)
+    setTimeout(() => {
+        modal.style.display = 'none';
+        hideAllContentSections();
+        const loading = document.getElementById('detailLoading');
+        if (loading) {
+            loading.style.display = 'block';
+        }
+        currentOptimizationData = null;
+    }, 300); // Match the transition duration
+}
+
+// Function to hide all content sections
+function hideAllContentSections() {
+    document.getElementById('tripSummarySection').style.display = 'none';
+    document.getElementById('optimizationResultsSection').style.display = 'none';
+    document.getElementById('hotelsDetailSection').style.display = 'none';
+    document.getElementById('attractionsDetailSection').style.display = 'none';
+}
+
+// Function to fetch optimization details from server
+async function fetchOptimizationDetails(optimizationId) {
+    console.log('🔍 Fetching optimization details for ID:', optimizationId);
+    try {
+        const response = await fetch('/tourism/api/display_history_trip/');
+        const data = await response.json();
+        console.log('📊 API Response:', data);
+        if (data.success) {
+            console.log('✅ API request successful, looking for optimization ID:', optimizationId);
+            console.log('Available trips:', data.trip_optimization_data.map(trip => ({
+                id: trip._id,
+                optimization_id: trip.optimization_id
+            })));
+            // Find the specific optimization by optimization_id or _id
+            const optimizationData = data.trip_optimization_data.find(
+                trip => trip.optimization_id === optimizationId || trip._id === optimizationId
+            );
+            if (optimizationData) {
+                console.log('✅ Found optimization data:', optimizationData);
+                currentOptimizationData = optimizationData;
+                displayOptimizationDetails(optimizationData);
+            } else {
+                console.error('❌ Optimization data not found for ID:', optimizationId);
+                showError('Optimization data not found for ID: ' + optimizationId);
+            }
+        } else {
+            console.error('❌ API request failed:', data.error);
+            showError('Failed to fetch optimization data: ' + data.error);
+        }
+    } catch (error) {
+        console.error('❌ Network error fetching optimization details:', error);
+        showError('Network error occurred while fetching data: ' + error.message);
+    }
+}
+
+// Function to display optimization details
+function displayOptimizationDetails(data) {
+    console.log('🎨 Displaying optimization details:', data);
+    
+    // Hide loading
+    const loadingElement = document.getElementById('detailLoading');
+    if (loadingElement) {
+        loadingElement.style.display = 'none';
+        console.log('✅ Loading element hidden');
+    } else {
+        console.error('❌ Loading element not found');
+    }
+    
+    // Show and populate trip summary
+    console.log('📝 Populating trip summary...');
+    populateTripSummary(data);
+
+    // Show and populate optimization results
+    if (data.optimize_result || data.optimization_results) {
+        console.log('📊 Populating optimization results...');
+        populateOptimizationResults(data);
+    } else {
+        console.log('⚠️ No optimize_result or optimization_results found in data');
+    }
+
+    // Show and populate hotels details from optimize_result if available
+    const results = data.optimize_result || data.optimization_results;
+    if (results && results.hotels && Array.isArray(results.hotels)) {
+        populateHotelsDetails(results.hotels);
+    } else if (data.hotels) {
+        populateHotelsDetails(data.hotels);
+    }
+
+    // Show and populate attractions details from optimize_result if available
+    if (results && results.attractions && Array.isArray(results.attractions)) {
+        populateAttractionsDetails(results.attractions);
+    } else if (data.attractions) {
+        populateAttractionsDetails(data.attractions);
+    }
+
+    // Show and populate schedule timeline (Gantt chart) from optimize_result if available
+    if (results) {
+        populateGanttChart(results);
+    } else if (data) {
+        populateGanttChart(data);
+    }
+
+    // Show all sections with animation
+    showContentSections();
+}
+
+// Function to populate trip summary
+function populateTripSummary(data) {
+    // Set optimization ID (safe fallback)
+    let idText = 'N/A';
+    if (data.optimization_id) {
+        idText = `ID: ${data.optimization_id.substring(0, 8)}...`;
+    } else if (data._id) {
+        idText = `ID: ${data._id.substring(0, 8)}...`;
+    }
+    document.getElementById('optimizationIdBadge').textContent = idText;
+    
+    // Set province information
+    document.getElementById('provinceName').textContent = data.province?.name || 'Not specified';
+    document.getElementById('provinceCode').textContent = data.province?.code || 'N/A';
+    
+    // Set duration and dates
+    const duration = data.schedule?.duration_days || 0;
+    document.getElementById('tripDuration').textContent = `${duration} Days`;
+    
+    const startDate = data.schedule?.start_date || 'Not set';
+    const endDate = data.schedule?.end_date || 'Not set';
+    document.getElementById('tripDates').textContent = `${startDate} - ${endDate}`;
+    
+    // Set counts
+    document.getElementById('hotelCount').textContent = data.hotels?.count || 0;
+    document.getElementById('attractionCount').textContent = data.attractions?.count || 0;
+}
+
+// Function to populate optimization results
+function populateOptimizationResults(data) {
+    const results = data.optimize_result || data.optimization_results;
+    // Populate metrics
+    populateMetrics(results);
+    // Populate extra metrics
+    populateExtraMetrics(results);
+    // Populate fitness chart
+    populateFitnessChart(results);
+
+    // Populate routes table from optimize_result days
+    if (results && results.n_days) {
+        populateDayRoutesTable(results);
+    } else if (data.optimized_routes) {
+        populateRoutesTable(data.optimized_routes);
+    }
+    // Populate gantt chart
+    if (data.optimized_gantt_chart) {
+        populateGanttChart(data.optimized_gantt_chart);
+    }
+}
+
+// Populate per-day route table from optimize_result
+function populateDayRoutesTable(results) {
+    const tbody = document.getElementById('routesTableBody');
+    tbody.innerHTML = '';
+    for (let day = 1; day <= results.n_days; day++) {
+        const routeArr = results[`day${day}_route`] || results[`day${day}`] || [];
+        const distance = results[`day${day}_distance`] || 'N/A';
+        const schedule = results[`day${day}_schedule`] || {};
+        const feasible = schedule.feasible !== undefined ? schedule.feasible : 'N/A';
+        const endTime = schedule.end_time || 'N/A';
+        const totalDuration = schedule.total_duration_minutes || 'N/A';
+        const constraintViolations = Array.isArray(schedule.constraint_violations) ? schedule.constraint_violations.length : 'N/A';
+
+        // Get location names from path_lines if available
+        let locationTags = '';
+        if (results[`day${day}_path_lines`] && Array.isArray(results[`day${day}_path_lines`])) {
+            locationTags = results[`day${day}_path_lines`].map(line => {
+                if (line && line.name) {
+                    return `<span class=\"location-tag\">${line.name}</span>`;
+                }
+                return '';
+            }).join('');
+        } else {
+            locationTags = routeArr.map(loc => `<span class=\"location-tag\">${loc}</span>`).join('');
+        }
+
+        // Path summary with more details
+        let routeSummary = `Duration: ${totalDuration} min, End: ${endTime}, Feasible: ${feasible}, Violations: ${constraintViolations}`;
+        // Table row
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><strong>Day ${day}</strong></td>
+            <td>-</td>
+            <td>${routeSummary}</td>
+            <td>${distance} km</td>
+            <td>${totalDuration !== 'N/A' ? (totalDuration/60).toFixed(2) : 'N/A'} hrs</td>
+            <td><div class=\"route-locations\">${locationTags}</div></td>
+        `;
+        tbody.appendChild(row);
+
+        // Display source and destination names for each path segment
+        if (results[`day${day}_path_lines`] && Array.isArray(results[`day${day}_path_lines`])) {
+            const pathLinesRow = document.createElement('tr');
+            pathLinesRow.innerHTML = `
+                <td colspan=\"6\" style=\"background:#f1f1f1; text-align:left;\">
+                    <strong>Route Segments:</strong>
+                    <ul style=\"margin:8px 0 0 0; padding-left:18px;\">
+                        ${results[`day${day}_path_lines`].map(line => `<li>${line.source_name} <i class=\"fas fa-arrow-right\"></i> ${line.destination_name}</li>`).join('')}
+                    </ul>
+                </td>
+            `;
+            tbody.appendChild(pathLinesRow);
+        }
+
+        // Display Gantt-style timeline for each day's schedule
+        if (Array.isArray(schedule.timeline) && schedule.timeline.length > 0) {
+            const ganttRow = document.createElement('tr');
+            ganttRow.innerHTML = `
+                <td colspan=\"6\" style=\"background:#fffbe6; text-align:left;\">
+                    <strong>Gantt Timeline:</strong>
+                    <div style=\"display:flex;align-items:center;gap:8px;overflow-x:auto;padding:8px 0;\">
+                        ${schedule.timeline.map(item => {
+                            const start = item.start_time || item.time || '';
+                            const end = item.end_time || '';
+                            const name = item.name || item.activity || '';
+                            return `<div style=\"background:#ffe082;border-radius:6px;padding:6px 12px;min-width:120px;box-shadow:0 2px 8px #f9e79f;\"><span style=\"font-weight:600;\">${name}</span><br><span style=\"font-size:12px;\">${start}${end ? ' - ' + end : ''}</span></div>`;
+                        }).join('')}
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(ganttRow);
+        }
+    }
+}
+
+// Function to populate metrics cards
+function populateMetrics(results) {
+    const metricsGrid = document.getElementById('metricsGrid');
+    metricsGrid.innerHTML = '';
+    // Extract key metrics from results
+    const metrics = [
+        { label: 'Total Distance', value: `${results.total_distance?.toFixed(2) || results.total_distance || 'N/A'} km`, icon: 'fas fa-road' },
+        { label: 'Total Time', value: `${results.total_time?.toFixed(2) || results.total_time || 'N/A'} hrs`, icon: 'fas fa-clock' },
+        { label: 'Days Planned', value: results.n_days || 'N/A', icon: 'fas fa-calendar' },
+        { label: 'Best Fitness', value: results.best_fitness?.toFixed(2) || results.best_fitness || 'N/A', icon: 'fas fa-trophy' }
+    ];
+    metrics.forEach(metric => {
+        const card = createMetricCard(metric);
+        metricsGrid.appendChild(card);
+    });
+
+    // Add improvement percentage, feasible solutions, execution time
+    if (results.improvement_percentage !== undefined) {
+        metricsGrid.appendChild(createMetricCard({
+            label: 'Improvement %',
+            value: `${results.improvement_percentage.toFixed(2)}%`,
+            icon: 'fas fa-arrow-up'
+        }));
+    }
+    if (results.feasible_solutions_pct !== undefined) {
+        metricsGrid.appendChild(createMetricCard({
+            label: 'Feasible Solutions %',
+            value: `${results.feasible_solutions_pct.toFixed(2)}%`,
+            icon: 'fas fa-check-circle'
+        }));
+    }
+    if (results.execution_time !== undefined) {
+        metricsGrid.appendChild(createMetricCard({
+            label: 'Execution Time',
+            value: `${results.execution_time.toFixed(2)}s`,
+            icon: 'fas fa-stopwatch'
+        }));
+    }
+}
+
+// Function to populate extra metrics (if needed)
+function populateExtraMetrics(results) {
+    // You can add more cards or details here if needed
+    // For now, handled in populateMetrics
+}
+
+// Function to display fitness history chart
+function populateFitnessChart(results) {
+    // Remove previous chart if exists
+    let chartSection = document.getElementById('fitnessChartSection');
+    if (chartSection) chartSection.remove();
+
+    // Only show if there is fitness history
+    if (!results.avg_fitness_history || !results.best_fitness_history) return;
+
+    // Create chart section
+    chartSection = document.createElement('div');
+    chartSection.id = 'fitnessChartSection';
+    chartSection.className = 'section-header';
+    chartSection.innerHTML = `
+        <h4><i class="fas fa-chart-area"></i> Fitness History</h4>
+        <canvas id="fitnessHistoryChart" style="max-width:100%;height:300px;"></canvas>
+    `;
+    // Insert after metricsGrid
+    const metricsGrid = document.getElementById('metricsGrid');
+    metricsGrid.parentNode.insertBefore(chartSection, metricsGrid.nextSibling);
+
+    // Load Chart.js if not loaded
+    if (typeof Chart === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        script.onload = () => renderFitnessChart(results);
+        document.body.appendChild(script);
+    } else {
+        renderFitnessChart(results);
+    }
+}
+
+function renderFitnessChart(results) {
+    const ctx = document.getElementById('fitnessHistoryChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array.from({length: results.avg_fitness_history.length}, (_, i) => i + 1),
+            datasets: [
+                {
+                    label: 'Avg Fitness',
+                    data: results.avg_fitness_history,
+                    borderColor: 'rgba(52,152,219,1)',
+                    backgroundColor: 'rgba(52,152,219,0.1)',
+                    fill: true,
+                    pointRadius: 0,
+                    tension: 0.2
+                },
+                {
+                    label: 'Best Fitness',
+                    data: results.best_fitness_history,
+                    borderColor: 'rgba(39,174,96,1)',
+                    backgroundColor: 'rgba(39,174,96,0.1)',
+                    fill: true,
+                    pointRadius: 0,
+                    tension: 0.2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'Fitness History Over Generations' }
+            },
+            scales: {
+                x: { title: { display: true, text: 'Generation' } },
+                y: { title: { display: true, text: 'Fitness Value' } }
+            }
+        }
+    });
+}
+
+
+
+// Function to create metric card
+function createMetricCard(metric) {
+    const card = document.createElement('div');
+    card.className = 'metric-card fade-in';
+    card.innerHTML = `
+        <i class="${metric.icon}" style="font-size: 1.5rem; color: #3498db; margin-bottom: 10px;"></i>
+        <div class="metric-value">${metric.value}</div>
+        <div class="metric-label">${metric.label}</div>
+    `;
+    return card;
+}
+
+// Function to populate routes table
+function populateRoutesTable(routes) {
+    const tbody = document.getElementById('routesTableBody');
+    tbody.innerHTML = '';
+    
+    Object.keys(routes).forEach(day => {
+        const dayData = routes[day];
+        const row = document.createElement('tr');
+        
+        // Create location tags
+        const locations = dayData.route || [];
+        const locationTags = locations.map(loc => 
+            `<span class="location-tag">${loc.name || loc}</span>`
+        ).join('');
+        
+        row.innerHTML = `
+            <td><strong>Day ${day}</strong></td>
+            <td>${dayData.hotel?.name || 'Not specified'}</td>
+            <td>${dayData.route_summary || 'Route not available'}</td>
+            <td>${dayData.total_distance?.toFixed(2) || 'N/A'} km</td>
+            <td>${dayData.total_time?.toFixed(2) || 'N/A'} hrs</td>
+            <td><div class="route-locations">${locationTags}</div></td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+}
+
+// Function to populate gantt chart
+function populateGanttChart(results) {
+    const container = document.getElementById('ganttContainer');
+    container.innerHTML = '';
+
+    // Build ganttData from *_path_lines
+    const days = [];
+    const ganttData = {};
+    for (let i = 1; i <= (results.n_days || 7); i++) {
+        const key = `day${i}_path_lines`;
+        if (Array.isArray(results[key]) && results[key].length > 0) {
+            days.push(`Day ${i}`);
+            ganttData[`Day ${i}`] = results[key].map((seg, idx) => ({
+                name: `${seg.source_name} → ${seg.destination_name}`,
+                start_time: idx * 60, // 1 hour per segment
+                end_time: (idx + 1) * 60
+            }));
+        }
+    }
+    if (days.length === 0) {
+        container.innerHTML = `<div style='color:#c0392b;text-align:left;'>No path line data for Gantt chart.<br><pre>${JSON.stringify(results, null, 2)}</pre></div>`;
+        return;
+    }
+
+    // Collect all unique segments (source-destination names)
+    const allSegments = new Set();
+    days.forEach(day => {
+        ganttData[day].forEach(item => {
+            allSegments.add(item.name);
+        });
+    });
+    const segments = Array.from(allSegments);
+
+    // Build datasets for Chart.js: each day is a dataset, each segment is a y-axis label
+    const datasets = days.map((day, dayIdx) => {
+        // For each segment, find if it exists in this day
+        const data = segments.map(segment => {
+            const found = ganttData[day].find(item => item.name === segment);
+            if (found) {
+                return found.end_time - found.start_time;
+            }
+            return 0;
+        });
+        return {
+            label: `Day ${dayIdx + 1}`,
+            data: data,
+            backgroundColor: `hsl(${(dayIdx * 60) % 360}, 70%, 70%)`,
+            borderColor: `hsl(${(dayIdx * 60) % 360}, 70%, 40%)`,
+            borderWidth: 1,
+            barPercentage: 0.8,
+            categoryPercentage: 0.8,
+        };
+    });
+
+    // Set container to flex column and fill available space
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.alignItems = 'stretch';
+    container.style.justifyContent = 'center';
+    container.style.height = '500px';
+    container.style.minHeight = '400px';
+    container.style.width = '100%';
+    container.style.maxWidth = '100%';
+
+    // Create canvas with full width and height
+    container.innerHTML = `<canvas id="ganttChartCanvas" style="width:100%;height:100%;min-height:400px;max-height:500px;"></canvas>`;
+    const ctx = document.getElementById('ganttChartCanvas').getContext('2d');
+
+    function renderGanttChart() {
+        if (window.ganttChartInstance) window.ganttChartInstance.destroy();
+        window.ganttChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: segments,
+                datasets: datasets,
+            },
+            options: {
+                indexAxis: 'y', // vertical bars
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: {
+                        display: true,
+                        text: 'Schedule Timeline (Gantt Chart)'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const duration = context.parsed.x;
+                                return `${context.dataset.label}: ${duration} min`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Day' },
+                        stacked: true,
+                        grid: { display: true, color: '#eee' },
+                        ticks: {
+                            callback: function(value, index) {
+                                // Show Day 1, Day 2, ... for each dataset
+                                return datasets[index] ? datasets[index].label : `Day ${index + 1}`;
+                            }
+                        }
+                    },
+                    y: {
+                        title: { display: true, text: 'Route Segment (Source → Destination)' },
+                        stacked: true,
+                        grid: { display: true, color: '#eee' },
+                    }
+                }
+            }
+        });
+    }
+
+    function minutesToTime(m) {
+        const h = Math.floor(m / 60);
+        const min = m % 60;
+        return `${h.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
+    }
+
+    if (typeof Chart === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        script.onload = renderGanttChart;
+        document.body.appendChild(script);
+    } else {
+        renderGanttChart();
+    }
+}
+
+// Function to populate hotels details
+function populateHotelsDetails(hotels) {
+    const grid = document.getElementById('hotelsGrid');
+    grid.innerHTML = '';
+    hotels.forEach(hotel => {
+        const card = document.createElement('div');
+        card.className = 'item-card fade-in';
+        card.innerHTML = `
+            <div class="item-header">
+                <div class="item-icon hotel-icon">
+                    <i class="fas fa-hotel"></i>
+                </div>
+                <h6 class="item-title">${hotel.name || 'Unnamed Hotel'}</h6>
+            </div>
+            <div class="item-details">
+                <p><i class="fas fa-map-marker-alt"></i> ${hotel.address || hotel.province || 'Location not specified'}</p>
+                <p><i class="fas fa-star"></i> Rating: ${hotel.rating || 'Not rated'}</p>
+                ${hotel.price ? `<p><i class="fas fa-won-sign"></i> ${hotel.price}</p>` : ''}
+                ${hotel.description ? `<p><i class=\"fas fa-info-circle\"></i> ${hotel.description}</p>` : ''}
+                ${hotel.phone ? `<p><i class=\"fas fa-phone\"></i> ${hotel.phone}</p>` : ''}
+                ${hotel.email ? `<p><i class=\"fas fa-envelope\"></i> ${hotel.email}</p>` : ''}
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+// Function to populate attractions details
+function populateAttractionsDetails(attractions) {
+    const grid = document.getElementById('attractionsGrid');
+    grid.innerHTML = '';
+    
+    attractions.forEach(attraction => {
+        const card = createAttractionCard(attraction);
+        grid.appendChild(card);
+    });
+}
+
+// Function to create attraction card
+function createAttractionCard(attraction) {
+    const card = document.createElement('div');
+    card.className = 'item-card fade-in';
+    card.innerHTML = `
+        <div class="item-header">
+            <div class="item-icon attraction-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <h6 class="item-title">${attraction.name || 'Unnamed Attraction'}</h6>
+        </div>
+        <div class="item-details">
+            <p><i class="fas fa-map-marker-alt"></i> ${attraction.province || attraction.location || 'Location not specified'}</p>
+            <p><i class="fas fa-tag"></i> ${attraction.type || 'Type not specified'}</p>
+            ${attraction.rating ? `<p><i class="fas fa-star"></i> Rating: ${attraction.rating}</p>` : ''}
+            ${attraction.description ? `<p><i class="fas fa-info-circle"></i> ${attraction.description}</p>` : ''}
+        </div>
+    `;
+    return card;
+}
+
+// Function to show content sections with animation
+function showContentSections() {
+    const sections = [
+        'tripSummarySection',
+        'optimizationResultsSection', 
+        'hotelsDetailSection',
+        'attractionsDetailSection'
+    ];
+    
+    sections.forEach((sectionId, index) => {
+        setTimeout(() => {
+            const section = document.getElementById(sectionId);
+            section.style.display = 'block';
+            section.classList.add('fade-in');
+        }, index * 200);
+    });
+}
+
+// Function to show error message
+function showError(message) {
+    document.getElementById('detailLoading').style.display = 'none';
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'alert alert-danger text-center';
+    errorDiv.innerHTML = `
+        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 15px;"></i>
+        <h5>Error Loading Details</h5>
+        <p>${message}</p>
+        <button class="btn btn-primary" onclick="closeDetailModal()">
+            <i class="fas fa-arrow-left"></i> Back to History
+        </button>
+    `;
+    
+    document.querySelector('.detail-modal-body').appendChild(errorDiv);
+}
+
+// Function to export optimization results
+function exportOptimizationResults() {
+    if (!currentOptimizationData) {
+        alert('No data to export');
+        return;
+    }
+    
+    // Create and download JSON file
+    const dataStr = JSON.stringify(currentOptimizationData, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `optimization_${currentOptimizationData.optimization_id.substring(0, 8)}.json`;
+    link.click();
+}
+
+// Function to recreate trip (redirect to planning page with data)
+function recreateTrip() {
+    if (!currentOptimizationData) {
+        alert('No trip data available to recreate');
+        return;
+    }
+    
+    // You can implement logic to populate the trip planning form
+    // with the current optimization data
+    console.log('Recreating trip with data:', currentOptimizationData);
+    
+    // For now, just close the modal and show a message
+    closeDetailModal();
+    
+    // You might want to trigger the trip planning form population here
+    // populateTripPlanningForm(currentOptimizationData);
+    
+    alert('Trip recreation feature will be implemented to populate the planning form with this trip data.');
+}
+
+// Close modal on escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeDetailModal();
+    }
+});
+
+// Close modal when clicking outside
+document.getElementById('detailModalOverlay').addEventListener('click', function(event) {
+    if (event.target === this) {
+        closeDetailModal();
+    }
+});
+</script>

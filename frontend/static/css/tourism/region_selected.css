@@ -1,0 +1,432 @@
+/* Modal enhancements */
+.modal-header {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+    border-bottom: none;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.modal-body {
+    background: #f8fafc;
+    padding: 2rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.75rem;
+}
+
+.form-label i {
+    color: #2563eb;
+}
+
+.form-select {
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 16px;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+}
+
+.form-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-select:disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.modal-footer {
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    padding: 1.5rem 2rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    border: none;
+    padding: 10px 24px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(240, 4, 36, 0.3);
+}
+
+.btn-secondary {
+    background: #6b7280;
+    border: none;
+    padding: 10px 24px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: #f70606;
+    transform: translateY(-1px);
+}
+
+.form-text {
+    display: flex;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+/* Loading overlay for modal */
+.modal-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(248, 250, 252, 0.95);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1060;
+    backdrop-filter: blur(2px);
+}
+
+.modal-loading.show {
+    display: flex;
+}
+
+.loading-content {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom styles for region selection marker */
+.region-selection-marker {
+    background: none !important;
+    border: none !important;
+}
+
+.region-popup h6 {
+    border-bottom: 2px solid #2563eb;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.region-popup p {
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+/* Boundary popup styles */
+.boundary-popup h6 {
+    border-bottom: 2px solid #e74c3c;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.boundary-popup p {
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+/* Hotel marker styling */
+.hotel-marker {
+    background: none !important;
+    border: none !important;
+}
+
+.hotel-marker-content {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 60px;
+    justify-content: center;
+    border: 2px solid white;
+    transition: all 0.3s ease;
+}
+
+.hotel-marker-content:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
+}
+
+.hotel-marker-content i {
+    font-size: 14px;
+}
+
+.hotel-price {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* Hotel card enhanced styling */
+.hotel-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 0;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    overflow: hidden;
+    min-width: 320px;
+    max-width: 350px;
+}
+
+.hotel-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+}
+
+.hotel-card.selected {
+    border-color: #2563eb;
+    box-shadow: 0 16px 48px rgba(37, 99, 235, 0.3);
+    transform: translateY(-8px);
+}
+
+.hotel-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.hotel-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.hotel-card:hover .hotel-image img {
+    transform: scale(1.05);
+}
+
+.hotel-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.hotel-badge i {
+    color: #fbbf24;
+    font-size: 12px;
+}
+
+.hotel-content {
+    padding: 20px;
+}
+
+.hotel-content h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1.3;
+}
+
+.hotel-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.hotel-rating i {
+    color: #fbbf24;
+    font-size: 14px;
+}
+
+.rating-text {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.hotel-address {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 8px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    line-height: 1.4;
+}
+
+.hotel-address i {
+    color: #e74c3c;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.hotel-description {
+    color: #4b5563;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 10px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.hotel-amenities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 12px 0;
+}
+
+.amenity {
+    background: #f3f4f6;
+    color: #374151;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.amenity i {
+    color: #10b981;
+    font-size: 10px;
+}
+
+.hotel-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.hotel-price {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+}
+
+.price-label {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.price-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #e74c3c;
+}
+
+.price-unit {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.book-hotel-btn {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.book-hotel-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
+}
+
+/* Hotel popup styling */
+.leaflet-popup-content-wrapper {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.hotel-popup {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.hotel-popup-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.hotel-popup-badge i {
+    color: #fbbf24;
+}
+
+/* Enhanced hotel card interactions for horizontal list */
+#horizontal-hotel-overlay .hotel-card.api-loaded {
+    border: 2px solid #10b981;
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25);
+}
+
+#horizontal-hotel-overlay .hotel-card.api-loaded::after {
+    content: 'API';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: #10b981;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    z-index: 10;
+}
+
+/* Enhanced marker-card synchronization styling */
+.hotel-marker-synced .hotel-marker-content {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}

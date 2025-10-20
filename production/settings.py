@@ -103,7 +103,9 @@ def is_server():
     server_indicators = ["vps", "server", "host", "node"]
     return any(indicator in hostname.lower() for indicator in server_indicators)
 
-if is_server():
+server = is_server()
+
+if server:
     DATABASES['default'] = {
         'ENGINE': 'djongo',
         'NAME': 'server_db',
@@ -115,7 +117,7 @@ if is_server():
     }
 else:
 
-    client = MongoClient('mongodb://localhost:27019')  # Adjust the URL and port as needed
+    client = MongoClient('mongodb://localhost:27017')  # Adjust the URL and port as needed
 
     try:
         # Ping the MongoDB server
@@ -126,7 +128,7 @@ else:
             'NAME': 'server_db',
             'CLIENT': {
                 'host': '127.0.0.1',
-                'port': 27019,
+                'port': 27017,
                 'authSource': 'admin',
             }
         }

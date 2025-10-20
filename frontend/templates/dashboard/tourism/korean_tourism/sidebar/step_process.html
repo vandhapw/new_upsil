@@ -408,6 +408,113 @@
     animation: routeEmphasis 2s ease-in-out infinite;
     z-index: 1000 !important;
 }
+
+/* Selected Info Display Styles */
+.selected-info {
+    margin-top: 10px;
+    padding: 12px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 12px;
+    animation: fadeInDown 0.3s ease-out;
+}
+
+.selected-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+    font-size: 11px;
+}
+
+.selected-label i {
+    font-size: 12px;
+}
+
+.selected-value {
+    color: #6c757d;
+    line-height: 1.4;
+}
+
+.destination-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.country-name {
+    font-weight: 700;
+    color: #28a745;
+    font-size: 14px;
+}
+
+.country-name::before {
+    content: "� ";
+    margin-right: 3px;
+}
+
+.region-name {
+    font-weight: 600;
+    color: #007bff;
+    font-size: 13px;
+    margin-left: 8px;
+}
+
+.city-name {
+    font-size: 11px;
+    color: #6c757d;
+    margin-left: 16px;
+}
+
+.city-name::before {
+    content: "📍 ";
+    margin-right: 3px;
+}
+
+.dates-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.date-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.date-label {
+    font-weight: 500;
+    color: #495057;
+    font-size: 11px;
+    min-width: 60px;
+}
+
+.date-value {
+    color: #007bff;
+    font-weight: 600;
+    font-size: 11px;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Hover effects */
+.selected-info:hover {
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+    border-color: #007bff;
+}
 </style>
 
 <div class="trip-planning-container">
@@ -429,9 +536,24 @@
             </div>
             <div class="step-content">
                 <h5>Choose Destination</h5>
-                <button type="button" id="Destination" class="btn btn-primary" onclick="openRegionSelectedModal()">
+                <button type="button" id="Destination" class="btn btn-primary w-100" onclick="openRegionSelectedModal()">
                     Choose Destination <i class="fa-solid fa-earth-americas"></i>
                 </button>
+                
+                <!-- Selected Destination Display -->
+                <div class="selected-info" id="selectedDestination" style="display: none;">
+                    <div class="selected-label">
+                        <i class="fas fa-map-marker-alt text-success"></i>
+                        <span>Selected Destination:</span>
+                    </div>
+                    <div class="selected-value">
+                        <div class="destination-info">
+                            <span class="country-name" id="selectedCountryName">-</span>
+                            <span class="region-name" id="selectedRegionName">-</span>
+                            <span class="city-name" id="selectedCityName">-</span>
+                        </div>
+                    </div>
+                </div>
                 <!-- <div class="step-form" id="step1-form">
                     <div class="destination-selector">
                         <select class="form-select" id="provinceSelect">
@@ -465,9 +587,33 @@
             </div>
             <div class="step-content">
                 <h5>Select Dates</h5>
-                <button type="button" id="Datetime" class="btn btn-primary" onclick="openDatetimeModal()">
+                <button type="button" id="Datetime" class="btn btn-primary w-100" onclick="openDatetimeModal()">
                     Choose Dates <i class="fa-solid fa-calendar-days"></i>
                 </button>
+                
+                <!-- Selected Dates Display -->
+                <div class="selected-info" id="selectedDates" style="display: none;">
+                    <div class="selected-label">
+                        <i class="fas fa-calendar-alt text-success"></i>
+                        <span>Selected Dates:</span>
+                    </div>
+                    <div class="selected-value">
+                        <div class="dates-info">
+                            <div class="date-row">
+                                <span class="date-label">Start:</span>
+                                <span class="date-value" id="selectedStartDate">-</span>
+                            </div>
+                            <div class="date-row">
+                                <span class="date-label">End:</span>
+                                <span class="date-value" id="selectedEndDate">-</span>
+                            </div>
+                            <div class="date-row">
+                                <span class="date-label">Duration:</span>
+                                <span class="date-value" id="selectedDuration">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <!-- <div class="step-form" id="step2-form" style="display: none;">
                     <div class="date-picker-container">
                         <div class="date-input-group">
@@ -493,7 +639,7 @@
             </div>
             <div class="step-content">
                 <h5>Select Hotels</h5>
-                <button type="button" id="Hotel" class="btn btn-primary" onclick="fetchHotelsForStepProcess()">
+                <button type="button" id="Hotel" class="btn btn-primary w-100" onclick="fetchHotelsForStepProcess()">
                     Choose Hotels <i class="fa-solid fa-hotel"></i>
                 </button>
                 
@@ -535,7 +681,7 @@
             </div>
             <div class="step-content">
                 <h5>Select Attractions</h5>
-                <button type="button" id="Attraction" class="btn btn-primary" onclick="fetchAttractionsForStepProcess()">
+                <button type="button" id="Attraction" class="btn btn-primary w-100" onclick="fetchAttractionsForStepProcess()">
                     Choose Attractions <i class="fa-solid fa-map-marker-alt"></i>
                 </button>
                 <!-- <div class="step-form" id="step3-form" style="display: none;">
@@ -588,7 +734,7 @@
             </div>
             <div class="step-content">
                 <!-- <h5>Review & Generate</h5> -->
-                <button type="button" id="submitProcess" class="btn btn-primary">
+                <button type="button" id="submitProcess" class="btn btn-primary w-100">
                     Submit <i class="fa-solid fa-check"></i>
                 </button>
             </div>
@@ -6499,6 +6645,12 @@ function clearAllSelections() {
             datetimeBtn.className = 'btn btn-primary';
         }
         
+        // Hide selection displays
+        const selectedDestinationDiv = document.getElementById('selectedDestination');
+        const selectedDatesDiv = document.getElementById('selectedDates');
+        if (selectedDestinationDiv) selectedDestinationDiv.style.display = 'none';
+        if (selectedDatesDiv) selectedDatesDiv.style.display = 'none';
+        
         // Refresh the current activity modal
         refreshCurrentActivity();
         
@@ -6867,6 +7019,12 @@ function resetAllButtons() {
         datetimeBtn.innerHTML = 'Choose Dates <i class="fa-solid fa-calendar-days"></i>';
         datetimeBtn.className = 'btn btn-primary';
     }
+    
+    // Hide selection displays
+    const selectedDestinationDiv = document.getElementById('selectedDestination');
+    const selectedDatesDiv = document.getElementById('selectedDates');
+    if (selectedDestinationDiv) selectedDestinationDiv.style.display = 'none';
+    if (selectedDatesDiv) selectedDatesDiv.style.display = 'none';
     
     // Reset hotel button
     const hotelBtn = document.getElementById('Hotel');
@@ -7823,6 +7981,192 @@ window.getCoordinateDataFromCard = getCoordinateDataFromCard;
 window.testHorizontalCardCoordinates = testHorizontalCardCoordinates;
 window.simulateEnhancedHotelSelection = simulateEnhancedHotelSelection;
 window.testCompleteHotelCoordinateIntegration = testCompleteHotelCoordinateIntegration;
+
+// Functions to update selected value displays
+function getCountryFlag(countryName) {
+    const countryFlags = {
+        'south korea': '🇰🇷',
+        'korea': '🇰🇷',
+        'republic of korea': '🇰🇷',
+        'japan': '🇯🇵',
+        'china': '🇨🇳',
+        'united states': '🇺🇸',
+        'usa': '🇺🇸',
+        'canada': '🇨🇦',
+        'united kingdom': '🇬🇧',
+        'france': '🇫🇷',
+        'germany': '🇩🇪',
+        'italy': '🇮🇹',
+        'spain': '🇪🇸',
+        'australia': '🇦🇺',
+        'thailand': '🇹🇭',
+        'singapore': '🇸🇬',
+        'malaysia': '🇲🇾',
+        'philippines': '🇵🇭',
+        'vietnam': '🇻🇳',
+        'indonesia': '🇮🇩'
+    };
+    
+    return countryFlags[countryName.toLowerCase()] || '🌍';
+}
+
+function updateDestinationDisplay() {
+    const selectedDestinationDiv = document.getElementById('selectedDestination');
+    const countryNameSpan = document.getElementById('selectedCountryName');
+    const regionNameSpan = document.getElementById('selectedRegionName');
+    const cityNameSpan = document.getElementById('selectedCityName');
+    
+    if (!selectedDestinationDiv || !countryNameSpan || !regionNameSpan || !cityNameSpan) {
+        console.warn('Destination display elements not found');
+        return;
+    }
+    
+    if (window.selectedProvinceData) {
+        // Extract country information
+        const countryName = window.selectedProvinceData.properties?.country || 
+                           window.selectedProvinceData.properties?.address?.country ||
+                           window.selectedProvinceData.country ||
+                           'South Korea'; // Default for Korean tourism
+        
+        // Extract region/province information
+        const regionName = window.selectedProvinceData.properties?.name || 
+                          window.selectedProvinceData.properties?.state ||
+                          window.selectedProvinceData.properties?.province ||
+                          window.selectedProvinceData.display_name || 
+                          window.selectedProvinceData.name || 
+                          'Selected Region';
+        
+        // Extract city information
+        const cityName = window.selectedProvinceData.properties?.city || 
+                        window.selectedProvinceData.properties?.address?.city ||
+                        window.selectedProvinceData.properties?.locality ||
+                        window.selectedProvinceData.city ||
+                        'City Area';
+        
+        countryNameSpan.textContent = `${getCountryFlag(countryName)} ${countryName}`;
+        regionNameSpan.textContent = regionName;
+        cityNameSpan.textContent = cityName;
+        
+        selectedDestinationDiv.style.display = 'block';
+        
+        console.log('✅ Destination display updated:', { countryName, regionName, cityName });
+    } else {
+        selectedDestinationDiv.style.display = 'none';
+    }
+}
+
+function updateDatesDisplay() {
+    const selectedDatesDiv = document.getElementById('selectedDates');
+    const startDateSpan = document.getElementById('selectedStartDate');
+    const endDateSpan = document.getElementById('selectedEndDate');
+    const durationSpan = document.getElementById('selectedDuration');
+    
+    if (!selectedDatesDiv || !startDateSpan || !endDateSpan || !durationSpan) {
+        console.warn('Dates display elements not found');
+        return;
+    }
+    
+    const dateTimeData = window.selectedDateTimeData || window.selectedDatetimeData;
+    
+    if (dateTimeData && dateTimeData.startDate && dateTimeData.endDate) {
+        const startDate = new Date(dateTimeData.startDate);
+        const endDate = new Date(dateTimeData.endDate);
+        
+        // Format dates nicely
+        const options = { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        
+        const formattedStartDate = startDate.toLocaleDateString('en-US', options);
+        const formattedEndDate = endDate.toLocaleDateString('en-US', options);
+        
+        // Calculate duration
+        const timeDiff = endDate.getTime() - startDate.getTime();
+        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        
+        startDateSpan.textContent = formattedStartDate;
+        endDateSpan.textContent = formattedEndDate;
+        durationSpan.textContent = `${daysDiff} day${daysDiff !== 1 ? 's' : ''}`;
+        selectedDatesDiv.style.display = 'block';
+        
+        console.log('✅ Dates display updated:', { formattedStartDate, formattedEndDate, duration: daysDiff });
+    } else {
+        selectedDatesDiv.style.display = 'none';
+    }
+}
+
+// Function to check and update all displays
+function updateAllSelectionDisplays() {
+    updateDestinationDisplay();
+    updateDatesDisplay();
+}
+
+// Polling function to check for data updates
+let displayUpdateInterval = null;
+
+function startDisplayPolling() {
+    if (displayUpdateInterval) {
+        clearInterval(displayUpdateInterval);
+    }
+    
+    displayUpdateInterval = setInterval(() => {
+        updateAllSelectionDisplays();
+    }, 1000); // Check every second
+    
+    console.log('🔄 Started polling for selection updates');
+}
+
+function stopDisplayPolling() {
+    if (displayUpdateInterval) {
+        clearInterval(displayUpdateInterval);
+        displayUpdateInterval = null;
+        console.log('⏹️ Stopped polling for selection updates');
+    }
+}
+
+// Start polling when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🎯 Initializing selection displays...');
+    updateAllSelectionDisplays(); // Initial update
+    startDisplayPolling(); // Start polling for changes
+});
+
+// Expose functions globally for testing
+window.updateDestinationDisplay = updateDestinationDisplay;
+window.updateDatesDisplay = updateDatesDisplay;
+window.updateAllSelectionDisplays = updateAllSelectionDisplays;
+
+// Test function to simulate data selection (for development/testing)
+function testSelectionDisplays() {
+    console.log('🧪 Testing selection displays...');
+    
+    // Simulate destination selection
+    window.selectedProvinceData = {
+        properties: {
+            country: 'South Korea',
+            name: 'Seoul',
+            city: 'Seoul Metropolitan Area'
+        }
+    };
+    
+    // Simulate date selection
+    window.selectedDateTimeData = {
+        startDate: new Date().toISOString(),
+        endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString() // 5 days from now
+    };
+    
+    // Update displays
+    updateAllSelectionDisplays();
+    
+    console.log('✅ Test data applied - check the displays under the buttons!');
+}
+
+// Add to global scope for console testing
+window.testSelectionDisplays = testSelectionDisplays;
 
 </script>
 
