@@ -254,8 +254,8 @@ class GA_MultiOptimizer:
         """
         Optimize N-day routes with timing constraints.
         """
-        if len(self.hotels) < 2:
-            raise ValueError("Need at least 2 hotels for multi-day optimization")
+        # if len(self.hotels) < 2:
+        #     raise ValueError("Need at least 2 hotels for multi-day optimization")
         
         hotel_indices = list(range(len(self.hotels)))
         attraction_indices = list(range(len(self.hotels), len(self.all_locations)))

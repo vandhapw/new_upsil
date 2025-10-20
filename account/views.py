@@ -179,7 +179,7 @@ def login_api(request):
                     }
                 }
                 )
-            return JsonResponse({'message': 'Login successful', 'redirect_url':'/dashboard/kaidashboard/'})
+            return JsonResponse({'message': 'Login successful', 'redirect_url':'/tourism/korean-tourism/'})
         else:
             return JsonResponse({'message': 'Username and password are required'}, status=400)
        
@@ -315,7 +315,7 @@ def verify_email(request, uidb64, token):
             request.session['username'] = user.get('username')
             request.session['id'] = user.get('id')
             messages.success(request, 'Email verified successfully! You can now log in.')
-            return redirect('/dashboard/kaidashboard/')
+            return redirect('/tourism/korean-tourism/')
             # })
         else:
             return JsonResponse({'error': 'Verification link is invalid or expired!'}, status=400)

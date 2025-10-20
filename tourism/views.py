@@ -875,10 +875,10 @@ def test_api_call_3(request):
             # data = None
             # result_data = None
 
-            # username = request.session.get('username', 'test')
-            # user_id = request.session.get('id', 'test')
-            username = "pknu"
-            user_id = "adfbd455-6735-491e-87a3-8728ccd3a34a"
+            username = request.session.get('username', 'test')
+            user_id = request.session.get('id', 'test')
+            # username = "pknu"
+            # user_id = "adfbd455-6735-491e-87a3-8728ccd3a34a"
 
             # Load dummy JSON data
            

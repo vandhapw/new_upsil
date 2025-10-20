@@ -31,7 +31,8 @@ from production.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('testing/',print_example, name='testing' ),
-    path('', login_page, name='login'),
+    # path('', login_page, name='login'),
+    path('', new_login_page, name='login'),
     path('account/', include('account.urls')),
     path('tourism/', include('tourism.urls')),
     # path('dashboard/', dashboard_page, name='dashboard'),
@@ -41,7 +42,7 @@ urlpatterns = [
     # path('/api/login/', partial(login_api, running=None), name='api-login')
     path('dashboard/kaidashboard/tourism/', include('tourism.urls')),
 
-    path('testing_page/', test_page, name='testing_page' ),
+    path('testing_page/', new_login_page, name='testing_page' ),
 
 ]
 

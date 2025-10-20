@@ -747,7 +747,7 @@ function loadTripHistoryData() {
                         <button class="btn-action btn-view" onclick="viewTrip('${tripId}')" title="Show Routes">
                             <i class="fas fa-route"></i> Routes
                         </button>
-                        <button class="btn-action" onclick="tableTrip('${tripId}')" title="Show Routes">
+                        <button class="btn-action" onclick="tableTrip('${tripId}')" title="Show Schedules">
                             <i class="fas fa-calendar"></i> Schedule
                         </button>
                         <button class="btn-action btn-delete" onclick="deleteTrip('${tripId}')" title="Delete Trip">
@@ -769,23 +769,6 @@ function loadTripHistoryData() {
         })
         .catch(error => {
             console.error('❌ Error loading trip history:', error);
-            
-            // Show error message in table
-            if (tripHistoryTable) {
-                tripHistoryTable.clear().draw();
-            }
-            
-            // Clear timeout and show error
-            clearTimeout(timeoutId);
-            Swal.fire({
-                icon: 'error',
-                title: 'Loading Failed',
-                text: 'Failed to load trip history. Please try again later.',
-                confirmButtonText: 'OK',
-                customClass: {
-                    popup: 'error-popup'
-                }
-            });
         });
 }
 

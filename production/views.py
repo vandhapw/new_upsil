@@ -35,6 +35,6 @@ def print_example(request):
     else:
         return JsonResponse({'message': "No documents found"})
     
-def test_page(request):
-    return render(request, 'metroui/mLandingPage.html')
+def new_login_page(request):
+    return render(request, 'responsive_login.html')
     

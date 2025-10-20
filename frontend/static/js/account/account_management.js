@@ -1,3 +1,58 @@
+// Login function for integration
+function performLogin(username, password) {
+  showLoading('Logging in...', autoclose=false);
+  $.ajax({
+    url: '/account/api/login/',
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({ username: username, password: password }),
+    headers: {
+      'X-CSRFToken': $('meta[name="csrf-token"]').attr('content')
+    },
+    success: function(response) {
+      showLoading(response.message, autoclose=true);
+      if (response.redirect_url) {
+        window.location.href = response.redirect_url;
+      }
+      console.log('Login successfully', response);
+    },
+    error: function(error) {
+      showLoading(error.responseJSON.message, autoclose=true);
+      $('#error_alert').text(error.responseJSON.message).addClass('alert alert-danger').show();
+      console.log('Login failed', error);
+    }
+  });
+}
+
+// Register function for integration
+function performRegister(firstName, lastName, username, email, password, confirmPassword) {
+  // Validate email format
+  var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    showLoading('Invalid email format.', autoclose=true);
+    $('#registerEmail').css('border', '2px solid red');
+    return;
+  }
+  if (password !== confirmPassword) {
+    Swal.fire('Passwords do not match.', '', 'error');
+    return;
+  }
+  showLoading('Registering...', autoclose=false);
+  $.ajax({
+    url: '/account/api/register/',
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({ firstName: firstName, lastName: lastName, username: username, email: email, password: password, re_password: confirmPassword }),
+    success: function(response) {
+      showLoadingRegister(response.message, autoclose=true, redirect_url=response.redirect_url);
+      console.log('Registration successful', response);
+    },
+    error: function(error) {
+      showLoading(error.responseJSON.error, autoclose=true);
+      console.log('Registration failed information', error.responseJSON.error);
+    }
+  });
+}
   $(document).ready(function() {
 
     var loginPage = "{% url 'login' %}"

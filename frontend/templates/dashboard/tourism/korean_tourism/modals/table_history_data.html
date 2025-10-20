@@ -74,9 +74,9 @@
 
             <!-- Optimization Results Section -->
             <div class="optimization-results-section" id="optimizationResultsSection" style="display: none;">
-                <div class="section-header">
+                <!-- <div class="section-header">
                     <h4><i class="fas fa-chart-line"></i> Optimization Results</h4>
-                </div>
+                </div> -->
 
                 <!-- Metrics Cards -->
                 <div class="metrics-grid" id="metricsGrid">
@@ -141,14 +141,14 @@
                 <i class="fas fa-times"></i>
                 Close
             </button>
-            <button class="btn btn-primary" onclick="exportOptimizationResults()">
+            <!-- <button class="btn btn-primary" onclick="exportOptimizationResults()">
                 <i class="fas fa-download"></i>
                 Export Results
             </button>
             <button class="btn btn-success" onclick="recreateTrip()">
                 <i class="fas fa-redo"></i>
                 Recreate Trip
-            </button>
+            </button> -->
         </div>
     </div>
 </div>
@@ -855,31 +855,42 @@ function populateTripSummary(data) {
     document.getElementById('optimizationIdBadge').textContent = idText;
     
     // Set province information
-    document.getElementById('provinceName').textContent = data.province?.name || 'Not specified';
-    document.getElementById('provinceCode').textContent = data.province?.code || 'N/A';
+    document.getElementById('provinceName').textContent = data.destination?.country || 'Not specified';
+    document.getElementById('provinceCode').textContent = data.destination?.city || 'N/A';
     
     // Set duration and dates
-    const duration = data.schedule?.duration_days || 0;
+    // 2. Gabungkan string tanggal dan waktu ke format ISO (YYYY-MM-DDTHH:MM)
+    const startDateTime = new Date(`${data.dates?.start_date}T${data.dates?.start_time}`);
+    const endDateTime = new Date(`${data.dates?.end_date}T${data.dates?.end_time}`);
+
+    // 3. Hitung selisihnya (hasilnya dalam milidetik)
+    const differenceInMilliseconds = endDateTime - startDateTime;
+
+    // 4. Konversi milidetik ke hari
+    // (1000 ms * 60 detik * 60 menit * 24 jam)
+    const millisecondsPerDay = 1000 * 60 * 60 * 24;
+    const differenceInDays = differenceInMilliseconds / millisecondsPerDay;
+    const duration = differenceInDays || 0;
     document.getElementById('tripDuration').textContent = `${duration} Days`;
     
-    const startDate = data.schedule?.start_date || 'Not set';
-    const endDate = data.schedule?.end_date || 'Not set';
+    const startDate = data.dates?.start_date || 'Not set';
+    const endDate = data.dates?.end_date || 'Not set';
     document.getElementById('tripDates').textContent = `${startDate} - ${endDate}`;
     
     // Set counts
-    document.getElementById('hotelCount').textContent = data.hotels?.count || 0;
-    document.getElementById('attractionCount').textContent = data.attractions?.count || 0;
+    document.getElementById('hotelCount').textContent = data.hotels.length || 0;
+    document.getElementById('attractionCount').textContent = data.attractions.length || 0;
 }
 
 // Function to populate optimization results
 function populateOptimizationResults(data) {
     const results = data.optimize_result || data.optimization_results;
     // Populate metrics
-    populateMetrics(results);
+    // populateMetrics(results);
     // Populate extra metrics
     populateExtraMetrics(results);
     // Populate fitness chart
-    populateFitnessChart(results);
+    // populateFitnessChart(results);
 
     // Populate routes table from optimize_result days
     if (results && results.n_days) {
@@ -897,6 +908,7 @@ function populateOptimizationResults(data) {
 function populateDayRoutesTable(results) {
     const tbody = document.getElementById('routesTableBody');
     tbody.innerHTML = '';
+
     for (let day = 1; day <= results.n_days; day++) {
         const routeArr = results[`day${day}_route`] || results[`day${day}`] || [];
         const distance = results[`day${day}_distance`] || 'N/A';
@@ -906,12 +918,21 @@ function populateDayRoutesTable(results) {
         const totalDuration = schedule.total_duration_minutes || 'N/A';
         const constraintViolations = Array.isArray(schedule.constraint_violations) ? schedule.constraint_violations.length : 'N/A';
 
+        // Get hotel name for the day (from first segment source_name or other logic)
+        let hotelName = '-';
+        if (results[`day${day}_path_lines`] && Array.isArray(results[`day${day}_path_lines`]) && results[`day${day}_path_lines`].length > 0) {
+            // Use the first segment's source_name as hotel name
+            hotelName = results[`day${day}_path_lines`][0].source_name || '-';
+        } else if (routeArr.length > 0) {
+            hotelName = routeArr[0];
+        }
+
         // Get location names from path_lines if available
         let locationTags = '';
         if (results[`day${day}_path_lines`] && Array.isArray(results[`day${day}_path_lines`])) {
             locationTags = results[`day${day}_path_lines`].map(line => {
-                if (line && line.name) {
-                    return `<span class=\"location-tag\">${line.name}</span>`;
+                if (line && line.source_name && line.destination_name) {
+                    return `<span class=\"location-tag\">${line.source_name} → ${line.destination_name}</span>`;
                 }
                 return '';
             }).join('');
@@ -925,46 +946,46 @@ function populateDayRoutesTable(results) {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td><strong>Day ${day}</strong></td>
-            <td>-</td>
+            <td>${hotelName}</td>
             <td>${routeSummary}</td>
-            <td>${distance} km</td>
+            <td>${distance} meters</td>
             <td>${totalDuration !== 'N/A' ? (totalDuration/60).toFixed(2) : 'N/A'} hrs</td>
             <td><div class=\"route-locations\">${locationTags}</div></td>
         `;
         tbody.appendChild(row);
 
-        // Display source and destination names for each path segment
-        if (results[`day${day}_path_lines`] && Array.isArray(results[`day${day}_path_lines`])) {
-            const pathLinesRow = document.createElement('tr');
-            pathLinesRow.innerHTML = `
-                <td colspan=\"6\" style=\"background:#f1f1f1; text-align:left;\">
-                    <strong>Route Segments:</strong>
-                    <ul style=\"margin:8px 0 0 0; padding-left:18px;\">
-                        ${results[`day${day}_path_lines`].map(line => `<li>${line.source_name} <i class=\"fas fa-arrow-right\"></i> ${line.destination_name}</li>`).join('')}
-                    </ul>
-                </td>
-            `;
-            tbody.appendChild(pathLinesRow);
-        }
+        // Display source and destination names for each path segment combined with Gantt timeline
+        // if (results[`day${day}_path_lines`] && Array.isArray(results[`day${day}_path_lines`])) {
+        //     const pathLinesRow = document.createElement('tr');
+        //     pathLinesRow.innerHTML = `
+        //         <td colspan=\"6\" style=\"background:#f1f1f1; text-align:left;\">
+        //             <strong>Route Segments with Timeline:</strong>
+        //             <ul style=\"margin:8px 0 0 0; padding-left:18px;\">
+        //                 ${results[`day${day}_path_lines`].map(line => {
+        //                     const timeline = line.timeline ? ` (${line.timeline.start_time || 'N/A'} - ${line.timeline.end_time || 'N/A'})` : '';
+        //                     return `<li>${line.source_name} <i class=\"fas fa-arrow-right\"></i> ${line.destination_name}${timeline}</li>`;
+        //                 }).join('')}
+        //             </ul>
+        //         </td>
+        //     `;
+        //     tbody.appendChild(pathLinesRow);
+        // }
 
         // Display Gantt-style timeline for each day's schedule
-        if (Array.isArray(schedule.timeline) && schedule.timeline.length > 0) {
-            const ganttRow = document.createElement('tr');
-            ganttRow.innerHTML = `
-                <td colspan=\"6\" style=\"background:#fffbe6; text-align:left;\">
-                    <strong>Gantt Timeline:</strong>
-                    <div style=\"display:flex;align-items:center;gap:8px;overflow-x:auto;padding:8px 0;\">
-                        ${schedule.timeline.map(item => {
-                            const start = item.start_time || item.time || '';
-                            const end = item.end_time || '';
-                            const name = item.name || item.activity || '';
-                            return `<div style=\"background:#ffe082;border-radius:6px;padding:6px 12px;min-width:120px;box-shadow:0 2px 8px #f9e79f;\"><span style=\"font-weight:600;\">${name}</span><br><span style=\"font-size:12px;\">${start}${end ? ' - ' + end : ''}</span></div>`;
-                        }).join('')}
-                    </div>
-                </td>
-            `;
-            tbody.appendChild(ganttRow);
-        }
+        // if (Array.isArray(schedule.timeline) && schedule.timeline.length > 0) {
+        //     const ganttRow = document.createElement('tr');
+        //     ganttRow.innerHTML = `
+        //         <td colspan=\"6\" style=\"background:#fffbe6; text-align:left;\">
+        //             <strong>Gantt Timeline:</strong>
+        //             <div style=\"display:flex;align-items:center;gap:8px;overflow-x:auto;padding:8px 0;\">
+        //                 ${schedule.timeline.map(event => {
+        //                     return `<div style=\"flex:1;min-width:100px;text-align:center;background:#3498db;color:white;padding:5px;border-radius:4px;\">${event.name || event.activity || ''} (${event.start_time || 'N/A'} - ${event.end_time || 'N/A'})</div>`;
+        //                 }).join('')}
+        //             </div>
+        //         </td>
+        //     `;
+        //     tbody.appendChild(ganttRow);
+        // }
     }
 }
 
@@ -974,7 +995,7 @@ function populateMetrics(results) {
     metricsGrid.innerHTML = '';
     // Extract key metrics from results
     const metrics = [
-        { label: 'Total Distance', value: `${results.total_distance?.toFixed(2) || results.total_distance || 'N/A'} km`, icon: 'fas fa-road' },
+        { label: 'Total Distance', value: `${results.total_distance?.toFixed(2) || results.total_distance || 'N/A'} meters`, icon: 'fas fa-road' },
         { label: 'Total Time', value: `${results.total_time?.toFixed(2) || results.total_time || 'N/A'} hrs`, icon: 'fas fa-clock' },
         { label: 'Days Planned', value: results.n_days || 'N/A', icon: 'fas fa-calendar' },
         { label: 'Best Fitness', value: results.best_fitness?.toFixed(2) || results.best_fitness || 'N/A', icon: 'fas fa-trophy' }
@@ -1120,7 +1141,7 @@ function populateRoutesTable(routes) {
             <td><strong>Day ${day}</strong></td>
             <td>${dayData.hotel?.name || 'Not specified'}</td>
             <td>${dayData.route_summary || 'Route not available'}</td>
-            <td>${dayData.total_distance?.toFixed(2) || 'N/A'} km</td>
+            <td>${dayData.total_distance?.toFixed(2) || 'N/A'} meters</td>
             <td>${dayData.total_time?.toFixed(2) || 'N/A'} hrs</td>
             <td><div class="route-locations">${locationTags}</div></td>
         `;
@@ -1134,46 +1155,68 @@ function populateGanttChart(results) {
     const container = document.getElementById('ganttContainer');
     container.innerHTML = '';
 
-    // Build ganttData from *_path_lines
+    // Build ganttData from dayX_schedule.timeline
     const days = [];
     const ganttData = {};
     for (let i = 1; i <= (results.n_days || 7); i++) {
-        const key = `day${i}_path_lines`;
-        if (Array.isArray(results[key]) && results[key].length > 0) {
+        const key = `day${i}_schedule`;
+        if (results[key] && Array.isArray(results[key].timeline) && results[key].timeline.length > 0) {
             days.push(`Day ${i}`);
-            ganttData[`Day ${i}`] = results[key].map((seg, idx) => ({
-                name: `${seg.source_name} → ${seg.destination_name}`,
-                start_time: idx * 60, // 1 hour per segment
-                end_time: (idx + 1) * 60
-            }));
+            ganttData[`Day ${i}`] = results[key].timeline.map((event, idx) => {
+                // Build label for y-axis
+                let label = '';
+                if (event.activity === 'Travel' || event.activity === 'Return to Hotel' || event.activity === 'Start Journey') {
+                    label = `${event.activity}: ${event.from} → ${event.to}`;
+                } else if (event.activity === 'Visit Attraction') {
+                    label = `${event.activity}: ${event.location}`;
+                } else {
+                    label = event.activity || 'Unknown';
+                }
+                // Convert start/end time to minutes since midnight
+                function timeToMinutes(t) {
+                    if (!t) return 0;
+                    const [h, m] = t.split(':');
+                    return parseInt(h, 10) * 60 + parseInt(m, 10);
+                }
+                return {
+                    name: label,
+                    start_time: timeToMinutes(event.start_time),
+                    end_time: timeToMinutes(event.end_time)
+                };
+            });
         }
     }
     if (days.length === 0) {
-        container.innerHTML = `<div style='color:#c0392b;text-align:left;'>No path line data for Gantt chart.<br><pre>${JSON.stringify(results, null, 2)}</pre></div>`;
+        container.innerHTML = `<div style='color:#c0392b;text-align:left;'>No schedule timeline data for Gantt chart.<br><pre>${JSON.stringify(results, null, 2)}</pre></div>`;
         return;
     }
 
-    // Collect all unique segments (source-destination names)
-    const allSegments = new Set();
-    days.forEach(day => {
+    // For each day, use only its own timeline events as y-axis segments
+    // Chart will show only the events for each day, not all events across all days
+    let segments = [];
+    // Build y-axis segments grouped by day, so each day's events are only shown for that day
+    let segmentsGrouped = [];
+    days.forEach((day, dayIdx) => {
         ganttData[day].forEach(item => {
-            allSegments.add(item.name);
+            segmentsGrouped.push(`Day ${dayIdx+1}: ${item.name}`);
         });
     });
-    const segments = Array.from(allSegments);
 
-    // Build datasets for Chart.js: each day is a dataset, each segment is a y-axis label
+    // Build datasets for Chart.js: each day is a dataset, each segment is a y-axis label (sequential)
+    // Each dataset only shows its own events
+    const minutesPerDay = 24 * 60;
     const datasets = days.map((day, dayIdx) => {
-        // For each segment, find if it exists in this day
-        const data = segments.map(segment => {
-            const found = ganttData[day].find(item => item.name === segment);
-            if (found) {
-                return found.end_time - found.start_time;
-            }
-            return 0;
+        const dayOffset = dayIdx * minutesPerDay;
+        const data = ganttData[day].map(item => {
+            const duration = item.end_time - item.start_time;
+            return {
+                x: dayOffset + item.start_time,
+                x2: dayOffset + item.start_time + duration,
+                y: `Day ${dayIdx+1}: ${item.name}`
+            };
         });
         return {
-            label: `Day ${dayIdx + 1}`,
+            label: day,
             data: data,
             backgroundColor: `hsl(${(dayIdx * 60) % 360}, 70%, 70%)`,
             borderColor: `hsl(${(dayIdx * 60) % 360}, 70%, 40%)`,
@@ -1202,7 +1245,7 @@ function populateGanttChart(results) {
         window.ganttChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: segments,
+                labels: segmentsGrouped,
                 datasets: datasets,
             },
             options: {
@@ -1218,38 +1261,51 @@ function populateGanttChart(results) {
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                const duration = context.parsed.x;
-                                return `${context.dataset.label}: ${duration} min`;
+                                const d = context.raw;
+                                if (d && typeof d.x === 'number' && typeof d.x2 === 'number') {
+                                    const duration = d.x2 - d.x;
+                                    return `${context.dataset.label}: ${duration} min (${d.x} - ${d.x2})`;
+                                }
+                                return context.dataset.label;
                             }
                         }
                     }
                 },
                 scales: {
                     x: {
-                        title: { display: true, text: 'Day' },
-                        stacked: true,
+                        title: { display: true, text: 'Time (Minutes, split by day)' },
+                        stacked: false,
                         grid: { display: true, color: '#eee' },
+                        min: (() => {
+                            // Find the first day index with data
+                            for (let i = 0; i < days.length; i++) {
+                                if (datasets[i].data && datasets[i].data.length > 0) {
+                                    return i * minutesPerDay;
+                                }
+                            }
+                            return 0;
+                        })(),
+                        max: days.length * minutesPerDay,
                         ticks: {
+                            stepSize: 60,
                             callback: function(value, index) {
-                                // Show Day 1, Day 2, ... for each dataset
-                                return datasets[index] ? datasets[index].label : `Day ${index + 1}`;
+                                // Show time in hours/minutes, split by day
+                                const dayNum = Math.floor(value / minutesPerDay) + 1;
+                                const minutesInDay = value % minutesPerDay;
+                                const h = Math.floor(minutesInDay / 60);
+                                const m = minutesInDay % 60;
+                                return `Day ${dayNum} ${h}h${m > 0 ? ' ' + m + 'm' : ''}`;
                             }
                         }
                     },
                     y: {
-                        title: { display: true, text: 'Route Segment (Source → Destination)' },
-                        stacked: true,
+                        title: { display: true, text: 'Schedule Event' },
+                        stacked: false,
                         grid: { display: true, color: '#eee' },
                     }
                 }
             }
         });
-    }
-
-    function minutesToTime(m) {
-        const h = Math.floor(m / 60);
-        const min = m % 60;
-        return `${h.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
     }
 
     if (typeof Chart === 'undefined') {

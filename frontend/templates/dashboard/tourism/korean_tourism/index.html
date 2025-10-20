@@ -1057,11 +1057,61 @@
                     <span>New Trip</span>
                 </button>
             </div>
-            <div class="header-actions">
+            <div class="header-actions" style="position:relative;">
                 <button class="menu-toggle" id="menuToggle">
                     <i class="fas fa-bars"></i>
                 </button>
+                <!-- User session dropdown -->
+                <div class="user-session-dropdown" style="display:inline-block;position:relative;">
+                    <button id="userSessionBtn" class="btn btn-primary" style="padding:8px 18px;border-radius:8px;background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;font-weight:600;">
+                        <i class="fas fa-user-circle"></i> <span id="userSessionName">{{request.session.username}}</span> <i class="fas fa-caret-down"></i>
+                    </button>
+                    <div id="userSessionDropdown" style="display:none;position:absolute;right:0;top:110%;background:#fff;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.12);min-width:160px;z-index:9999;">
+                        <a href="#" id="logoutOption" style="display:block;padding:12px 18px;color:#3498db;text-decoration:none;font-weight:500;border-bottom:1px solid #eee;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
             </div>
+<script>
+// Toggle dropdown
+document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('userSessionBtn');
+    var dropdown = document.getElementById('userSessionDropdown');
+    if (btn && dropdown) {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        });
+        document.addEventListener('click', function(e) {
+            if (dropdown.style.display === 'block') dropdown.style.display = 'none';
+        });
+    }
+    // Logout option
+    var logoutOpt = document.getElementById('logoutOption');
+    if (logoutOpt) {
+        logoutOpt.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Show loading
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({title:'Logging out...',allowOutsideClick:false,didOpen:()=>Swal.showLoading()});
+            }
+            fetch('/account/api/logout/', {method:'POST',headers:{'Content-Type':'application/json'}})
+                .then(res => res.json())
+                .then(data => {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.close();
+                    }
+                    window.location.href = '/';
+                })
+                .catch(err => {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.close();
+                        Swal.fire('Logout failed','Please try again','error');
+                    }
+                });
+        });
+    }
+});
+</script>
         </div>
     </header>
 
