@@ -73,7 +73,7 @@ user_log_collection = db['userlog']
 
 def test_mongo_connection(request):
     try:
-        client = MongoClient('mongodb://127.0.0.1:27017/')
+        client = MongoClient('mongodb://superUser:superUpsil!@localhost:27019/server_db?authSource=admin')
         db = client['server_db']
         # Coba akses koleksi
         collections = db.list_collection_names()
@@ -140,11 +140,18 @@ def login_api(request):
         print(f"Received login attempt for username: {username}")
         
         try:
-            userinfo = user_collection.find_one({'username': username}) or user_collection.find_one({'email': email})
+            userinfo = user_collection.find_one({
+            '$or': [
+                {'username': username},
+                {'email': email}
+            ]
+        })
+
             if not userinfo:
                 return JsonResponse({'message': 'User not found'}, status=404)
-        except:
-            return HttpResponse('incorrect id')
+        except Exception as e:
+            logging.error(f"Error fetching user info: {e}")
+            return JsonResponse({'error': 'An error occurred while fetching user information', 'user': username, 'payload': data}, status=500)
 
         request.session['id'] = userinfo['id']
         if check_password(password, userinfo['password']):

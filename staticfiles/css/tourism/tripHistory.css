@@ -1,0 +1,220 @@
+/* Trip History Table Button Styles */
+
+/* Base action button styles */
+.action-btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    margin-right: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+    min-width: 80px;
+    justify-content: center;
+}
+
+/* Enabled button styles */
+.action-btn.view {
+    background-color: #007bff;
+    color: white;
+}
+
+.action-btn.view:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.action-btn.success {
+    background-color: #28a745;
+    color: white;
+}
+
+.action-btn.success:hover {
+    background-color: #1e7e34;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.action-btn.delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Disabled button styles */
+.action-btn.disabled {
+    background-color: #6c757d !important;
+    color: #ffffff !important;
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+    pointer-events: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.action-btn.disabled:hover {
+    background-color: #6c757d !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Alternative disabled state with pattern overlay */
+.action-btn.disabled::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 2px,
+        rgba(255,255,255,0.1) 2px,
+        rgba(255,255,255,0.1) 4px
+    );
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+/* Icon styles within buttons */
+.action-btn i {
+    font-size: 11px;
+    margin-right: 2px;
+}
+
+/* Tooltip enhancement for disabled buttons */
+.action-btn.disabled[title] {
+    position: relative;
+}
+
+.action-btn.disabled[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+    pointer-events: none;
+}
+
+.action-btn.disabled[title]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #333;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* Animation for button state changes */
+.action-btn:not(.disabled) {
+    animation: buttonEnable 0.3s ease-in-out;
+}
+
+@keyframes buttonEnable {
+    from {
+        opacity: 0.6;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Responsive button styles */
+@media (max-width: 768px) {
+    .action-btn {
+        padding: 6px 8px;
+        font-size: 11px;
+        min-width: 60px;
+    }
+    
+    .action-btn i {
+        font-size: 10px;
+    }
+}
+
+/* Actions cell styling */
+.actions-cell {
+    text-align: center;
+    white-space: nowrap;
+    padding: 8px !important;
+}
+
+/* Button group styling */
+.actions-cell .action-btn:last-child {
+    margin-right: 0;
+}
+
+/* Loading state for buttons */
+.action-btn.loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.action-btn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: buttonSpin 1s linear infinite;
+}
+
+@keyframes buttonSpin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .action-btn.disabled {
+        background-color: #444 !important;
+        border: 2px solid #666 !important;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .action-btn.disabled {
+        background-color: #495057 !important;
+        color: #adb5bd !important;
+    }
+    
+    .action-btn.disabled[title]:hover::after {
+        background: #555;
+        color: #fff;
+    }
+    
+    .action-btn.disabled[title]:hover::before {
+        border-top-color: #555;
+    }
+}

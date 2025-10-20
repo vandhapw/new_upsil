@@ -8,6 +8,7 @@
       var password = $('#loginPassword').val();
 
       showLoading('Logging in...', autoclose=false);
+      console.log('Attempting login for user:', username);
       
       $.ajax({
         url: '/account/api/login/',
@@ -30,6 +31,7 @@
             $('#error_alert').text(error.responseJSON.message).addClass('alert alert-danger').show();
           
           // Handle error - show error message to the user
+          console.log('username', username);
           console.log('Login failed', error);
         }
       });

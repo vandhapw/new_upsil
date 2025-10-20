@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Format Test - Multi-Day Route</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+        }
+        
+        #map {
+            height: 80vh;
+            width: 100%;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .controls {
+            padding: 20px;
+            text-align: center;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 0 10px;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .btn.clear {
+            background: #e74c3c;
+        }
+        
+        .btn.clear:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-vial"></i> API Format Test</h1>
+        <p>Testing DisplayLineResult with the new nested API data format</p>
+    </div>
+    
+    <div class="controls">
+        <button class="btn" onclick="testOriginalFormat()">
+            <i class="fas fa-play"></i> Test Original Format
+        </button>
+        <button class="btn" onclick="testNewNestedFormat()">
+            <i class="fas fa-play"></i> Test New Nested Format
+        </button>
+        <button class="btn clear" onclick="clearRoute()">
+            <i class="fas fa-trash"></i> Clear Route
+        </button>
+    </div>
+    
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Mock displayMap class for testing -->
+    <script>
+        class MockDisplayMap {
+            constructor() {
+                this.map = null;
+                this.init();
+            }
+            
+            init() {
+                this.map = L.map('map').setView([-6.996, 110.42], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors',
+                    maxZoom: 19
+                }).addTo(this.map);
+            }
+            
+            isMapReady() {
+                return !!this.map;
+            }
+            
+            getMap() {
+                return this.map;
+            }
+        }
+        
+        window.displayMapInstance = new MockDisplayMap();
+        window.map = window.displayMapInstance.getMap();
+    </script>
+    
+    <!-- Load DisplayLineResult -->
+    <script src="displayLineResult.js"></script>
+    
+    <script>
+        let displayLineResult;
+        
+        // Initialize DisplayLineResult
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                displayLineResult = new DisplayLineResult();
+                console.log("DisplayLineResult initialized for API format testing");
+            }, 500);
+        });
+        
+        // Test data in original format (legacy)
+        const originalFormatData = {
+            "success": true,
+            "results": {
+                "best_fitness": 10768.8,
+                "best_is_feasible": true,
+                "n_days": 2,
+                "total_distance": 15384,
+                "execution_time": 1.909546136856079,
+                "feasible_solutions_pct": 100,
+                "improvement_percentage": 22.07081708120156,
+                "day1_schedule": {
+                    "timeline": [
+                        {
+                            "activity": "Start Journey",
+                            "from": "Kost Exclusive Wisma Raya",
+                            "to": "Kelenteng Sam Poo Kong",
+                            "start_time": "08:00:00",
+                            "end_time": "08:06:00",
+                            "duration_minutes": 6,
+                            "distance_meters": 5403,
+                            "type": "travel"
+                        }
+                    ],
+                    "total_duration_minutes": 107,
+                    "feasible": true,
+                    "end_time": "09:42:00"
+                },
+                "day1_path_lines": [
+                    {
+                        "source_name": "Kost Exclusive Wisma Raya",
+                        "source_coords": [-7.0007483997111875, 110.4364281],
+                        "destination_coords": [-6.995872199711008, 110.39838423017065],
+                        "destination_name": "Kelenteng Sam Poo Kong",
+                        "path_coordinates": [
+                            [-7.000736, 110.43631],
+                            [-6.999721, 110.422627],
+                            [-6.996195, 110.398487]
+                        ],
+                        "day": 1,
+                        "segment": 1
+                    }
+                ],
+                "day1_distance": 15384,
+                "day2_distance": 0
+            }
+        };
+
+        // Test data in new nested format
+        const newNestedFormatData = {
+            "success": true,
+            "data": {
+                "success": true,
+                "results": {
+                    "best_fitness": 10768.8,
+                    "best_is_feasible": true,
+                    "n_days": 2,
+                    "total_distance": 15384,
+                    "execution_time": 1.909546136856079,
+                    "feasible_solutions_pct": 100,
+                    "improvement_percentage": 22.07081708120156,
+                    "day1_schedule": {
+                        "timeline": [
+                            {
+                                "activity": "Start Journey",
+                                "from": "Kost Exclusive Wisma Raya",
+                                "to": "Kelenteng Sam Poo Kong",
+                                "start_time": "08:00:00",
+                                "end_time": "08:06:00",
+                                "duration_minutes": 6,
+                                "distance_meters": 5403,
+                                "type": "travel"
+                            },
+                            {
+                                "activity": "Visit Attraction",
+                                "location": "Kelenteng Sam Poo Kong",
+                                "start_time": "08:06:00",
+                                "end_time": "09:36:00",
+                                "duration_minutes": 90,
+                                "type": "visit"
+                            }
+                        ],
+                        "total_duration_minutes": 107,
+                        "feasible": true,
+                        "end_time": "09:42:00"
+                    },
+                    "day2_schedule": {
+                        "timeline": [
+                            {
+                                "activity": "Return to Hotel",
+                                "from": "Kost Semarang Peterongan Timur",
+                                "to": "Kost Semarang Peterongan Timur",
+                                "start_time": "08:00:00",
+                                "end_time": "08:05:00",
+                                "duration_minutes": 5,
+                                "distance_meters": 0,
+                                "type": "travel"
+                            }
+                        ],
+                        "total_duration_minutes": 5,
+                        "feasible": true,
+                        "end_time": "08:00:00"
+                    },
+                    "day1_path_lines": [
+                        {
+                            "source_name": "Kost Exclusive Wisma Raya",
+                            "source_coords": [-7.0007483997111875, 110.4364281],
+                            "destination_coords": [-6.995872199711008, 110.39838423017065],
+                            "destination_name": "Kelenteng Sam Poo Kong",
+                            "path_coordinates": [
+                                [-7.000736, 110.43631],
+                                [-7.000786, 110.436305],
+                                [-7.001187, 110.436241],
+                                [-6.999721, 110.422627],
+                                [-6.999588, 110.422482],
+                                [-6.996195, 110.398487]
+                            ],
+                            "day": 1,
+                            "segment": 1
+                        },
+                        {
+                            "source_name": "Kelenteng Sam Poo Kong",
+                            "source_coords": [-6.995872199711008, 110.39838423017065],
+                            "destination_coords": [-6.974741049710205, 110.42795299410245],
+                            "destination_name": "Pasar Malam Semawis",
+                            "path_coordinates": [
+                                [-6.996195, 110.398487],
+                                [-6.995885, 110.399254],
+                                [-6.990244, 110.406801],
+                                [-6.974756, 110.427951]
+                            ],
+                            "day": 1,
+                            "segment": 2
+                        }
+                    ],
+                    "day2_path_lines": [
+                        {
+                            "source_name": "Kost Semarang Peterongan Timur",
+                            "source_coords": [-7.000501699711184, 110.4364425],
+                            "destination_coords": [-7.000501699711184, 110.4364425],
+                            "destination_name": "Kost Semarang Peterongan Timur",
+                            "path_coordinates": [
+                                [-7.000491, 110.436337],
+                                [-7.000491, 110.436337]
+                            ],
+                            "day": 2,
+                            "segment": 1
+                        }
+                    ],
+                    "day1_distance": 15384,
+                    "day2_distance": 0
+                }
+            },
+            "message": "Trip saved successfully!"
+        };
+
+        function testOriginalFormat() {
+            if (!displayLineResult) {
+                alert('DisplayLineResult not initialized yet. Please wait.');
+                return;
+            }
+            
+            console.log("🧪 Testing original format...");
+            displayLineResult.displayRouteResults(originalFormatData);
+        }
+
+        function testNewNestedFormat() {
+            if (!displayLineResult) {
+                alert('DisplayLineResult not initialized yet. Please wait.');
+                return;
+            }
+            
+            console.log("🧪 Testing new nested format...");
+            displayLineResult.displayRouteResults(newNestedFormatData);
+        }
+
+        function clearRoute() {
+            if (displayLineResult) {
+                displayLineResult.clearRouteVisualization();
+            }
+        }
+    </script>
+</body>
+</html>

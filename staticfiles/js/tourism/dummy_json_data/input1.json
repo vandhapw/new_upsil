@@ -1,0 +1,1222 @@
+{
+    "timestamp": "2025-10-19T19:28:10.772Z",
+    "destination": {
+        "place_id": "518e9a0a4c02a25f40593e8cb564fabf4040f00101f9018548540000000000c00208",
+        "formatted_address": "Jeju, South Korea",
+        "coordinates": {
+            "latitude": 33.4998289
+        },
+        "country": "South Korea",
+        "properties": {
+            "datasource": {
+                "sourcename": "openstreetmap",
+                "attribution": "© OpenStreetMap contributors",
+                "license": "Open Database License",
+                "url": "https://www.openstreetmap.org/copyright"
+            },
+            "country": "South Korea",
+            "country_code": "kr",
+            "county": "Jeju",
+            "city": "Jeju",
+            "iso3166_2": "KR-49",
+            "lon": 126.5313902,
+            "lat": 33.4998289,
+            "result_type": "city",
+            "formatted": "Jeju, South Korea",
+            "address_line1": "Jeju",
+            "address_line2": "South Korea",
+            "category": "administrative",
+            "timezone": {
+                "name": "Asia/Seoul",
+                "offset_STD": "+09:00",
+                "offset_STD_seconds": 32400,
+                "offset_DST": "+09:00",
+                "offset_DST_seconds": 32400,
+                "abbreviation_STD": "KST",
+                "abbreviation_DST": "KST"
+            },
+            "plus_code": "8Q58FGXJ+WH",
+            "rank": {
+                "importance": 0.5298022140992255,
+                "popularity": 0.9217127631115553,
+                "confidence": 1,
+                "confidence_city_level": 1,
+                "match_type": "full_match"
+            },
+            "place_id": "518e9a0a4c02a25f40593e8cb564fabf4040f00101f9018548540000000000c00208"
+        }
+    },
+    "dates": {
+        "start_date": "2025-10-20",
+        "end_date": "2025-10-21",
+        "start_time": "16:27",
+        "end_time": "16:27",
+        "duration_days": 1,
+        "formatted": {}
+    },
+    "hotels": [
+        {
+            "id": "5132f87dd175a15f4059d48c4e9058c24040f00102f9012d9563100000000092031cec98a4ec8598ec8aa4ec9c84ecb8a0eca09ceca3bc20ed98b8ed8594",
+            "name": "오션스위츠제주 호텔",
+            "rating": "4.9",
+            "price": "$118",
+            "address": "오션스위츠제주 호텔, 74 탑동해안로, Samdo 2(i)-dong, Jeju, 63165, South Korea",
+            "location": "오션스위츠제주 호텔",
+            "coordinates": {
+                "latitude": 33.51832775,
+                "longitude": 126.52281606008253
+            },
+            "amenities": [
+                "WiFi",
+                "Phone Service",
+                "Website"
+            ],
+            "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+            "description": "Comfortable accommodation with modern amenities",
+            "contact": {
+                "phone": "+82 64 720 6000"
+            },
+            "website": "https://www.oceansuites.kr/",
+            "properties": {
+                "name": "오션스위츠제주 호텔",
+                "country": "South Korea",
+                "country_code": "kr",
+                "county": "Jeju",
+                "city": "Jeju",
+                "postcode": "63165",
+                "suburb": "Samdo 2(i)-dong",
+                "street": "탑동해안로",
+                "housenumber": "74",
+                "iso3166_2": "KR-49",
+                "lon": 126.52281606008253,
+                "lat": 33.51832775,
+                "formatted": "오션스위츠제주 호텔, 74 탑동해안로, Samdo 2(i)-dong, Jeju, 63165, South Korea",
+                "address_line1": "오션스위츠제주 호텔",
+                "address_line2": "74 탑동해안로, Samdo 2(i)-dong, Jeju, 63165, South Korea",
+                "categories": [
+                    "accommodation",
+                    "accommodation.hotel",
+                    "building",
+                    "building.accommodation",
+                    "internet_access"
+                ],
+                "details": [
+                    "details",
+                    "details.contact",
+                    "details.facilities"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "오션스위츠제주 호텔",
+                        "phone": "+82 64 720 6000",
+                        "osm_id": 274961709,
+                        "name:ko": "오션스위츠제주 호텔",
+                        "name:zh": "濟州島海洋套房酒店",
+                        "tourism": "hotel",
+                        "website": "https://www.oceansuites.kr/",
+                        "building": "yes",
+                        "osm_type": "w",
+                        "addr:street": "탑동해안로",
+                        "addr:postcode": 63165,
+                        "opening_hours": "24/7",
+                        "internet_access": "wlan",
+                        "addr:housenumber": 74
+                    }
+                },
+                "website": "https://www.oceansuites.kr/",
+                "opening_hours": "24/7",
+                "name_international": {
+                    "ko": "오션스위츠제주 호텔",
+                    "zh": "濟州島海洋套房酒店"
+                },
+                "contact": {
+                    "phone": "+82 64 720 6000"
+                },
+                "facilities": {
+                    "internet_access": true
+                },
+                "place_id": "5132f87dd175a15f4059d48c4e9058c24040f00102f9012d9563100000000092031cec98a4ec8598ec8aa4ec9c84ecb8a0eca09ceca3bc20ed98b8ed8594"
+            },
+            "latitude": 33.51832775,
+            "longitude": 126.52281606008253,
+            "booking": {
+                "checkInDate": "2025-10-20",
+                "checkOutDate": "2025-10-21",
+                "dateRange": "Mon, Oct 20, 2025 to Tue, Oct 21, 2025",
+                "dayNumber": 1,
+                "stayDate": "2025-10-20",
+                "isDateRange": true
+            },
+            "tripDates": {}
+        }
+    ],
+    "attractions": [
+        {
+            "id": "51c0ce5ec749b15f4059831cbad39dc34040f00103f901127f632301000000920309eba78cec9ea5eab5b4",
+            "name": "만장굴",
+            "type": "Tourist Attraction",
+            "rating": "4.6",
+            "price": "Free",
+            "address": "Manjanggul Lava Tube Entrance, 3341-3 만장굴길, Jeju, 63348, South Korea",
+            "location": "Manjanggul Lava Tube Entrance",
+            "coordinates": {
+                "latitude": 33.52825399959058,
+                "longitude": 126.77012809999997
+            },
+            "amenities": [
+                "Contact Available"
+            ],
+            "image": "https://images.unsplash.com/photo-1539650116574-75c0c6d89b05?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {
+                "phone": "+82 64 710 7903"
+            },
+            "website": "",
+            "properties": {
+                "name": "만장굴",
+                "country": "South Korea",
+                "country_code": "kr",
+                "county": "Jeju",
+                "city": "Jeju",
+                "town": "Gujwa",
+                "village": "Woljeong-ri",
+                "postcode": "63348",
+                "street": "만장굴길",
+                "housenumber": "3341-3",
+                "iso3166_2": "KR-49",
+                "lon": 126.7701281,
+                "lat": 33.528254,
+                "formatted": "Manjanggul Lava Tube Entrance, 3341-3 만장굴길, Jeju, 63348, South Korea",
+                "address_line1": "Manjanggul Lava Tube Entrance",
+                "address_line2": "3341-3 만장굴길, Jeju, 63348, South Korea",
+                "categories": [
+                    "access_limited",
+                    "access_limited.customers",
+                    "fee",
+                    "natural",
+                    "natural.mountain",
+                    "natural.mountain.cave_entrance",
+                    "tourism",
+                    "tourism.attraction"
+                ],
+                "details": [
+                    "details",
+                    "details.contact",
+                    "details.facilities",
+                    "details.wiki_and_media"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "fee": "yes",
+                        "name": "만장굴",
+                        "phone": "+82 64 710 7903",
+                        "access": "customers",
+                        "osm_id": 4888690450,
+                        "name:en": "Manjanggul Lava Tube Entrance",
+                        "name:ko": "만장굴",
+                        "name:zh": "万丈窟。",
+                        "natural": "cave_entrance",
+                        "tourism": "attraction",
+                        "osm_type": "n",
+                        "wikidata": "Q6750353",
+                        "wheelchair": "no",
+                        "addr:street": "김녕리",
+                        "name:ko-Latn": "Manjanggul",
+                        "addr:housenumber": "3341-3"
+                    }
+                },
+                "name_international": {
+                    "en": "Manjanggul Lava Tube Entrance",
+                    "ko": "만장굴",
+                    "zh": "万丈窟。"
+                },
+                "contact": {
+                    "phone": "+82 64 710 7903"
+                },
+                "facilities": {
+                    "wheelchair": false
+                },
+                "wiki_and_media": {
+                    "wikidata": "Q6750353"
+                },
+                "restrictions": {
+                    "access": "customers"
+                },
+                "place_id": "51c0ce5ec749b15f4059831cbad39dc34040f00103f901127f632301000000920309eba78cec9ea5eab5b4"
+            },
+            "latitude": 33.52825399959058,
+            "longitude": 126.77012809999997
+        },
+        {
+            "id": "5132edc7be1ebd5f405918d338ceedc04040f00101f901dca6940000000000920306ec9ab0eb8f84",
+            "name": "우도",
+            "type": "Tourist Attraction",
+            "rating": "4.3",
+            "price": "Free",
+            "address": "Udo Island, Jeju, 63365, South Korea",
+            "location": "Udo Island",
+            "coordinates": {
+                "latitude": 33.50725724959028,
+                "longitude": 126.95500154041363
+            },
+            "amenities": [
+                "Scenic Views",
+                "Photo Opportunities",
+                "Walkable"
+            ],
+            "image": "https://images.unsplash.com/photo-1545558014-8692077e9b5c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "",
+            "properties": {
+                "name": "우도",
+                "country": "South Korea",
+                "country_code": "kr",
+                "county": "Jeju",
+                "city": "Jeju",
+                "town": "Udo",
+                "postcode": "63365",
+                "iso3166_2": "KR-49",
+                "lon": 126.95500154041363,
+                "lat": 33.507257249999995,
+                "formatted": "Udo Island, Jeju, 63365, South Korea",
+                "address_line1": "Udo Island",
+                "address_line2": "Jeju, 63365, South Korea",
+                "categories": [
+                    "island",
+                    "tourism",
+                    "tourism.attraction"
+                ],
+                "details": [
+                    "details",
+                    "details.wiki_and_media"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "우도",
+                        "place": "island",
+                        "osm_id": -9742044,
+                        "name:el": "Ούντο",
+                        "name:en": "Udo Island",
+                        "name:ja": "牛島",
+                        "name:ko": "우도",
+                        "name:zh": "牛島",
+                        "tourism": "attraction",
+                        "osm_type": "r",
+                        "wikidata": "Q496912",
+                        "name:ko-Hani": "牛島",
+                        "name:zh-Hans": "牛岛",
+                        "name:zh-Hant": "牛島"
+                    }
+                },
+                "name_international": {
+                    "el": "Ούντο",
+                    "en": "Udo Island",
+                    "ja": "牛島",
+                    "ko": "우도",
+                    "zh": "牛島"
+                },
+                "wiki_and_media": {
+                    "wikidata": "Q496912"
+                },
+                "place_id": "5132edc7be1ebd5f405918d338ceedc04040f00101f901dca6940000000000920306ec9ab0eb8f84"
+            },
+            "latitude": 33.50725724959028,
+            "longitude": 126.95500154041363
+        },
+        {
+            "id": "5156f9afbd608f5f4059ea3eae0793b24040f00103f90102befd1500000000920313ed9891ec9eac20ed95b4ec8898ec9a95ec9ea5",
+            "name": "협재 해수욕장",
+            "type": "Tourist Attraction",
+            "rating": "4.5",
+            "price": "Free",
+            "address": "Hyeopjae Beach, Jeju, 63011, South Korea",
+            "location": "Hyeopjae Beach",
+            "coordinates": {
+                "latitude": 33.395111999588906,
+                "longitude": 126.24027959999998
+            },
+            "amenities": [
+                "Scenic Views",
+                "Photo Opportunities",
+                "Walkable"
+            ],
+            "image": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "",
+            "properties": {
+                "name": "협재 해수욕장",
+                "country": "South Korea",
+                "country_code": "kr",
+                "county": "Jeju",
+                "city": "Jeju",
+                "town": "Hallim",
+                "village": "Hyeopjae-ri",
+                "postcode": "63011",
+                "iso3166_2": "KR-49",
+                "lon": 126.2402796,
+                "lat": 33.395112,
+                "formatted": "Hyeopjae Beach, Jeju, 63011, South Korea",
+                "address_line1": "Hyeopjae Beach",
+                "address_line2": "Jeju, 63011, South Korea",
+                "categories": [
+                    "beach",
+                    "tourism",
+                    "tourism.attraction"
+                ],
+                "details": [
+                    "details",
+                    "details.wiki_and_media"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "협재 해수욕장",
+                        "ncat": "해수욕장",
+                        "osm_id": 368950786,
+                        "name:en": "Hyeopjae Beach",
+                        "name:ko": "협재 해수욕장",
+                        "natural": "beach",
+                        "tourism": "attraction",
+                        "osm_type": "n",
+                        "wikidata": "Q27340792",
+                        "name:ko-Latn": "Hyeopjaehaesuyokjang"
+                    }
+                },
+                "name_international": {
+                    "en": "Hyeopjae Beach",
+                    "ko": "협재 해수욕장"
+                },
+                "wiki_and_media": {
+                    "wikidata": "Q27340792"
+                },
+                "place_id": "5156f9afbd608f5f4059ea3eae0793b24040f00103f90102befd1500000000920313ed9891ec9eac20ed95b4ec8898ec9a95ec9ea5"
+            },
+            "latitude": 33.395111999588906,
+            "longitude": 126.24027959999998
+        },
+        {
+            "id": "512a23c0afc4a15f4059cf3ffd0692c14040f00102f901b2d0d83f0000000092030ceb8f99ebacb8ec8b9cec9ea5",
+            "name": "동문시장",
+            "type": "Tourist Attraction",
+            "rating": "4.2",
+            "price": "Free",
+            "address": "Dongmun Market, 중앙로13길, Ido 1(il)-dong, Jeju, 63264, South Korea",
+            "location": "Dongmun Market",
+            "coordinates": {
+                "latitude": 33.51226889959036,
+                "longitude": 126.5276297928182
+            },
+            "amenities": [
+                "Scenic Views",
+                "Photo Opportunities",
+                "Walkable"
+            ],
+            "image": "https://images.unsplash.com/photo-1551322312-6632ebe2b7e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "",
+            "properties": {
+                "name": "동문시장",
+                "country": "South Korea",
+                "country_code": "kr",
+                "county": "Jeju",
+                "city": "Jeju",
+                "postcode": "63264",
+                "suburb": "Ido 1(il)-dong",
+                "street": "중앙로13길",
+                "iso3166_2": "KR-49",
+                "lon": 126.52762979281817,
+                "lat": 33.512268899999995,
+                "formatted": "Dongmun Market, 중앙로13길, Ido 1(il)-dong, Jeju, 63264, South Korea",
+                "address_line1": "Dongmun Market",
+                "address_line2": "중앙로13길, Ido 1(il)-dong, Jeju, 63264, South Korea",
+                "categories": [
+                    "building",
+                    "building.commercial",
+                    "building.tourism",
+                    "commercial.marketplace",
+                    "tourism",
+                    "tourism.attraction"
+                ],
+                "details": [
+                    "details",
+                    "details.wiki_and_media"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "동문시장",
+                        "ncat": "시장",
+                        "osm_id": 1071173810,
+                        "amenity": "marketplace",
+                        "name:en": "Dongmun Market",
+                        "name:ja": "東門市場",
+                        "name:ko": "동문시장",
+                        "tourism": "attraction",
+                        "alt_name": "동문재래시장",
+                        "building": "roof",
+                        "osm_type": "w",
+                        "wikidata": "Q12593341",
+                        "wikipedia": "ko:동문재래시장",
+                        "alt_name:en": "Dongmunjaerae Market",
+                        "alt_name:ja": "東門在来市場",
+                        "alt_name:ko": "동문재래시장",
+                        "alt_name:zh": "济州东门市场",
+                        "wikipedia:en": "Jeju Dongmun Traditional Market",
+                        "alt_name:ko-Latn": "Dongmunjaeraesijang",
+                        "wikimedia_commons": "Category:Dongmun Market"
+                    }
+                },
+                "name_other": {
+                    "alt_name": "동문재래시장"
+                },
+                "name_international": {
+                    "en": "Dongmun Market",
+                    "ja": "東門市場",
+                    "ko": "동문시장"
+                },
+                "wiki_and_media": {
+                    "wikidata": "Q12593341",
+                    "wikipedia": "ko:동문재래시장",
+                    "wikimedia_commons": "Category:Dongmun Market"
+                },
+                "building": {
+                    "type": "roof"
+                },
+                "place_id": "512a23c0afc4a15f4059cf3ffd0692c14040f00102f901b2d0d83f0000000092030ceb8f99ebacb8ec8b9cec9ea5"
+            },
+            "latitude": 33.51226889959036,
+            "longitude": 126.5276297928182
+        },
+        {
+            "id": "513ac269c18bb55f40597c8a946071bb4040f00103f901426009e200000000920316eca09ceca3bc20eba088ec9dbcebb094ec9db4ed81ac",
+            "name": "제주 레일바이크",
+            "type": "Tourist Attraction",
+            "rating": "4.6",
+            "price": "Free",
+            "address": "Jeju Rail Bike, Yongnunioreum-ro, Jeju, 63631, South Korea",
+            "location": "Jeju Rail Bike",
+            "coordinates": {
+                "latitude": 33.464397499589694,
+                "longitude": 126.83665499999998
+            },
+            "amenities": [
+                "Contact Available"
+            ],
+            "image": "https://images.unsplash.com/photo-1605649487212-47bdab064df7?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {
+                "phone": "+82 64-783-0033"
+            },
+            "website": "",
+            "properties": {
+                "name": "제주 레일바이크",
+                "country": "South Korea",
+                "country_code": "kr",
+                "county": "Jeju",
+                "city": "Jeju",
+                "town": "Gujwa",
+                "village": "Jongdal-ri",
+                "postcode": "63631",
+                "street": "Yongnunioreum-ro",
+                "iso3166_2": "KR-49",
+                "lon": 126.836655,
+                "lat": 33.4643975,
+                "formatted": "Jeju Rail Bike, Yongnunioreum-ro, Jeju, 63631, South Korea",
+                "address_line1": "Jeju Rail Bike",
+                "address_line2": "Yongnunioreum-ro, Jeju, 63631, South Korea",
+                "categories": [
+                    "tourism",
+                    "tourism.attraction"
+                ],
+                "details": [
+                    "details",
+                    "details.contact"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "제주 레일바이크",
+                        "phone": "+82 64-783-0033",
+                        "osm_id": 3792265282,
+                        "name:en": "Jeju Rail Bike",
+                        "name:ko": "제주 레일바이크",
+                        "name:zh": "济州铁路自行车。",
+                        "tourism": "attraction",
+                        "osm_type": "n"
+                    }
+                },
+                "name_international": {
+                    "en": "Jeju Rail Bike",
+                    "ko": "제주 레일바이크",
+                    "zh": "济州铁路自行车。"
+                },
+                "contact": {
+                    "phone": "+82 64-783-0033"
+                },
+                "place_id": "513ac269c18bb55f40597c8a946071bb4040f00103f901426009e200000000920316eca09ceca3bc20eba088ec9dbcebb094ec9db4ed81ac"
+            },
+            "latitude": 33.464397499589694,
+            "longitude": 126.83665499999998
+        },
+        {
+            "id": "519665998f359f5f4059013dc329ceb94040f00103f90176a10a0001000000920328eca09ceca3bc20eb8f84eab9a8ebb984eb8f84eba19c28ec8ba0ebb984ec9d9820eb8f84eba19c29",
+            "name": "제주 도깨비도로(신비의 도로)",
+            "type": "Tourist Attraction",
+            "rating": "4.1",
+            "price": "Free",
+            "address": "Jeju Mysterious Road, 2894-63 1100-ro, Yeon-dong, Jeju, 63078, South Korea",
+            "location": "Jeju Mysterious Road",
+            "coordinates": {
+                "latitude": 33.45160409958954,
+                "longitude": 126.48764409999998
+            },
+            "amenities": [
+                "Contact Available"
+            ],
+            "image": "https://images.unsplash.com/photo-1570497091075-7544a2c6b7d4?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {
+                "phone": "+82 64 728 2114"
+            },
+            "website": "",
+            "properties": {
+                "name": "제주 도깨비도로(신비의 도로)",
+                "country": "South Korea",
+                "country_code": "kr",
+                "county": "Jeju",
+                "city": "Jeju",
+                "postcode": "63078",
+                "district": "Nohyeong-dong",
+                "suburb": "Yeon-dong",
+                "street": "1100-ro",
+                "housenumber": "2894-63",
+                "iso3166_2": "KR-49",
+                "lon": 126.4876441,
+                "lat": 33.4516041,
+                "formatted": "Jeju Mysterious Road, 2894-63 1100-ro, Yeon-dong, Jeju, 63078, South Korea",
+                "address_line1": "Jeju Mysterious Road",
+                "address_line2": "2894-63 1100-ro, Yeon-dong, Jeju, 63078, South Korea",
+                "categories": [
+                    "tourism",
+                    "tourism.attraction"
+                ],
+                "details": [
+                    "details",
+                    "details.contact"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "제주 도깨비도로(신비의 도로)",
+                        "phone": "+82 64 728 2114",
+                        "osm_id": 4295663990,
+                        "name:en": "Jeju Mysterious Road",
+                        "name:ja": "トッケビ道路(神秘の道路)",
+                        "name:ko": "제주 도깨비도로(신비의 도로)",
+                        "tourism": "attraction",
+                        "osm_type": "n",
+                        "addr:street": "1100로",
+                        "addr:housenumber": "2894-63"
+                    }
+                },
+                "name_international": {
+                    "en": "Jeju Mysterious Road",
+                    "ja": "トッケビ道路(神秘の道路)",
+                    "ko": "제주 도깨비도로(신비의 도로)"
+                },
+                "contact": {
+                    "phone": "+82 64 728 2114"
+                },
+                "place_id": "519665998f359f5f4059013dc329ceb94040f00103f90176a10a0001000000920328eca09ceca3bc20eb8f84eab9a8ebb984eb8f84eba19c28ec8ba0ebb984ec9d9820eb8f84eba19c29"
+            },
+            "latitude": 33.45160409958954,
+            "longitude": 126.48764409999998
+        },
+        {
+            "id": "51ff65ad57c78e5f4059d771112395b44040f00103f9017e491b2801000000",
+            "name": "Attraction 99",
+            "type": "Tourist Attraction",
+            "rating": "4.9",
+            "price": "Free",
+            "address": "협재1길, Jeju, 63011, South Korea",
+            "location": "협재1길",
+            "coordinates": {
+                "latitude": 33.410801299589075,
+                "longitude": 126.2309169
+            },
+            "amenities": [
+                "Scenic Views",
+                "Photo Opportunities",
+                "Walkable"
+            ],
+            "image": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "",
+            "properties": {
+                "country": "South Korea",
+                "country_code": "kr",
+                "county": "Jeju",
+                "city": "Jeju",
+                "town": "Hallim",
+                "village": "Hyeopjae-ri",
+                "postcode": "63011",
+                "street": "협재1길",
+                "iso3166_2": "KR-49",
+                "lon": 126.2309169,
+                "lat": 33.4108013,
+                "formatted": "협재1길, Jeju, 63011, South Korea",
+                "address_line1": "협재1길",
+                "address_line2": "Jeju, 63011, South Korea",
+                "categories": [
+                    "tourism",
+                    "tourism.attraction",
+                    "tourism.attraction.viewpoint"
+                ],
+                "details": [],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "osm_id": 4967844222,
+                        "tourism": "viewpoint",
+                        "osm_type": "n"
+                    }
+                },
+                "place_id": "51ff65ad57c78e5f4059d771112395b44040f00103f9017e491b2801000000"
+            },
+            "latitude": 33.410801299589075,
+            "longitude": 126.2309169
+        },
+        {
+            "id": "513b0f385cf5905f405942e13a0a21b54040f00103f90180491b2801000000",
+            "name": "Attraction 100",
+            "type": "Tourist Attraction",
+            "rating": "4.4",
+            "price": "Free",
+            "address": "Hallim-ro, Jeju, 63031, South Korea",
+            "location": "Hallim-ro",
+            "coordinates": {
+                "latitude": 33.41507079958912,
+                "longitude": 126.2649756
+            },
+            "amenities": [
+                "Scenic Views",
+                "Photo Opportunities",
+                "Walkable"
+            ],
+            "image": "https://images.unsplash.com/photo-1551322312-6632ebe2b7e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "",
+            "properties": {
+                "country": "South Korea",
+                "country_code": "kr",
+                "county": "Jeju",
+                "city": "Jeju",
+                "town": "Hallim",
+                "village": "Hanrim-ri",
+                "postcode": "63031",
+                "street": "Hallim-ro",
+                "iso3166_2": "KR-49",
+                "lon": 126.2649756,
+                "lat": 33.4150708,
+                "formatted": "Hallim-ro, Jeju, 63031, South Korea",
+                "address_line1": "Hallim-ro",
+                "address_line2": "Jeju, 63031, South Korea",
+                "categories": [
+                    "tourism",
+                    "tourism.attraction",
+                    "tourism.attraction.artwork"
+                ],
+                "details": [],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "osm_id": 4967844224,
+                        "tourism": "artwork",
+                        "osm_type": "n"
+                    }
+                },
+                "place_id": "513b0f385cf5905f405942e13a0a21b54040f00103f90180491b2801000000"
+            },
+            "latitude": 33.41507079958912,
+            "longitude": 126.2649756
+        },
+        {
+            "id": "51e0617f7e84bc5f40598cbd63613ebf4040f00103f901733d3c2801000000",
+            "name": "Artwork",
+            "type": "Tourist Attraction",
+            "rating": "4.3",
+            "price": "Free",
+            "address": "Artwork, Udohaean-gil, Jeju, 63365, South Korea",
+            "location": "Artwork",
+            "coordinates": {
+                "latitude": 33.49409119959009,
+                "longitude": 126.9455868
+            },
+            "amenities": [
+                "Scenic Views",
+                "Photo Opportunities",
+                "Walkable"
+            ],
+            "image": "https://images.unsplash.com/photo-1605649487212-47bdab064df7?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "",
+            "properties": {
+                "name": "Artwork",
+                "country": "South Korea",
+                "country_code": "kr",
+                "county": "Jeju",
+                "city": "Jeju",
+                "town": "Udo",
+                "village": "Yeonpyeong-ri",
+                "postcode": "63365",
+                "street": "Udohaean-gil",
+                "iso3166_2": "KR-49",
+                "lon": 126.9455868,
+                "lat": 33.4940912,
+                "formatted": "Artwork, Udohaean-gil, Jeju, 63365, South Korea",
+                "address_line1": "Artwork",
+                "address_line2": "Udohaean-gil, Jeju, 63365, South Korea",
+                "categories": [
+                    "tourism",
+                    "tourism.attraction",
+                    "tourism.attraction.artwork"
+                ],
+                "details": [
+                    "details"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "osm_id": 4970003827,
+                        "name:en": "Artwork",
+                        "tourism": "artwork",
+                        "osm_type": "n"
+                    }
+                },
+                "name_international": {
+                    "en": "Artwork"
+                },
+                "place_id": "51e0617f7e84bc5f40598cbd63613ebf4040f00103f901733d3c2801000000"
+            },
+            "latitude": 33.49409119959009,
+            "longitude": 126.9455868
+        },
+        {
+            "id": "513b93a23ac2bd5f4059510f78a40bbf4040f00103f901743d3c2801000000",
+            "name": "Attraction 102",
+            "type": "Tourist Attraction",
+            "rating": "4.9",
+            "price": "Free",
+            "address": "Udohaean-gil, Jeju, 63365, South Korea",
+            "location": "Udohaean-gil",
+            "coordinates": {
+                "latitude": 33.492542799590076,
+                "longitude": 126.96497979999997
+            },
+            "amenities": [
+                "Scenic Views",
+                "Photo Opportunities",
+                "Walkable"
+            ],
+            "image": "https://images.unsplash.com/photo-1570497091075-7544a2c6b7d4?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "",
+            "properties": {
+                "country": "South Korea",
+                "country_code": "kr",
+                "county": "Jeju",
+                "city": "Jeju",
+                "town": "Udo",
+                "village": "Yeonpyeong-ri",
+                "postcode": "63365",
+                "street": "Udohaean-gil",
+                "iso3166_2": "KR-49",
+                "lon": 126.9649798,
+                "lat": 33.4925428,
+                "formatted": "Udohaean-gil, Jeju, 63365, South Korea",
+                "address_line1": "Udohaean-gil",
+                "address_line2": "Jeju, 63365, South Korea",
+                "categories": [
+                    "tourism",
+                    "tourism.attraction",
+                    "tourism.attraction.artwork"
+                ],
+                "details": [],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "osm_id": 4970003828,
+                        "tourism": "artwork",
+                        "osm_type": "n"
+                    }
+                },
+                "place_id": "513b93a23ac2bd5f4059510f78a40bbf4040f00103f901743d3c2801000000"
+            },
+            "latitude": 33.492542799590076,
+            "longitude": 126.96497979999997
+        },
+        {
+            "id": "5143a2bf86968e5f40596a64229f57b44040f00103f90195451b2801000000",
+            "name": "Attraction 98",
+            "type": "Tourist Attraction",
+            "rating": "4.4",
+            "price": "Free",
+            "address": "Ollegil 14, Jeju, 63011, South Korea",
+            "location": "Ollegil 14",
+            "coordinates": {
+                "latitude": 33.40892399958905,
+                "longitude": 126.22793740000002
+            },
+            "amenities": [
+                "Scenic Views",
+                "Photo Opportunities",
+                "Walkable"
+            ],
+            "image": "https://images.unsplash.com/photo-1545558014-8692077e9b5c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "",
+            "properties": {
+                "country": "South Korea",
+                "country_code": "kr",
+                "county": "Jeju",
+                "city": "Jeju",
+                "town": "Hallim",
+                "village": "Hyeopjae-ri",
+                "postcode": "63011",
+                "street": "Ollegil 14",
+                "iso3166_2": "KR-49",
+                "lon": 126.2279374,
+                "lat": 33.408924,
+                "formatted": "Ollegil 14, Jeju, 63011, South Korea",
+                "address_line1": "Ollegil 14",
+                "address_line2": "Jeju, 63011, South Korea",
+                "categories": [
+                    "tourism",
+                    "tourism.attraction",
+                    "tourism.attraction.viewpoint"
+                ],
+                "details": [],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "osm_id": 4967843221,
+                        "tourism": "viewpoint",
+                        "osm_type": "n"
+                    }
+                },
+                "place_id": "5143a2bf86968e5f40596a64229f57b44040f00103f90195451b2801000000"
+            },
+            "latitude": 33.40892399958905,
+            "longitude": 126.22793740000002
+        },
+        {
+            "id": "51fa70242b9a8e5f4059e5416727deb34040f00103f90131451b2801000000",
+            "name": "Coffee​ shop",
+            "type": "Tourist Attraction",
+            "rating": "4.4",
+            "price": "Free",
+            "address": "Coffee​ shop, 금능9길, Jeju, 63033, South Korea",
+            "location": "Coffee​ shop",
+            "coordinates": {
+                "latitude": 33.40521709958902,
+                "longitude": 126.22815970000002
+            },
+            "amenities": [
+                "Scenic Views",
+                "Photo Opportunities",
+                "Walkable"
+            ],
+            "image": "https://images.unsplash.com/photo-1539650116574-75c0c6d89b05?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "",
+            "properties": {
+                "name": "Coffee​ shop",
+                "country": "South Korea",
+                "country_code": "kr",
+                "county": "Jeju",
+                "city": "Jeju",
+                "town": "Hallim",
+                "village": "Geumneung-ri",
+                "postcode": "63033",
+                "street": "금능9길",
+                "iso3166_2": "KR-49",
+                "lon": 126.2281597,
+                "lat": 33.4052171,
+                "formatted": "Coffee​ shop, 금능9길, Jeju, 63033, South Korea",
+                "address_line1": "Coffee​ shop",
+                "address_line2": "금능9길, Jeju, 63033, South Korea",
+                "categories": [
+                    "tourism",
+                    "tourism.attraction",
+                    "tourism.attraction.artwork"
+                ],
+                "details": [
+                    "details"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "osm_id": 4967843121,
+                        "name:en": "Coffee​ shop",
+                        "tourism": "artwork",
+                        "osm_type": "n"
+                    }
+                },
+                "name_international": {
+                    "en": "Coffee​ shop"
+                },
+                "place_id": "51fa70242b9a8e5f4059e5416727deb34040f00103f90131451b2801000000"
+            },
+            "latitude": 33.40521709958902,
+            "longitude": 126.22815970000002
+        },
+        {
+            "id": "51abce6a81bd8e5f40599d82b6859db44040f00103f901b5061b2801000000",
+            "name": "Gate",
+            "type": "Tourist Attraction",
+            "rating": "4.2",
+            "price": "Free",
+            "address": "Gate, 협재1길, Jeju, 63011, South Korea",
+            "location": "Gate",
+            "coordinates": {
+                "latitude": 33.411057199589074,
+                "longitude": 126.2303165
+            },
+            "amenities": [
+                "Scenic Views",
+                "Photo Opportunities",
+                "Walkable"
+            ],
+            "image": "https://images.unsplash.com/photo-1591162494051-5c8e5ae3ba95?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "",
+            "properties": {
+                "name": "Gate",
+                "country": "South Korea",
+                "country_code": "kr",
+                "county": "Jeju",
+                "city": "Jeju",
+                "town": "Hallim",
+                "village": "Hyeopjae-ri",
+                "postcode": "63011",
+                "street": "협재1길",
+                "iso3166_2": "KR-49",
+                "lon": 126.2303165,
+                "lat": 33.4110572,
+                "formatted": "Gate, 협재1길, Jeju, 63011, South Korea",
+                "address_line1": "Gate",
+                "address_line2": "협재1길, Jeju, 63011, South Korea",
+                "categories": [
+                    "tourism",
+                    "tourism.attraction"
+                ],
+                "details": [
+                    "details"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "osm_id": 4967827125,
+                        "name:en": "Gate",
+                        "tourism": "attraction",
+                        "osm_type": "n"
+                    }
+                },
+                "name_international": {
+                    "en": "Gate"
+                },
+                "place_id": "51abce6a81bd8e5f40599d82b6859db44040f00103f901b5061b2801000000"
+            },
+            "latitude": 33.411057199589074,
+            "longitude": 126.2303165
+        },
+        {
+            "id": "5186faa765b5905f4059cc627bccacae4040f00103f90140ff375a01000000",
+            "name": "Neujiri Oreum",
+            "type": "Tourist Attraction",
+            "rating": "4.7",
+            "price": "Free",
+            "address": "Neujiri Oreum, Myeong-wolseong-ro, Jeju, 63018, South Korea",
+            "location": "Neujiri Oreum",
+            "coordinates": {
+                "latitude": 33.36464839958862,
+                "longitude": 126.26107160000001
+            },
+            "amenities": [
+                "Scenic Views",
+                "Photo Opportunities",
+                "Walkable"
+            ],
+            "image": "https://images.unsplash.com/photo-1591162494051-5c8e5ae3ba95?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "",
+            "properties": {
+                "name": "Neujiri Oreum",
+                "country": "South Korea",
+                "country_code": "kr",
+                "county": "Jeju",
+                "city": "Jeju",
+                "town": "Hallim",
+                "village": "Sangmyeong-ri",
+                "postcode": "63018",
+                "street": "Myeong-wolseong-ro",
+                "iso3166_2": "KR-49",
+                "lon": 126.2610716,
+                "lat": 33.3646484,
+                "formatted": "Neujiri Oreum, Myeong-wolseong-ro, Jeju, 63018, South Korea",
+                "address_line1": "Neujiri Oreum",
+                "address_line2": "Myeong-wolseong-ro, Jeju, 63018, South Korea",
+                "categories": [
+                    "tourism",
+                    "tourism.attraction"
+                ],
+                "details": [
+                    "details"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "osm_id": 5808586560,
+                        "name:en": "Neujiri Oreum",
+                        "tourism": "attraction",
+                        "osm_type": "n"
+                    }
+                },
+                "name_international": {
+                    "en": "Neujiri Oreum"
+                },
+                "place_id": "5186faa765b5905f4059cc627bccacae4040f00103f90140ff375a01000000"
+            },
+            "latitude": 33.36464839958862,
+            "longitude": 126.26107160000001
+        },
+        {
+            "id": "5162d45a3dcc945f4059463246d4faaa4040f00103f901dbfe375a01000000",
+            "name": "Black Stone Golf & Resort",
+            "type": "Tourist Attraction",
+            "rating": "4.3",
+            "price": "Free",
+            "address": "Black Stone Golf & Resort, Hanchang-ro, Jeju, 63522, South Korea",
+            "location": "Black Stone Golf & Resort",
+            "coordinates": {
+                "latitude": 33.33577969958837,
+                "longitude": 126.3249658
+            },
+            "amenities": [
+                "Scenic Views",
+                "Photo Opportunities",
+                "Walkable"
+            ],
+            "image": "https://images.unsplash.com/photo-1606946156913-2d8d1e9e3826?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "",
+            "properties": {
+                "name": "Black Stone Golf & Resort",
+                "country": "South Korea",
+                "country_code": "kr",
+                "county": "Jeju",
+                "city": "Jeju",
+                "town": "Hallim",
+                "village": "Geumak-ri",
+                "postcode": "63522",
+                "street": "Hanchang-ro",
+                "iso3166_2": "KR-49",
+                "lon": 126.3249658,
+                "lat": 33.3357797,
+                "formatted": "Black Stone Golf & Resort, Hanchang-ro, Jeju, 63522, South Korea",
+                "address_line1": "Black Stone Golf & Resort",
+                "address_line2": "Hanchang-ro, Jeju, 63522, South Korea",
+                "categories": [
+                    "tourism",
+                    "tourism.attraction"
+                ],
+                "details": [
+                    "details"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "osm_id": 5808586459,
+                        "name:en": "Black Stone Golf & Resort",
+                        "tourism": "attraction",
+                        "osm_type": "n"
+                    }
+                },
+                "name_international": {
+                    "en": "Black Stone Golf & Resort"
+                },
+                "place_id": "5162d45a3dcc945f4059463246d4faaa4040f00103f901dbfe375a01000000"
+            },
+            "latitude": 33.33577969958837,
+            "longitude": 126.3249658
+        }
+    ],
+    "summary": {
+        "isComplete": true,
+        "totalItems": 16,
+        "errors": []
+    }
+}

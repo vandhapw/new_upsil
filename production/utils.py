@@ -29,7 +29,7 @@ def get_mongo_client():
             return None
         else:
             print("Running in 'local' environment. Connecting to MongoDB.")
-            client = pymongo.MongoClient('localhost', 27017)
+            client = pymongo.MongoClient('localhost', 27019)
             client.admin.command('ping')  # Check if the database is reachable
             DATABASES = {
                 'default': {
@@ -37,7 +37,7 @@ def get_mongo_client():
                     'NAME': 'server_db',
                     'CLIENT': {
                         'host': '127.0.0.1',
-                        'port': 27017,
+                        'port': 27019,
                         'authSource': 'admin',
                     }
                 }

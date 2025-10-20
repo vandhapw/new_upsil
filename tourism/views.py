@@ -10,7 +10,7 @@ import pandas as pd
 
 from tourism.optimization import dummy_schedule
 
-client = MongoClient("mongodb://localhost:27017/")
+client = MongoClient("mongodb://superUser:superUpsil!@localhost:27019/server_db?authSource=server_db")
 db = client["server_db"]
 korean_provinces_collection = db["korean_provinces"]
 korean_attractions_collection = db["tourism_attraction"]
@@ -224,46 +224,39 @@ def get_attraction_list(request):
         }, status=500)
     
 def get_trip_optimization_data(request):
+    username = request.session.get('username')
+    user_id = request.session.get('id')
+        
     try:
         # Fetch all trip optimization data from the collection
         trip_data_cursor = trip_optimization_collection.find()
         trip_data_list = []
         # username = "pknu"
         # user_id = "adfbd455-6735-491e-87a3-8728ccd3a34a"
-        username = request.session.get('username', 'Guest')
-        user_id = request.session.get('id', None)
         for trip in trip_data_cursor:
-            # Convert MongoDB ObjectId to string for JSON serialization
-            trip['_id'] = str(trip['_id'])
-            trip_data_list.append(trip)
-            # Get user information for filtering
-            # Get user information for filtering
-            # request_user_id = request.GET.get('user_id', user_id)
+            # Convert ObjectId to string
+            if '_id' in trip:
+                trip['_id'] = str(trip['_id'])
 
-            # Filter trip data based on user_id if provided
-            if username:
-                # If we have a user_id, filter the results
-                filtered_trip_data = []
-                for trip in trip_data_list:
-                    # Check if trip has user field and user_id matches
-                    if (trip.get('user', {}).get('username') == username or
-                        trip.get('user_id') == user_id):
-                        filtered_trip_data.append(trip)
-                trip_data_list = filtered_trip_data
-
-            # Add user information to response
-            user_info = {
-                'username': username,
-                'user_id': user_id
-            }
+            # Filter by username or user_id
+            if (trip.get('user', {}).get('username') == username or
+                trip.get('user_id') == user_id):
+                trip_data_list.append(trip)
 
         return JsonResponse({
             'success': True,
+            'user': {
+                'username': username,
+                'user_id': user_id
+            },
             'trip_optimization_data': trip_data_list
-        })
+        }, status=200)
+
     except Exception as e:
         return JsonResponse({
             'success': False,
+            'username': username,
+            'user_id': user_id,
             'error': str(e)
         }, status=500)
 

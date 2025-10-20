@@ -1,0 +1,493 @@
+{
+    "timestamp": "2025-10-17T12:30:01.518Z",
+    "destination": {
+        "place_id": "51da48c8f6109b5b405997fd5f1a2bf61bc0f00101f9011c50800000000000c00208",
+        "formatted_address": "Semarang, Central Java, Indonesia",
+        "coordinates": {
+            "latitude": -6.9903988
+        },
+        "country": "South Korea",
+        "properties": {
+            "datasource": {
+                "sourcename": "openstreetmap",
+                "attribution": "© OpenStreetMap contributors",
+                "license": "Open Database License",
+                "url": "https://www.openstreetmap.org/copyright"
+            },
+            "country": "Indonesia",
+            "country_code": "id",
+            "region": "Java",
+            "state": "Central Java",
+            "city": "Semarang",
+            "iso3166_2": "ID-JW",
+            "iso3166_2_sublevel": "ID-JT",
+            "lon": 110.4229104,
+            "lat": -6.9903988,
+            "result_type": "city",
+            "formatted": "Semarang, Central Java, Indonesia",
+            "address_line1": "Semarang",
+            "address_line2": "Central Java, Indonesia",
+            "category": "administrative",
+            "timezone": {
+                "name": "Asia/Jakarta",
+                "offset_STD": "+07:00",
+                "offset_STD_seconds": 25200,
+                "offset_DST": "+07:00",
+                "offset_DST_seconds": 25200,
+                "abbreviation_STD": "WIB",
+                "abbreviation_DST": "WIB"
+            },
+            "plus_code": "6P5G2C5F+R5",
+            "plus_code_short": "5F+R5 Semarang, Central Java, Indonesia",
+            "rank": {
+                "importance": 0.5680018483009508,
+                "popularity": 6.267038472902757,
+                "confidence": 1,
+                "confidence_city_level": 1,
+                "match_type": "full_match"
+            },
+            "place_id": "51da48c8f6109b5b405997fd5f1a2bf61bc0f00101f9011c50800000000000c00208"
+        }
+    },
+    "dates": {
+        "start_date": "2025-10-18",
+        "end_date": "2025-10-20",
+        "start_time": "21:26",
+        "end_time": "21:26",
+        "duration_days": 1,
+        "formatted": {}
+    },
+    "hotels": [
+        {
+            "id": "518c232070ee9b5b4059b3224130c4001cc0f00103f901bf439ee3020000009203194b6f7374204578636c7573697665205769736d612052617961",
+            "name": "Kost Exclusive Wisma Raya",
+            "rating": "4.5",
+            "price": "$179",
+            "address": "Kost Exclusive Wisma Raya, Jalan Peterongan Timur 348, Semarang 50242, Central Java, Indonesia",
+            "location": "Kost Exclusive Wisma Raya",
+            "coordinates": {
+                "latitude": -7.0007483997111875,
+                "longitude": 110.4364281
+            },
+            "amenities": [
+                "WiFi",
+                "AC",
+                "Phone Service",
+                "Website"
+            ],
+            "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+            "description": "Comfortable accommodation with modern amenities",
+            "contact": {
+                "phone": "+62 8174 183 553",
+                "email": "kost.peterongan.timur@gmail.com"
+            },
+            "website": "https://kostexclusivesemarang.wordpress.com/",
+            "properties": {
+                "name": "Kost Exclusive Wisma Raya",
+                "country": "Indonesia",
+                "country_code": "id",
+                "region": "Java",
+                "state": "Central Java",
+                "city": "Semarang",
+                "village": "Peterongan",
+                "postcode": "50242",
+                "district": "Semarang Selatan",
+                "neighbourhood": "RW 06",
+                "street": "Jalan Peterongan Timur",
+                "housenumber": "348",
+                "iso3166_2": "ID-JW",
+                "iso3166_2_sublevel": "ID-JT",
+                "lon": 110.4364281,
+                "lat": -7.0007484,
+                "formatted": "Kost Exclusive Wisma Raya, Jalan Peterongan Timur 348, Semarang 50242, Central Java, Indonesia",
+                "address_line1": "Kost Exclusive Wisma Raya",
+                "address_line2": "Jalan Peterongan Timur 348, Semarang 50242, Central Java, Indonesia",
+                "categories": [
+                    "accommodation",
+                    "accommodation.hotel",
+                    "internet_access",
+                    "internet_access.free"
+                ],
+                "details": [
+                    "details",
+                    "details.accommodation",
+                    "details.contact",
+                    "details.facilities",
+                    "details.payment",
+                    "details.wiki_and_media"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "Kost Exclusive Wisma Raya",
+                        "brand": "Kost Exclusive Wisma Raya",
+                        "email": "kost.peterongan.timur@gmail.com",
+                        "image": "https://kostexclusivesemarang.wordpress.com/wp-content/uploads/2019/01/mb-sri-kost.png",
+                        "phone": "+62 8174 183 553",
+                        "rooms": "16 rooms",
+                        "mobile": "+62 8174183553",
+                        "osm_id": 12408734655,
+                        "tourism": "hotel",
+                        "website": "https://kostexclusivesemarang.wordpress.com/",
+                        "loc_name": "Kost Exclusive Wisma Raya",
+                        "osm_type": "n",
+                        "addr:city": "Semarang",
+                        "addr:street": "Jalan Peterongan Timur",
+                        "reservation": "yes",
+                        "payment:cash": "yes",
+                        "addr:district": "Kelurahan Peterongan",
+                        "addr:postcode": 50242,
+                        "addr:province": "Central Java",
+                        "opening_hours": "08:00-22:00",
+                        "internet_access": "yes",
+                        "addr:housenumber": 348,
+                        "addr:subdistrict": "RT 05 RW 06",
+                        "air_conditioning": "yes",
+                        "contact:facebook": "https://www.facebook.com/Kost-Exclusive-Semarang-Wisma-Raya-333943177214766/",
+                        "internet_access:fee": "no",
+                        "payment:account_cards": "yes"
+                    }
+                },
+                "website": "https://kostexclusivesemarang.wordpress.com/",
+                "opening_hours": "08:00-22:00",
+                "brand": "Kost Exclusive Wisma Raya",
+                "name_other": {
+                    "loc_name": "Kost Exclusive Wisma Raya"
+                },
+                "contact": {
+                    "phone": "+62 8174 183 553",
+                    "email": "kost.peterongan.timur@gmail.com"
+                },
+                "facilities": {
+                    "internet_access": true,
+                    "air_conditioning": true
+                },
+                "wiki_and_media": {
+                    "image": "https://kostexclusivesemarang.wordpress.com/wp-content/uploads/2019/01/mb-sri-kost.png"
+                },
+                "payment_options": {
+                    "cash": true,
+                    "account_cards": true
+                },
+                "accommodation": {
+                    "rooms": "16 rooms",
+                    "reservation": "required"
+                },
+                "place_id": "518c232070ee9b5b4059b3224130c4001cc0f00103f901bf439ee3020000009203194b6f7374204578636c7573697665205769736d612052617961"
+            },
+            "latitude": -7.0007483997111875,
+            "longitude": 110.4364281,
+            "booking": {
+                "checkInDate": "2025-10-18",
+                "checkOutDate": "2025-10-19",
+                "dateRange": "Sat, Oct 18, 2025 to Sun, Oct 19, 2025",
+                "dayNumber": 1,
+                "stayDate": "2025-10-18",
+                "isDateRange": true
+            },
+            "tripDates": {}
+        },
+        {
+            "id": "51680586acee9b5b405965687f8483001cc0f00103f90104b79ee30200000092031e4b6f73742053656d6172616e672050657465726f6e67616e2054696d7572",
+            "name": "Kost Semarang Peterongan Timur",
+            "rating": "4.6",
+            "price": "$220",
+            "address": "Kost Semarang Peterongan Timur, Jalan Peterongan Timur 349, Semarang 50242, Central Java, Indonesia",
+            "location": "Kost Semarang Peterongan Timur",
+            "coordinates": {
+                "latitude": -7.000501699711184,
+                "longitude": 110.4364425
+            },
+            "amenities": [
+                "WiFi",
+                "AC",
+                "Phone Service",
+                "Website"
+            ],
+            "image": "https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+            "description": "Comfortable accommodation with modern amenities",
+            "contact": {
+                "phone": "+62 857 1330 5337",
+                "email": "kost.peterongan.timur@gmail.com"
+            },
+            "website": "https://boardinghousesemarangpeterongantimur.wordpress.com/",
+            "properties": {
+                "name": "Kost Semarang Peterongan Timur",
+                "country": "Indonesia",
+                "country_code": "id",
+                "region": "Java",
+                "state": "Central Java",
+                "city": "Semarang",
+                "village": "Peterongan",
+                "postcode": "50242",
+                "district": "Semarang Selatan",
+                "neighbourhood": "RW 06",
+                "street": "Jalan Peterongan Timur",
+                "housenumber": "349",
+                "iso3166_2": "ID-JW",
+                "iso3166_2_sublevel": "ID-JT",
+                "lon": 110.4364425,
+                "lat": -7.0005017,
+                "formatted": "Kost Semarang Peterongan Timur, Jalan Peterongan Timur 349, Semarang 50242, Central Java, Indonesia",
+                "address_line1": "Kost Semarang Peterongan Timur",
+                "address_line2": "Jalan Peterongan Timur 349, Semarang 50242, Central Java, Indonesia",
+                "categories": [
+                    "accommodation",
+                    "accommodation.hotel",
+                    "internet_access",
+                    "internet_access.free"
+                ],
+                "details": [
+                    "details",
+                    "details.accommodation",
+                    "details.contact",
+                    "details.facilities",
+                    "details.wiki_and_media"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "Kost Semarang Peterongan Timur",
+                        "brand": "Kost Semarang Peterongan Timur",
+                        "email": "kost.peterongan.timur@gmail.com",
+                        "image": "https://boardinghousesemarangpeterongantimur.wordpress.com/wp-content/uploads/2017/04/rsz_kost_semarang_peterongan_timur17.jpg",
+                        "phone": "+62 857 1330 5337",
+                        "rooms": 14,
+                        "mobile": "+62 857 1330 5337",
+                        "osm_id": 12408764164,
+                        "tourism": "hotel",
+                        "website": "https://boardinghousesemarangpeterongantimur.wordpress.com/",
+                        "osm_type": "n",
+                        "addr:city": "Semarang",
+                        "check_date": "2024-12-10",
+                        "addr:street": "Jalan Peterongan Timur",
+                        "reservation": "yes",
+                        "addr:district": "Kelurahan Peterongan",
+                        "addr:postcode": 50242,
+                        "addr:province": "Central Java",
+                        "opening_hours": "Mo-Su 09:00-21:00",
+                        "internet_access": "yes",
+                        "addr:housenumber": 349,
+                        "addr:subdistrict": "RT 05 RW 06",
+                        "air_conditioning": "yes",
+                        "contact:facebook": "https://www.facebook.com/sewakostbupuji/",
+                        "internet_access:fee": "no"
+                    }
+                },
+                "website": "https://boardinghousesemarangpeterongantimur.wordpress.com/",
+                "opening_hours": "Mo-Su 09:00-21:00",
+                "brand": "Kost Semarang Peterongan Timur",
+                "contact": {
+                    "phone": "+62 857 1330 5337",
+                    "email": "kost.peterongan.timur@gmail.com"
+                },
+                "facilities": {
+                    "internet_access": true,
+                    "air_conditioning": true
+                },
+                "wiki_and_media": {
+                    "image": "https://boardinghousesemarangpeterongantimur.wordpress.com/wp-content/uploads/2017/04/rsz_kost_semarang_peterongan_timur17.jpg"
+                },
+                "accommodation": {
+                    "rooms": 14,
+                    "reservation": "required"
+                },
+                "place_id": "51680586acee9b5b405965687f8483001cc0f00103f90104b79ee30200000092031e4b6f73742053656d6172616e672050657465726f6e67616e2054696d7572"
+            },
+            "latitude": -7.000501699711184,
+            "longitude": 110.4364425,
+            "booking": {
+                "checkInDate": "2025-10-19",
+                "checkOutDate": "2025-10-20",
+                "dateRange": "Sun, Oct 19, 2025 to Mon, Oct 20, 2025",
+                "dayNumber": 2,
+                "stayDate": "2025-10-19",
+                "isDateRange": true
+            },
+            "tripDates": {}
+        }
+    ],
+    "attractions": [
+        {
+            "id": "51cef491207f995b4059770403ecc5fb1bc0f00102f901fece2622000000009203164b656c656e74656e672053616d20506f6f204b6f6e67",
+            "name": "Kelenteng Sam Poo Kong",
+            "type": "Tourist Attraction",
+            "rating": "4.3",
+            "price": "Free",
+            "address": "Kelenteng Sam Poo Kong, Jalan Simongan, Semarang 50233, Central Java, Indonesia",
+            "location": "Kelenteng Sam Poo Kong",
+            "coordinates": {
+                "latitude": -6.995872199711008,
+                "longitude": 110.39838423017065
+            },
+            "amenities": [
+                "Website"
+            ],
+            "image": "https://images.unsplash.com/photo-1539650116574-75c0c6d89b05?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "https://linktr.ee/sampookong",
+            "properties": {
+                "name": "Kelenteng Sam Poo Kong",
+                "country": "Indonesia",
+                "country_code": "id",
+                "region": "Java",
+                "state": "Central Java",
+                "city": "Semarang",
+                "village": "Bongsari",
+                "postcode": "50233",
+                "district": "Semarang Barat",
+                "neighbourhood": "RW 02",
+                "street": "Jalan Simongan",
+                "iso3166_2": "ID-JW",
+                "iso3166_2_sublevel": "ID-JT",
+                "lon": 110.39838423017065,
+                "lat": -6.9958722,
+                "formatted": "Kelenteng Sam Poo Kong, Jalan Simongan, Semarang 50233, Central Java, Indonesia",
+                "address_line1": "Kelenteng Sam Poo Kong",
+                "address_line2": "Jalan Simongan, Semarang 50233, Central Java, Indonesia",
+                "categories": [
+                    "religion",
+                    "religion.place_of_worship",
+                    "tourism",
+                    "tourism.attraction",
+                    "tourism.sights.place_of_worship"
+                ],
+                "details": [
+                    "details",
+                    "details.place_of_worship",
+                    "details.wiki_and_media"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "Kelenteng Sam Poo Kong",
+                        "osm_id": 572968702,
+                        "amenity": "place_of_worship",
+                        "landuse": "religious",
+                        "name:zh": "三保洞",
+                        "tourism": "attraction",
+                        "website": "https://linktr.ee/sampookong",
+                        "alt_name": "Sam Poo Kong Vihara Buddhagaya",
+                        "osm_type": "w",
+                        "religion": "buddhist;muslim",
+                        "wikidata": "Q2128689",
+                        "addr:city": "Semarang",
+                        "addr:full": "Jalan Pamularsih",
+                        "wikipedia": "id:Kelenteng Sam Poo Kong",
+                        "alt_name:zh": "三宝洞;三保宫"
+                    }
+                },
+                "website": "https://linktr.ee/sampookong",
+                "name_other": {
+                    "alt_name": "Sam Poo Kong Vihara Buddhagaya"
+                },
+                "name_international": {
+                    "zh": "三保洞"
+                },
+                "wiki_and_media": {
+                    "wikidata": "Q2128689",
+                    "wikipedia": "id:Kelenteng Sam Poo Kong"
+                },
+                "place_of_worship": {
+                    "religion": "buddhist;muslim"
+                },
+                "place_id": "51cef491207f995b4059770403ecc5fb1bc0f00102f901fece2622000000009203164b656c656e74656e672053616d20506f6f204b6f6e67"
+            },
+            "latitude": -6.995872199711008,
+            "longitude": 110.39838423017065
+        },
+        {
+            "id": "514d79f494639b5b4059d14b8a8422e61bc0f00102f901a517be4d000000009203135061736172204d616c616d2053656d61776973",
+            "name": "Pasar Malam Semawis",
+            "type": "Tourist Attraction",
+            "rating": "4.6",
+            "price": "Free",
+            "address": "Night Market Semawis, Jalan Gang Tengah, Semarang 50137, Central Java, Indonesia",
+            "location": "Night Market Semawis",
+            "coordinates": {
+                "latitude": -6.974741049710205,
+                "longitude": 110.42795299410245
+            },
+            "amenities": [
+                "Scenic Views",
+                "Photo Opportunities",
+                "Walkable"
+            ],
+            "image": "https://images.unsplash.com/photo-1545558014-8692077e9b5c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
+            "description": "Beautiful attraction with stunning views",
+            "contact": {},
+            "website": "",
+            "properties": {
+                "name": "Pasar Malam Semawis",
+                "country": "Indonesia",
+                "country_code": "id",
+                "region": "Java",
+                "state": "Central Java",
+                "city": "Semarang",
+                "village": "Kranggan",
+                "postcode": "50137",
+                "district": "Semarang Tengah",
+                "neighbourhood": "RW 03",
+                "street": "Jalan Gang Tengah",
+                "iso3166_2": "ID-JW",
+                "iso3166_2_sublevel": "ID-JT",
+                "lon": 110.42795299410247,
+                "lat": -6.97474105,
+                "formatted": "Night Market Semawis, Jalan Gang Tengah, Semarang 50137, Central Java, Indonesia",
+                "address_line1": "Night Market Semawis",
+                "address_line2": "Jalan Gang Tengah, Semarang 50137, Central Java, Indonesia",
+                "categories": [
+                    "tourism",
+                    "tourism.attraction"
+                ],
+                "details": [
+                    "details",
+                    "details.wiki_and_media"
+                ],
+                "datasource": {
+                    "sourcename": "openstreetmap",
+                    "attribution": "© OpenStreetMap contributors",
+                    "license": "Open Database License",
+                    "url": "https://www.openstreetmap.org/copyright",
+                    "raw": {
+                        "name": "Pasar Malam Semawis",
+                        "osm_id": 1304303525,
+                        "landuse": "retail",
+                        "name:en": "Night Market Semawis",
+                        "tourism": "attraction",
+                        "osm_type": "w",
+                        "wikidata": "Q12503477",
+                        "wikipedia": "id:Pasar Semawis",
+                        "opening_hours": "Fr-Su 17:00-00:00"
+                    }
+                },
+                "opening_hours": "Fr-Su 17:00-00:00",
+                "name_international": {
+                    "en": "Night Market Semawis"
+                },
+                "wiki_and_media": {
+                    "wikidata": "Q12503477",
+                    "wikipedia": "id:Pasar Semawis"
+                },
+                "place_id": "514d79f494639b5b4059d14b8a8422e61bc0f00102f901a517be4d000000009203135061736172204d616c616d2053656d61776973"
+            },
+            "latitude": -6.974741049710205,
+            "longitude": 110.42795299410245
+        }
+    ],
+    "summary": {
+        "isComplete": true,
+        "totalItems": 13,
+        "errors": []
+    }
+}

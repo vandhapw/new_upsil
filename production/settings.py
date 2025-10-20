@@ -115,7 +115,7 @@ if is_server():
     }
 else:
 
-    client = MongoClient('mongodb://localhost:27017')  # Adjust the URL and port as needed
+    client = MongoClient('mongodb://localhost:27019')  # Adjust the URL and port as needed
 
     try:
         # Ping the MongoDB server
@@ -126,7 +126,7 @@ else:
             'NAME': 'server_db',
             'CLIENT': {
                 'host': '127.0.0.1',
-                'port': 27017,
+                'port': 27019,
                 'authSource': 'admin',
             }
         }
