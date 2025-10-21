@@ -5588,7 +5588,7 @@ async function submitTripProcess() {
         const validation = validateTripData(tripData);
         
         if (!validation.isValid) {
-            throw new Error('Trip data validation failed: ' + validation.errors.join(', '));
+            throw new Error('Trip data validation failed: ' + (Array.isArray(validation.errors) ? validation.errors.join(', ') : ''));
         }
         
         // Clear all markers for clean route visualization
@@ -5686,7 +5686,7 @@ async function submitTripProcess() {
     //     const validation = validateTripData(tripData);
         
     //     if (!validation.isValid) {
-    //         throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
+    //         throw new Error(`Validation failed: ${(Array.isArray(validation.errors) ? validation.errors.join(', ') : '')}`);
     //     }
         
     //     // Show warnings if any
