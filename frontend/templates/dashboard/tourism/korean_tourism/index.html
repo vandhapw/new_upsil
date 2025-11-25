@@ -196,7 +196,7 @@
             </div>
         </div>
         <div class="topbar-right">
-            <div class="menu-btn"><img :src="`https://ui-avatars.com/api/?name=${user.name}&background=42b983&color=fff`" class="user-avatar"> [[ user.name ]]</div>
+            <div class="menu-btn"><img :src="`https://ui-avatars.com/api/?name={{request.session.username}}&background=42b983&color=fff`" class="user-avatar"> {{request.session.username}}</div>
         </div>
     </div>
 
