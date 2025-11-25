@@ -1,2690 +1,610 @@
-{% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>South Korea Interactive Map</title>
-                       
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
-          crossorigin=""/>
-    
-    <!-- Font Awesome for icons -->
+    <title>Vue.js Tourism Map Platform</title>
+
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- jQuery Datetimepicker CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
-    
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/tourism/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/tourism/enhanced-ux.css' %}?v=1.0">
-    <link rel="stylesheet" href="{% static 'css/tourism/trip_history.css' %}">
-    <link rel="stylesheet" href="{% static 'css/tourism/modalTripSummary.css' %}">
 
-    <link rel="stylesheet" href="{% static 'css/tourism/scroll_images.css' %}?v={{ "now"|date:"YmdHis" }}">
+    <style>
+        /* --- CORE STYLES --- */
+        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
+        #app { display: flex; flex-direction: column; height: 100vh; }
 
-   <style>
-        .xy-buttons-container {
-            position: absolute;
-            top: 20px;
-            left: 30em;
-            z-index: 1000;
-            display: flex;
-            gap: 50px;
-        }
-        
-        .xy-button {
-            width: 40px;
-            height: 40px;
-            background: #fff;
-            border: 2px solid #3498db;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-weight: bold;
-            color: #3498db;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .xy-button:hover {
-            background: #3498db;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-        }
-        
-        /* Test hotel button */
-        .test-hotel-button {
-            position: absolute;
-            top: 80px;
-            left: 30em;
-            z-index: 1000;
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
-        }
-        
-        .test-hotel-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
-        }
-        
-        .xy-button.active {
-            background: #3498db;
-            color: white;
-        }
-        
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            margin-bottom: 8px;
-        }
-        
-        /* Header Actions Styles */
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .history-button {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
-        }
-        
-        .history-button:hover {
-            background: linear-gradient(135deg, #2980b9, #1abc9c);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
-        }
-        
-        .history-button:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
-        }
-        
-        .history-button i {
-            font-size: 16px;
-        }
-        
-        /* Responsive Header */
-        @media (max-width: 768px) {
-            .header-actions {
-                gap: 10px;
-            }
-            
-            .history-button span {
-                display: none;
-            }
-            
-            .history-button {
-                padding: 10px;
-                min-width: 40px;
-                justify-content: center;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .header-content {
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-            
-            .history-button {
-                padding: 8px;
-                font-size: 12px;
-            }
-        }
-        
-        /* History Modal Styles */
-        .history-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .history-modal-overlay.show {
-            opacity: 1;
-        }
-        
-        .history-modal-content {
-            background: linear-gradient(135deg, #ffffff, #f8f9fa);
-            border-radius: 20px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .history-modal-overlay.show .history-modal-content {
-            transform: scale(1);
-        }
-        
-        .history-modal-header {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            padding: 20px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .history-modal-header h3 {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .close-history-modal {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-        
-        .close-history-modal:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: rotate(90deg);
-        }
-        
-        .history-modal-body {
-            padding: 25px;
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-        
-        .history-section {
-            margin-bottom: 25px;
-        }
-        
-        .history-section:last-child {
-            margin-bottom: 0;
-        }
-        
-        .history-section h4 {
-            color: #2c3e50;
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #ecf0f1;
-        }
-        
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .history-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 12px 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 4px solid #3498db;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .history-item:hover {
-            background: #e3f2fd;
-            transform: translateX(5px);
-            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.1);
-        }
-        
-        .history-icon {
-            color: #3498db;
-            font-size: 14px;
-            width: 20px;
-            text-align: center;
-        }
-        
-        .history-details {
-            flex: 1;
-        }
-        
-        .history-title {
-            font-weight: 600;
-            color: #2c3e50;
-            font-size: 14px;
-            margin-bottom: 3px;
-        }
-        
-        .history-time {
-            color: #7f8c8d;
-            font-size: 12px;
-        }
-        
-        .empty-history {
-            text-align: center;
-            color: #95a5a6;
-            font-style: italic;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .history-modal-footer {
-            background: #f8f9fa;
-            padding: 20px 25px;
-            border-top: 1px solid #ecf0f1;
-            display: flex;
-            justify-content: center;
-        }
-        
-        .clear-history-btn {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .clear-history-btn:hover {
-            background: linear-gradient(135deg, #c0392b, #a93226);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
-        }
-        
-        /* History Modal Responsive */
-        @media (max-width: 768px) {
-            .history-modal-content {
-                width: 95%;
-                max-height: 85vh;
-            }
-            
-            .history-modal-header {
-                padding: 15px 20px;
-            }
-            
-            .history-modal-header h3 {
-                font-size: 18px;
-            }
-            
-            .history-modal-body {
-                padding: 20px;
-            }
-            
-            .history-section h4 {
-                font-size: 14px;
-            }
-            
-            .history-item {
-                padding: 10px 12px;
-            }
-            
-            .history-title {
-                font-size: 13px;
-            }
-        }
-        
-        /* DataTable History Modal Styles */
-        .history-modal-content {
-            width: 95%;
-            max-width: 900px;
-            max-height: 90vh;
-        }
-        
-        .history-modal-body {
-            padding: 20px 25px;
-        }
-        
-        .nav-tabs {
-            border-bottom: 2px solid #dee2e6;
-            margin-bottom: 0;
-        }
-        
-        .nav-tabs .nav-link {
-            color: #495057;
-            border: none;
-            padding: 12px 20px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .nav-tabs .nav-link:hover {
-            border: none;
-            background: rgba(52, 152, 219, 0.1);
-            color: #3498db;
-        }
-        
-        .nav-tabs .nav-link.active {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            border: none;
-            border-radius: 8px 8px 0 0;
-        }
-        
-        .tab-content {
-            background: white;
-        }
-        
-        .table-responsive {
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .table {
-            margin-bottom: 0;
-        }
-        
-        .table thead th {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border: none;
-            font-weight: 600;
-            color: #2c3e50;
-            padding: 15px;
-            text-align: center;
-        }
-        
-        .table tbody td {
-            padding: 12px 15px;
-            vertical-align: middle;
-            border-color: #dee2e6;
-        }
-        
-        .table tbody tr:hover {
-            background: rgba(52, 152, 219, 0.05);
-        }
-        
-        .badge {
-            font-size: 0.75em;
-            padding: 0.5em 0.8em;
-        }
-        
-        .btn-sm {
-            padding: 0.375rem 0.75rem;
-            font-size: 0.875rem;
-            margin: 0 2px;
-        }
-        
-        .dataTables_wrapper .dataTables_length select {
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            padding: 5px 8px;
-        }
-        
-        .dataTables_wrapper .dataTables_filter input {
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            padding: 8px 12px;
-            margin-left: 8px;
-        }
-        
-        .dataTables_wrapper .dataTables_info {
-            color: #6c757d;
-            font-size: 0.875rem;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button {
-            padding: 0.5rem 0.75rem;
-            margin: 0 2px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            background: white;
-            color: #3498db !important;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-            background: #3498db !important;
-            color: white !important;
-            border-color: #3498db;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-            background: #3498db !important;
-            color: white !important;
-            border-color: #3498db;
-        }
-        
-        .export-history-btn {
-            background: linear-gradient(135deg, #27ae60, #229954);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            margin-left: 10px;
-        }
-        
-        .export-history-btn:hover {
-            background: linear-gradient(135deg, #229954, #1e8449);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
-        }
-        
-        /* Mobile responsive for DataTables */
-        @media (max-width: 768px) {
-            .history-modal-content {
-                width: 98%;
-                margin: 10px;
-            }
-            
-            .nav-tabs .nav-link {
-                padding: 10px 15px;
-                font-size: 14px;
-            }
-            
-            .table thead th {
-                padding: 10px 8px;
-                font-size: 12px;
-            }
-            
-            .table tbody td {
-                padding: 8px 6px;
-                font-size: 12px;
-            }
-            
-            .btn-sm {
-                padding: 0.25rem 0.5rem;
-                font-size: 0.75rem;
-            }
-            
-            .dataTables_wrapper .dataTables_length,
-            .dataTables_wrapper .dataTables_filter {
-                margin-bottom: 10px;
-            }
-        }
-        
-        /* History Stats Styles */
-        .history-controls {
-            margin-bottom: 20px;
-        }
-        
-        .history-stats {
-            display: flex;
-            justify-content: space-around;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .stat-item {
-            text-align: center;
-            flex: 1;
-            padding: 0 15px;
-        }
-        
-        .stat-item:not(:last-child) {
-            border-right: 1px solid #dee2e6;
-        }
-        
-        .stat-number {
-            display: block;
-            font-size: 2rem;
-            font-weight: 700;
-            color: #3498db;
-            margin-bottom: 5px;
-        }
-        
-        .stat-label {
-            display: block;
-            font-size: 0.875rem;
-            color: #6c757d;
-            font-weight: 500;
-        }
-        
-        /* Unified History Table Styles */
-        #unifiedHistoryTable .badge {
-            font-size: 0.75rem;
-            padding: 0.4rem 0.6rem;
-            white-space: nowrap;
-        }
-        
-        #unifiedHistoryTable .badge i {
-            margin-right: 4px;
-        }
-        
-        #unifiedHistoryTable td {
-            vertical-align: middle;
-        }
-        
-        #unifiedHistoryTable .btn-sm {
-            padding: 0.25rem 0.5rem;
-            margin: 0 1px;
-        }
-        
-        /* History Stats Responsive */
-        @media (max-width: 768px) {
-            .history-stats {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .stat-item {
-                border-right: none !important;
-                border-bottom: 1px solid #dee2e6;
-                padding-bottom: 15px;
-            }
-            
-            .stat-item:last-child {
-                border-bottom: none;
-                padding-bottom: 0;
-            }
-            
-            .stat-number {
-                font-size: 1.5rem;
-            }
-            
-            .stat-label {
-                font-size: 0.8rem;
-            }
-        }
-        
-        /* Header History Button Styles */
-        .header-history-button {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
-            margin-left: 20px;
-        }
-        
-        .header-history-button:hover {
-            background: linear-gradient(135deg, #2980b9, #1abc9c);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
-        }
-        
-        .header-history-button:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
-        }
-        
-        .header-history-button i {
-            font-size: 16px;
-        }
-        
-        .header-history-button span {
-            font-weight: 500;
-        }
-        
-        /* Responsive Header History Button */
-        @media (max-width: 768px) {
-            .header-history-button span {
-                display: none;
-            }
-            
-            .header-history-button {
-                padding: 8px 12px;
-                margin-left: 15px;
-                min-width: 40px;
-                justify-content: center;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .header-history-button {
-                padding: 6px 10px;
-                margin-left: 10px;
-                font-size: 12px;
-            }
-            
-            .header-history-button i {
-                font-size: 14px;
-            }
-        }
-        
-        /* Custom Footer Fix */
-        .footer {
-            position: fixed !important;
-            bottom: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            width: 100% !important;
-            height: 60px !important;
-            background-color: #2c3e50 !important;
-            color: white !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            border-top: 1px solid #34495e !important;
-            z-index: 1000 !important;
-        }
-        
-        .footer-content {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            width: 100% !important;
-            padding: 0 2rem !important;
-        }
-        
-        .footer-text p {
-            margin: 0 !important;
-            font-size: 0.9rem !important;
-            color: #ecf0f1 !important;
-        }
-        
-        /* Add bottom padding to body to prevent content being hidden behind footer */
-        body {
-            padding-bottom: 60px !important;
-            background-color: transparent !important;
-            background: none !important;
-        }
-        
-        /* Ensure map container takes full space without white background */
-        .map-container {
-            background-color: transparent !important;
-            background: none !important;
-        }
-        
-        .map {
-            background-color: transparent !important;
-            background: none !important;
-        }
-        
-        /* Override any Bootstrap or other background colors */
-        html {
-            background-color: transparent !important;
-            background: none !important;
-        }
-        
-        /* Ensure main container doesn't have white background */
-        .main-container {
-            background-color: transparent !important;
-            background: none !important;
-        }
-        
-        /* API Hotel Card Styling */
-        .hotel-card.api-loaded {
-            border: 2px solid #10b981 !important;
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25) !important;
-        }
-        
-        .hotel-card.api-loaded::after {
-            content: 'API';
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            background: #10b981;
-            color: white;
-            padding: 2px 6px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 700;
-            z-index: 10;
-        }
-        
-        /* Enhanced hotel marker styling for API markers */
-        .hotel-marker-api .hotel-marker-content {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-            border-color: #ffffff !important;
-        }
-        
-        .hotel-marker-api:hover .hotel-marker-content {
-            transform: scale(1.15) !important;
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6) !important;
-        }
+        /* --- TOP BAR --- */
+        .topbar { height: 60px; background-color: #2c3e50; color: white; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 1000; }
+        .brand-section h1 { margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+        .brand-logo { color: #42b983; }
+        .topbar-center { display: flex; gap: 15px; flex: 1; justify-content: flex-start; margin-left: 40px; }
+        .topbar-right { display: flex; gap: 15px; align-items: center; }
 
-        /* Hotel Popup Styles */
-        .popup-content.hotel-popup {
-            min-width: 280px;
-            max-width: 350px;
-            font-family: 'Inter', sans-serif;
-        }
+        /* --- BUTTONS --- */
+        .menu-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.9); padding: 5px 15px; border-radius: 30px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; transition: all 0.2s; height: 40px; box-sizing: border-box; user-select: none; white-space: nowrap; }
+        .menu-btn:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.4); }
+        .menu-btn.active { background: #42b983; border-color: #42b983; color: white; }
+        .menu-btn.disabled { opacity: 0.5; cursor: not-allowed; background: rgba(0,0,0,0.1); }
+        .dropdown-btn { min-width: 200px; justify-content: space-between; }
 
-        .popup-content.hotel-popup h4 {
-            color: #1f2937;
-            margin-bottom: 10px;
-            font-size: 18px;
-            font-weight: 600;
-        }
+        /* --- DROPDOWNS --- */
+        .dropdown-menu { position: absolute; top: 55px; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); color: #333; overflow: hidden; animation: fadeIn 0.2s ease-out; z-index: 1002; display: flex; flex-direction: column; }
+        .country-dropdown { width: 280px; max-height: 450px; }
+        .user-dropdown { right: 20px; width: 220px; }
+        .dropdown-search-wrapper { padding: 10px; background: #f8f9fa; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 5; }
+        .dropdown-search-input { width: 100%; padding: 8px 10px 8px 30px; border: 1px solid #ddd; border-radius: 20px; box-sizing: border-box; font-size: 0.9rem; outline: none; }
+        .dropdown-search-input:focus { border-color: #42b983; }
+        .search-icon-overlay { position: absolute; left: 20px; top: 19px; color: #999; font-size: 0.8rem; }
+        .dropdown-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex: 1; }
+        .continent-header { padding: 8px 15px; background-color: #e9ecef; font-weight: 700; font-size: 0.75rem; color: #555; text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; }
+        .dropdown-item { display: block; padding: 10px 20px; text-decoration: none; color: #444; font-size: 0.9rem; cursor: pointer; transition: background 0.1s; border-bottom: 1px solid #f9f9f9; }
+        .dropdown-item:hover { background-color: #f1f1f1; color: #42b983; }
+        .dropdown-item.selected { background-color: #e3f2fd; color: #2c3e50; font-weight: 600; }
+        .user-header { padding: 15px; border-bottom: 1px solid #eee; background: #f8f9fa; }
+        .user-avatar { width: 28px; height: 28px; border-radius: 50%; }
 
-        .popup-content.hotel-popup p {
-            margin: 5px 0;
-            color: #4b5563;
-            font-size: 14px;
-            line-height: 1.4;
-        }
+        /* --- LAYOUT --- */
+        .main-container { display: flex; flex: 1; height: calc(100vh - 60px); position: relative; overflow: hidden; }
+        .panel-list { width: 360px; background: #f8f9fa; border-right: 1px solid #ddd; overflow-y: auto; display: flex; flex-direction: column; z-index: 20; transition: all 0.3s ease-in-out; position: relative; }
+        .panel-list.collapsed { width: 0; border-right: none; overflow: hidden; }
+        .panel-toggle-btn { position: absolute; top: 50%; left: 360px; transform: translateY(-50%); width: 24px; height: 48px; background: white; border: 1px solid #ccc; border-left: none; border-radius: 0 8px 8px 0; cursor: pointer; z-index: 90; display: flex; align-items: center; justify-content: center; color: #666; box-shadow: 2px 0 5px rgba(0,0,0,0.1); transition: left 0.3s ease-in-out; }
+        .panel-toggle-btn:hover { background-color: #f0f0f0; color: #42b983; }
+        .panel-toggle-btn.collapsed { left: 0; }
 
-        .booking-section {
-            margin-top: 15px;
-            padding: 12px;
-            border-radius: 8px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-        }
+        /* --- AUTOCOMPLETE --- */
+        .panel-content { padding: 20px; padding-bottom: 100px; }
+        .panel-title { margin: 0 0 15px 0; font-size: 1.1rem; color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .autocomplete-container { position: relative; width: 100%; margin-bottom: 15px; }
+        .autocomplete-input-wrapper { position: relative; display: flex; align-items: center; }
+        .autocomplete-input { width: 100%; padding: 12px 15px 12px 40px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); outline: none; transition: border 0.2s; cursor: pointer; background: white; }
+        .autocomplete-input:focus { border-color: #42b983; box-shadow: 0 2px 8px rgba(66, 185, 131, 0.2); }
+        .autocomplete-input:disabled { background-color: #f5f5f5; cursor: not-allowed; color: #999; }
+        .autocomplete-icon { position: absolute; left: 12px; color: #999; }
+        .autocomplete-arrow { position: absolute; right: 12px; color: #999; font-size: 0.8rem; transition: transform 0.2s; }
+        .autocomplete-arrow.open { transform: rotate(180deg); }
+        .autocomplete-list { margin-top: 5px; background: white; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-height: 0; overflow: hidden; transition: max-height 0.3s ease-in-out, opacity 0.3s; opacity: 0; }
+        .autocomplete-list.expanded { max-height: 400px; opacity: 1; overflow-y: auto; }
+        .ac-item { padding: 12px 15px; border-bottom: 1px solid #f9f9f9; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: #444; }
+        .ac-item:hover { background-color: #f0fdf7; color: #42b983; }
 
-        .booking-section.booked {
-            background: #ecfdf5;
-            border-color: #10b981;
-        }
+        /* CARDS & DATES */
+        .date-section { margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; }
+        .date-group { margin-bottom: 15px; }
+        .date-label { display: block; font-size: 0.85rem; color: #666; margin-bottom: 5px; font-weight: 600; }
+        .date-input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; color: #333; outline: none; box-sizing: border-box; }
+        .date-input:focus { border-color: #42b983; }
+        .place-card-small { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.1s; }
+        .place-card-small:hover { background-color: #f0fdf7; }
+        .place-thumb { width: 60px; height: 60px; border-radius: 6px; object-fit: cover; background: #eee; flex-shrink: 0; }
+        .place-placeholder { width: 60px; height: 60px; border-radius: 6px; background: #eee; display: flex; align-items: center; justify-content: center; color: #ccc; flex-shrink: 0; }
+        .place-mini-info { flex: 1; min-width: 0; }
+        .place-mini-info h4 { margin: 0 0 4px 0; font-size: 0.95rem; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .place-mini-info p { margin: 0; font-size: 0.8rem; color: #777; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-        .booking-section h5 {
-            margin: 0 0 8px 0;
-            font-size: 16px;
-            font-weight: 600;
-            color: #374151;
-        }
+        /* SUBMIT */
+        .submit-section { position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px; background: white; border-top: 1px solid #ddd; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); box-sizing: border-box; }
+        .submit-btn { width: 100%; padding: 12px; background: #2c3e50; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background 0.2s; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .submit-btn:hover { background: #34495e; }
+        .submit-btn:disabled { background: #bdc3c7; cursor: not-allowed; }
 
-        .booking-section.booked h5 {
-            color: #10b981;
-        }
+        /* HISTORY LIST */
+        .history-item { background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); transition: transform 0.1s; }
+        .history-item:hover { border-color: #42b983; transform: translateY(-2px); }
+        .h-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .h-city { font-weight: bold; font-size: 1.05rem; color: #2c3e50; }
+        .h-status { font-size: 0.75rem; padding: 3px 8px; border-radius: 12px; font-weight: bold; text-transform: uppercase; }
+        .h-status.past { background: #eee; color: #777; }
+        .h-status.upcoming { background: #e3f2fd; color: #1976d2; }
+        .h-dates { font-size: 0.85rem; color: #666; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .h-actions { display: flex; gap: 5px; border-top: 1px solid #f0f0f0; padding-top: 10px; }
+        .h-btn { flex: 1; padding: 6px; font-size: 0.8rem; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; color: #555; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.1s; }
+        .h-btn:hover { background: #f9f9f9; color: #2c3e50; border-color: #bbb; }
+        .h-btn.view:hover { background: #e0f2f1; color: #009688; border-color: #009688; }
+        .h-btn.route:hover { background: #e3f2fd; color: #1976d2; border-color: #1976d2; }
+        .h-btn.schedule:hover { background: #f3e5f5; color: #8e44ad; border-color: #8e44ad; }
+        .h-btn.edit:hover { background: #fff3e0; color: #e67e22; border-color: #e67e22; }
 
-        .booking-info {
-            margin-bottom: 10px;
-        }
+        /* DETAIL PANEL */
+        .panel-details { width: 0; background: white; border-right: 1px solid #ddd; overflow-y: auto; transition: width 0.3s ease; position: relative; z-index: 10; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+        .panel-details.open { width: 380px; }
+        .detail-content { padding: 20px; width: 340px; }
+        .close-btn { position: absolute; top: 10px; right: 10px; border: none; background: none; font-size: 1.2rem; cursor: pointer; }
+        .detail-image { width: 100%; height: 200px; background: #eee; border-radius: 8px; object-fit: cover; }
+        
+        .summary-card { background: #fdfdfd; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .summary-header { font-size: 1rem; font-weight: bold; color: #2c3e50; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 8px; display:flex; justify-content: space-between; align-items: center;}
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.9rem; color: #555; }
+        
+        .booked-list-container { margin-top: 20px; }
+        .booked-header { font-size: 0.95rem; color: #7f8c8d; margin-bottom: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px;}
+        .booked-item { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 10px; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); position: relative; }
+        .booked-name { font-weight: 600; color: #333; font-size: 0.9rem; display: block; margin-bottom: 4px;}
+        .booked-meta { font-size: 0.8rem; color: #666; }
+        .booked-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 10px; }
+        .action-btn-icon { cursor: pointer; font-size: 0.85rem; color: #999; transition: color 0.2s; }
+        .action-btn-icon:hover { color: #e74c3c; }
+        .read-only-badge { display: inline-block; margin-top: 10px; padding: 5px 10px; background: #eee; color: #555; border-radius: 4px; font-size: 0.8rem; width: 100%; text-align: center; border: 1px solid #ddd; }
 
-        .booking-info p {
-            margin: 0;
-            color: #6b7280;
-            font-size: 12px;
-        }
+        /* Modals */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center; animation: fadeIn 0.2s; }
+        .modal-box { background: white; width: 400px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); overflow: hidden; }
+        .modal-box.large { width: 800px; max-height: 80vh; display: flex; flex-direction: column; }
+        .modal-header { background: #2c3e50; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { margin: 0; font-size: 1.1rem; }
+        .modal-body { padding: 20px; overflow-y: auto; }
+        .modal-footer { padding: 15px 20px; background: #f8f9fa; display: flex; justify-content: flex-end; gap: 10px; }
+        .booking-info { background: #f0fdf7; padding: 15px; border-radius: 6px; color: #166534; font-size: 0.9rem; margin-bottom: 15px; border: 1px solid #bbf7d0; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-weight: 600; margin-bottom: 5px; color: #555; }
+        .modal-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+        .error-msg { color: #e74c3c; font-size: 0.85rem; margin-top: 5px; display: block; font-weight: 600; }
 
-        .booking-form {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        /* Gantt */
+        .gantt-container { display: flex; flex-direction: column; gap: 20px; }
+        .gantt-day { border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
+        .gantt-day-header { background: #f5f5f5; padding: 10px 15px; font-weight: bold; color: #2c3e50; border-bottom: 1px solid #e0e0e0; }
+        .gantt-timeline { padding: 10px; background: white; }
+        .gantt-event { display: flex; gap: 15px; padding: 8px 0; border-bottom: 1px solid #f9f9f9; align-items: flex-start; }
+        .gantt-time { font-family: monospace; font-size: 0.85rem; color: #666; width: 90px; flex-shrink: 0; font-weight: bold; }
+        .gantt-card { flex: 1; background: #e3f2fd; padding: 8px 12px; border-radius: 6px; font-size: 0.9rem; border-left: 4px solid #2196f3; }
+        .gantt-card.travel { background: #fff3e0; border-left-color: #f39c12; }
+        .gantt-card strong { display: block; margin-bottom: 2px; }
+        .gantt-card small { color: #555; display: block; }
 
-        .btn-book {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .btn-book:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-book:active {
-            transform: translateY(0);
-        }
-
-        .btn-cancel-booking {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .btn-cancel-booking:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
-        }
-
-        .popup-content.hotel-popup.booked-hotel {
-            border-left: 4px solid #10b981;
-        }
-
-        /* Leaflet popup overrides */
-        .leaflet-popup-content-wrapper {
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .leaflet-popup-content {
-            margin: 0;
-            padding: 16px;
-        }
-
-        .leaflet-popup-tip {
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Attraction marker styles for horizontal list selection */
-        .custom-attraction-marker.attraction-selected-from-horizontal {
-            animation: attractionSelectedPulse 1s ease-in-out;
-            z-index: 1000 !important;
-        }
-
-        .custom-attraction-marker.attraction-selected-from-horizontal > div {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4) !important;
-            transform: scale(1.1);
-        }
-
-        .custom-attraction-marker.attraction-unselected {
-            animation: attractionUnselectedFade 0.5s ease-in-out;
-        }
-
-        .custom-attraction-marker.attraction-unselected > div {
-            background: linear-gradient(135deg, #ff6b6b 0%, #e74c3c 100%) !important;
-            transform: scale(1.0);
-        }
-
-        @keyframes attractionSelectedPulse {
-            0% { transform: scale(1.0); }
-            50% { transform: scale(1.3); }
-            100% { transform: scale(1.1); }
-        }
-
-        @keyframes attractionUnselectedFade {
-            0% { transform: scale(1.1); }
-            100% { transform: scale(1.0); }
-        }
-
-        /* Enhanced attraction marker hover effects */
-        .custom-attraction-marker:hover > div {
-            transform: scale(1.2) !important;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .custom-attraction-marker.attraction-selected-from-horizontal:hover > div {
-            transform: scale(1.25) !important;
-            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5) !important;
-        }
-
-        /* Enhanced horizontal attraction selection styles */
-        #horizontal-attraction-overlay .attraction-card.selected {
-            border-color: #10b981 !important;
-            background: rgba(16, 185, 129, 0.1) !important;
-            transform: translateY(-3px) scale(1.02) !important;
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3) !important;
-        }
-
-        #horizontal-attraction-overlay .attraction-card.selected::before {
-            content: '✓' !important;
-            position: absolute !important;
-            top: 8px !important;
-            right: 8px !important;
-            background: #10b981 !important;
-            color: white !important;
-            width: 20px !important;
-            height: 20px !important;
-            border-radius: 50% !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            font-weight: bold !important;
-            font-size: 12px !important;
-            z-index: 10 !important;
-            animation: checkmarkPulse 0.6s ease-out !important;
-        }
-
-        #horizontal-attraction-overlay .attraction-card.selected .attraction-info h3 {
-            color: #10b981 !important;
-            font-weight: 800 !important;
-        }
-
-        #horizontal-attraction-overlay .attraction-card.selected .attraction-price {
-            background: rgba(16, 185, 129, 0.2) !important;
-            color: #065f46 !important;
-            font-weight: 800 !important;
-        }
-
-        @keyframes checkmarkPulse {
-            0% {
-                transform: scale(0) rotate(0deg);
-                opacity: 0;
-            }
-            50% {
-                transform: scale(1.2) rotate(180deg);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(1) rotate(360deg);
-                opacity: 1;
-            }
-        }
-
-        /* Selection state transitions */
-        #horizontal-attraction-overlay .attraction-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }
-
-        #horizontal-attraction-overlay .attraction-card:not(.selected):hover {
-            border-color: #e74c3c !important;
-            transform: translateY(-2px) scale(1.01) !important;
-        }
+        #map { flex: 1; height: 100%; background: #e5e5e5; }
+        .map-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; font-weight: bold; background: rgba(255,255,255,0.9); padding: 15px 25px; border-radius: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; }
     </style>
-
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <div class="logo">
-                <i class="fas fa-map-marked-alt"></i>
-                <h1>Upsil Interactive Map</h1>
-                <button class="header-history-button" id="headerHistoryButton" onclick="showUserHistoryModal()" title="View Activity History">
-                    <i class="fas fa-history"></i>
-                    <span>History</span>
-                </button>
-                <button class="header-history-button" id="headerNewButton" onclick="showNewTripModal()" title="Create New Trip">
-                    <i class="fas fa-plus"></i>
-                    <span>New Trip</span>
-                </button>
-            </div>
-            <div class="header-actions" style="position:relative;">
-                <button class="menu-toggle" id="menuToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <!-- User session dropdown -->
-                <div class="user-session-dropdown" style="display:inline-block;position:relative;">
-                    <button id="userSessionBtn" class="btn btn-primary" style="padding:8px 18px;border-radius:8px;background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;font-weight:600;">
-                        <i class="fas fa-user-circle"></i> <span id="userSessionName">{{request.session.username}}</span> <i class="fas fa-caret-down"></i>
-                    </button>
-                    <div id="userSessionDropdown" style="display:none;position:absolute;right:0;top:110%;background:#fff;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.12);min-width:160px;z-index:9999;">
-                        <a href="#" id="logoutOption" style="display:block;padding:12px 18px;color:#3498db;text-decoration:none;font-weight:500;border-bottom:1px solid #eee;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+
+<div id="app">
+    <div class="topbar">
+        <div class="brand-section">
+            <h1><i class="fa-solid fa-map-location-dot brand-logo"></i> TourismExplorer</h1>
+        </div>
+        <div class="topbar-center">
+            <div style="position: relative;">
+                <div class="menu-btn dropdown-btn" @click.stop="toggleCountryMenu">
+                    <span><i class="fa-solid fa-earth-americas" style="margin-right: 5px;"></i> [[ currentCountryName || 'Select Country' ]]</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
+                </div>
+                <div class="dropdown-menu country-dropdown" v-if="isCountryMenuOpen" @click.stop>
+                    <div class="dropdown-search-wrapper">
+                        <i class="fa-solid fa-search search-icon-overlay"></i>
+                        <input type="text" class="dropdown-search-input" v-model="countrySearchQuery" ref="countryInput" placeholder="Search country...">
                     </div>
+                    <ul class="dropdown-list">
+                        <template v-for="(countries, continent) in groupedCountries" :key="continent">
+                            <li class="continent-header">[[ continent ]]</li>
+                            <li v-for="country in countries" :key="country.id" class="dropdown-item" :class="{ selected: selectedCountry && selectedCountry.id === country.id }" @click="selectCountry(country)">
+                                [[ country.name ]]
+                            </li>
+                        </template>
+                    </ul>
                 </div>
             </div>
-<script>
-// Toggle dropdown
-document.addEventListener('DOMContentLoaded', function() {
-    var btn = document.getElementById('userSessionBtn');
-    var dropdown = document.getElementById('userSessionDropdown');
-    if (btn && dropdown) {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-        });
-        document.addEventListener('click', function(e) {
-            if (dropdown.style.display === 'block') dropdown.style.display = 'none';
-        });
-    }
-    // Logout option
-    var logoutOpt = document.getElementById('logoutOption');
-    if (logoutOpt) {
-        logoutOpt.addEventListener('click', function(e) {
-            e.preventDefault();
-            // Show loading
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({title:'Logging out...',allowOutsideClick:false,didOpen:()=>Swal.showLoading()});
-            }
-            fetch('/account/api/logout/', {method:'POST',headers:{'Content-Type':'application/json'}})
-                .then(res => res.json())
-                .then(data => {
-                    if (typeof Swal !== 'undefined') {
-                        Swal.close();
-                    }
-                    window.location.href = '/';
-                })
-                .catch(err => {
-                    if (typeof Swal !== 'undefined') {
-                        Swal.close();
-                        Swal.fire('Logout failed','Please try again','error');
-                    }
-                });
-        });
-    }
-});
-</script>
+            
+            <div class="menu-btn" :class="{ active: currentView === 'planner' }" @click="switchView('planner')">
+                 <i class="fa-solid fa-calendar-days"></i> Planner & Map
+            </div>
+            <div class="menu-btn" :class="{ active: currentView === 'history' }" @click="switchView('history')">
+                 <i class="fa-solid fa-clock-rotate-left"></i> History
+            </div>
         </div>
-    </header>
+        <div class="topbar-right">
+            <div class="menu-btn"><img :src="`https://ui-avatars.com/api/?name=${user.name}&background=42b983&color=fff`" class="user-avatar"> [[ user.name ]]</div>
+        </div>
+    </div>
 
-    <!-- Main Container -->
     <div class="main-container">
-           
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="step-process">
-                {% include 'dashboard/tourism/korean_tourism/sidebar/step_process.html' %}
-            </div>
+        <div class="panel-toggle-btn" :class="{ collapsed: !isListPanelOpen }" @click="toggleListPanel"><i class="fa-solid" :class="isListPanelOpen ? 'fa-chevron-left' : 'fa-chevron-right'"></i></div>
 
-            <!-- Modality -->
-            <!-- {% include 'dashboard/tourism/korean_tourism/modals/region_selected.html' %} -->
-
-            <!-- {% include 'dashboard/tourism/korean_tourism/modals/datetime_selected.html' %} -->
-
-            {% include 'dashboard/tourism/korean_tourism/modals/hotel_date_selection_modal.html' %}
-
-            {% include 'dashboard/tourism/korean_tourism/modals/history_data.html' %}
-
-            {% include 'dashboard/tourism/korean_tourism/modals/table_history_data.html' %}
-
-            <!-- {% include 'dashboard/tourism/korean_tourism/modals/hotel_lists.html' %} -->
-
-
-            <!-- <div class="sidebar-header">
-                <h2><i class="fas fa-filter"></i> <span></span>Options Selected</span></h2>
-                 <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="close-sidebar" id="closeSidebar">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div> -->
-
-            <!-- <div class="sidebar-content"> -->
-                <!-- Region Selection -->
-                <!-- <div class="filter-section">
-                    <div class="form-group d-flex align-items-center gap-3">
-                        <label for="provinceSelect">
-                            <i class="fas fa-flag"></i> Province (시도)
-                        </label>
-                        <input id="provinceSelect" class="form-control" list="provinceOptions" placeholder="Select Province...">
-                        <datalist id="provinceOptions">
-                            <option value="Seoul"></option>
-                            <option value="Busan"></option>
-                            <option value="Incheon"></option>
-                            <option value="Daegu"></option>
-                            <option value="Daejeon"></option>
-                            <option value="Gwangju"></option>
-                            <option value="Ulsan"></option>
-                            <option value="Gyeonggi"></option>
-                            <option value="Gangwon"></option>
-                            <option value="Chungcheongbuk"></option>
-                            <option value="Chungcheongnam"></option>
-                            <option value="Jeollabuk"></option>
-                            <option value="Jeollanam"></option>
-                            <option value="Gyeongsangbuk"></option>
-                            <option value="Gyeongsangnam"></option>
-                            <option value="Jeju"></option>
-                        </datalist>
-                        <select id="provinceSelectDropdown" class="form-select">
-                            <option value="">Select Province...</option>
-                        </select>
-                    </div>
-                </div> -->
-                <!-- <div class="filter-section">
-                    <h3><i class="fas fa-map-marker-alt"></i> <span>Region Selection</span></h3>
-                    
-                    <div class="form-group">
-                        <label for="provinceSelect">
-                            <i class="fas fa-flag"></i> Province (시도)
-                        </label>
-                        <select id="provinceSelect" class="form-select">
-                            <option value="">Select Province...</option>
-                        </select>
-                    </div>
-                </div>  -->
+        <div class="panel-list" :class="{ collapsed: !isListPanelOpen }">
+            <div class="panel-content" v-if="currentView === 'planner'">
+                <h3 class="panel-title"><span v-if="selectedCountry">Trip to [[ selectedCountry.name ]]</span><span v-else>Trip Planner</span></h3>
                 
-                <!-- <div class="filter-section">
-                    <h3><i class="fas fa-calendar-day"></i> <span>Date & Time Selection</span></h3> -->
-                    
-                    <!-- Date Selection -->
-                <!-- <div class="form-group">
-                    <div class="form-group-horizontal">
-                        <div class="form-group-inline">
-                            <label for="startDateTime">
-                                <i class="fas fa-calendar-alt"></i> Start Date & Time
-                            </label>
-                            <input type='text' id="startDateTime" class="form-control js-datetimepicker-start" placeholder="Select start date & time"/>
-                        </div>
+                <label class="date-label">Select Destination</label>
+                <div class="autocomplete-container">
+                    <div class="autocomplete-input-wrapper" @click="toggleCityDropdown">
+                        <i class="fa-solid fa-search autocomplete-icon"></i>
+                        <input type="text" class="autocomplete-input" v-model="placeSearchQuery" placeholder="Select a City..." readonly @focus="isCityDropdownOpen = true" @input="isCityDropdownOpen = true">
+                        <i class="fa-solid fa-chevron-down autocomplete-arrow" :class="{ open: isCityDropdownOpen }"></i>
                     </div>
-                    <div class="form-group-horizontal">
-                        <div class="form-group-inline">
-                            <label for="endDateTime">
-                                <i class="fas fa-calendar-alt"></i> End Date & Time
-                            </label>
-                            <input type='text' id="endDateTime" class="form-control js-datetimepicker-end" placeholder="Select end date & time"/>
+                    <div class="autocomplete-list" :class="{ expanded: isCityDropdownOpen }">
+                        <div style="padding: 10px; border-bottom:1px solid #eee;"><input type="text" v-model="placeSearchQuery" placeholder="Type to filter..." style="width:100%; padding:8px; border:1px solid #eee; border-radius:4px;" @click.stop></div>
+                        <div v-for="place in filteredPlaces" :key="place.id" class="ac-item" @click="selectPlace(place)">
+                            <i :class="getIcon(place.properties.category)"></i><span>[[ place.properties.name ]]</span>
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <button id="optimizeButton" class="btn btn-primary">
-                        <i class="fas fa-cogs"></i> Optimize
-                    </button>
-                    <button id="clearHistoryButton" class="btn btn-danger">
-                        <i class="fas fa-eraser"></i> Clear History
-                    </button> -->
-                    <!-- <button id="clearHistoryButton" class="btn btn-outline-secondary">
-                        <i class="fas fa-eraser"></i> Clear History
-                    </button> -->
-                <!-- </div> -->
-                <!-- <div class="form-group">
-                    <button id="clearHistoryButton" class="btn btn-outline-secondary">
-                        <i class="fas fa-eraser"></i> Clear History
-                    </button>
+                <div class="date-section">
+                    <div class="date-group"><label class="date-label">Start Date</label><input type="datetime-local" v-model="startDate" class="date-input"></div>
+                    <div class="date-group"><label class="date-label">End Date</label><input type="datetime-local" v-model="endDate" class="date-input"></div>
                 </div>
-                <div class="form-group">
-                    <button id="saveToHistoryButton" class="btn btn-outline-success">
-                        <i class="fas fa-save"></i> Save to History
-                    </button>
-                </div> -->
-            <!-- </div> -->
-            
-            
-        </aside>
-
-        <!-- Map Container -->
-        <main class="map-container">
-            <div id="map" class="map"></div>
-            <!-- <div class="overlay-container">
-            <h1>Horizontal scroll progress</h1>
-            <div id="scroll-progress"></div>
-            <div class="scroller-wrapper">
-                <ul id="scroller">
-                <li>1</li>
-                <li>2</li>
-                <li>3</li>
-                <li>4</li>
-                <li>5</li>
-                <li>6</li>
-                <li>7</li>
-                <li>8</li>
-                <li>9</li>
-                <li>10</li>
-                <li>11</li>
-                <li>12</li>
-                <li>13</li>
-                <li>14</li>
-                <li>15</li>
-                 <li>1</li>
-                <li>2</li>
-                <li>3</li>
-                <li>4</li>
-                <li>5</li>
-                <li>6</li>
-                <li>7</li>
-                <li>8</li>
-                <li>9</li>
-                <li>10</li>
-                <li>11</li>
-                <li>12</li>
-                <li>13</li>
-                <li>14</li>
-                <li>15</li>
-                </ul>
-            </div>
-            </div> -->
-
-            <!-- <div class="xy-buttons-container">
-                <button id="xButton" class="xy-button" title="X Function">X</button>
-                <button id="yButton" class="xy-button" title="Y Function">Y</button>
-            </div> -->
-
-            <!-- Map Controls -->
-            <div class="map-controls">
-                <!-- <button id="zoomToKorea" class="map-control-btn" title="Zoom to South Korea">
-                    <i class="fas fa-globe-asia"></i>
-                </button> -->
-                <button id="toggleSatellite" class="map-control-btn" title="Toggle Satellite View">
-                    <i class="fas fa-satellite"></i>
-                </button>
-                <button id="fullscreenMap" class="map-control-btn" title="Fullscreen">
-                    <i class="fas fa-expand"></i>
-                </button>
-            </div>
-            
-            <!-- Test Hotel Modal Button -->
-            <!-- <button class="test-hotel-button" onclick="openHotelModal()" title="Test Hotel Vertical Scroll Progress">
-                <i class="fas fa-hotel me-2"></i>Test Vertical Scroll
-            </button> -->
-            
-            <!-- Test Hotel API Integration Button -->
-            <!-- <button class="test-hotel-button" onclick="testHotelIntegration()" title="Test Hotel API Integration" style="top: 120px;">
-                <i class="fas fa-bed me-2"></i>Test Hotels API
-            </button> -->
-            
-            <!-- Test Hotel API Direct Button -->
-            <!-- <button class="test-hotel-button" onclick="testDirectAPI()" title="Test Hotel API Direct" style="top: 170px; background: linear-gradient(135deg, #27ae60, #2ecc71);">
-                <i class="fas fa-api me-2"></i>Test API Direct
-            </button> -->
-
-            <!-- Test Hotel Date Modal Button -->
-            <!-- <button class="test-hotel-button" onclick="testHotelDateModal()" title="Test Hotel Date Modal" style="top: 220px; background: linear-gradient(135deg, #e74c3c, #c0392b);">
-                <i class="fas fa-calendar-check me-2"></i>Test Modal
-            </button> -->
-
-            <!-- Results Panel -->
-            <!-- <div class="results-panel" id="resultsPanel">
-                <div class="results-header">
-                    <h3><i class="fas fa-list"></i> Search Results</h3>
-                    <button id="closeResults" class="close-btn">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="results-content" id="resultsContent"> -->
-                    <!-- Results will be populated here -->
-                <!-- </div> -->
-            </div>
-            
-            <!-- Horizontal Hotel Overlay -->
-            <div id="horizontal-hotel-overlay" style="display: none;">
-                {% include 'dashboard/tourism/korean_tourism/modals/horizontal_lists.html' %}
-            </div>
-
-            <div id="horizontal-attraction-overlay" style="display: none;">
-                {% include 'dashboard/tourism/korean_tourism/modals/attraction_lists.html' %}
-            </div>
-        </main>
-    </div>
-
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner">
-            <i class="fas fa-spinner fa-spin"></i>
-            <p>Loading map data...</p>
-        </div>
-    </div>
-
-    <!-- Add this before the closing </main> tag in the map-container -->
-        <!-- Trip History DataTable -->
-        <!-- <div class="trip-history-container" id="tripHistoryContainer">
-            <div class="trip-history-header">
-                <h4><i class="fas fa-history"></i> Trip Planning History <span id="currentEntryIndicator" class="current-entry-badge" style="display: none;">Updating Current Entry</span></h4> -->
-                <!-- <div class="trip-history-controls">
-                    <button id="createNewEntryButton" class="btn btn-sm btn-outline-info">
-                        <i class="fas fa-plus"></i> New Entry
-                    </button>
-                    <button id="toggleHistoryTable" class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-eye"></i> Toggle View
-                    </button>
-                    <button id="clearHistoryTable" class="btn btn-sm btn-outline-danger">
-                        <i class="fas fa-trash"></i> Clear All
-                    </button>
-                    <button id="exportHistoryTable" class="btn btn-sm btn-outline-success">
-                        <i class="fas fa-download"></i> Export
-                    </button>
-                </div> -->
-            <!-- </div> -->
-            <!-- <div class="trip-history-table-container">
-                <table id="tripHistoryTable" class="trip-history-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Timestamp</th>
-                            <th>Province</th>
-                            <th>Start Date & Time</th>
-                            <th>End Date & Time</th>
-                            <th>Duration</th>
-                            <th>Hotels</th>
-                            <th>Attractions</th>                            
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tripHistoryTableBody"> -->
-                        <!-- Rows will be dynamically added here -->
-                    <!-- </tbody>
-                </table>
-            </div>
-        </div> -->
-
-    <!-- Footer -->
-    <!-- <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="#"><i class="fas fa-info-circle"></i> About</a>
-                <a href="#"><i class="fas fa-database"></i> Data Sources</a>
-                <a href="#"><i class="fas fa-envelope"></i> Contact</a>
-            </div>
-            <div class="footer-text">
-                <p>&copy; 2025 Upsil Interactive Map. Data source: Scraping methods</p>
-            </div>
-        </div>
-    </footer> -->
-
-    <!-- Leaflet JavaScript -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
-            crossorigin=""></script>
-    
-    <!-- TopoJSON Client for proper TopoJSON to GeoJSON conversion -->
-    <script src="https://unpkg.com/topojson-client@3"></script>
-    
-    <!-- Hotel Date Selection Integration Script -->
-    <script>
-        // Function to integrate hotel selection with date modal from step process
-    </script>
-    
-    <!-- Custom JavaScript -->
-        <!-- MapLibre GL JS CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" />
-    
-    <!-- Remove Leaflet CSS and replace with MapLibre -->
-    
-    <!-- MapLibre GL JS -->
-    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Before closing body tag, add: -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    
-    <!-- Custom JavaScript -->
-     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script  src="https://code.jquery.com/jquery-3.7.1.js"  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="  crossorigin="anonymous"></script>
-    <!-- jQuery Datetimepicker JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
-    
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-			
-    <!-- <script src="js/app.js"></script> -->
-    <script src="{% static 'js/tourism/app.js' %}"></script>
-    <script src="{% static 'js/tourism/displayMap.js' %}"></script>
-    <script src="{% static 'js/tourism/displayAreaProvinces.js' %}"></script>
-    <script src="{% static 'js/tourism/dateChosen.js' %}"></script>
-    <script src="{% static 'js/tourism/displayhotel.js' %}"></script>
-    <script src="{% static 'js/tourism/displayAttraction.js' %}"></script>
-    <script src="{% static 'js/tourism/tripSummary.js' %}"></script>
-    <script src="{% static 'js/tourism/flightOption.js' %}"></script>
-    <script src="{% static 'js/tourism/tripHistory.js' %}"></script>
-    <script src="{% static 'js/tourism/tripDataCapture.js' %}"></script>
-    <script src="{% static 'js/tourism/display_routes.js' %}"></script>
-    <script src="{% static 'js/tourism/display_gantt_chart.js' %}"></script>
-    <script src="{% static 'js/tourism/displayLineResult.js' %}"></script>
-    <!-- <script src="js/uiController.js"></script> -->
-    <script src="{% static 'js/tourism/main.js' %}"></script>
-    <script src="{% static 'js/loading.js' %}"></script>
-
-    <script src="{% static 'js/tourism/imageScroll.js' %}"></script>
-
-    <script src="{% static 'js/tourism/modals/showing_modals.js' %}"></script>
-    
-    <!-- Sidebar Toggle JavaScript -->
-    <script>
-        // Initialize attraction instance check
-        function ensureAttractionInstance() {
-            if (!window.displayAttractionInstance) {
-                console.warn('⚠️ displayAttractionInstance not found. Attraction selection may not work properly.');
-                return false;
-            }
-            return true;
-        }
-
-        // Log horizontal attraction selection for debugging
-        function logAttractionSelection(attractionName, isSelected) {
-            console.log(`🎯 Horizontal attraction selection: ${attractionName} -> ${isSelected ? 'SELECTED' : 'DESELECTED'}`);
-            if (window.displayAttractionInstance) {
-                console.log('✅ displayAttractionInstance is available');
-            } else {
-                console.log('❌ displayAttractionInstance is NOT available');
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = document.getElementById('sidebar');
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const menuToggle = document.getElementById('menuToggle');
-            const closeSidebar = document.getElementById('closeSidebar');
-            
-            let isCollapsed = false;
-            let isHidden = false;
-            
-            // Toggle collapsed/expanded state
-            function toggleCollapse() {
-                isCollapsed = !isCollapsed;
-                sidebar.classList.toggle('collapsed', isCollapsed);
-                
-                // Update toggle button icon
-                const icon = sidebarToggle.querySelector('i');
-                if (isCollapsed) {
-                    icon.className = 'fas fa-chevron-right';
-                    sidebarToggle.title = 'Expand Sidebar';
-                } else {
-                    icon.className = 'fas fa-chevron-left';
-                    sidebarToggle.title = 'Collapse Sidebar';
-                }
-            }
-            
-            // Toggle hidden/visible state (for mobile)
-            function toggleVisibility() {
-                isHidden = !isHidden;
-                sidebar.classList.toggle('hidden', isHidden);
-                
-                if (isHidden) {
-                    // Reset to expanded state when hiding
-                    isCollapsed = false;
-                    sidebar.classList.remove('collapsed');
-                    const icon = sidebarToggle.querySelector('i');
-                    icon.className = 'fas fa-chevron-left';
-                    sidebarToggle.title = 'Collapse Sidebar';
-                }
-            }
-            
-            // Event listeners
-            sidebarToggle?.addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleCollapse();
-            });
-            
-            menuToggle?.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (window.innerWidth <= 768) {
-                    toggleVisibility();
-                } else {
-                    toggleCollapse();
-                }
-            });
-            
-            closeSidebar?.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (window.innerWidth <= 768) {
-                    toggleVisibility();
-                }
-            });
-            
-            // Click outside to close on mobile
-            document.addEventListener('click', (e) => {
-                if (window.innerWidth <= 768 && !isHidden) {
-                    const isClickInsideSidebar = sidebar.contains(e.target);
-                    const isMenuButton = menuToggle.contains(e.target);
-                    
-                    if (!isClickInsideSidebar && !isMenuButton) {
-                        toggleVisibility();
-                    }
-                }
-            });
-            
-            // Handle window resize
-            window.addEventListener('resize', () => {
-                if (window.innerWidth > 768) {
-                    // Show sidebar on desktop
-                    isHidden = false;
-                    sidebar.classList.remove('hidden');
-                } else {
-                    // Hide sidebar on mobile by default
-                    if (!isHidden) {
-                        isHidden = true;
-                        sidebar.classList.add('hidden');
-                    }
-                    // Reset collapsed state on mobile
-                    isCollapsed = false;
-                    sidebar.classList.remove('collapsed');
-                }
-            });
-            
-            // Initialize based on screen size
-            if (window.innerWidth <= 768) {
-                isHidden = true;
-                sidebar.classList.add('hidden');
-            }
-        });
-    </script>
-
-    <script>
-        $( ()=> {
-            // Initialize datetime picker for start date
-            $('.js-datetimepicker-start').datetimepicker({
-                format: 'Y-m-d H:i',
-                minDate: 0, // Disable past dates
-                step: 30, // 30 minute intervals
-                onShow: function() {
-                    this.setOptions({
-                        maxDate: $('.js-datetimepicker-end').val() || false
-                    });
-                }
-            });
-            
-            // Initialize datetime picker for end date
-            $('.js-datetimepicker-end').datetimepicker({
-                format: 'Y-m-d H:i',
-                minDate: 0, // Disable past dates
-                step: 30, // 30 minute intervals
-                onShow: function() {
-                    this.setOptions({
-                        minDate: $('.js-datetimepicker-start').val() || 0
-                    });
-                }
-            });
-            
-            // Update end date picker when start date changes
-            $('.js-datetimepicker-start').on('change', function() {
-                const startDate = $(this).val();
-                if (startDate) {
-                    $('.js-datetimepicker-end').datetimepicker('setOptions', {
-                        minDate: startDate
-                    });
-                }
-            });
-        });
-        
-        // Global functions for modal operations
-        function openRegionSelectedModal() {
-            const regionModal = new bootstrap.Modal(document.getElementById('regionModal'));
-            regionModal.show();
-        }
-        
-        function openDateTimeModal() {
-            const dateTimeModal = new bootstrap.Modal(document.getElementById('dateTimeModal'));
-            dateTimeModal.show();
-        }
-        
-        function openHotelModal() {
-            console.log('Opening hotel modal...');
-            const hotelModal = new bootstrap.Modal(document.getElementById('hotelListModal'));
-            hotelModal.show();
-        }
-        
-        function showHorizontalHotelOverlay() {
-            console.log('Showing horizontal hotel overlay...');
-            const overlay = document.getElementById('horizontal-hotel-overlay');
-            const button = document.getElementById('Hotel');
-            
-            if (overlay.style.display === 'none' || overlay.style.display === '') {
-                // Check if we have province data
-                // if (window.selectedProvinceData) {
-                //     // Fetch hotels from API using province data
-                //     fetchHotelsFromAPI(window.selectedProvinceData);
-                // } else {
-                //     // Show static hotels if no province selected
-                //     overlay.style.display = 'block';
-                //     console.warn('No province selected - showing static hotel list');
-                // }
-                
-                button.innerHTML = 'Choose Hotels <i class="fa-solid fa-hotel"></i>';
-                button.classList.add('btn-primary');
-                // button.classList.remove('btn-primary');
-                
-                // Initialize horizontal scroll functionality
-                setTimeout(() => {
-                    initializeHorizontalScrollOverlay();
-                }, 100);
-                
-                // Add close button functionality
-                const overlayContainer = overlay.querySelector('.overlay-container');
-                overlayContainer.addEventListener('click', function(e) {
-                    // Check if clicked on the close button (×)
-                    const rect = overlayContainer.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    
-                    // Close button area (top-right corner)
-                    if (x > rect.width - 45 && y < 45) {
-                        showHorizontalHotelOverlay(); // Toggle to close
-                    }
-                });
-                
-            } else {
-                // Hide the horizontal overlay
-                overlay.style.display = 'none';
-                button.innerHTML = 'Choose Hotels <i class="fa-solid fa-hotel"></i>';
-                button.classList.add('btn-primary');
-                button.classList.remove('btn-secondary');
-            }
-        }
-        
-        // Function to fetch hotels from API and display them
-        async function fetchHotelsFromAPI(provinceData) {
-            console.log('Fetching hotels from API for province:', provinceData);
-            
-            // Extract place_id from province data - it's directly in properties
-            const placeId = provinceData.properties?.place_id;
-            
-            console.log('Extracted place_id:', placeId);
-            console.log('Province properties:', provinceData.properties);
-            
-            if (!placeId) {
-                console.warn('No place_id found in province data:', provinceData);
-                console.warn('Available properties:', Object.keys(provinceData.properties || {}));
-                alert('Unable to fetch hotels - missing location ID. Showing static hotel list.');
-                document.getElementById('horizontal-hotel-overlay').style.display = 'block';
-                return;
-            }
-            
-            try {
-                // Show loading indicator
-                showLoadingIndicator('Loading hotels for selected region...');
-                
-                // Fetch hotels from your API
-                const apiUrl = `/tourism/api/hotels_list/?place_id=${placeId}`;
-                console.log('Calling API:', apiUrl);
-                
-                const response = await fetch(apiUrl);
-                
-                if (!response.ok) {
-                    throw new Error(`Hotels API error: ${response.status}`);
-                }
-                
-                const hotelsData = await response.json();
-                console.log('Hotels API response:', hotelsData);
-                
-                if (hotelsData && hotelsData.hotels && hotelsData.hotels.length > 0) {
-                    // Display hotels in horizontal list
-                    displayHotelsInOverlay(hotelsData.hotels);
-                    
-                    // Add hotel markers to map
-                    addHotelMarkersToMap(hotelsData.hotels, provinceData);
-                    
-                    hideLoadingIndicator();
-                    console.log(`✅ Loaded ${hotelsData.hotels.length} hotels from API`);
-                } else {
-                    hideLoadingIndicator();
-                    alert('No hotels found in this region. Showing static hotel list.');
-                    document.getElementById('horizontal-hotel-overlay').style.display = 'block';
-                }
-                
-            } catch (error) {
-                console.error('Error fetching hotels from API:', error);
-                hideLoadingIndicator();
-                alert('Error loading hotels from API. Showing static hotel list.');
-                document.getElementById('horizontal-hotel-overlay').style.display = 'block';
-            }
-        }
-        
-        // Function to display hotels in the horizontal overlay
-        function displayHotelsInOverlay(hotels) {
-            const overlay = document.getElementById('horizontal-hotel-overlay');
-            if (!overlay) {
-                console.error('Horizontal hotel overlay not found');
-                return;
-            }
-            
-            // Find the scroller container
-            const scroller = overlay.querySelector('#scroller');
-            if (!scroller) {
-                console.error('Hotel scroller container not found');
-                return;
-            }
-            
-            // Clear existing static hotels
-            scroller.innerHTML = '';
-            
-            // Generate hotel cards from API data
-            hotels.forEach((hotel, index) => {
-                const hotelCard = createAPIHotelCard(hotel, index);
-                scroller.appendChild(hotelCard);
-            });
-            
-            // Show the overlay
-            overlay.style.display = 'block';
-            
-            // Initialize scroll functionality
-            setTimeout(() => {
-                if (typeof initializeHorizontalScrollOverlay === 'function') {
-                    initializeHorizontalScrollOverlay();
-                }
-            }, 100);
-            
-            console.log(`✅ Displayed ${hotels.length} hotels in horizontal overlay`);
-        }
-        
-        // Function to create API hotel card
-        function createAPIHotelCard(hotel, index) {
-            const div = document.createElement('div');
-            div.className = 'hotel-card api-loaded';
-            div.dataset.hotelId = hotel.id || index;
-            
-            // Extract hotel data with fallbacks
-            const name = hotel.name || `Hotel ${index + 1}`;
-            const rating = hotel.rating || (4.0 + Math.random()).toFixed(1);
-            const price = hotel.price || `₩${Math.floor(Math.random() * 200 + 100)}K`;
-            const image = hotel.image || hotel.photo_url || `https://images.unsplash.com/photo-${1564501049412 + index}-61c2a3083791?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80`;
-            const location = hotel.address || hotel.location || 'Location not specified';
-            
-            // Create amenities icons (limit to 4 for horizontal layout)
-            const amenities = hotel.amenities || ['wifi', 'pool', 'spa', 'gym'];
-            const amenityIcons = amenities.slice(0, 4).map(amenity => {
-                const iconMap = {
-                    'wifi': 'fas fa-wifi',
-                    'pool': 'fas fa-swimming-pool', 
-                    'spa': 'fas fa-spa',
-                    'gym': 'fas fa-dumbbell',
-                    'restaurant': 'fas fa-utensils',
-                    'parking': 'fas fa-parking',
-                    'bar': 'fas fa-cocktail'
-                };
-                return `<i class="${iconMap[amenity.toLowerCase()] || 'fas fa-check'}"></i>`;
-            }).join('');
-            
-            div.innerHTML = `
-                <div class="hotel-image">
-                    <img src="${image}" alt="${name}" loading="lazy">
-                    <div class="hotel-rating">
-                        <i class="fas fa-star"></i>
-                        <span>${rating}</span>
+                <div class="date-section">
+                    <label class="date-label">Find Hotels</label>
+                    <div class="autocomplete-container">
+                        <div class="autocomplete-input-wrapper" @click="openHotelDropdown"><i class="fa-solid fa-bed autocomplete-icon"></i><input type="text" class="autocomplete-input" v-model="hotelSearchQuery" placeholder="Search hotels..." :disabled="!selectedPlace || !startDate || !endDate" @focus="openHotelDropdown" @input="isHotelDropdownOpen = true"><i class="fa-solid fa-chevron-down autocomplete-arrow" :class="{ open: isHotelDropdownOpen }"></i></div>
+                        <div class="autocomplete-list" :class="{ expanded: isHotelDropdownOpen }">
+                            <div v-if="isLoadingHotels" style="padding: 15px; text-align:center; color:#42b983;"><i class="fa-solid fa-spinner fa-spin"></i> Searching...</div>
+                            <div v-for="hotel in filteredHotels" :key="hotel.properties.place_id" class="place-card-small" @click="selectHotel(hotel)">
+                                <img v-if="hotel.properties.wiki_and_media && hotel.properties.wiki_and_media.image" :src="hotel.properties.wiki_and_media.image" class="place-thumb" @error="$event.target.style.display='none'"><div class="place-placeholder" v-else><i class="fa-solid fa-hotel"></i></div>
+                                <div class="place-mini-info"><h4>[[ hotel.properties.name ]]</h4><p>[[ hotel.properties.address_line2 ]]</p></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="hotel-info">
-                    <h3>${name}</h3>
-                    <p class="hotel-location">
-                        <i class="fas fa-map-marker-alt"></i> 
-                        ${location}
-                    </p>
-                    <div class="hotel-amenities">
-                        ${amenityIcons}
+                <div class="date-section">
+                    <label class="date-label">Find Attractions</label>
+                    <div class="autocomplete-container">
+                        <div class="autocomplete-input-wrapper" @click="openAttractionDropdown"><i class="fa-solid fa-camera autocomplete-icon"></i><input type="text" class="autocomplete-input" v-model="attractionSearchQuery" placeholder="Search attractions..." :disabled="!selectedPlace" @focus="openAttractionDropdown" @input="isAttractionDropdownOpen = true"><i class="fa-solid fa-chevron-down autocomplete-arrow" :class="{ open: isAttractionDropdownOpen }"></i></div>
+                        <div class="autocomplete-list" :class="{ expanded: isAttractionDropdownOpen }">
+                            <div v-if="isLoadingAttractions" style="padding: 15px; text-align:center; color:#9b59b6;"><i class="fa-solid fa-spinner fa-spin"></i> Searching...</div>
+                            <div v-for="attr in filteredAttractions" :key="attr.properties.place_id" class="place-card-small" @click="selectAttraction(attr)">
+                                <img v-if="attr.properties.wiki_and_media && attr.properties.wiki_and_media.image" :src="attr.properties.wiki_and_media.image" class="place-thumb" @error="$event.target.style.display='none'"><div class="place-placeholder" v-else><i class="fa-solid fa-camera"></i></div>
+                                <div class="place-mini-info"><h4>[[ attr.properties.name ]]</h4><p>[[ attr.properties.address_line2 ]]</p></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="hotel-price">${price}</div>
                 </div>
-            `;
-            
-            // Add click handler for hotel selection
-            div.addEventListener('click', function(e) {
-                selectAPIHotel(hotel, div, index);
-            });
-            
-            return div;
-        }
-        
-        // Function to select API hotel
-        function selectAPIHotel(hotel, cardElement, index) {
-            // Remove previous selection
-            document.querySelectorAll('.hotel-card.selected').forEach(card => {
-                card.classList.remove('selected');
-            });
-            
-            // Add selection to current card
-            cardElement.classList.add('selected');
-            
-            // Highlight corresponding marker on map
-            if (window.apiHotelMarkers && window.apiHotelMarkers[index]) {
-                const marker = window.apiHotelMarkers[index];
-                marker.openPopup();
+                <div class="submit-section">
+                    <button class="submit-btn" :disabled="!selectedPlace || !startDate || !endDate || isSubmitting" @click="submitItinerary"><i class="fa-solid fa-paper-plane" v-if="!isSubmitting"></i><i class="fa-solid fa-spinner fa-spin" v-else></i> [[ isSubmitting ? 'Processing...' : 'Process Itinerary' ]]</button>
+                </div>
+            </div>
+
+            <div class="panel-content" v-if="currentView === 'history'">
+                <h3 class="panel-title">Trip History</h3>
+                <div v-if="isLoadingHistory" style="text-align:center; padding:20px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading History...</div>
+                <div v-else-if="historyTrips.length === 0" style="text-align:center; color:#777; padding:20px;">No trips found.</div>
                 
-                // Briefly highlight the marker
-                const markerElement = marker.getElement();
-                if (markerElement) {
-                    markerElement.style.transform = 'scale(1.2)';
-                    markerElement.style.zIndex = '1000';
-                    setTimeout(() => {
-                        markerElement.style.transform = 'scale(1)';
-                        markerElement.style.zIndex = '';
-                    }, 1000);
-                }
-            }
-            
-            console.log('API Hotel selected:', hotel.name);
-        }
-        
-        // Function to add hotel markers to map
-        function addHotelMarkersToMap(hotels, provinceData) {
-            // Get map instance
-            const mapInstance = getMapInstance();
-            if (!mapInstance) {
-                console.warn('Map instance not available for hotel markers');
-                return;
-            }
-            
-            try {
-                // Clear existing API hotel markers
-                if (window.apiHotelMarkers && Array.isArray(window.apiHotelMarkers)) {
-                    window.apiHotelMarkers.forEach(marker => {
-                        mapInstance.removeLayer(marker);
-                    });
-                }
-                window.apiHotelMarkers = [];
-                
-                // Add markers for each hotel
-                hotels.forEach((hotel, index) => {
-                    // Use hotel coordinates if available, otherwise use province center with offset
-                    let lat = hotel.lat || hotel.latitude;
-                    let lon = hotel.lon || hotel.longitude;
-                    
-                    if (!lat || !lon) {
-                        // Fallback to province center with random offset
-                        const baseLat = provinceData.lat || provinceData.properties?.lat;
-                        const baseLon = provinceData.lon || provinceData.properties?.lon;
+                <div v-for="trip in historyTrips" :key="trip._id" class="history-item">
+                    <div class="h-header">
+                        <span class="h-city">[[ trip.destination.city ]], [[ trip.destination.country_code.toUpperCase() ]]</span>
+                        <span class="h-status" :class="isTripPast(trip.dates.end_date) ? 'past' : 'upcoming'">[[ isTripPast(trip.dates.end_date) ? 'Past' : 'Upcoming' ]]</span>
+                    </div>
+                    <div class="h-dates"><i class="fa-regular fa-calendar"></i> [[ trip.dates.start_date ]] <i class="fa-solid fa-arrow-right" style="font-size:0.7em;"></i> [[ trip.dates.end_date ]]</div>
+                    <div class="h-actions">
+                        <div class="h-btn edit" v-if="!isTripPast(trip.dates.end_date)" @click="editHistoryTrip(trip)"><i class="fa-solid fa-pen-to-square"></i> Edit</div>
                         
-                        if (baseLat && baseLon) {
-                            // Add small random offset to spread hotels around the province center
-                            const offsetRange = 0.01; // ~1km
-                            lat = baseLat + (Math.random() - 0.5) * offsetRange;
-                            lon = baseLon + (Math.random() - 0.5) * offsetRange;
-                        } else {
-                            console.warn(`No coordinates available for hotel: ${hotel.name}`);
-                            return;
-                        }
-                    }
+                        <div class="h-btn route" @click="showHistoryRoutes(trip)"><i class="fa-solid fa-route"></i> Routes</div>
+                        <div class="h-btn schedule" @click="showHistorySchedule(trip)"><i class="fa-solid fa-list-check"></i> Schedule</div>
+                        <div class="h-btn view" @click="viewHistoryTrip(trip)"><i class="fa-solid fa-eye"></i> View</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-details" :class="{ open: showDetailsPanel }">
+            <button class="close-btn" @click="closeDetails">&times;</button>
+            <div class="detail-content">
+                
+                <div v-if="selectedDetailPlace">
+                    <img v-if="selectedDetailPlace.properties.wiki_and_media && selectedDetailPlace.properties.wiki_and_media.image" :src="selectedDetailPlace.properties.wiki_and_media.image" class="detail-image" @error="$event.target.src='https://placehold.co/600x400?text=No+Image'">
+                    <img v-else :src="`https://placehold.co/600x400?text=${encodeURIComponent(selectedDetailPlace.properties.name)}`" class="detail-image">
+                    <h2>[[ selectedDetailPlace.properties.name ]]</h2>
+                    <p>[[ selectedDetailPlace.properties.address_line2 || 'Details unavailable' ]]</p>
                     
-                    // Create custom hotel marker icon
-                    const hotelIcon = window.L.divIcon({
-                        className: 'hotel-marker hotel-marker-api',
-                        html: `
-                            <div class="hotel-marker-content">
-                                <i class="fas fa-bed"></i>
-                                <span class="hotel-price">${hotel.price || '₩150K'}</span>
-                            </div>
-                        `,
-                        iconSize: [70, 45],
-                        iconAnchor: [35, 45],
-                        popupAnchor: [0, -45]
-                    });
-                    
-                    // Create marker
-                    const marker = window.L.marker([lat, lon], { icon: hotelIcon }).addTo(mapInstance);
-                    
-                    // Add data attributes for synchronization
-                    marker._hotelData = hotel;
-                    marker._hotelIndex = index;
-                    
-                    // Create detailed popup content
-                    const popupContent = `
-                        <div class="hotel-popup" style="min-width: 300px; max-width: 350px;">
-                            <div class="hotel-popup-header">
-                                <img src="${hotel.image || hotel.photo_url || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80'}" 
-                                     alt="${hotel.name}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;">
-                                <div class="hotel-popup-badge">
-                                    <i class="fas fa-star"></i>
-                                    <span>${hotel.rating || 4.0}</span>
-                                </div>
-                            </div>
-                            <div class="hotel-popup-content">
-                                <h4 style="margin: 10px 0 5px 0; color: #2563eb;">${hotel.name}</h4>
-                                <p style="margin: 5px 0; color: #4b5563; font-size: 14px;">
-                                    <i class="fas fa-map-marker-alt" style="color: #e74c3c; margin-right: 5px;"></i>
-                                    ${hotel.address || hotel.location || 'Address not available'}
-                                </p>
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
-                                    <div>
-                                        <span style="font-size: 12px; color: #6b7280;">From</span>
-                                        <span style="font-size: 18px; font-weight: bold; color: #e74c3c; margin: 0 3px;">${hotel.price || '₩150K'}</span>
-                                        <span style="font-size: 12px; color: #6b7280;">/night</span>
+                    <div v-if="currentView === 'planner' && isHotel(selectedDetailPlace)">
+                        <button style="width:100%; padding:10px; background:#42b983; color:white; border:none; cursor:pointer; border-radius:4px;" @click="openBookingModal(selectedDetailPlace, 'add')" :disabled="daysRemaining <= 0"><i class="fa-solid fa-bed"></i> Book Stay</button>
+                    </div>
+                    <div v-else-if="currentView === 'planner' && isAttraction(selectedDetailPlace)">
+                        <button style="width:100%; padding:10px; background:#9b59b6; color:white; border:none; cursor:pointer; border-radius:4px;" @click="addAttractionToItinerary(selectedDetailPlace)"><i class="fa-solid fa-plus"></i> Add to Visits</button>
+                    </div>
+                </div>
+
+                <div v-if="currentView === 'history' && selectedHistoryTrip">
+                    <div class="summary-card">
+                        <div class="summary-header"><span>Trip Summary</span><span class="summary-tag">[[ selectedHistoryTrip.destination.country_code.toUpperCase() ]]</span></div>
+                        <div class="summary-row"><span>Dest:</span><span>[[ selectedHistoryTrip.destination.city ]]</span></div>
+                        <div class="summary-row"><span>Dates:</span><span>[[ selectedHistoryTrip.dates.start_date ]] to [[ selectedHistoryTrip.dates.end_date ]]</span></div>
+                    </div>
+                    <div class="read-only-badge" v-if="!isEditable"><i class="fa-solid fa-lock"></i> Past Trip (Read Only)</div>
+                </div>
+
+                <div class="booked-list-container" v-if="bookedHotels.length > 0">
+                    <div class="booked-header"><i class="fa-solid fa-bed"></i> Hotels</div>
+                    <div v-for="(item, index) in bookedHotels" :key="index" class="booked-item" :class="{ 'selected-item-highlight': selectedDetailPlace && selectedDetailPlace.properties.place_id === item.hotel.properties.place_id }">
+                        <div class="booked-info" @click="selectHotel(item.hotel)">
+                            <span class="booked-name">[[ item.hotel.properties.name ]]</span>
+                            <div class="booked-meta">[[ item.hotel.properties.city ]] <span class="booked-duration-badge">[[ item.duration ]]d</span></div>
+                        </div>
+                        <div class="booked-actions" v-if="currentView === 'planner'">
+                            <i class="fa-solid fa-pen action-btn-icon edit" @click="openBookingModal(item.hotel, 'edit', index)"></i>
+                            <i class="fa-solid fa-trash action-btn-icon" @click="removeBooking(index)"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="booked-list-container" v-if="selectedAttractions.length > 0">
+                    <div class="booked-header"><i class="fa-solid fa-camera"></i> Attractions</div>
+                    <div v-for="(attr, index) in selectedAttractions" :key="index" class="booked-item" :class="{ 'selected-item-highlight': selectedDetailPlace && selectedDetailPlace.properties.place_id === attr.properties.place_id }" style="border-left: 3px solid #9b59b6;">
+                        <div class="booked-info" @click="selectAttraction(attr)">
+                            <span class="booked-name">[[ attr.properties.name ]]</span>
+                        </div>
+                        <div class="booked-actions" v-if="currentView === 'planner'">
+                            <i class="fa-solid fa-trash action-btn-icon" @click="removeAttraction(index)"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="isBookingModalOpen" class="modal-overlay" @click.self="closeBookingModal">
+            <div class="modal-box">
+                <div class="modal-header"><h3>[[ isEditing ? 'Edit Stay' : 'Add Hotel' ]]</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" @click="closeBookingModal"></i></div>
+                <div class="modal-body">
+                    <div class="booking-info"><strong>[[ selectedHotelForBooking.properties.name ]]</strong><br>Max Available: <strong>[[ currentMaxAllowed ]] days</strong></div>
+                    <div class="input-group"><label>Duration:</label><input type="number" v-model.number="bookingDuration" min="1" :max="currentMaxAllowed" class="modal-input" @input="enforceMaxDuration"></div>
+                </div>
+                <div class="modal-footer"><button style="padding:8px 15px; border:none; background:#eee; border-radius:4px;" @click="closeBookingModal">Cancel</button><button style="padding:8px 15px; border:none; background:#42b983; color:white; border-radius:4px;" @click="confirmBooking">Confirm</button></div>
+            </div>
+        </div>
+
+        <div v-if="showGanttModal" class="modal-overlay" @click.self="showGanttModal = false">
+            <div class="modal-box large">
+                <div class="modal-header"><h3>Trip Schedule</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" @click="showGanttModal = false"></i></div>
+                <div class="modal-body">
+                    <div class="gantt-container">
+                        <div v-for="(daySchedule, dayKey) in ganttData" :key="dayKey" class="gantt-day">
+                            <div class="gantt-day-header">[[ dayKey ]]</div>
+                            <div class="gantt-timeline">
+                                <div v-for="event in daySchedule" :key="event.time" class="gantt-event">
+                                    <div class="gantt-time">[[ event.start_time.slice(0,5) ]]</div>
+                                    <div class="gantt-card" :class="{ 'travel': event.activity.includes('Travel') }">
+                                        <strong>[[ event.activity ]]</strong>
+                                        <small v-if="event.location">@ [[ event.location ]]</small>
+                                        <small v-if="event.from">From: [[ event.from ]] To: [[ event.to ]]</small>
                                     </div>
-                                    <button onclick="selectAPIHotelFromMarker(${index})" 
-                                            style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer;">
-                                        <i class="fas fa-check" style="margin-right: 5px;"></i>Select
-                                    </button>
                                 </div>
                             </div>
                         </div>
-                    `;
-                    
-                    marker.bindPopup(popupContent);
-                    
-                    // Add click handler to highlight corresponding hotel in list
-                    marker.on('click', function() {
-                        highlightAPIHotelInList(hotel.id || index);
-                    });
-                    
-                    // Store marker for later management
-                    window.apiHotelMarkers.push(marker);
-                });
-                
-                console.log(`✅ Added ${hotels.length} hotel markers to map`);
-                
-            } catch (error) {
-                console.error('Error adding hotel markers to map:', error);
-            }
-        }
-        
-        // Function to get map instance
-        function getMapInstance() {
-            // Try different methods to get map instance
-            if (window.map) {
-                return window.map;
-            } else if (window.displayMapInstance && window.displayMapInstance.getMap) {
-                return window.displayMapInstance.getMap();
-            } else if (window.displayMap && window.displayMap.getMap) {
-                return window.displayMap.getMap();
-            }
-            
-            console.warn('Map instance not found');
-            return null;
-        }
-        
-        // Function to highlight API hotel in list when marker clicked
-        function highlightAPIHotelInList(hotelId) {
-            const hotelCard = document.querySelector(`.hotel-card[data-hotel-id="${hotelId}"]`);
-            if (hotelCard) {
-                // Remove previous selection
-                document.querySelectorAll('.hotel-card.selected').forEach(card => {
-                    card.classList.remove('selected');
-                });
-                
-                // Add selection
-                hotelCard.classList.add('selected');
-                
-                // Scroll to hotel card in horizontal list
-                const scrollerWrapper = hotelCard.closest('.scroller-wrapper');
-                if (scrollerWrapper) {
-                    const cardRect = hotelCard.getBoundingClientRect();
-                    const wrapperRect = scrollerWrapper.getBoundingClientRect();
-                    const scrollLeft = scrollerWrapper.scrollLeft;
-                    const cardLeft = cardRect.left - wrapperRect.left + scrollLeft;
-                    const wrapperWidth = wrapperRect.width;
-                    const cardWidth = cardRect.width;
-                    
-                    // Center the card in the viewport
-                    const targetScrollLeft = cardLeft - (wrapperWidth / 2) + (cardWidth / 2);
-                    
-                    scrollerWrapper.scrollTo({
-                        left: targetScrollLeft,
-                        behavior: 'smooth'
-                    });
-                }
-            }
-        }
-        
-        // Function to select hotel from marker
-        function selectAPIHotelFromMarker(index) {
-            const hotelCard = document.querySelector(`.hotel-card[data-hotel-id="${index}"]`);
-            if (hotelCard) {
-                hotelCard.click();
-            }
-        }
-        
-        // Loading indicator functions
-        function showLoadingIndicator(message) {
-            // Create or show loading indicator
-            let loadingDiv = document.getElementById('api-loading-indicator');
-            if (!loadingDiv) {
-                loadingDiv = document.createElement('div');
-                loadingDiv.id = 'api-loading-indicator';
-                loadingDiv.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    background: rgba(255, 255, 255, 0.95);
-                    padding: 20px 30px;
-                    border-radius: 12px;
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-                    z-index: 10000;
-                    text-align: center;
-                    backdrop-filter: blur(10px);
-                    border: 1px solid rgba(255, 255, 255, 0.3);
-                `;
-                document.body.appendChild(loadingDiv);
-            }
-            
-            loadingDiv.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="width: 20px; height: 20px; border: 2px solid #3498db; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                    <span style="color: #2c3e50; font-weight: 600;">${message}</span>
+                    </div>
                 </div>
-                <style>
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                </style>
-            `;
-            loadingDiv.style.display = 'block';
-        }
-        
-        function hideLoadingIndicator() {
-            const loadingDiv = document.getElementById('api-loading-indicator');
-            if (loadingDiv) {
-                loadingDiv.style.display = 'none';
-            }
-        }
+            </div>
+        </div>
 
-        function showHorizontalAttractionOverlay() {
-            console.log('Showing horizontal attraction overlay...');
-            const overlay = document.getElementById('horizontal-attraction-overlay');
-            const button = document.getElementById('Attraction');
+        <div id="map"></div>
+        <div v-if="isLoading" class="map-loading"><i class="fa-solid fa-spinner fa-spin"></i> Processing...</div>
+    </div>
+</div>
+
+<script>
+    const { createApp } = Vue;
+
+    createApp({
+        delimiters: ['[[', ']]'], 
+        data() {
+            return {
+                apiKey: '7987d19900864cf6a41cb30cb02a27fd', 
+                map: null, isLoading: false, isSubmitting: false, isLoadingHistory: false,
+                currentView: 'planner', isListPanelOpen: true, isUserMenuOpen: false, isCountryMenuOpen: false, isCityDropdownOpen: false, isHotelDropdownOpen: false, isAttractionDropdownOpen: false,
+                user: { name: 'Admin User', email: 'admin@tourism.com' },
+                countrySearchQuery: '', placeSearchQuery: '', hotelSearchQuery: '', attractionSearchQuery: '',
+                selectedCountry: null, currentPlaceId: null, selectedPlace: null, selectedDetailPlace: null, startDate: '', endDate: '',
+                countriesList: [], places: [], hotels: [], attractions: [], bookedHotels: [], selectedAttractions: [],
+                markers: [], hotelMarkers: [], attractionMarkers: [], isLoadingHotels: false, isLoadingAttractions: false,
+                historyTrips: [], selectedHistoryTrip: null, isEditable: true, showGanttModal: false, ganttData: {},
+                isBookingModalOpen: false, selectedHotelForBooking: null, bookingDuration: 1, maxStayDuration: 1, currentMaxAllowed: 1, isEditing: false, editingIndex: -1,
+            }
+        },
+        computed: {
+            currentCountryName() { return this.selectedCountry ? this.selectedCountry.name : ''; },
+            totalTripDays() {
+                if(!this.startDate || !this.endDate) return 0;
+                const start = new Date(this.startDate); const end = new Date(this.endDate);
+                return Math.max(1, Math.ceil(Math.abs(end - start) / (1000 * 60 * 60 * 24)));
+            },
+            daysBooked() { return this.bookedHotels.reduce((sum, item) => sum + item.duration, 0); },
+            daysRemaining() { return Math.max(0, this.totalTripDays - this.daysBooked); },
+            showDetailsPanel() { return !!this.selectedDetailPlace || (this.currentView === 'history' && !!this.selectedHistoryTrip); },
+            filteredPlaces() { if (!this.placeSearchQuery) return this.places; return this.places.filter(p => (p.properties.name || '').toLowerCase().includes(this.placeSearchQuery.toLowerCase())); },
+            filteredHotels() { if (!this.hotelSearchQuery) return this.hotels; return this.hotels.filter(h => (h.properties.name || '').toLowerCase().includes(this.hotelSearchQuery.toLowerCase())); },
+            filteredAttractions() { if (!this.attractionSearchQuery) return this.attractions; return this.attractions.filter(a => (a.properties.name || '').toLowerCase().includes(this.attractionSearchQuery.toLowerCase())); },
+            groupedCountries() { if (!Array.isArray(this.countriesList)) return {}; let filtered = this.countriesList; if (this.countrySearchQuery) filtered = filtered.filter(c => c.name.toLowerCase().includes(this.countrySearchQuery.toLowerCase())); const grouped = {}; filtered.forEach(c => { if (!grouped[c.continent || 'Other']) grouped[c.continent || 'Other'] = []; grouped[c.continent || 'Other'].push(c); }); return grouped; }
+        },
+        mounted() { this.initMap(); this.fetchCountryList(); window.addEventListener('click', this.closeMenus); },
+        unmounted() { window.removeEventListener('click', this.closeMenus); },
+        methods: {
+            switchView(view) {
+                this.currentView = view; this.isListPanelOpen = true; this.clearRouteLayers();
+                if (view === 'history') { this.fetchHistory(); this.resetPlanner(); }
+            },
+            resetPlanner() { this.selectedDetailPlace = null; this.bookedHotels = []; this.selectedAttractions = []; this.markers.forEach(m=>m.remove()); this.hotelMarkers.forEach(m=>m.remove()); this.attractionMarkers.forEach(m=>m.remove()); this.markers = []; this.hotelMarkers = []; this.attractionMarkers = []; },
+            clearRouteLayers() {
+                const layers = this.map.getStyle().layers; layers.forEach(l => { if (l.id.startsWith('route-layer-')) this.map.removeLayer(l.id); });
+                const sources = Object.keys(this.map.getStyle().sources); sources.forEach(s => { if (s.startsWith('route-day-')) this.map.removeSource(s); });
+            },
             
-            if (overlay.style.display === 'none' || overlay.style.display === '') {
-                // Show the horizontal overlay
-                overlay.style.display = 'block';
-                button.innerHTML = 'Choose Attractions <i class="fa-solid fa-map-marker-alt"></i>';
-                button.classList.add('btn-primary');
-                // button.classList.remove('btn-primary');
+            // --- HISTORY ---
+            async fetchHistory() {
+                this.isLoadingHistory = true;
+                try { const response = await fetch('/tourism/api/display_history_trip/'); const data = await response.json(); if (data.success && data.trip_optimization_data) this.historyTrips = data.trip_optimization_data; } 
+                catch (error) { console.error("History Error", error); } finally { this.isLoadingHistory = false; }
+            },
+            isTripPast(endDateStr) { return new Date(endDateStr) < new Date(); },
+
+            // NEW: EDIT HISTORY FUNCTION
+            editHistoryTrip(trip) {
+                // 1. Switch to Planner View
+                this.currentView = 'planner';
+                this.isListPanelOpen = true;
+                this.clearRouteLayers(); // Clear history paths to start fresh
                 
-                // Initialize horizontal scroll functionality
-                setTimeout(() => {
-                    initializeHorizontalAttractionScrollOverlay();
-                }, 100);
+                // 2. Restore Country & City
+                this.selectedCountry = { name: trip.destination.country, country_code: trip.destination.country_code };
+                this.countrySearchQuery = trip.destination.country;
                 
-                // Add close button functionality
-                const overlayContainer = overlay.querySelector('.overlay-container');
-                overlayContainer.addEventListener('click', function(e) {
-                    // Check if clicked on the close button (×)
-                    const rect = overlayContainer.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    
-                    // Close button area (top-right corner)
-                    if (x > rect.width - 45 && y < 45) {
-                        showHorizontalAttractionOverlay(); // Toggle to close
+                // Reconstruct selectedPlace GeoJSON
+                this.selectedPlace = {
+                    type: 'Feature',
+                    geometry: { type: 'Point', coordinates: [trip.destination.city_coordinates[1], trip.destination.city_coordinates[0]] }, // Assuming [Lat, Lon] stored, need [Lon, Lat]
+                    properties: { name: trip.destination.city, place_id: trip.destination.city_place_id, category: 'administrative.boundary' }
+                };
+                this.placeSearchQuery = trip.destination.city;
+
+                // 3. Restore Dates (Join Date + Time)
+                this.startDate = `${trip.dates.start_date}T${trip.dates.start_time || '00:00'}`;
+                this.endDate = `${trip.dates.end_date}T${trip.dates.end_time || '23:59'}`;
+
+                // 4. Restore Hotels
+                this.bookedHotels = trip.hotels.map(h => ({
+                    hotel: h, // Passes full hotel object
+                    duration: h.user_stay_duration || 1
+                }));
+
+                // 5. Restore Attractions
+                this.selectedAttractions = trip.attractions.map(a => a);
+
+                // 6. Plot on Map
+                this.map.flyTo({ center: this.selectedPlace.geometry.coordinates, zoom: 10 });
+                
+                // Add Markers manually for restored items
+                this.hotelMarkers.forEach(m => m.remove()); this.hotelMarkers = [];
+                this.attractionMarkers.forEach(m => m.remove()); this.attractionMarkers = [];
+                
+                this.bookedHotels.forEach(item => this.addSingleMarker(item.hotel, 'bed', '#3498db', this.hotelMarkers));
+                this.selectedAttractions.forEach(attr => this.addSingleMarker(attr, 'camera', '#9b59b6', this.attractionMarkers));
+            },
+            
+            addSingleMarker(item, icon, color, array) {
+                if(item.geometry && item.geometry.coordinates) {
+                    const el = document.createElement('div'); el.className = 'marker'; el.style.width = '24px'; el.style.height = '24px'; 
+                    el.style.backgroundImage = `url(https://api.geoapify.com/v1/icon/?type=awesome&color=${color.replace('#','%23')}&size=small&icon=${icon}&apiKey=${this.apiKey})`; 
+                    el.style.backgroundSize = 'contain'; el.style.cursor = 'pointer';
+                    el.addEventListener('click', (e) => { e.stopPropagation(); this.selectDetailItem(item); }); // Click to view details
+                    const m = new maplibregl.Marker(el).setLngLat(item.geometry.coordinates).addTo(this.map);
+                    array.push(m);
+                }
+            },
+            
+            selectDetailItem(item) {
+                this.selectedDetailPlace = item;
+                if(this.isHotel(item)) this.selectHotel(item);
+                else this.selectAttraction(item);
+            },
+
+            viewHistoryTrip(trip) {
+                this.selectedHistoryTrip = trip;
+                this.selectedDetailPlace = null;
+                this.isEditable = !this.isTripPast(trip.dates.end_date);
+                
+                // Direct mapping for View Mode
+                this.bookedHotels = trip.hotels.map(h => ({ hotel: h, duration: h.user_stay_duration || 1 }));
+                this.selectedAttractions = trip.attractions.map(a => a);
+
+                this.markers.forEach(m => m.remove()); this.hotelMarkers.forEach(m => m.remove()); this.attractionMarkers.forEach(m => m.remove());
+                this.hotelMarkers = []; this.attractionMarkers = [];
+                const bounds = new maplibregl.LngLatBounds();
+
+                trip.hotels.forEach(h => {
+                    const coords = h.geometry ? h.geometry.coordinates : (h.coordinates ? [h.coordinates.longitude, h.coordinates.latitude] : null);
+                    if (coords) {
+                         const lng = Array.isArray(coords) ? coords[0] : coords.longitude;
+                         const lat = Array.isArray(coords) ? coords[1] : coords.latitude;
+                         if (lng && lat) {
+                            const el = document.createElement('div'); el.className = 'marker'; el.style.width = '24px'; el.style.height = '24px'; el.style.backgroundImage = 'url(https://api.geoapify.com/v1/icon/?type=awesome&color=%233498db&size=small&icon=bed&apiKey=' + this.apiKey + ')'; el.style.backgroundSize = 'contain';
+                            const m = new maplibregl.Marker(el).setLngLat([lng, lat]).addTo(this.map);
+                            this.hotelMarkers.push(m); bounds.extend([lng, lat]);
+                         }
                     }
                 });
-                
-            } else {
-                // Hide the horizontal overlay
-                overlay.style.display = 'none';
-                button.innerHTML = 'Choose Attractions <i class="fa-solid fa-map-marker-alt"></i>';
-                button.classList.add('btn-primary');
-                button.classList.remove('btn-secondary');
-            }
-        }
-        
-        // Function to test API directly
-        async function testDirectAPI() {
-            console.log('🧪 Testing API directly...');
-            
-            try {
-                showLoadingIndicator('Testing hotel API...');
-                
-                // Use a real place_id format like the one provided by the user
-                const testPlaceId = '51cd1e680506ce5c4059e4744820144e21c0f00101f90104dd760000000000c00208';
-                const apiUrl = `/tourism/api/hotels_list/?place_id=${testPlaceId}`;
-                
-                console.log('Testing API with URL:', apiUrl);
-                
-                const response = await fetch(apiUrl);
-                
-                console.log('API Response status:', response.status);
-                console.log('API Response headers:', [...response.headers.entries()]);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('✅ API Response data:', data);
-                    
-                    if (data.hotels && data.hotels.length > 0) {
-                        alert(`✅ API Success! Found ${data.hotels.length} hotels`);
-                        
-                        // Test displaying the hotels
-                        displayHotelsInOverlay(data.hotels);
-                        
-                        // Mock province data using the structure provided by user
-                        const mockProvince = {
-                            lat: -8.6524973,
-                            lon: 115.2191175,
-                            properties: {
-                                address_line1: "Denpasar",
-                                address_line2: "Bali, Indonesia",
-                                category: "administrative",
-                                city: "Denpasar", 
-                                country: "Indonesia",
-                                country_code: "id",
-                                formatted: "Denpasar, Bali, Indonesia",
-                                iso3166_2: "ID-NU",
-                                iso3166_2_sublevel: "ID-BA",
-                                lat: -8.6524973,
-                                lon: 115.2191175,
-                                place_id: testPlaceId
-                            }
-                        };
-                        
-                        addHotelMarkersToMap(data.hotels, mockProvince);
-                    } else {
-                        alert('✅ API Success but no hotels found');
-                    }
-                } else {
-                    const errorText = await response.text();
-                    console.error('❌ API Error:', errorText);
-                    alert(`❌ API Error: ${response.status} - ${errorText}`);
-                }
-                
-                hideLoadingIndicator();
-                
-            } catch (error) {
-                console.error('❌ Network Error:', error);
-                hideLoadingIndicator();
-                alert(`❌ Network Error: ${error.message}`);
-            }
-        }
-
-        // Horizontal scroll functionality for the overlay
-        function initializeHorizontalScrollOverlay() {
-            const scroller = document.querySelector('#horizontal-hotel-overlay #scroller');
-            const scrollerWrapper = document.querySelector('#horizontal-hotel-overlay .scroller-wrapper');
-            const scrollProgress = document.querySelector('#horizontal-hotel-overlay #scroll-progress');
-
-            console.log('Initializing horizontal scroll overlay:', { scroller, scrollerWrapper, scrollProgress });
-
-            if (!scroller || !scrollerWrapper || !scrollProgress) {
-                console.error('Horizontal scroll overlay elements not found');
-                return;
-            }
-
-            // Update progress bar function
-            function updateScrollProgress() {
-                if (scrollerWrapper.scrollWidth <= scrollerWrapper.clientWidth) {
-                    scrollProgress.style.width = "100%";
-                    return;
-                }
-                
-                const scrollPercent = (scrollerWrapper.scrollLeft / (scrollerWrapper.scrollWidth - scrollerWrapper.clientWidth)) * 100;
-                const clampedPercent = Math.max(0, Math.min(100, scrollPercent));
-                scrollProgress.style.width = clampedPercent + "%";
-            }
-
-            // Add scroll event listener
-            scrollerWrapper.addEventListener("scroll", updateScrollProgress);
-
-            // Enhanced wheel event handler for horizontal scrolling
-            function handleWheelScroll(event) {
-                if (scrollerWrapper.scrollWidth > scrollerWrapper.clientWidth) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    
-                    const scrollAmount = event.deltaY * 2;
-                    scrollerWrapper.scrollLeft += scrollAmount;
-                    updateScrollProgress();
-                    
-                    return false;
-                }
-            }
-
-            // Add wheel events
-            scrollerWrapper.addEventListener("wheel", handleWheelScroll, { 
-                passive: false, 
-                capture: true 
-            });
-
-            // Add click events to hotel cards
-            const hotelCards = scroller.querySelectorAll('.hotel-card');
-            hotelCards.forEach((card, index) => {
-                card.addEventListener('click', function() {
-                    const hotelName = card.querySelector('h3').textContent;
-                    const hotelLocation = card.querySelector('.hotel-location')?.textContent?.trim() || '';
-                    console.log(`Selected hotel: ${hotelName}`);
-                    
-                    // Add selection visual feedback
-                    hotelCards.forEach(c => c.classList.remove('selected'));
-                    card.classList.add('selected');
-                    
-                    // Prepare hotel data for date selection modal
-                    const hotelData = {
-                        id: card.dataset.hotelId || `horizontal-${index}`,
-                        name: hotelName,
-                        address: hotelLocation,
-                        coordinates: [127.0, 37.5] // Default coordinates
-                    };
-                    
-                    // Check if showHotelDateSelection function exists
-                    if (typeof window.showHotelDateSelection === 'function') {
-                        console.log('🎯 Opening date selection modal from horizontal list...');
-                        // Close horizontal overlay first
-                        setTimeout(() => {
-                            showHorizontalHotelOverlay(); // Toggle to close
-                        }, 300);
-                        
-                        // Open the date selection modal
-                        window.showHotelDateSelection(hotelData, null);
-                    } else {
-                        console.warn('Date selection modal function not available');
-                        // Fallback: Auto-hide overlay after selection
-                        setTimeout(() => {
-                            showHorizontalHotelOverlay(); // Toggle to close
-                        }, 1000);
+                trip.attractions.forEach(a => {
+                    const coords = a.geometry ? a.geometry.coordinates : (a.coordinates ? [a.coordinates.longitude, a.coordinates.latitude] : null);
+                     if (coords) {
+                         const lng = Array.isArray(coords) ? coords[0] : coords.longitude;
+                         const lat = Array.isArray(coords) ? coords[1] : coords.latitude;
+                         if (lng && lat) {
+                            const el = document.createElement('div'); el.className = 'marker'; el.style.width = '24px'; el.style.height = '24px'; el.style.backgroundImage = 'url(https://api.geoapify.com/v1/icon/?type=awesome&color=%239b59b6&size=small&icon=camera&apiKey=' + this.apiKey + ')'; el.style.backgroundSize = 'contain';
+                            const m = new maplibregl.Marker(el).setLngLat([lng, lat]).addTo(this.map);
+                            this.attractionMarkers.push(m); bounds.extend([lng, lat]);
+                         }
                     }
                 });
-            });
+                if (!bounds.isEmpty()) this.map.fitBounds(bounds, { padding: 50 });
+            },
 
-            // Initialize progress
-            setTimeout(updateScrollProgress, 100);
-            
-            console.log('Horizontal scroll overlay initialized successfully');
-        }
-        
-        // Horizontal scroll functionality for the attraction overlay
-        function initializeHorizontalAttractionScrollOverlay() {
-            const scroller = document.querySelector('#horizontal-attraction-overlay #scroller');
-            const scrollerWrapper = document.querySelector('#horizontal-attraction-overlay .scroller-wrapper');
-            const scrollProgress = document.querySelector('#horizontal-attraction-overlay #scroll-progress');
-
-            console.log('Initializing horizontal attraction scroll overlay:', { scroller, scrollerWrapper, scrollProgress });
-
-            if (!scroller || !scrollerWrapper || !scrollProgress) {
-                console.error('Horizontal attraction scroll overlay elements not found');
-                return;
-            }
-
-            // Update progress bar function
-            function updateScrollProgress() {
-                if (scrollerWrapper.scrollWidth <= scrollerWrapper.clientWidth) {
-                    scrollProgress.style.width = "100%";
-                    return;
-                }
-                
-                const scrollPercent = (scrollerWrapper.scrollLeft / (scrollerWrapper.scrollWidth - scrollerWrapper.clientWidth)) * 100;
-                const clampedPercent = Math.max(0, Math.min(100, scrollPercent));
-                scrollProgress.style.width = clampedPercent + "%";
-            }
-
-            // Add scroll event listener
-            scrollerWrapper.addEventListener("scroll", updateScrollProgress);
-
-            // Enhanced wheel event handler for horizontal scrolling
-            function handleWheelScroll(event) {
-                if (scrollerWrapper.scrollWidth > scrollerWrapper.clientWidth) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    
-                    const scrollAmount = event.deltaY * 2;
-                    scrollerWrapper.scrollLeft += scrollAmount;
-                    updateScrollProgress();
-                    
-                    return false;
-                }
-            }
-
-            // Add wheel events
-            scrollerWrapper.addEventListener("wheel", handleWheelScroll, { 
-                passive: false, 
-                capture: true 
-            });
-
-            // Add click events to attraction cards
-            const attractionCards = scroller.querySelectorAll('.attraction-card');
-            attractionCards.forEach((card, index) => {
-                card.addEventListener('click', function() {
-                    const attractionName = card.querySelector('h3').textContent;
-                    console.log(`Selected attraction: ${attractionName}`);
-                    
-                    // Generate a simple ID based on the attraction name and index
-                    const attractionId = `attraction_${index}_${attractionName.toLowerCase().replace(/\s+/g, '_')}`;
-                    
-                    // Check if this attraction is already selected
-                    const isCurrentlySelected = card.classList.contains('selected');
-                    
-                    if (isCurrentlySelected) {
-                        // Deselect the attraction
-                        card.classList.remove('selected');
-                        console.log(`🔴 Deselected attraction: ${attractionName}`);
-                        logAttractionSelection(attractionName, false);
-                        
-                        // Update map marker to unselected state
-                        if (ensureAttractionInstance() && typeof window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList === 'function') {
-                            window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(attractionId, attractionName, false);
-                        }
-                        
-                        // If we have the selectAttraction function available, we could cancel the selection
-                        if (window.displayAttractionInstance && typeof window.displayAttractionInstance.cancelAttractionSelection === 'function') {
-                            try {
-                                window.displayAttractionInstance.cancelAttractionSelection(attractionId);
-                            } catch (error) {
-                                console.warn('Could not cancel attraction selection:', error);
-                            }
-                        }
-                    } else {
-                        // Remove selection from all other cards first (single selection mode)
-                        attractionCards.forEach((c, i) => {
-                            if (c.classList.contains('selected')) {
-                                c.classList.remove('selected');
-                                const otherAttractionName = c.querySelector('h3').textContent;
-                                const otherAttractionId = `attraction_${i}_${otherAttractionName.toLowerCase().replace(/\s+/g, '_')}`;
-                                
-                                logAttractionSelection(otherAttractionName, false);
-                                
-                                // Update map marker for deselected attraction
-                                if (ensureAttractionInstance() && typeof window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList === 'function') {
-                                    window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(otherAttractionId, otherAttractionName, false);
-                                }
+            // ... (Other methods same as before: showHistoryRoutes, showHistorySchedule, etc.)
+            showHistoryRoutes(trip) {
+                this.clearRouteLayers();
+                let result = trip.optimize_result;
+                if (typeof result === 'string') { try { result = JSON.parse(result); } catch(e) { return; } }
+                if (!result) return;
+                const nDays = result.n_days || 1;
+                const colors = ['#e74c3c', '#f1c40f', '#2ecc71', '#3498db', '#9b59b6'];
+                for (let i = 1; i <= nDays; i++) {
+                    const pathKey = `day${i}_path_lines`;
+                    const paths = result[pathKey];
+                    if (paths && Array.isArray(paths)) {
+                        const allCoords = [];
+                        paths.forEach(segment => {
+                            if (segment.path_coordinates) {
+                                const fixedCoords = segment.path_coordinates.map(c => [c[1], c[0]]);
+                                allCoords.push(fixedCoords);
                             }
                         });
-                        
-                        // Select the clicked attraction
-                        card.classList.add('selected');
-                        console.log(`🟢 Selected attraction: ${attractionName}`);
-                        logAttractionSelection(attractionName, true);
-                        
-                        // Update map marker to selected state
-                        if (ensureAttractionInstance() && typeof window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList === 'function') {
-                            window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(attractionId, attractionName, true);
+                        if (allCoords.length > 0) {
+                            const sourceId = `route-day-${i}`;
+                            this.map.addSource(sourceId, { 'type': 'geojson', 'data': { 'type': 'Feature', 'properties': {}, 'geometry': { 'type': 'MultiLineString', 'coordinates': allCoords } } });
+                            this.map.addLayer({ 'id': `route-layer-${i}`, 'type': 'line', 'source': sourceId, 'layout': { 'line-join': 'round', 'line-cap': 'round' }, 'paint': { 'line-color': colors[(i-1)%colors.length], 'line-width': 4, 'line-opacity': 0.8 } });
                         }
-                        
-                        // If we have attraction selection functionality, trigger it
-                        if (window.displayAttractionInstance && typeof window.displayAttractionInstance.selectAttraction === 'function') {
-                            // Get location from the card
-                            const locationElement = card.querySelector('.attraction-location');
-                            const location = locationElement ? locationElement.textContent.replace('🗺️', '').trim() : 'Unknown Location';
-                            
-                            // Mock coordinates based on known locations (this should ideally come from API data)
-                            let coordinates = '126.9780,37.5665'; // Default Seoul coordinates
-                            
-                            // Try to trigger the selection with mock data - in a real implementation, this would use API data
-                            try {
-                                // Note: This is a simplified version - in practice you'd want to get real coordinates from your attraction data
-                                console.log(`Triggering attraction selection for ${attractionName} at ${location}`);
-                            } catch (error) {
-                                console.warn('Could not trigger attraction selection:', error);
-                            }
-                        }
-                        
-                        // Optional: Auto-hide overlay after a longer delay to allow user to see the selection
-                        setTimeout(() => {
-                            showHorizontalAttractionOverlay(); // Toggle to close
-                        }, 2000);
                     }
-                });
-            });
-
-            // Initialize progress
-            setTimeout(updateScrollProgress, 100);
-            
-            console.log('Horizontal attraction scroll overlay initialized successfully');
+                }
+            },
+            showHistorySchedule(trip) {
+                this.ganttData = {};
+                let result = trip.optimize_result;
+                if (typeof result === 'string') { try { result = JSON.parse(result); } catch(e) { return; } }
+                if (!result) return;
+                const nDays = result.n_days || 1;
+                for (let i = 1; i <= nDays; i++) {
+                    const schedKey = `day${i}_schedule`;
+                    if (result[schedKey]) {
+                        const timeline = result[schedKey].timeline || result[schedKey];
+                        if(Array.isArray(timeline)) this.ganttData[`Day ${i}`] = timeline;
+                    }
+                }
+                this.showGanttModal = true;
+            },
+            async submitItinerary() { /* ... Same ... */ if (!this.selectedPlace || !this.startDate || !this.endDate) { alert("Please select a destination and dates."); return; } this.isSubmitting = true; let cursorDate = new Date(this.startDate); const tripStart = new Date(this.startDate); const formatYMD = (date) => { const y=date.getFullYear(), m=String(date.getMonth()+1).padStart(2,'0'), d=String(date.getDate()).padStart(2,'0'); return `${y}-${m}-${d}`; }; const formatReadable = (date) => date.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }); const hotelsPayload = this.bookedHotels.map((item) => { const checkIn = new Date(cursorDate); const checkOut = new Date(cursorDate); checkOut.setDate(checkOut.getDate() + item.duration); const diffTime = Math.abs(checkIn - tripStart); const dayNumber = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; const bookingObj = { checkInDate: formatYMD(checkIn), checkOutDate: formatYMD(checkOut), dateRange: `${formatReadable(checkIn)} to ${formatReadable(checkOut)}`, dayNumber: dayNumber, stayDate: formatYMD(checkIn), isDateRange: true }; cursorDate = new Date(checkOut); return { ...item.hotel, user_stay_duration: item.duration, booking: bookingObj }; }); const payload = { destination: { name: this.selectedPlace.properties.name, country: this.selectedCountry.name, country_code: this.selectedCountry.country_code || '', place_id: this.selectedPlace.properties.place_id, properties: { ...this.selectedPlace.properties, city: this.selectedPlace.properties.name, country: this.selectedCountry.name, lat: this.selectedPlace.properties.lat || 0, lon: this.selectedPlace.properties.lon || 0 }, coordinates: { latitude: this.selectedPlace.properties.lat || 0, longitude: this.selectedPlace.properties.lon || 0 } }, dates: { start_date: this.startDate.split('T')[0], end_date: this.endDate.split('T')[0], start_time: this.startDate.split('T')[1] || '00:00', end_time: this.endDate.split('T')[1] || '23:59' }, hotels: hotelsPayload, attractions: this.selectedAttractions }; try { const response = await fetch('/tourism/api/test_api_call_3/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); const result = await response.json(); if(response.ok) { alert("Itinerary processed successfully!"); this.switchView('history'); } else { alert("Error: " + (result.error || "Unknown error")); } } catch (error) { alert("Network error."); } finally { this.isSubmitting = false; } },
+            openAttractionDropdown() { if(!this.selectedPlace) { alert("Please select a City first."); return; } this.isAttractionDropdownOpen = true; if(this.attractions.length === 0) this.fetchAttractions(); },
+            async fetchAttractions() { this.isLoadingAttractions = true; this.attractionMarkers.forEach(m => m.remove()); this.attractionMarkers = []; const cityPlaceId = this.selectedPlace.properties.place_id; const url = `https://api.geoapify.com/v2/places?categories=tourism.attraction&filter=place:${cityPlaceId}&limit=100&apiKey=${this.apiKey}`; try { const response = await fetch(url); const data = await response.json(); if(data.features) { this.attractions = data.features; this.addAttractionMarkers(); } } catch (error) { console.error(error); } finally { this.isLoadingAttractions = false; } },
+            addAttractionMarkers() { this.attractions.forEach(attr => { const el = document.createElement('div'); el.className = 'marker'; el.style.width = '24px'; el.style.height = '24px'; el.style.backgroundImage = 'url(https://api.geoapify.com/v1/icon/?type=awesome&color=%239b59b6&size=small&icon=camera&apiKey=' + this.apiKey + ')'; el.style.backgroundSize = 'contain'; el.style.cursor = 'pointer'; el.addEventListener('click', (e) => { e.stopPropagation(); this.selectAttraction(attr); }); const marker = new maplibregl.Marker(el).setLngLat(attr.geometry.coordinates).addTo(this.map); this.attractionMarkers.push(marker); }); },
+            selectAttraction(attr) { this.selectedDetailPlace = attr; if(!attr.properties.category) attr.properties.category = 'tourism.attraction'; this.map.flyTo({ center: attr.geometry.coordinates, zoom: 16, pitch: 45 }); this.isAttractionDropdownOpen = false; },
+            addAttractionToItinerary(attr) { if(!this.selectedAttractions.find(a => a.properties.place_id === attr.properties.place_id)) { this.selectedAttractions.push(attr); } },
+            removeAttraction(index) { this.selectedAttractions.splice(index, 1); },
+            openHotelDropdown() { if(!this.selectedPlace || !this.startDate || !this.endDate) { alert("Select City and Dates first."); return; } this.isHotelDropdownOpen = true; if(this.hotels.length === 0) this.fetchHotels(); },
+            async fetchHotels() { this.isLoadingHotels = true; this.hotelMarkers.forEach(m => m.remove()); this.hotelMarkers = []; const cityPlaceId = this.selectedPlace.properties.place_id; const url = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&filter=place:${cityPlaceId}&limit=50&apiKey=${this.apiKey}`; try { const response = await fetch(url); const data = await response.json(); if(data.features) { this.hotels = data.features; this.addHotelMarkers(); } } catch (error) { console.error(error); } finally { this.isLoadingHotels = false; } },
+            addHotelMarkers() { this.hotels.forEach(hotel => { const el = document.createElement('div'); el.className = 'marker'; el.style.width = '24px'; el.style.height = '24px'; el.style.backgroundImage = 'url(https://api.geoapify.com/v1/icon/?type=awesome&color=%233498db&size=small&icon=bed&apiKey=' + this.apiKey + ')'; el.style.backgroundSize = 'contain'; el.style.cursor = 'pointer'; el.addEventListener('click', (e) => { e.stopPropagation(); this.selectHotel(hotel); }); const marker = new maplibregl.Marker(el).setLngLat(hotel.geometry.coordinates).addTo(this.map); this.hotelMarkers.push(marker); }); },
+            selectHotel(hotel) { this.selectedDetailPlace = hotel; if(!hotel.properties.category) hotel.properties.category = 'accommodation.hotel'; this.map.flyTo({ center: hotel.geometry.coordinates, zoom: 16, pitch: 45 }); this.isHotelDropdownOpen = false; this.hotelSearchQuery = hotel.properties.name; },
+            openBookingModal(hotel, mode = 'add', index = -1) { this.selectedHotelForBooking = hotel; this.isEditing = (mode === 'edit'); this.editingIndex = index; if(!this.startDate || !this.endDate) { alert("Dates required."); return; } let usedDays = this.daysBooked; if (this.isEditing) usedDays -= this.bookedHotels[index].duration; this.currentMaxAllowed = this.totalTripDays - usedDays; if (this.currentMaxAllowed <= 0) { alert("No days remaining!"); return; } this.bookingDuration = this.isEditing ? this.bookedHotels[index].duration : 1; if (this.bookingDuration > this.currentMaxAllowed) this.bookingDuration = this.currentMaxAllowed; this.isBookingModalOpen = true; },
+            enforceMaxDuration() { if (this.bookingDuration > this.currentMaxAllowed) this.bookingDuration = this.currentMaxAllowed; if (this.bookingDuration < 1) this.bookingDuration = 1; },
+            closeBookingModal() { this.isBookingModalOpen = false; this.selectedHotelForBooking = null; },
+            confirmBooking() { if (this.bookingDuration > this.currentMaxAllowed) return; if (this.isEditing) this.bookedHotels[this.editingIndex].duration = this.bookingDuration; else this.bookedHotels.push({ hotel: this.selectedHotelForBooking, duration: this.bookingDuration }); this.closeBookingModal(); },
+            removeBooking(index) { if(confirm("Remove hotel?")) this.bookedHotels.splice(index, 1); },
+            async selectCountry(country) { this.selectedCountry = country; this.countrySearchQuery = ''; this.selectedPlace = null; this.selectedDetailPlace = null; this.isCountryMenuOpen = false; this.isLoading = true; this.places = []; this.hotels = []; this.attractions = []; this.bookedHotels = []; this.selectedAttractions = []; this.markers.forEach(m => m.remove()); this.markers = []; this.hotelMarkers.forEach(m => m.remove()); this.hotelMarkers = []; this.attractionMarkers.forEach(m => m.remove()); this.attractionMarkers = []; if(this.map.getSource('boundaries')) this.map.getSource('boundaries').setData({type: 'FeatureCollection', features: []}); if(!this.isListPanelOpen) this.toggleListPanel(); this.isCityDropdownOpen = true; const searchText = encodeURIComponent(country.name); const url = `https://api.geoapify.com/v1/geocode/search?text=${searchText}&limit=1&type=country&format=json&apiKey=${this.apiKey}`; try { const response = await fetch(url); const data = await response.json(); if (data.results && data.results.length > 0) { const result = data.results[0]; this.currentPlaceId = result.place_id; this.selectedCountry.country_code = result.country_code; if (result.bbox && this.map) this.map.fitBounds([[result.bbox.lon1, result.bbox.lat1], [result.bbox.lon2, result.bbox.lat2]], { padding: 50, maxZoom: 8 }); else if (this.map) this.map.flyTo({ center: [result.lon, result.lat], zoom: 5 }); await this.fetchBoundaries(this.currentPlaceId); } } catch (error) { console.error(error); } finally { this.isLoading = false; } },
+            async fetchBoundaries(placeId) { const url = `https://api.geoapify.com/v1/boundaries/consists-of?id=${placeId}&geometry=geometry_1000&apiKey=${this.apiKey}`; try { const response = await fetch(url); const geojsonData = await response.json(); if (geojsonData && geojsonData.features) { if (this.map && this.map.getSource('boundaries')) this.map.getSource('boundaries').setData(geojsonData); this.places = geojsonData.features.map((feature, index) => { feature.id = feature.properties.place_id || index; if(!feature.properties.category) feature.properties.category = 'administrative.boundary'; return feature; }); this.addMarkers(); } } catch (error) { console.error(error); } },
+            addMarkers() { this.markers.forEach(m => m.remove()); this.markers = []; this.places.forEach(place => { let coordinates = null; if (place.properties.lon && place.properties.lat) coordinates = [place.properties.lon, place.properties.lat]; else if (place.geometry.type === 'Point') coordinates = place.geometry.coordinates; if (coordinates) { const el = document.createElement('div'); el.className = 'marker'; el.style.width = '30px'; el.style.height = '30px'; el.style.backgroundImage = 'url(https://api.geoapify.com/v1/icon/?type=awesome&color=%2342b983&size=small&icon=city&apiKey=' + this.apiKey + ')'; el.style.backgroundSize = 'contain'; el.style.cursor = 'pointer'; el.addEventListener('click', (e) => { e.stopPropagation(); this.selectPlace(place); }); const marker = new maplibregl.Marker(el).setLngLat(coordinates).addTo(this.map); this.markers.push(marker); } }); },
+            selectPlace(place) { this.selectedPlace = place; this.selectedDetailPlace = place; this.isCityDropdownOpen = false; this.placeSearchQuery = ''; this.hotels = []; this.attractions = []; this.hotelSearchQuery = ''; this.attractionSearchQuery = ''; this.hotelMarkers.forEach(m => m.remove()); this.hotelMarkers = []; this.attractionMarkers.forEach(m => m.remove()); this.attractionMarkers = []; if (place.properties.lon && place.properties.lat) this.map.flyTo({ center: [place.properties.lon, place.properties.lat], zoom: 10 }); else if (place.geometry.type === 'Point') this.map.flyTo({ center: place.geometry.coordinates, zoom: 14 }); },
+            flyToLocation() { if(this.selectedDetailPlace) { if (this.selectedDetailPlace.geometry && this.selectedDetailPlace.geometry.type === 'Point') { this.map.flyTo({ center: this.selectedDetailPlace.geometry.coordinates, zoom: 17, pitch: 45 }); } else if (this.selectedDetailPlace.properties.lon) { this.map.flyTo({ center: [this.selectedDetailPlace.properties.lon, this.selectedDetailPlace.properties.lat], zoom: 12 }); } } },
+            formatDateTime(dateStr) { if(!dateStr) return ''; return new Date(dateStr).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }); },
+            getIcon(c) { if (!c) return 'fa-solid fa-city'; if (Array.isArray(c)) c = c.join(''); if (c.includes('accommodation')) return 'fa-solid fa-bed'; if (c.includes('attraction')) return 'fa-solid fa-camera'; if (c.includes('administrative')) return 'fa-solid fa-building-columns'; return 'fa-solid fa-map-pin'; },
+            formatCategory(c) { if (!c) return 'Location'; if (Array.isArray(c)) c = c.join(', '); if (c.includes('hotel')) return 'Hotel'; if (c.includes('attraction')) return 'Attraction'; return c.replace('administrative', 'Admin').split('.').pop().toUpperCase(); },
+            isHotel(place) { return place && place.properties.category && (Array.isArray(place.properties.category) ? place.properties.category.join('') : place.properties.category).includes('hotel'); },
+            isAttraction(place) { return place && place.properties.category && (Array.isArray(place.properties.category) ? place.properties.category.join('') : place.properties.category).includes('attraction'); },
+            toggleListPanel() { if(!this.selectedCountry && this.currentView==='planner') return; this.isListPanelOpen = !this.isListPanelOpen; setTimeout(() => { if (this.map) this.map.resize(); }, 310); },
+            toggleCityDropdown() { this.isCityDropdownOpen = !this.isCityDropdownOpen; },
+            toggleCountryMenu() { this.isCountryMenuOpen = !this.isCountryMenuOpen; this.isUserMenuOpen = false; this.isCityDropdownOpen = false; if (this.isCountryMenuOpen) { this.$nextTick(() => { this.$refs.countryInput.focus(); }); } },
+            toggleUserMenu() { this.isUserMenuOpen = !this.isUserMenuOpen; this.isCountryMenuOpen = false; this.isCityDropdownOpen = false;},
+            closeMenus() { this.isUserMenuOpen = false; this.isCountryMenuOpen = false; this.isHotelDropdownOpen = false; this.isAttractionDropdownOpen = false; },
+            closeDetails() { this.selectedDetailPlace = null; this.selectedHistoryTrip = null; },
+            async fetchCountryList() { try { const response = await fetch('/tourism/api/countries_list/'); if (response.ok) { const data = await response.json(); if (Array.isArray(data) && data.length > 0) { this.countriesList = data.map(item => ({ id: item.id || Math.random(), name: item.Country || item.country_name || 'Unknown Country', continent: item.Continent || 'Other' })); } } } catch (error) { this.countriesList = [ { id: 1, name: 'France', continent: 'Europe' }, { id: 2, name: 'South Korea', continent: 'Asia' }, { id: 3, name: 'Japan', continent: 'Asia' }, { id: 4, name: 'United States', continent: 'North America' } ]; } },
+            initMap() { this.map = new maplibregl.Map({ container: 'map', style: `https://maps.geoapify.com/v1/styles/osm-bright/style.json?apiKey=${this.apiKey}`, center: [2.2945, 48.8584], zoom: 4 }); this.map.addControl(new maplibregl.NavigationControl()); this.map.on('load', () => { this.map.addSource('boundaries', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } }); this.map.addLayer({ id: 'boundary-fill', type: 'fill', source: 'boundaries', paint: { 'fill-color': '#42b983', 'fill-opacity': 0.15, 'fill-outline-color': '#42b983' } }); this.map.addLayer({ id: 'boundary-line', type: 'line', source: 'boundaries', paint: { 'line-color': '#2c3e50', 'line-width': 1 } }); this.map.on('click', 'boundary-fill', (e) => { if(e.features.length > 0) { const placeId = e.features[0].properties.place_id; const place = this.places.find(p => p.properties.place_id === placeId); if(place) this.selectPlace(place); } }); this.map.on('mouseenter', 'boundary-fill', () => { this.map.getCanvas().style.cursor = 'pointer'; }); this.map.on('mouseleave', 'boundary-fill', () => { this.map.getCanvas().style.cursor = ''; }); }); }
         }
-        
-        // Show user history modal - This function is now defined in history_data.html
-        // The modal include file contains its own showUserHistoryModal() function
-        // No need to redefine it here
+    }).mount('#app');
+</script>
 
-        // Function to clear all selections and start a new trip
-        function showNewTripModal() {
-            console.log('🆕 Starting new trip - clearing all selections...');
-            
-            // Confirm with user before clearing everything
-            const confirmClear = confirm('Start a new trip? This will clear all current selections including hotels, attractions, dates, and routes.');
-            
-            if (!confirmClear) {
-                console.log('❌ New trip cancelled by user');
-                return;
-            }
-            
-            try {
-                // 1. Clear step process selections (from step_process.html)
-                console.log('🧹 Clearing step process selections...');
-                if (typeof window.clearAllHotelSelections === 'function') {
-                    window.clearAllHotelSelections();
-                }
-                
-                if (typeof window.clearAllAttractionSelections === 'function') {
-                    window.clearAllAttractionSelections();
-                }
-                
-                if (typeof window.clearAllMarkersFromMap === 'function') {
-                    window.clearAllMarkersFromMap();
-                }
-                
-                // 2. Clear step process global data
-                console.log('📊 Clearing step process global data...');
-                window.selectedProvinceData = null;
-                window.selectedDateTimeData = null;
-                window.selectedDatetimeData = null;
-                window.selectedHotelsData = [];
-                window.selectedAttractionsData = [];
-                window.selectedHotelData = null;
-                window.selectedAttractionData = null;
-                
-                // 3. Clear display instance data
-                if (window.displayHotelInstance) {
-                    console.log('🏨 Clearing hotel display instance data...');
-                    if (typeof window.displayHotelInstance.clearAllHotelData === 'function') {
-                        window.displayHotelInstance.clearAllHotelData();
-                    }
-                }
-                
-                if (window.displayAttractionInstance) {
-                    console.log('🎯 Clearing attraction display instance data...');
-                    if (typeof window.displayAttractionInstance.clearSelectedAttractions === 'function') {
-                        window.displayAttractionInstance.clearSelectedAttractions();
-                    }
-                }
-                
-                // 4. Clear date inputs
-                console.log('📅 Clearing date selections...');
-                const startDateInput = document.getElementById('startDate');
-                const endDateInput = document.getElementById('endDate');
-                const startTimeInput = document.getElementById('startTime');
-                const endTimeInput = document.getElementById('endTime');
-                
-                if (startDateInput) startDateInput.value = '';
-                if (endDateInput) endDateInput.value = '';
-                if (startTimeInput) startTimeInput.value = '09:00';
-                if (endTimeInput) endTimeInput.value = '18:00';
-                
-                // 5. Clear route/optimization results
-                if (window.displayLineResultInstance) {
-                    console.log('🗺️ Clearing route display...');
-                    if (typeof window.displayLineResultInstance.clearRouteVisualization === 'function') {
-                        window.displayLineResultInstance.clearRouteVisualization();
-                    }
-                }
-                
-                // 6. Clear localStorage
-                console.log('💾 Clearing localStorage...');
-                localStorage.removeItem('hotelBookings');
-                localStorage.removeItem('tripData');
-                localStorage.removeItem('selectedProvince');
-                localStorage.removeItem('selectedDates');
-                localStorage.removeItem('attractionSelections');
-                localStorage.removeItem('selectedAttractions');
-                localStorage.removeItem('tripAttractionData');
-                
-                // 7. Reset all step buttons to initial state
-                console.log('🔘 Resetting step buttons...');
-                
-                // Reset Destination button
-                const destinationBtn = document.getElementById('Destination');
-                if (destinationBtn) {
-                    destinationBtn.innerHTML = 'Choose Destination <i class="fa-solid fa-earth-americas"></i>';
-                    destinationBtn.className = 'btn btn-primary w-100';
-                }
-                
-                // Reset DateTime/Dates button
-                const datetimeBtn = document.getElementById('DateTime') || document.getElementById('Datetime');
-                if (datetimeBtn) {
-                    datetimeBtn.innerHTML = 'Choose Dates <i class="fa-solid fa-calendar-days"></i>';
-                    datetimeBtn.className = 'btn btn-primary w-100';
-                }
-                
-                // Reset Hotel button
-                const hotelBtn = document.getElementById('Hotel');
-                if (hotelBtn) {
-                    hotelBtn.innerHTML = 'Choose Hotels <i class="fa-solid fa-hotel"></i>';
-                    hotelBtn.className = 'btn btn-primary w-100';
-                    hotelBtn.disabled = false;
-                }
-                
-                // Reset Attraction button
-                const attractionBtn = document.getElementById('Attraction');
-                if (attractionBtn) {
-                    attractionBtn.innerHTML = 'Choose Attractions <i class="fa-solid fa-map-marker-alt"></i>';
-                    attractionBtn.className = 'btn btn-primary w-100';
-                    attractionBtn.disabled = false;
-                }
-                
-                // 8. Reset and prepare selection display areas
-                console.log('👁️ Resetting selection displays...');
-                const selectedDestinationDiv = document.getElementById('selectedDestination');
-                const selectedDatesDiv = document.getElementById('selectedDates');
-                
-                if (selectedDestinationDiv) {
-                    selectedDestinationDiv.style.display = 'none';
-                    selectedDestinationDiv.innerHTML = ''; // Clear content
-                }
-                if (selectedDatesDiv) {
-                    selectedDatesDiv.style.display = 'none';
-                    selectedDatesDiv.innerHTML = ''; // Clear content
-                }
-                
-                // 9. Reset map view to Korea center and clear all markers
-                if (window.mapInstance || window.displayMapInstance || window.displayMap) {
-                    console.log('🗺️ Resetting map view and clearing markers...');
-                    
-                    let map = null;
-                    if (window.mapInstance && typeof window.mapInstance.getMap === 'function') {
-                        map = window.mapInstance.getMap();
-                    } else if (window.displayMapInstance && typeof window.displayMapInstance.getMap === 'function') {
-                        map = window.displayMapInstance.getMap();
-                    } else if (window.displayMap && typeof window.displayMap.getMap === 'function') {
-                        map = window.displayMap.getMap();
-                    } else if (window.map) {
-                        map = window.map;
-                    }
-                    
-                    if (map) {
-                        // Reset view to Korea center
-                        map.setView([36.5, 127.5], 7);
-                        
-                        // Clear all markers
-                        if (window.hotelMarkers && Array.isArray(window.hotelMarkers)) {
-                            window.hotelMarkers.forEach(marker => {
-                                if (marker && typeof marker.remove === 'function') {
-                                    marker.remove();
-                                }
-                            });
-                            window.hotelMarkers = [];
-                        }
-                        
-                        if (window.attractionMarkers && Array.isArray(window.attractionMarkers)) {
-                            window.attractionMarkers.forEach(marker => {
-                                if (marker && typeof marker.remove === 'function') {
-                                    marker.remove();
-                                }
-                            });
-                            window.attractionMarkers = [];
-                        }
-                    }
-                }
-                
-                // 10. Close any open overlays and modals
-                console.log('🔒 Closing overlays and modals...');
-                const hotelOverlay = document.getElementById('horizontal-hotel-overlay');
-                if (hotelOverlay && hotelOverlay.style.display === 'block') {
-                    hotelOverlay.style.display = 'none';
-                }
-                
-                const attractionOverlay = document.getElementById('horizontal-attraction-overlay');
-                if (attractionOverlay && attractionOverlay.style.display === 'block') {
-                    attractionOverlay.style.display = 'none';
-                }
-                
-                // Close any open modals
-                const openModals = document.querySelectorAll('.modal.show, .modal-overlay.show');
-                openModals.forEach(modal => {
-                    modal.classList.remove('show');
-                    modal.style.display = 'none';
-                });
-                
-                // 11. Stop any active polling and then restart it
-                console.log('⏹️ Stopping active polling...');
-                if (typeof window.stopDisplayPolling === 'function') {
-                    window.stopDisplayPolling();
-                }
-                
-                // 12. Restart display polling for new selections
-                console.log('▶️ Restarting display polling for new selections...');
-                setTimeout(() => {
-                    if (typeof window.startDisplayPolling === 'function') {
-                        window.startDisplayPolling();
-                    }
-                    if (typeof window.updateAllSelectionDisplays === 'function') {
-                        window.updateAllSelectionDisplays();
-                    }
-                }, 500); // Small delay to ensure everything is cleared first
-                
-                console.log('✅ All selections cleared! Ready for new trip planning.');
-                
-                // Show success message
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'New Trip Started!',
-                        text: 'All previous selections have been cleared. Ready to plan your new trip!',
-                        timer: 2500,
-                        showConfirmButton: false,
-                        toast: true,
-                        position: 'top-end'
-                    });
-                } else {
-                    alert('✅ Ready to plan your new trip! Start by selecting a region and dates.');
-                }
-                
-            } catch (error) {
-                console.error('❌ Error clearing selections:', error);
-                
-                // Show error message
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'An error occurred while clearing selections. Please refresh the page.',
-                        confirmButtonText: 'OK'
-                    });
-                } else {
-                    alert('An error occurred while clearing selections. Please refresh the page.');
-                }
-            }
-        }
-        
-        // Make function globally available
-        window.showNewTripModal = showNewTripModal;
-       
-    </script>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-text">
-                <p>&copy; Upsil Interactive Map. Copyright UPSIL-PKNU 2025</p>
-            </div>
-        </div>
-    </footer>
 </body>
 </html>
-

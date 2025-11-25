@@ -8,6 +8,9 @@ import json, datetime
 import uuid
 import pandas as pd 
 from production.utils import get_mongo_client
+from django.conf import settings
+import os
+    
 
 from tourism.optimization import dummy_schedule
 
@@ -17,6 +20,7 @@ korean_provinces_collection = db["korean_provinces"]
 korean_attractions_collection = db["tourism_attraction"]
 trip_optimization_collection = db["trip_optimization"]
 graph_ml_collection = db["map_graph_ml"]
+country_list_collection = db["countries"]
 
 geopify_api_key = "a5edd953082d4f209e8ef29fdeedb0a1"
 limit = 100
@@ -866,45 +870,14 @@ def test_api_call_2(request):
 
 @csrf_exempt
 def test_api_call_3(request):
-    from django.conf import settings
-    import os
     if request.method == 'POST':
         try:
             # Parse the incoming JSON data
             data = json.loads(request.body)
-            # data = None
-            # result_data = None
-
+           
             username = request.session.get('username', 'test')
             user_id = request.session.get('id', 'test')
-            # username = "pknu"
-            # user_id = "adfbd455-6735-491e-87a3-8728ccd3a34a"
-
-            # Load dummy JSON data
            
-            
-            # data_json_path = os.path.join(settings.BASE_DIR, 'frontend', 'static', 'js', 'tourism', 'dummy_json_data', 'testdata1.json')
-            # try:
-            #     if os.path.exists(data_json_path):
-            #         with open(data_json_path, 'r', encoding='utf-8') as f:
-            #             data = json.load(f)
-            #     else:
-            #         data = {}
-            # except (FileNotFoundError, json.JSONDecodeError, PermissionError) as e:
-            #     print(f"Error loading test data: {e}")
-            #     data = {}
-            
-            # result_json_path = os.path.join(settings.BASE_DIR, 'frontend', 'static', 'js', 'tourism', 'dummy_json_data', 'result1.json')
-            # try:
-            #     if os.path.exists(result_json_path):
-            #         with open(result_json_path, 'r', encoding='utf-8') as f:
-            #             result_data = json.load(f)
-            #     else:
-            #         result_data = {}
-            # except (FileNotFoundError, json.JSONDecodeError, PermissionError) as e:
-            #     print(f"Error loading result data: {e}")
-            #     result_data = {}
-
             # Extract destination data with proper fallbacks
             destination = data.get('destination', {})
             dest_properties = destination.get('properties', {})
@@ -1138,3 +1111,9 @@ def calculate_distance_matrix_test(data=None):
     distance_matrix_data = geo.calculate_distance_matrix(data)
     return distance_matrix_data
 
+
+def get_countries_list(request):
+    if request.method == 'GET':
+        countries_data = list(country_list_collection.find({}, {'_id':0}))
+
+        return JsonResponse(countries_data, safe=False)

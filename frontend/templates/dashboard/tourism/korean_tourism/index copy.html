@@ -1,0 +1,929 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tourism Platform</title>
+                       
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin=""/>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- jQuery Datetimepicker CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
+    
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/tourism/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tourism/enhanced-ux.css' %}?v=1.0">
+    <!-- <link rel="stylesheet" href="{% static 'css/tourism/trip_history.css' %}"> -->
+    <link rel="stylesheet" href="{% static 'css/tourism/modalTripSummary.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tourism/scroll_images.css' %}?v={{ "now"|date:"YmdHis" }}">
+
+    <!-- MapLibre GL JS CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <div id="app">
+        {% verbatim %}
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <h1>Upsil Tourism Platform</h1>
+                </div>
+                <div class="header-actions" style="position:relative;">
+                    <button class="menu-toggle" @click="toggleMenu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    
+                    <!-- Country Dropdown with Vue -->
+                    <div class="continent-country-dropdown" style="display:inline-block;position:relative;margin-right:10px;">
+                        <button @click.stop="toggleCountryDropdown" class="btn btn-primary topbarButton">
+                            <i class="fas fa-globe"></i> 
+                            <span>{{ selectedCountry ? selectedCountry : 'Select Country' }}</span> 
+                            <i class="fas fa-caret-down"></i>
+                        </button>
+                        <div v-show="showCountryDropdown" 
+                             style="position:absolute;left:0;top:110%;background:#fff;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.12);min-width:240px;z-index:9999;">
+                            <div style="padding:8px;border-bottom:1px solid #eee;">
+                                <input type="text" 
+                                       v-model="countrySearchQuery" 
+                                       placeholder="Search country..." 
+                                       style="width:100%;padding:6px 10px;border:1px solid #ccc;border-radius:4px;"
+                                       @click.stop>
+                            </div>
+                            <div style="max-height:300px;overflow-y:auto;">
+                                <template v-for="(countries, continent) in filteredCountries" :key="continent">
+                                    <div v-if="countries.length > 0" 
+                                         style="padding:10px 14px;font-weight:bold;color:#2c3e50;border-bottom:1px solid #eee;">
+                                        {{ continent }}
+                                    </div>
+                                    <a v-for="country in countries" 
+                                       :key="country"
+                                       href="#" 
+                                       @click.prevent="selectCountry(country)"
+                                       style="display:block;padding:8px 24px;color:#555;text-decoration:none;"
+                                       class="country-option">
+                                        {{ country }}
+                                    </a>
+                                </template>
+                                <div v-if="Object.keys(filteredCountries).length === 0" 
+                                     style="padding:10px;color:#999;">
+                                    No matches found
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="header-history-button topbarButton" 
+                            @click="showUserHistoryModal" 
+                            title="View Activity History">
+                        <i class="fas fa-history"></i>
+                        <span>History</span>
+                    </button>
+                    
+                    <button class="header-history-button topbarButton" 
+                            @click="showNewTripModal" 
+                            title="Create New Trip">
+                        <i class="fas fa-plus"></i>
+                        <span>New Trip</span>
+                    </button>
+                    
+                    <!-- User Session Dropdown with Vue -->
+                    <div class="user-session-dropdown" style="display:inline-block;position:relative;">
+                        <button @click.stop="toggleUserDropdown" class="btn btn-primary topbarButton">
+                            <i class="fas fa-user-circle"></i> 
+                            <span>{{ username }}</span> 
+                            <i class="fas fa-caret-down"></i>
+                        </button>
+                        <div v-show="showUserDropdown"
+                             style="position:absolute;right:0;top:110%;background:#fff;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.12);min-width:160px;z-index:9999;">
+                            <a href="#" 
+                               @click.prevent="handleLogout" 
+                               style="display:block;padding:12px 18px;color:#3498db;text-decoration:none;font-weight:500;border-bottom:1px solid #eee;">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Container -->
+        <div class="main-container">
+            <!-- Sidebar -->
+            <aside class="sidebar" 
+                   :class="{ collapsed: isCollapsed, hidden: isHidden }" 
+                   ref="sidebar">
+                <div class="step-process">
+        <!-- {% endverbatim %}
+                    {% include 'dashboard/tourism/korean_tourism/sidebar/step_process.html' %}
+        {% verbatim %} -->
+                </div>
+        <!-- {% endverbatim %}
+                {% include 'dashboard/tourism/korean_tourism/modals/hotel_date_selection_modal.html' %}
+                {% include 'dashboard/tourism/korean_tourism/modals/history_data.html' %}
+                {% include 'dashboard/tourism/korean_tourism/modals/table_history_data.html' %}
+        {% verbatim %} -->
+            </aside>
+
+            <!-- Map Container -->
+            <main class="map-container">
+                <div id="map" class="map"></div>
+
+                <!-- Map Controls -->
+                <div class="map-controls">
+                    <button @click="toggleSatellite" 
+                            class="map-control-btn" 
+                            title="Toggle Satellite View">
+                        <i class="fas fa-satellite"></i>
+                    </button>
+                    <button @click="toggleFullscreen" 
+                            class="map-control-btn" 
+                            title="Fullscreen">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+                
+                <!-- Horizontal Hotel Overlay -->
+                <div id="horizontal-hotel-overlay" v-show="showHotelOverlay">
+        <!-- {% endverbatim %}
+                    {% include 'dashboard/tourism/korean_tourism/modals/horizontal_lists.html' %}
+        {% verbatim %} -->
+                </div>
+
+                <!-- Horizontal Attraction Overlay -->
+                <div id="horizontal-attraction-overlay" v-show="showAttractionOverlay">
+        <!-- {% endverbatim %}
+                    {% include 'dashboard/tourism/korean_tourism/modals/attraction_lists.html' %}
+        {% verbatim %} -->
+                </div>
+            </main>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" v-show="isLoading">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>{{ loadingMessage }}</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-text">
+                    <p>&copy; Upsil Tourism Platform. Copyright UPSIL-PKNU 2025</p>
+                </div>
+            </div>
+        </footer>
+        {% endverbatim %}
+    </div>
+
+    <!-- External Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+            crossorigin=""></script>
+    <script src="https://unpkg.com/topojson-client@3"></script>
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js" 
+            integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" 
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Custom JavaScript Files -->
+    <script src="{% static 'js/tourism/app.js' %}"></script>
+    <script src="{% static 'js/tourism/displayMap.js' %}"></script>
+    <script src="{% static 'js/tourism/displayAreaProvinces.js' %}"></script>
+    <script src="{% static 'js/tourism/dateChosen.js' %}"></script>
+    <script src="{% static 'js/tourism/displayhotel.js' %}"></script>
+    <script src="{% static 'js/tourism/displayAttraction.js' %}"></script>
+    <script src="{% static 'js/tourism/tripSummary.js' %}"></script>
+    <script src="{% static 'js/tourism/flightOption.js' %}"></script>
+    <script src="{% static 'js/tourism/tripHistory.js' %}"></script>
+    <script src="{% static 'js/tourism/tripDataCapture.js' %}"></script>
+    <script src="{% static 'js/tourism/display_routes.js' %}"></script>
+    <script src="{% static 'js/tourism/display_gantt_chart.js' %}"></script>
+    <script src="{% static 'js/tourism/displayLineResult.js' %}"></script>
+    <script src="{% static 'js/tourism/main.js' %}"></script>
+    <script src="{% static 'js/loading.js' %}"></script>
+    <script src="{% static 'js/tourism/imageScroll.js' %}"></script>
+    <script src="{% static 'js/tourism/modals/showing_modals.js' %}"></script>
+
+    <!-- Vue Application -->
+    <script>
+        const { createApp } = Vue;
+
+        const app = createApp({
+            data() {
+                return {
+                    // User & Session - Get from Django template
+                    username: '{{request.session.username}}',
+                    showUserDropdown: false,
+                    
+                    // Country Selection
+                    selectedCountry: null,
+                    showCountryDropdown: false,
+                    countrySearchQuery: '',
+                    countriesData: {},
+                    
+                    // UI States
+                    isCollapsed: false,
+                    isHidden: window.innerWidth <= 768,
+                    showHotelOverlay: false,
+                    showAttractionOverlay: false,
+                    isLoading: false,
+                    loadingMessage: 'Loading...',
+                    
+                    // Trip Data
+                    selectedProvinceData: null,
+                    selectedDateTimeData: null,
+                    selectedHotelsData: [],
+                    selectedAttractionsData: [],
+                    
+                    // API Hotel Markers
+                    apiHotelMarkers: [],
+                }
+            },
+            
+            computed: {
+                filteredCountries() {
+                    if (!this.countrySearchQuery) {
+                        return this.countriesData;
+                    }
+                    
+                    const query = this.countrySearchQuery.toLowerCase();
+                    const filtered = {};
+                    
+                    for (const continent in this.countriesData) {
+                        const countries = this.countriesData[continent].filter(country =>
+                            country.toLowerCase().includes(query)
+                        );
+                        if (countries.length > 0) {
+                            filtered[continent] = countries;
+                        }
+                    }
+                    
+                    return filtered;
+                }
+            },
+            
+            methods: {
+                // ==================== Dropdown Toggles ====================
+                toggleUserDropdown() {
+                    this.showUserDropdown = !this.showUserDropdown;
+                    this.showCountryDropdown = false;
+                },
+                
+                toggleCountryDropdown() {
+                    this.showCountryDropdown = !this.showCountryDropdown;
+                    this.showUserDropdown = false;
+                    
+                    if (this.showCountryDropdown) {
+                        this.$nextTick(() => {
+                            const input = document.querySelector('input[placeholder="Search country..."]');
+                            if (input) input.focus();
+                        });
+                    }
+                },
+                
+                toggleMenu() {
+                    if (window.innerWidth <= 768) {
+                        this.isHidden = !this.isHidden;
+                    } else {
+                        this.isCollapsed = !this.isCollapsed;
+                    }
+                },
+                
+                // ==================== Country Selection ====================
+                selectCountry(country) {
+                    this.selectedCountry = country;
+                    this.showCountryDropdown = false;
+                    this.countrySearchQuery = '';
+                    console.log('Selected country:', country);
+                },
+                
+                // ==================== Logout Handler ====================
+                async handleLogout() {
+                    this.showLoading('Logging out...');
+                    
+                    try {
+                        const response = await fetch('/account/api/logout/', {
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': this.getCookie('csrftoken')
+                            }
+                        });
+                        
+                        const data = await response.json();
+                        this.hideLoading();
+                        window.location.href = '/';
+                    } catch (error) {
+                        console.error('Logout error:', error);
+                        this.hideLoading();
+                        this.showError('Logout failed. Please try again.');
+                    }
+                },
+                
+                getCookie(name) {
+                    let cookieValue = null;
+                    if (document.cookie && document.cookie !== '') {
+                        const cookies = document.cookie.split(';');
+                        for (let i = 0; i < cookies.length; i++) {
+                            const cookie = cookies[i].trim();
+                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                },
+                
+                // ==================== Modal Operations ====================
+                // showUserHistoryModal() {
+                //     if (typeof window.showUserHistoryModal === 'function') {
+                //         window.showUserHistoryModal();
+                //     }
+                // },
+                
+                showNewTripModal() {
+                    const confirmClear = confirm('Start a new trip? This will clear all current selections including hotels, attractions, dates, and routes.');
+                    
+                    if (!confirmClear) {
+                        console.log('❌ New trip cancelled by user');
+                        return;
+                    }
+                    
+                    this.clearAllSelections();
+                },
+                
+                // ==================== Clear All Selections ====================
+                clearAllSelections() {
+                    try {
+                        console.log('🧹 Clearing all selections...');
+                        
+                        // Clear Vue data
+                        this.selectedProvinceData = null;
+                        this.selectedDateTimeData = null;
+                        this.selectedHotelsData = [];
+                        this.selectedAttractionsData = [];
+                        this.showHotelOverlay = false;
+                        this.showAttractionOverlay = false;
+                        
+                        // Clear window global data
+                        window.selectedProvinceData = null;
+                        window.selectedDateTimeData = null;
+                        window.selectedDatetimeData = null;
+                        window.selectedHotelsData = [];
+                        window.selectedAttractionsData = [];
+                        window.selectedHotelData = null;
+                        window.selectedAttractionData = null;
+                        
+                        // Clear external instances
+                        if (typeof window.clearAllHotelSelections === 'function') {
+                            window.clearAllHotelSelections();
+                        }
+                        
+                        if (typeof window.clearAllAttractionSelections === 'function') {
+                            window.clearAllAttractionSelections();
+                        }
+                        
+                        if (typeof window.clearAllMarkersFromMap === 'function') {
+                            window.clearAllMarkersFromMap();
+                        }
+                        
+                        if (window.displayHotelInstance && typeof window.displayHotelInstance.clearAllHotelData === 'function') {
+                            window.displayHotelInstance.clearAllHotelData();
+                        }
+                        
+                        if (window.displayAttractionInstance && typeof window.displayAttractionInstance.clearSelectedAttractions === 'function') {
+                            window.displayAttractionInstance.clearSelectedAttractions();
+                        }
+                        
+                        // Clear date inputs
+                        const startDateInput = document.getElementById('startDate');
+                        const endDateInput = document.getElementById('endDate');
+                        const startTimeInput = document.getElementById('startTime');
+                        const endTimeInput = document.getElementById('endTime');
+                        
+                        if (startDateInput) startDateInput.value = '';
+                        if (endDateInput) endDateInput.value = '';
+                        if (startTimeInput) startTimeInput.value = '09:00';
+                        if (endTimeInput) endTimeInput.value = '18:00';
+                        
+                        // Clear route visualization
+                        if (window.displayLineResultInstance && typeof window.displayLineResultInstance.clearRouteVisualization === 'function') {
+                            window.displayLineResultInstance.clearRouteVisualization();
+                        }
+                        
+                        // Clear localStorage
+                        localStorage.removeItem('hotelBookings');
+                        localStorage.removeItem('tripData');
+                        localStorage.removeItem('selectedProvince');
+                        localStorage.removeItem('selectedDates');
+                        localStorage.removeItem('attractionSelections');
+                        localStorage.removeItem('selectedAttractions');
+                        localStorage.removeItem('tripAttractionData');
+                        
+                        // Reset step buttons
+                        this.resetStepButtons();
+                        
+                        // Reset map view
+                        this.resetMapView();
+                        
+                        // Restart display polling
+                        setTimeout(() => {
+                            if (typeof window.startDisplayPolling === 'function') {
+                                window.startDisplayPolling();
+                            }
+                            if (typeof window.updateAllSelectionDisplays === 'function') {
+                                window.updateAllSelectionDisplays();
+                            }
+                        }, 500);
+                        
+                        console.log('✅ All selections cleared!');
+                        this.showSuccess('Ready to plan your new trip!');
+                        
+                    } catch (error) {
+                        console.error('❌ Error clearing selections:', error);
+                        this.showError('An error occurred while clearing selections. Please refresh the page.');
+                    }
+                },
+                
+                // ==================== Reset Step Buttons ====================
+                resetStepButtons() {
+                    const destinationBtn = document.getElementById('Destination');
+                    if (destinationBtn) {
+                        destinationBtn.innerHTML = 'Choose Destination <i class="fa-solid fa-earth-americas"></i>';
+                        destinationBtn.className = 'btn btn-primary w-100';
+                    }
+                    
+                    const datetimeBtn = document.getElementById('DateTime') || document.getElementById('Datetime');
+                    if (datetimeBtn) {
+                        datetimeBtn.innerHTML = 'Choose Dates <i class="fa-solid fa-calendar-days"></i>';
+                        datetimeBtn.className = 'btn btn-primary w-100';
+                    }
+                    
+                    const hotelBtn = document.getElementById('Hotel');
+                    if (hotelBtn) {
+                        hotelBtn.innerHTML = 'Choose Hotels <i class="fa-solid fa-hotel"></i>';
+                        hotelBtn.className = 'btn btn-primary w-100';
+                        hotelBtn.disabled = false;
+                    }
+                    
+                    const attractionBtn = document.getElementById('Attraction');
+                    if (attractionBtn) {
+                        attractionBtn.innerHTML = 'Choose Attractions <i class="fa-solid fa-map-marker-alt"></i>';
+                        attractionBtn.className = 'btn btn-primary w-100';
+                        attractionBtn.disabled = false;
+                    }
+                    
+                    const selectedDestinationDiv = document.getElementById('selectedDestination');
+                    const selectedDatesDiv = document.getElementById('selectedDates');
+                    
+                    if (selectedDestinationDiv) {
+                        selectedDestinationDiv.style.display = 'none';
+                        selectedDestinationDiv.innerHTML = '';
+                    }
+                    if (selectedDatesDiv) {
+                        selectedDatesDiv.style.display = 'none';
+                        selectedDatesDiv.innerHTML = '';
+                    }
+                },
+                
+                // ==================== Reset Map View ====================
+                resetMapView() {
+                    let map = this.getMapInstance();
+                    
+                    if (map) {
+                        map.setView([36.5, 127.5], 7);
+                        
+                        // Clear all markers
+                        if (window.hotelMarkers && Array.isArray(window.hotelMarkers)) {
+                            window.hotelMarkers.forEach(marker => {
+                                if (marker && typeof marker.remove === 'function') {
+                                    marker.remove();
+                                }
+                            });
+                            window.hotelMarkers = [];
+                        }
+                        
+                        if (window.attractionMarkers && Array.isArray(window.attractionMarkers)) {
+                            window.attractionMarkers.forEach(marker => {
+                                if (marker && typeof marker.remove === 'function') {
+                                    marker.remove();
+                                }
+                            });
+                            window.attractionMarkers = [];
+                        }
+                        
+                        // Clear API hotel markers
+                        this.clearAPIHotelMarkers();
+                    }
+                },
+                
+                // ==================== Hotel & Attraction Overlays ====================
+                toggleHotelOverlay() {
+                    this.showHotelOverlay = !this.showHotelOverlay;
+                    
+                    if (this.showHotelOverlay) {
+                        this.$nextTick(() => {
+                            this.initializeHorizontalScroll('hotel');
+                        });
+                    }
+                },
+                
+                toggleAttractionOverlay() {
+                    this.showAttractionOverlay = !this.showAttractionOverlay;
+                    
+                    if (this.showAttractionOverlay) {
+                        this.$nextTick(() => {
+                            this.initializeHorizontalScroll('attraction');
+                        });
+                    }
+                },
+                
+                // ==================== Map Controls ====================
+                toggleSatellite() {
+                    if (typeof window.toggleSatelliteView === 'function') {
+                        window.toggleSatelliteView();
+                    }
+                },
+                
+                toggleFullscreen() {
+                    const mapElement = document.getElementById('map');
+                    if (!document.fullscreenElement) {
+                        mapElement.requestFullscreen();
+                    } else {
+                        document.exitFullscreen();
+                    }
+                },
+                
+                // ==================== Loading States ====================
+                showLoading(message = 'Loading...') {
+                    this.isLoading = true;
+                    this.loadingMessage = message;
+                },
+                
+                hideLoading() {
+                    this.isLoading = false;
+                },
+                
+                showSuccess(message) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: message,
+                            timer: 2500,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-end'
+                        });
+                    } else {
+                        alert(message);
+                    }
+                },
+                
+                showError(message) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: message
+                        });
+                    } else {
+                        alert(message);
+                    }
+                },
+                
+                // ==================== Fetch Countries ====================
+                async fetchCountries() {
+                    try {
+                        const response = await fetch('/tourism/api/countries_list/');
+                        const data = await response.json();
+                        
+                        const grouped = {};
+                        data.forEach(item => {
+                            const continent = item.Continent.trim();
+                            const country = item.Country.trim();
+                            if (!grouped[continent]) {
+                                grouped[continent] = [];
+                            }
+                            grouped[continent].push(country);
+                        });
+                        
+                        this.countriesData = grouped;
+                        console.log('✅ Countries loaded:', Object.keys(grouped).length, 'continents');
+                    } catch (error) {
+                        console.error('Failed to load countries:', error);
+                    }
+                },
+                
+                // ==================== Horizontal Scroll Initialization ====================
+                initializeHorizontalScroll(type) {
+                    const overlayId = type === 'hotel' ? 'horizontal-hotel-overlay' : 'horizontal-attraction-overlay';
+                    const scroller = document.querySelector(`#${overlayId} #scroller`);
+                    const scrollerWrapper = document.querySelector(`#${overlayId} .scroller-wrapper`);
+                    const scrollProgress = document.querySelector(`#${overlayId} #scroll-progress`);
+                    
+                    console.log(`Initializing ${type} horizontal scroll:`, { scroller, scrollerWrapper, scrollProgress });
+                    
+                    if (!scroller || !scrollerWrapper || !scrollProgress) {
+                        console.error(`${type} scroll elements not found`);
+                        return;
+                    }
+                    
+                    // Update progress bar
+                    const updateScrollProgress = () => {
+                        if (scrollerWrapper.scrollWidth <= scrollerWrapper.clientWidth) {
+                            scrollProgress.style.width = "100%";
+                            return;
+                        }
+                        
+                        const scrollPercent = (scrollerWrapper.scrollLeft / (scrollerWrapper.scrollWidth - scrollerWrapper.clientWidth)) * 100;
+                        const clampedPercent = Math.max(0, Math.min(100, scrollPercent));
+                        scrollProgress.style.width = clampedPercent + "%";
+                    };
+                    
+                    // Add scroll event
+                    scrollerWrapper.addEventListener("scroll", updateScrollProgress);
+                    
+                    // Enhanced wheel event for horizontal scrolling
+                    const handleWheelScroll = (event) => {
+                        if (scrollerWrapper.scrollWidth > scrollerWrapper.clientWidth) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            
+                            const scrollAmount = event.deltaY * 2;
+                            scrollerWrapper.scrollLeft += scrollAmount;
+                            updateScrollProgress();
+                            
+                            return false;
+                        }
+                    };
+                    
+                    scrollerWrapper.addEventListener("wheel", handleWheelScroll, { 
+                        passive: false, 
+                        capture: true 
+                    });
+                    
+                    // Initialize card click handlers
+                    if (type === 'hotel') {
+                        this.initializeHotelCardClicks(scroller);
+                    } else {
+                        this.initializeAttractionCardClicks(scroller);
+                    }
+                    
+                    // Initialize progress
+                    setTimeout(updateScrollProgress, 100);
+                    
+                    console.log(`✅ ${type} horizontal scroll initialized`);
+                },
+                
+                // ==================== Hotel Card Clicks ====================
+                initializeHotelCardClicks(scroller) {
+                    const hotelCards = scroller.querySelectorAll('.hotel-card');
+                    hotelCards.forEach((card, index) => {
+                        card.addEventListener('click', () => {
+                            const hotelName = card.querySelector('h3').textContent;
+                            const hotelLocation = card.querySelector('.hotel-location')?.textContent?.trim() || '';
+                            console.log(`Selected hotel: ${hotelName}`);
+                            
+                            // Visual feedback
+                            hotelCards.forEach(c => c.classList.remove('selected'));
+                            card.classList.add('selected');
+                            
+                            // Prepare hotel data
+                            const hotelData = {
+                                id: card.dataset.hotelId || `horizontal-${index}`,
+                                name: hotelName,
+                                address: hotelLocation,
+                                coordinates: [127.0, 37.5]
+                            };
+                            
+                            // Show date selection modal
+                            if (typeof window.showHotelDateSelection === 'function') {
+                                console.log('🎯 Opening date selection modal...');
+                                setTimeout(() => {
+                                    this.showHotelOverlay = false;
+                                }, 300);
+                                
+                                window.showHotelDateSelection(hotelData, null);
+                            } else {
+                                setTimeout(() => {
+                                    this.showHotelOverlay = false;
+                                }, 1000);
+                            }
+                        });
+                    });
+                },
+                
+                // ==================== Attraction Card Clicks ====================
+                initializeAttractionCardClicks(scroller) {
+                    const attractionCards = scroller.querySelectorAll('.attraction-card');
+                    attractionCards.forEach((card, index) => {
+                        card.addEventListener('click', () => {
+                            const attractionName = card.querySelector('h3').textContent;
+                            console.log(`Selected attraction: ${attractionName}`);
+                            
+                            const attractionId = `attraction_${index}_${attractionName.toLowerCase().replace(/\s+/g, '_')}`;
+                            const isCurrentlySelected = card.classList.contains('selected');
+                            
+                            if (isCurrentlySelected) {
+                                // Deselect
+                                card.classList.remove('selected');
+                                console.log(`🔴 Deselected attraction: ${attractionName}`);
+                                
+                                if (window.displayAttractionInstance && typeof window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList === 'function') {
+                                    window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(attractionId, attractionName, false);
+                                }
+                            } else {
+                                // Deselect all others (single selection)
+                                attractionCards.forEach((c, i) => {
+                                    if (c.classList.contains('selected')) {
+                                        c.classList.remove('selected');
+                                        const otherName = c.querySelector('h3').textContent;
+                                        const otherId = `attraction_${i}_${otherName.toLowerCase().replace(/\s+/g, '_')}`;
+                                        
+                                        if (window.displayAttractionInstance && typeof window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList === 'function') {
+                                            window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(otherId, otherName, false);
+                                        }
+                                    }
+                                });
+                                
+                                // Select current
+                                card.classList.add('selected');
+                                console.log(`🟢 Selected attraction: ${attractionName}`);
+                                
+                                if (window.displayAttractionInstance && typeof window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList === 'function') {
+                                    window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(attractionId, attractionName, true);
+                                }
+                                
+                                // Auto-hide after selection
+                                setTimeout(() => {
+                                    this.showAttractionOverlay = false;
+                                }, 2000);
+                            }
+                        });
+                    });
+                },
+                
+                // ==================== Get Map Instance ====================
+                getMapInstance() {
+                    if (window.map) {
+                        return window.map;
+                    } else if (window.displayMapInstance && window.displayMapInstance.getMap) {
+                        return window.displayMapInstance.getMap();
+                    } else if (window.displayMap && window.displayMap.getMap) {
+                        return window.displayMap.getMap();
+                    }
+                    
+                    console.warn('Map instance not found');
+                    return null;
+                },
+                
+                // ==================== API Hotel Functions (stub for full implementation) ====================
+                clearAPIHotelMarkers() {
+                    const mapInstance = this.getMapInstance();
+                    if (mapInstance && this.apiHotelMarkers && Array.isArray(this.apiHotelMarkers)) {
+                        this.apiHotelMarkers.forEach(marker => {
+                            if (marker && typeof marker.remove === 'function') {
+                                marker.remove();
+                            }
+                        });
+                        this.apiHotelMarkers = [];
+                    }
+                },
+                
+                // ==================== Handle Outside Clicks ====================
+                handleClickOutside(event) {
+                    // Close dropdowns if clicking outside
+                    const countryDropdown = this.$el.querySelector('.continent-country-dropdown');
+                    const userDropdown = this.$el.querySelector('.user-session-dropdown');
+                    
+                    if (!countryDropdown?.contains(event.target)) {
+                        this.showCountryDropdown = false;
+                    }
+                    
+                    if (!userDropdown?.contains(event.target)) {
+                        this.showUserDropdown = false;
+                    }
+                    
+                    // Close sidebar on mobile if clicking outside
+                    if (window.innerWidth <= 768 && !this.isHidden) {
+                        const sidebar = this.$refs.sidebar;
+                        if (sidebar && !sidebar.contains(event.target)) {
+                            const menuButton = this.$el.querySelector('.menu-toggle');
+                            if (!menuButton?.contains(event.target)) {
+                                this.isHidden = true;
+                            }
+                        }
+                    }
+                },
+                
+                // ==================== Handle Window Resize ====================
+                handleResize() {
+                    if (window.innerWidth > 768) {
+                        this.isHidden = false;
+                    } else if (!this.isHidden) {
+                        this.isHidden = true;
+                    }
+                }
+            },
+            
+            mounted() {
+                console.log('🚀 Vue app mounted');
+                
+                // Fetch countries on mount
+                this.fetchCountries();
+                
+                // Add click outside listener
+                document.addEventListener('click', this.handleClickOutside);
+                
+                // Handle window resize
+                window.addEventListener('resize', this.handleResize);
+                
+                // Initialize jQuery datetime pickers
+                this.$nextTick(() => {
+                    if (typeof $ !== 'undefined') {
+                        $('.js-datetimepicker-start').datetimepicker({
+                            format: 'Y-m-d H:i',
+                            minDate: 0,
+                            step: 30,
+                            onShow: function() {
+                                this.setOptions({
+                                    maxDate: $('.js-datetimepicker-end').val() || false
+                                });
+                            }
+                        });
+                        
+                        $('.js-datetimepicker-end').datetimepicker({
+                            format: 'Y-m-d H:i',
+                            minDate: 0,
+                            step: 30,
+                            onShow: function() {
+                                this.setOptions({
+                                    minDate: $('.js-datetimepicker-start').val() || 0
+                                });
+                            }
+                        });
+                        
+                        $('.js-datetimepicker-start').on('change', function() {
+                            const startDate = $(this).val();
+                            if (startDate) {
+                                $('.js-datetimepicker-end').datetimepicker('setOptions', {
+                                    minDate: startDate
+                                });
+                            }
+                        });
+                    }
+                });
+                
+                // Make Vue instance globally accessible
+                window.vueApp = this;
+                
+                // Expose methods globally for external scripts
+                window.showHorizontalHotelOverlay = () => this.toggleHotelOverlay();
+                window.showHorizontalAttractionOverlay = () => this.toggleAttractionOverlay();
+                
+                console.log('✅ Vue app initialized successfully');
+            },
+            
+            beforeUnmount() {
+                document.removeEventListener('click', this.handleClickOutside);
+                window.removeEventListener('resize', this.handleResize);
+            }
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+</html>

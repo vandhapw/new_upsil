@@ -4744,3 +4744,40 @@ html, body {
     background-color: #28a745;
     border-color: #28a745;
 }
+
+.xy-buttons-container {
+    position: absolute;
+    top: 20px;
+    left: 30em;
+    z-index: 1000;
+    display: flex;
+    gap: 50px;
+}
+
+.topbarButton{
+    padding:8px 18px;border-radius:8px;background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;font-weight:600;
+}
+
+/* Ensure the footer is fixed at the bottom and overlays the map */
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(10, 10, 10, 0.9); /* Slight transparency */
+    z-index: 1000; /* Ensure it overlays other elements */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    margin-left: 420px; /* Adjust for sidebar width */
+}
+
+#map {
+    width: 100%;
+    height: 100vh; /* Full viewport height */
+}
+
+.footer-text p {
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 20px;
+}

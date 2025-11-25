@@ -1,0 +1,1542 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tourism Platform</title>
+                       
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin=""/>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- jQuery Datetimepicker CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
+    
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/tourism/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tourism/enhanced-ux.css' %}?v=1.0">
+    <link rel="stylesheet" href="{% static 'css/tourism/trip_history.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tourism/modalTripSummary.css' %}">
+
+    <link rel="stylesheet" href="{% static 'css/tourism/scroll_images.css' %}?v={{ "now"|date:"YmdHis" }}">
+
+   
+
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-map-marked-alt"></i>
+                <h1>Upsil Tourism Platform</h1>
+            </div>
+            <div class="header-actions" style="position:relative;">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <!-- Dropdown for Continent and Countries -->
+                <div class="continent-country-dropdown" style="display:inline-block;position:relative;margin-right:10px;">
+                    <button id="continentCountryBtn" class="btn btn-primary topbarButton">
+                        <i class="fas fa-globe"></i> <span>Select Country</span> <i class="fas fa-caret-down"></i>
+                    </button>
+                    <div id="continentCountryMenu" style="display:none;position:absolute;left:0;top:110%;background:#fff;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.12);min-width:240px;z-index:9999;">
+                        <!-- Autocomplete search box -->
+                        <div style="padding:8px;border-bottom:1px solid #eee;">
+                            <input type="text" id="countrySearch" placeholder="Search country..." 
+                                style="width:100%;padding:6px 10px;border:1px solid #ccc;border-radius:4px;">
+                        </div>
+                        <!-- Scrollable container for countries -->
+                        <div id="countriesList" style="max-height:300px;overflow-y:auto;"></div>
+                    </div>
+                </div>
+
+
+
+
+                <button class="header-history-button topbarButton" id="headerHistoryButton" onclick="showUserHistoryModal()" title="View Activity History">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </button>
+                <button class="header-history-button topbarButton" id="headerNewButton" onclick="showNewTripModal()" title="Create New Trip">
+                    <i class="fas fa-plus"></i>
+                    <span>New Trip</span>
+                </button>
+                <!-- User session dropdown -->
+                <div class="user-session-dropdown" style="display:inline-block;position:relative;">
+                    <button id="userSessionBtn" class="btn btn-primary topbarButton">
+                        <i class="fas fa-user-circle"></i> <span id="userSessionName">{{request.session.username}}</span> <i class="fas fa-caret-down"></i>
+                    </button>
+                    <div id="userSessionDropdown" style="display:none;position:absolute;right:0;top:110%;background:#fff;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.12);min-width:160px;z-index:9999;">
+                        <a href="#" id="logoutOption" style="display:block;padding:12px 18px;color:#3498db;text-decoration:none;font-weight:500;border-bottom:1px solid #eee;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+<script>
+// Toggle dropdown
+document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('userSessionBtn');
+    var dropdown = document.getElementById('userSessionDropdown');
+    if (btn && dropdown) {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        });
+        document.addEventListener('click', function(e) {
+            if (dropdown.style.display === 'block') dropdown.style.display = 'none';
+        });
+    }
+    // Logout option
+    var logoutOpt = document.getElementById('logoutOption');
+    if (logoutOpt) {
+        logoutOpt.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Show loading
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({title:'Logging out...',allowOutsideClick:false,didOpen:()=>Swal.showLoading()});
+            }
+            fetch('/account/api/logout/', {method:'POST',headers:{'Content-Type':'application/json'}})
+                .then(res => res.json())
+                .then(data => {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.close();
+                    }
+                    window.location.href = '/';
+                })
+                .catch(err => {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.close();
+                        Swal.fire('Logout failed','Please try again','error');
+                    }
+                });
+        });
+    }
+});
+</script>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+           
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="step-process">
+                {% include 'dashboard/tourism/korean_tourism/sidebar/step_process.html' %}
+            </div>
+
+            <!-- Modality -->
+            <!-- {% include 'dashboard/tourism/korean_tourism/modals/region_selected.html' %} -->
+
+            <!-- {% include 'dashboard/tourism/korean_tourism/modals/datetime_selected.html' %} -->
+
+            {% include 'dashboard/tourism/korean_tourism/modals/hotel_date_selection_modal.html' %}
+
+            {% include 'dashboard/tourism/korean_tourism/modals/history_data.html' %}
+
+            {% include 'dashboard/tourism/korean_tourism/modals/table_history_data.html' %}
+
+            
+            
+            
+        </aside>
+
+        <!-- Map Container -->
+        <main class="map-container">
+            <div id="map" class="map"></div>
+            
+
+            <!-- Map Controls -->
+            <div class="map-controls">
+                <!-- <button id="zoomToKorea" class="map-control-btn" title="Zoom to South Korea">
+                    <i class="fas fa-globe-asia"></i>
+                </button> -->
+                <button id="toggleSatellite" class="map-control-btn" title="Toggle Satellite View">
+                    <i class="fas fa-satellite"></i>
+                </button>
+                <button id="fullscreenMap" class="map-control-btn" title="Fullscreen">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+            
+            </div>
+            
+            <!-- Horizontal Hotel Overlay -->
+            <div id="horizontal-hotel-overlay" style="display: none;">
+                {% include 'dashboard/tourism/korean_tourism/modals/horizontal_lists.html' %}
+            </div>
+
+            <div id="horizontal-attraction-overlay" style="display: none;">
+                {% include 'dashboard/tourism/korean_tourism/modals/attraction_lists.html' %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading map data...</p>
+        </div>
+    </div>
+
+    
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+            crossorigin=""></script>
+    
+    <!-- TopoJSON Client for proper TopoJSON to GeoJSON conversion -->
+    <script src="https://unpkg.com/topojson-client@3"></script>
+    
+    <!-- Hotel Date Selection Integration Script -->
+    <script>
+        // Function to integrate hotel selection with date modal from step process
+    </script>
+    
+    <!-- Custom JavaScript -->
+        <!-- MapLibre GL JS CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" />
+    
+    <!-- Remove Leaflet CSS and replace with MapLibre -->
+    
+    <!-- MapLibre GL JS -->
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Before closing body tag, add: -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    
+    <!-- Custom JavaScript -->
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script  src="https://code.jquery.com/jquery-3.7.1.js"  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="  crossorigin="anonymous"></script>
+    <!-- jQuery Datetimepicker JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
+    
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+			
+    <!-- <script src="js/app.js"></script> -->
+    <script src="{% static 'js/tourism/app.js' %}"></script>
+    <script src="{% static 'js/tourism/displayMap.js' %}"></script>
+    <script src="{% static 'js/tourism/displayAreaProvinces.js' %}"></script>
+    <script src="{% static 'js/tourism/dateChosen.js' %}"></script>
+    <script src="{% static 'js/tourism/displayhotel.js' %}"></script>
+    <script src="{% static 'js/tourism/displayAttraction.js' %}"></script>
+    <script src="{% static 'js/tourism/tripSummary.js' %}"></script>
+    <script src="{% static 'js/tourism/flightOption.js' %}"></script>
+    <script src="{% static 'js/tourism/tripHistory.js' %}"></script>
+    <script src="{% static 'js/tourism/tripDataCapture.js' %}"></script>
+    <script src="{% static 'js/tourism/display_routes.js' %}"></script>
+    <script src="{% static 'js/tourism/display_gantt_chart.js' %}"></script>
+    <script src="{% static 'js/tourism/displayLineResult.js' %}"></script>
+    <!-- <script src="js/uiController.js"></script> -->
+    <script src="{% static 'js/tourism/main.js' %}"></script>
+    <script src="{% static 'js/loading.js' %}"></script>
+
+    <script src="{% static 'js/tourism/imageScroll.js' %}"></script>
+
+    <script src="{% static 'js/tourism/modals/showing_modals.js' %}"></script>
+    
+    <!-- Sidebar Toggle JavaScript -->
+    <script>
+        // Initialize attraction instance check
+        function ensureAttractionInstance() {
+            if (!window.displayAttractionInstance) {
+                console.warn('⚠️ displayAttractionInstance not found. Attraction selection may not work properly.');
+                return false;
+            }
+            return true;
+        }
+
+        // Log horizontal attraction selection for debugging
+        function logAttractionSelection(attractionName, isSelected) {
+            console.log(`🎯 Horizontal attraction selection: ${attractionName} -> ${isSelected ? 'SELECTED' : 'DESELECTED'}`);
+            if (window.displayAttractionInstance) {
+                console.log('✅ displayAttractionInstance is available');
+            } else {
+                console.log('❌ displayAttractionInstance is NOT available');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const menuToggle = document.getElementById('menuToggle');
+            const closeSidebar = document.getElementById('closeSidebar');
+            
+            let isCollapsed = false;
+            let isHidden = false;
+            
+            // Toggle collapsed/expanded state
+            function toggleCollapse() {
+                isCollapsed = !isCollapsed;
+                sidebar.classList.toggle('collapsed', isCollapsed);
+                
+                // Update toggle button icon
+                const icon = sidebarToggle.querySelector('i');
+                if (isCollapsed) {
+                    icon.className = 'fas fa-chevron-right';
+                    sidebarToggle.title = 'Expand Sidebar';
+                } else {
+                    icon.className = 'fas fa-chevron-left';
+                    sidebarToggle.title = 'Collapse Sidebar';
+                }
+            }
+            
+            // Toggle hidden/visible state (for mobile)
+            function toggleVisibility() {
+                isHidden = !isHidden;
+                sidebar.classList.toggle('hidden', isHidden);
+                
+                if (isHidden) {
+                    // Reset to expanded state when hiding
+                    isCollapsed = false;
+                    sidebar.classList.remove('collapsed');
+                    const icon = sidebarToggle.querySelector('i');
+                    icon.className = 'fas fa-chevron-left';
+                    sidebarToggle.title = 'Collapse Sidebar';
+                }
+            }
+            
+            // Event listeners
+            sidebarToggle?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleCollapse();
+            });
+            
+            menuToggle?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (window.innerWidth <= 768) {
+                    toggleVisibility();
+                } else {
+                    toggleCollapse();
+                }
+            });
+            
+            closeSidebar?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (window.innerWidth <= 768) {
+                    toggleVisibility();
+                }
+            });
+            
+            // Click outside to close on mobile
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768 && !isHidden) {
+                    const isClickInsideSidebar = sidebar.contains(e.target);
+                    const isMenuButton = menuToggle.contains(e.target);
+                    
+                    if (!isClickInsideSidebar && !isMenuButton) {
+                        toggleVisibility();
+                    }
+                }
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    // Show sidebar on desktop
+                    isHidden = false;
+                    sidebar.classList.remove('hidden');
+                } else {
+                    // Hide sidebar on mobile by default
+                    if (!isHidden) {
+                        isHidden = true;
+                        sidebar.classList.add('hidden');
+                    }
+                    // Reset collapsed state on mobile
+                    isCollapsed = false;
+                    sidebar.classList.remove('collapsed');
+                }
+            });
+            
+            // Initialize based on screen size
+            if (window.innerWidth <= 768) {
+                isHidden = true;
+                sidebar.classList.add('hidden');
+            }
+        });
+    </script>
+
+    <script>
+        $( ()=> {
+            // Initialize datetime picker for start date
+            $('.js-datetimepicker-start').datetimepicker({
+                format: 'Y-m-d H:i',
+                minDate: 0, // Disable past dates
+                step: 30, // 30 minute intervals
+                onShow: function() {
+                    this.setOptions({
+                        maxDate: $('.js-datetimepicker-end').val() || false
+                    });
+                }
+            });
+            
+            // Initialize datetime picker for end date
+            $('.js-datetimepicker-end').datetimepicker({
+                format: 'Y-m-d H:i',
+                minDate: 0, // Disable past dates
+                step: 30, // 30 minute intervals
+                onShow: function() {
+                    this.setOptions({
+                        minDate: $('.js-datetimepicker-start').val() || 0
+                    });
+                }
+            });
+            
+            // Update end date picker when start date changes
+            $('.js-datetimepicker-start').on('change', function() {
+                const startDate = $(this).val();
+                if (startDate) {
+                    $('.js-datetimepicker-end').datetimepicker('setOptions', {
+                        minDate: startDate
+                    });
+                }
+            });
+        });
+        
+        // Global functions for modal operations
+        function openRegionSelectedModal() {
+            const regionModal = new bootstrap.Modal(document.getElementById('regionModal'));
+            regionModal.show();
+        }
+        
+        function openDateTimeModal() {
+            const dateTimeModal = new bootstrap.Modal(document.getElementById('dateTimeModal'));
+            dateTimeModal.show();
+        }
+        
+        function openHotelModal() {
+            console.log('Opening hotel modal...');
+            const hotelModal = new bootstrap.Modal(document.getElementById('hotelListModal'));
+            hotelModal.show();
+        }
+        
+        function showHorizontalHotelOverlay() {
+            console.log('Showing horizontal hotel overlay...');
+            const overlay = document.getElementById('horizontal-hotel-overlay');
+            const button = document.getElementById('Hotel');
+            
+            if (overlay.style.display === 'none' || overlay.style.display === '') {
+                  
+                button.innerHTML = 'Choose Hotels <i class="fa-solid fa-hotel"></i>';
+                button.classList.add('btn-primary');
+                // button.classList.remove('btn-primary');
+                
+                // Initialize horizontal scroll functionality
+                setTimeout(() => {
+                    initializeHorizontalScrollOverlay();
+                }, 100);
+                
+                // Add close button functionality
+                const overlayContainer = overlay.querySelector('.overlay-container');
+                overlayContainer.addEventListener('click', function(e) {
+                    // Check if clicked on the close button (×)
+                    const rect = overlayContainer.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    // Close button area (top-right corner)
+                    if (x > rect.width - 45 && y < 45) {
+                        showHorizontalHotelOverlay(); // Toggle to close
+                    }
+                });
+                
+            } else {
+                // Hide the horizontal overlay
+                overlay.style.display = 'none';
+                button.innerHTML = 'Choose Hotels <i class="fa-solid fa-hotel"></i>';
+                button.classList.add('btn-primary');
+                button.classList.remove('btn-secondary');
+            }
+        }
+        
+        // Function to fetch hotels from API and display them
+        async function fetchHotelsFromAPI(provinceData) {
+            console.log('Fetching hotels from API for province:', provinceData);
+            
+            // Extract place_id from province data - it's directly in properties
+            const placeId = provinceData.properties?.place_id;
+            
+            console.log('Extracted place_id:', placeId);
+            console.log('Province properties:', provinceData.properties);
+            
+            if (!placeId) {
+                console.warn('No place_id found in province data:', provinceData);
+                console.warn('Available properties:', Object.keys(provinceData.properties || {}));
+                alert('Unable to fetch hotels - missing location ID. Showing static hotel list.');
+                document.getElementById('horizontal-hotel-overlay').style.display = 'block';
+                return;
+            }
+            
+            try {
+                // Show loading indicator
+                showLoadingIndicator('Loading hotels for selected region...');
+                
+                // Fetch hotels from your API
+                const apiUrl = `/tourism/api/hotels_list/?place_id=${placeId}`;
+                console.log('Calling API:', apiUrl);
+                
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`Hotels API error: ${response.status}`);
+                }
+                
+                const hotelsData = await response.json();
+                console.log('Hotels API response:', hotelsData);
+                
+                if (hotelsData && hotelsData.hotels && hotelsData.hotels.length > 0) {
+                    // Display hotels in horizontal list
+                    displayHotelsInOverlay(hotelsData.hotels);
+                    
+                    // Add hotel markers to map
+                    addHotelMarkersToMap(hotelsData.hotels, provinceData);
+                    
+                    hideLoadingIndicator();
+                    console.log(`✅ Loaded ${hotelsData.hotels.length} hotels from API`);
+                } else {
+                    hideLoadingIndicator();
+                    alert('No hotels found in this region. Showing static hotel list.');
+                    document.getElementById('horizontal-hotel-overlay').style.display = 'block';
+                }
+                
+            } catch (error) {
+                console.error('Error fetching hotels from API:', error);
+                hideLoadingIndicator();
+                alert('Error loading hotels from API. Showing static hotel list.');
+                document.getElementById('horizontal-hotel-overlay').style.display = 'block';
+            }
+        }
+        
+        // Function to display hotels in the horizontal overlay
+        function displayHotelsInOverlay(hotels) {
+            const overlay = document.getElementById('horizontal-hotel-overlay');
+            if (!overlay) {
+                console.error('Horizontal hotel overlay not found');
+                return;
+            }
+            
+            // Find the scroller container
+            const scroller = overlay.querySelector('#scroller');
+            if (!scroller) {
+                console.error('Hotel scroller container not found');
+                return;
+            }
+            
+            // Clear existing static hotels
+            scroller.innerHTML = '';
+            
+            // Generate hotel cards from API data
+            hotels.forEach((hotel, index) => {
+                const hotelCard = createAPIHotelCard(hotel, index);
+                scroller.appendChild(hotelCard);
+            });
+            
+            // Show the overlay
+            overlay.style.display = 'block';
+            
+            // Initialize scroll functionality
+            setTimeout(() => {
+                if (typeof initializeHorizontalScrollOverlay === 'function') {
+                    initializeHorizontalScrollOverlay();
+                }
+            }, 100);
+            
+            console.log(`✅ Displayed ${hotels.length} hotels in horizontal overlay`);
+        }
+        
+        // Function to create API hotel card
+        function createAPIHotelCard(hotel, index) {
+            const div = document.createElement('div');
+            div.className = 'hotel-card api-loaded';
+            div.dataset.hotelId = hotel.id || index;
+            
+            // Extract hotel data with fallbacks
+            const name = hotel.name || `Hotel ${index + 1}`;
+            const rating = hotel.rating || (4.0 + Math.random()).toFixed(1);
+            const price = hotel.price || `₩${Math.floor(Math.random() * 200 + 100)}K`;
+            const image = hotel.image || hotel.photo_url || `https://images.unsplash.com/photo-${1564501049412 + index}-61c2a3083791?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80`;
+            const location = hotel.address || hotel.location || 'Location not specified';
+            
+            // Create amenities icons (limit to 4 for horizontal layout)
+            const amenities = hotel.amenities || ['wifi', 'pool', 'spa', 'gym'];
+            const amenityIcons = amenities.slice(0, 4).map(amenity => {
+                const iconMap = {
+                    'wifi': 'fas fa-wifi',
+                    'pool': 'fas fa-swimming-pool', 
+                    'spa': 'fas fa-spa',
+                    'gym': 'fas fa-dumbbell',
+                    'restaurant': 'fas fa-utensils',
+                    'parking': 'fas fa-parking',
+                    'bar': 'fas fa-cocktail'
+                };
+                return `<i class="${iconMap[amenity.toLowerCase()] || 'fas fa-check'}"></i>`;
+            }).join('');
+            
+            div.innerHTML = `
+                <div class="hotel-image">
+                    <img src="${image}" alt="${name}" loading="lazy">
+                    <div class="hotel-rating">
+                        <i class="fas fa-star"></i>
+                        <span>${rating}</span>
+                    </div>
+                </div>
+                <div class="hotel-info">
+                    <h3>${name}</h3>
+                    <p class="hotel-location">
+                        <i class="fas fa-map-marker-alt"></i> 
+                        ${location}
+                    </p>
+                    <div class="hotel-amenities">
+                        ${amenityIcons}
+                    </div>
+                    <div class="hotel-price">${price}</div>
+                </div>
+            `;
+            
+            // Add click handler for hotel selection
+            div.addEventListener('click', function(e) {
+                selectAPIHotel(hotel, div, index);
+            });
+            
+            return div;
+        }
+        
+        // Function to select API hotel
+        function selectAPIHotel(hotel, cardElement, index) {
+            // Remove previous selection
+            document.querySelectorAll('.hotel-card.selected').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selection to current card
+            cardElement.classList.add('selected');
+            
+            // Highlight corresponding marker on map
+            if (window.apiHotelMarkers && window.apiHotelMarkers[index]) {
+                const marker = window.apiHotelMarkers[index];
+                marker.openPopup();
+                
+                // Briefly highlight the marker
+                const markerElement = marker.getElement();
+                if (markerElement) {
+                    markerElement.style.transform = 'scale(1.2)';
+                    markerElement.style.zIndex = '1000';
+                    setTimeout(() => {
+                        markerElement.style.transform = 'scale(1)';
+                        markerElement.style.zIndex = '';
+                    }, 1000);
+                }
+            }
+            
+            console.log('API Hotel selected:', hotel.name);
+        }
+        
+        // Function to add hotel markers to map
+        function addHotelMarkersToMap(hotels, provinceData) {
+            // Get map instance
+            const mapInstance = getMapInstance();
+            if (!mapInstance) {
+                console.warn('Map instance not available for hotel markers');
+                return;
+            }
+            
+            try {
+                // Clear existing API hotel markers
+                if (window.apiHotelMarkers && Array.isArray(window.apiHotelMarkers)) {
+                    window.apiHotelMarkers.forEach(marker => {
+                        mapInstance.removeLayer(marker);
+                    });
+                }
+                window.apiHotelMarkers = [];
+                
+                // Add markers for each hotel
+                hotels.forEach((hotel, index) => {
+                    // Use hotel coordinates if available, otherwise use province center with offset
+                    let lat = hotel.lat || hotel.latitude;
+                    let lon = hotel.lon || hotel.longitude;
+                    
+                    if (!lat || !lon) {
+                        // Fallback to province center with random offset
+                        const baseLat = provinceData.lat || provinceData.properties?.lat;
+                        const baseLon = provinceData.lon || provinceData.properties?.lon;
+                        
+                        if (baseLat && baseLon) {
+                            // Add small random offset to spread hotels around the province center
+                            const offsetRange = 0.01; // ~1km
+                            lat = baseLat + (Math.random() - 0.5) * offsetRange;
+                            lon = baseLon + (Math.random() - 0.5) * offsetRange;
+                        } else {
+                            console.warn(`No coordinates available for hotel: ${hotel.name}`);
+                            return;
+                        }
+                    }
+                    
+                    // Create custom hotel marker icon
+                    const hotelIcon = window.L.divIcon({
+                        className: 'hotel-marker hotel-marker-api',
+                        html: `
+                            <div class="hotel-marker-content">
+                                <i class="fas fa-bed"></i>
+                                <span class="hotel-price">${hotel.price || '₩150K'}</span>
+                            </div>
+                        `,
+                        iconSize: [70, 45],
+                        iconAnchor: [35, 45],
+                        popupAnchor: [0, -45]
+                    });
+                    
+                    // Create marker
+                    const marker = window.L.marker([lat, lon], { icon: hotelIcon }).addTo(mapInstance);
+                    
+                    // Add data attributes for synchronization
+                    marker._hotelData = hotel;
+                    marker._hotelIndex = index;
+                    
+                    // Create detailed popup content
+                    const popupContent = `
+                        <div class="hotel-popup" style="min-width: 300px; max-width: 350px;">
+                            <div class="hotel-popup-header">
+                                <img src="${hotel.image || hotel.photo_url || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80'}" 
+                                     alt="${hotel.name}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;">
+                                <div class="hotel-popup-badge">
+                                    <i class="fas fa-star"></i>
+                                    <span>${hotel.rating || 4.0}</span>
+                                </div>
+                            </div>
+                            <div class="hotel-popup-content">
+                                <h4 style="margin: 10px 0 5px 0; color: #2563eb;">${hotel.name}</h4>
+                                <p style="margin: 5px 0; color: #4b5563; font-size: 14px;">
+                                    <i class="fas fa-map-marker-alt" style="color: #e74c3c; margin-right: 5px;"></i>
+                                    ${hotel.address || hotel.location || 'Address not available'}
+                                </p>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+                                    <div>
+                                        <span style="font-size: 12px; color: #6b7280;">From</span>
+                                        <span style="font-size: 18px; font-weight: bold; color: #e74c3c; margin: 0 3px;">${hotel.price || '₩150K'}</span>
+                                        <span style="font-size: 12px; color: #6b7280;">/night</span>
+                                    </div>
+                                    <button onclick="selectAPIHotelFromMarker(${index})" 
+                                            style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer;">
+                                        <i class="fas fa-check" style="margin-right: 5px;"></i>Select
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    marker.bindPopup(popupContent);
+                    
+                    // Add click handler to highlight corresponding hotel in list
+                    marker.on('click', function() {
+                        highlightAPIHotelInList(hotel.id || index);
+                    });
+                    
+                    // Store marker for later management
+                    window.apiHotelMarkers.push(marker);
+                });
+                
+                console.log(`✅ Added ${hotels.length} hotel markers to map`);
+                
+            } catch (error) {
+                console.error('Error adding hotel markers to map:', error);
+            }
+        }
+        
+        // Function to get map instance
+        function getMapInstance() {
+            // Try different methods to get map instance
+            if (window.map) {
+                return window.map;
+            } else if (window.displayMapInstance && window.displayMapInstance.getMap) {
+                return window.displayMapInstance.getMap();
+            } else if (window.displayMap && window.displayMap.getMap) {
+                return window.displayMap.getMap();
+            }
+            
+            console.warn('Map instance not found');
+            return null;
+        }
+        
+        // Function to highlight API hotel in list when marker clicked
+        function highlightAPIHotelInList(hotelId) {
+            const hotelCard = document.querySelector(`.hotel-card[data-hotel-id="${hotelId}"]`);
+            if (hotelCard) {
+                // Remove previous selection
+                document.querySelectorAll('.hotel-card.selected').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                
+                // Add selection
+                hotelCard.classList.add('selected');
+                
+                // Scroll to hotel card in horizontal list
+                const scrollerWrapper = hotelCard.closest('.scroller-wrapper');
+                if (scrollerWrapper) {
+                    const cardRect = hotelCard.getBoundingClientRect();
+                    const wrapperRect = scrollerWrapper.getBoundingClientRect();
+                    const scrollLeft = scrollerWrapper.scrollLeft;
+                    const cardLeft = cardRect.left - wrapperRect.left + scrollLeft;
+                    const wrapperWidth = wrapperRect.width;
+                    const cardWidth = cardRect.width;
+                    
+                    // Center the card in the viewport
+                    const targetScrollLeft = cardLeft - (wrapperWidth / 2) + (cardWidth / 2);
+                    
+                    scrollerWrapper.scrollTo({
+                        left: targetScrollLeft,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        }
+        
+        // Function to select hotel from marker
+        function selectAPIHotelFromMarker(index) {
+            const hotelCard = document.querySelector(`.hotel-card[data-hotel-id="${index}"]`);
+            if (hotelCard) {
+                hotelCard.click();
+            }
+        }
+        
+        // Loading indicator functions
+        function showLoadingIndicator(message) {
+            // Create or show loading indicator
+            let loadingDiv = document.getElementById('api-loading-indicator');
+            if (!loadingDiv) {
+                loadingDiv = document.createElement('div');
+                loadingDiv.id = 'api-loading-indicator';
+                loadingDiv.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(255, 255, 255, 0.95);
+                    padding: 20px 30px;
+                    border-radius: 12px;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                    z-index: 10000;
+                    text-align: center;
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                `;
+                document.body.appendChild(loadingDiv);
+            }
+            
+            loadingDiv.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 20px; height: 20px; border: 2px solid #3498db; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <span style="color: #2c3e50; font-weight: 600;">${message}</span>
+                </div>
+                <style>
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                </style>
+            `;
+            loadingDiv.style.display = 'block';
+        }
+        
+        function hideLoadingIndicator() {
+            const loadingDiv = document.getElementById('api-loading-indicator');
+            if (loadingDiv) {
+                loadingDiv.style.display = 'none';
+            }
+        }
+
+        function showHorizontalAttractionOverlay() {
+            console.log('Showing horizontal attraction overlay...');
+            const overlay = document.getElementById('horizontal-attraction-overlay');
+            const button = document.getElementById('Attraction');
+            
+            if (overlay.style.display === 'none' || overlay.style.display === '') {
+                // Show the horizontal overlay
+                overlay.style.display = 'block';
+                button.innerHTML = 'Choose Attractions <i class="fa-solid fa-map-marker-alt"></i>';
+                button.classList.add('btn-primary');
+                // button.classList.remove('btn-primary');
+                
+                // Initialize horizontal scroll functionality
+                setTimeout(() => {
+                    initializeHorizontalAttractionScrollOverlay();
+                }, 100);
+                
+                // Add close button functionality
+                const overlayContainer = overlay.querySelector('.overlay-container');
+                overlayContainer.addEventListener('click', function(e) {
+                    // Check if clicked on the close button (×)
+                    const rect = overlayContainer.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    // Close button area (top-right corner)
+                    if (x > rect.width - 45 && y < 45) {
+                        showHorizontalAttractionOverlay(); // Toggle to close
+                    }
+                });
+                
+            } else {
+                // Hide the horizontal overlay
+                overlay.style.display = 'none';
+                button.innerHTML = 'Choose Attractions <i class="fa-solid fa-map-marker-alt"></i>';
+                button.classList.add('btn-primary');
+                button.classList.remove('btn-secondary');
+            }
+        }
+        
+        // Function to test API directly
+        async function testDirectAPI() {
+            console.log('🧪 Testing API directly...');
+            
+            try {
+                showLoadingIndicator('Testing hotel API...');
+                
+                // Use a real place_id format like the one provided by the user
+                const testPlaceId = '51cd1e680506ce5c4059e4744820144e21c0f00101f90104dd760000000000c00208';
+                const apiUrl = `/tourism/api/hotels_list/?place_id=${testPlaceId}`;
+                
+                console.log('Testing API with URL:', apiUrl);
+                
+                const response = await fetch(apiUrl);
+                
+                console.log('API Response status:', response.status);
+                console.log('API Response headers:', [...response.headers.entries()]);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ API Response data:', data);
+                    
+                    if (data.hotels && data.hotels.length > 0) {
+                        alert(`✅ API Success! Found ${data.hotels.length} hotels`);
+                        
+                        // Test displaying the hotels
+                        displayHotelsInOverlay(data.hotels);
+                        
+                        // Mock province data using the structure provided by user
+                        const mockProvince = {
+                            lat: -8.6524973,
+                            lon: 115.2191175,
+                            properties: {
+                                address_line1: "Denpasar",
+                                address_line2: "Bali, Indonesia",
+                                category: "administrative",
+                                city: "Denpasar", 
+                                country: "Indonesia",
+                                country_code: "id",
+                                formatted: "Denpasar, Bali, Indonesia",
+                                iso3166_2: "ID-NU",
+                                iso3166_2_sublevel: "ID-BA",
+                                lat: -8.6524973,
+                                lon: 115.2191175,
+                                place_id: testPlaceId
+                            }
+                        };
+                        
+                        addHotelMarkersToMap(data.hotels, mockProvince);
+                    } else {
+                        alert('✅ API Success but no hotels found');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    console.error('❌ API Error:', errorText);
+                    alert(`❌ API Error: ${response.status} - ${errorText}`);
+                }
+                
+                hideLoadingIndicator();
+                
+            } catch (error) {
+                console.error('❌ Network Error:', error);
+                hideLoadingIndicator();
+                alert(`❌ Network Error: ${error.message}`);
+            }
+        }
+
+        // Horizontal scroll functionality for the overlay
+        function initializeHorizontalScrollOverlay() {
+            const scroller = document.querySelector('#horizontal-hotel-overlay #scroller');
+            const scrollerWrapper = document.querySelector('#horizontal-hotel-overlay .scroller-wrapper');
+            const scrollProgress = document.querySelector('#horizontal-hotel-overlay #scroll-progress');
+
+            console.log('Initializing horizontal scroll overlay:', { scroller, scrollerWrapper, scrollProgress });
+
+            if (!scroller || !scrollerWrapper || !scrollProgress) {
+                console.error('Horizontal scroll overlay elements not found');
+                return;
+            }
+
+            // Update progress bar function
+            function updateScrollProgress() {
+                if (scrollerWrapper.scrollWidth <= scrollerWrapper.clientWidth) {
+                    scrollProgress.style.width = "100%";
+                    return;
+                }
+                
+                const scrollPercent = (scrollerWrapper.scrollLeft / (scrollerWrapper.scrollWidth - scrollerWrapper.clientWidth)) * 100;
+                const clampedPercent = Math.max(0, Math.min(100, scrollPercent));
+                scrollProgress.style.width = clampedPercent + "%";
+            }
+
+            // Add scroll event listener
+            scrollerWrapper.addEventListener("scroll", updateScrollProgress);
+
+            // Enhanced wheel event handler for horizontal scrolling
+            function handleWheelScroll(event) {
+                if (scrollerWrapper.scrollWidth > scrollerWrapper.clientWidth) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    const scrollAmount = event.deltaY * 2;
+                    scrollerWrapper.scrollLeft += scrollAmount;
+                    updateScrollProgress();
+                    
+                    return false;
+                }
+            }
+
+            // Add wheel events
+            scrollerWrapper.addEventListener("wheel", handleWheelScroll, { 
+                passive: false, 
+                capture: true 
+            });
+
+            // Add click events to hotel cards
+            const hotelCards = scroller.querySelectorAll('.hotel-card');
+            hotelCards.forEach((card, index) => {
+                card.addEventListener('click', function() {
+                    const hotelName = card.querySelector('h3').textContent;
+                    const hotelLocation = card.querySelector('.hotel-location')?.textContent?.trim() || '';
+                    console.log(`Selected hotel: ${hotelName}`);
+                    
+                    // Add selection visual feedback
+                    hotelCards.forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    
+                    // Prepare hotel data for date selection modal
+                    const hotelData = {
+                        id: card.dataset.hotelId || `horizontal-${index}`,
+                        name: hotelName,
+                        address: hotelLocation,
+                        coordinates: [127.0, 37.5] // Default coordinates
+                    };
+                    
+                    // Check if showHotelDateSelection function exists
+                    if (typeof window.showHotelDateSelection === 'function') {
+                        console.log('🎯 Opening date selection modal from horizontal list...');
+                        // Close horizontal overlay first
+                        setTimeout(() => {
+                            showHorizontalHotelOverlay(); // Toggle to close
+                        }, 300);
+                        
+                        // Open the date selection modal
+                        window.showHotelDateSelection(hotelData, null);
+                    } else {
+                        console.warn('Date selection modal function not available');
+                        // Fallback: Auto-hide overlay after selection
+                        setTimeout(() => {
+                            showHorizontalHotelOverlay(); // Toggle to close
+                        }, 1000);
+                    }
+                });
+            });
+
+            // Initialize progress
+            setTimeout(updateScrollProgress, 100);
+            
+            console.log('Horizontal scroll overlay initialized successfully');
+        }
+        
+        // Horizontal scroll functionality for the attraction overlay
+        function initializeHorizontalAttractionScrollOverlay() {
+            const scroller = document.querySelector('#horizontal-attraction-overlay #scroller');
+            const scrollerWrapper = document.querySelector('#horizontal-attraction-overlay .scroller-wrapper');
+            const scrollProgress = document.querySelector('#horizontal-attraction-overlay #scroll-progress');
+
+            console.log('Initializing horizontal attraction scroll overlay:', { scroller, scrollerWrapper, scrollProgress });
+
+            if (!scroller || !scrollerWrapper || !scrollProgress) {
+                console.error('Horizontal attraction scroll overlay elements not found');
+                return;
+            }
+
+            // Update progress bar function
+            function updateScrollProgress() {
+                if (scrollerWrapper.scrollWidth <= scrollerWrapper.clientWidth) {
+                    scrollProgress.style.width = "100%";
+                    return;
+                }
+                
+                const scrollPercent = (scrollerWrapper.scrollLeft / (scrollerWrapper.scrollWidth - scrollerWrapper.clientWidth)) * 100;
+                const clampedPercent = Math.max(0, Math.min(100, scrollPercent));
+                scrollProgress.style.width = clampedPercent + "%";
+            }
+
+            // Add scroll event listener
+            scrollerWrapper.addEventListener("scroll", updateScrollProgress);
+
+            // Enhanced wheel event handler for horizontal scrolling
+            function handleWheelScroll(event) {
+                if (scrollerWrapper.scrollWidth > scrollerWrapper.clientWidth) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    const scrollAmount = event.deltaY * 2;
+                    scrollerWrapper.scrollLeft += scrollAmount;
+                    updateScrollProgress();
+                    
+                    return false;
+                }
+            }
+
+            // Add wheel events
+            scrollerWrapper.addEventListener("wheel", handleWheelScroll, { 
+                passive: false, 
+                capture: true 
+            });
+
+            // Add click events to attraction cards
+            const attractionCards = scroller.querySelectorAll('.attraction-card');
+            attractionCards.forEach((card, index) => {
+                card.addEventListener('click', function() {
+                    const attractionName = card.querySelector('h3').textContent;
+                    console.log(`Selected attraction: ${attractionName}`);
+                    
+                    // Generate a simple ID based on the attraction name and index
+                    const attractionId = `attraction_${index}_${attractionName.toLowerCase().replace(/\s+/g, '_')}`;
+                    
+                    // Check if this attraction is already selected
+                    const isCurrentlySelected = card.classList.contains('selected');
+                    
+                    if (isCurrentlySelected) {
+                        // Deselect the attraction
+                        card.classList.remove('selected');
+                        console.log(`🔴 Deselected attraction: ${attractionName}`);
+                        logAttractionSelection(attractionName, false);
+                        
+                        // Update map marker to unselected state
+                        if (ensureAttractionInstance() && typeof window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList === 'function') {
+                            window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(attractionId, attractionName, false);
+                        }
+                        
+                        // If we have the selectAttraction function available, we could cancel the selection
+                        if (window.displayAttractionInstance && typeof window.displayAttractionInstance.cancelAttractionSelection === 'function') {
+                            try {
+                                window.displayAttractionInstance.cancelAttractionSelection(attractionId);
+                            } catch (error) {
+                                console.warn('Could not cancel attraction selection:', error);
+                            }
+                        }
+                    } else {
+                        // Remove selection from all other cards first (single selection mode)
+                        attractionCards.forEach((c, i) => {
+                            if (c.classList.contains('selected')) {
+                                c.classList.remove('selected');
+                                const otherAttractionName = c.querySelector('h3').textContent;
+                                const otherAttractionId = `attraction_${i}_${otherAttractionName.toLowerCase().replace(/\s+/g, '_')}`;
+                                
+                                logAttractionSelection(otherAttractionName, false);
+                                
+                                // Update map marker for deselected attraction
+                                if (ensureAttractionInstance() && typeof window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList === 'function') {
+                                    window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(otherAttractionId, otherAttractionName, false);
+                                }
+                            }
+                        });
+                        
+                        // Select the clicked attraction
+                        card.classList.add('selected');
+                        console.log(`🟢 Selected attraction: ${attractionName}`);
+                        logAttractionSelection(attractionName, true);
+                        
+                        // Update map marker to selected state
+                        if (ensureAttractionInstance() && typeof window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList === 'function') {
+                            window.displayAttractionInstance.updateAttractionMarkerFromHorizontalList(attractionId, attractionName, true);
+                        }
+                        
+                        // If we have attraction selection functionality, trigger it
+                        if (window.displayAttractionInstance && typeof window.displayAttractionInstance.selectAttraction === 'function') {
+                            // Get location from the card
+                            const locationElement = card.querySelector('.attraction-location');
+                            const location = locationElement ? locationElement.textContent.replace('🗺️', '').trim() : 'Unknown Location';
+                            
+                            // Mock coordinates based on known locations (this should ideally come from API data)
+                            let coordinates = '126.9780,37.5665'; // Default Seoul coordinates
+                            
+                            // Try to trigger the selection with mock data - in a real implementation, this would use API data
+                            try {
+                                // Note: This is a simplified version - in practice you'd want to get real coordinates from your attraction data
+                                console.log(`Triggering attraction selection for ${attractionName} at ${location}`);
+                            } catch (error) {
+                                console.warn('Could not trigger attraction selection:', error);
+                            }
+                        }
+                        
+                        // Optional: Auto-hide overlay after a longer delay to allow user to see the selection
+                        setTimeout(() => {
+                            showHorizontalAttractionOverlay(); // Toggle to close
+                        }, 2000);
+                    }
+                });
+            });
+
+            // Initialize progress
+            setTimeout(updateScrollProgress, 100);
+            
+            console.log('Horizontal attraction scroll overlay initialized successfully');
+        }
+        
+        // Function to clear all selections and start a new trip
+        function showNewTripModal() {
+            console.log('🆕 Starting new trip - clearing all selections...');
+            
+            // Confirm with user before clearing everything
+            const confirmClear = confirm('Start a new trip? This will clear all current selections including hotels, attractions, dates, and routes.');
+            
+            if (!confirmClear) {
+                console.log('❌ New trip cancelled by user');
+                return;
+            }
+            
+            try {
+                // 1. Clear step process selections (from step_process.html)
+                console.log('🧹 Clearing step process selections...');
+                if (typeof window.clearAllHotelSelections === 'function') {
+                    window.clearAllHotelSelections();
+                }
+                
+                if (typeof window.clearAllAttractionSelections === 'function') {
+                    window.clearAllAttractionSelections();
+                }
+                
+                if (typeof window.clearAllMarkersFromMap === 'function') {
+                    window.clearAllMarkersFromMap();
+                }
+                
+                // 2. Clear step process global data
+                console.log('📊 Clearing step process global data...');
+                window.selectedProvinceData = null;
+                window.selectedDateTimeData = null;
+                window.selectedDatetimeData = null;
+                window.selectedHotelsData = [];
+                window.selectedAttractionsData = [];
+                window.selectedHotelData = null;
+                window.selectedAttractionData = null;
+                
+                // 3. Clear display instance data
+                if (window.displayHotelInstance) {
+                    console.log('🏨 Clearing hotel display instance data...');
+                    if (typeof window.displayHotelInstance.clearAllHotelData === 'function') {
+                        window.displayHotelInstance.clearAllHotelData();
+                    }
+                }
+                
+                if (window.displayAttractionInstance) {
+                    console.log('🎯 Clearing attraction display instance data...');
+                    if (typeof window.displayAttractionInstance.clearSelectedAttractions === 'function') {
+                        window.displayAttractionInstance.clearSelectedAttractions();
+                    }
+                }
+                
+                // 4. Clear date inputs
+                console.log('📅 Clearing date selections...');
+                const startDateInput = document.getElementById('startDate');
+                const endDateInput = document.getElementById('endDate');
+                const startTimeInput = document.getElementById('startTime');
+                const endTimeInput = document.getElementById('endTime');
+                
+                if (startDateInput) startDateInput.value = '';
+                if (endDateInput) endDateInput.value = '';
+                if (startTimeInput) startTimeInput.value = '09:00';
+                if (endTimeInput) endTimeInput.value = '18:00';
+                
+                // 5. Clear route/optimization results
+                if (window.displayLineResultInstance) {
+                    console.log('🗺️ Clearing route display...');
+                    if (typeof window.displayLineResultInstance.clearRouteVisualization === 'function') {
+                        window.displayLineResultInstance.clearRouteVisualization();
+                    }
+                }
+                
+                // 6. Clear localStorage
+                console.log('💾 Clearing localStorage...');
+                localStorage.removeItem('hotelBookings');
+                localStorage.removeItem('tripData');
+                localStorage.removeItem('selectedProvince');
+                localStorage.removeItem('selectedDates');
+                localStorage.removeItem('attractionSelections');
+                localStorage.removeItem('selectedAttractions');
+                localStorage.removeItem('tripAttractionData');
+                
+                // 7. Reset all step buttons to initial state
+                console.log('🔘 Resetting step buttons...');
+                
+                // Reset Destination button
+                const destinationBtn = document.getElementById('Destination');
+                if (destinationBtn) {
+                    destinationBtn.innerHTML = 'Choose Destination <i class="fa-solid fa-earth-americas"></i>';
+                    destinationBtn.className = 'btn btn-primary w-100';
+                }
+                
+                // Reset DateTime/Dates button
+                const datetimeBtn = document.getElementById('DateTime') || document.getElementById('Datetime');
+                if (datetimeBtn) {
+                    datetimeBtn.innerHTML = 'Choose Dates <i class="fa-solid fa-calendar-days"></i>';
+                    datetimeBtn.className = 'btn btn-primary w-100';
+                }
+                
+                // Reset Hotel button
+                const hotelBtn = document.getElementById('Hotel');
+                if (hotelBtn) {
+                    hotelBtn.innerHTML = 'Choose Hotels <i class="fa-solid fa-hotel"></i>';
+                    hotelBtn.className = 'btn btn-primary w-100';
+                    hotelBtn.disabled = false;
+                }
+                
+                // Reset Attraction button
+                const attractionBtn = document.getElementById('Attraction');
+                if (attractionBtn) {
+                    attractionBtn.innerHTML = 'Choose Attractions <i class="fa-solid fa-map-marker-alt"></i>';
+                    attractionBtn.className = 'btn btn-primary w-100';
+                    attractionBtn.disabled = false;
+                }
+                
+                // 8. Reset and prepare selection display areas
+                console.log('👁️ Resetting selection displays...');
+                const selectedDestinationDiv = document.getElementById('selectedDestination');
+                const selectedDatesDiv = document.getElementById('selectedDates');
+                
+                if (selectedDestinationDiv) {
+                    selectedDestinationDiv.style.display = 'none';
+                    selectedDestinationDiv.innerHTML = ''; // Clear content
+                }
+                if (selectedDatesDiv) {
+                    selectedDatesDiv.style.display = 'none';
+                    selectedDatesDiv.innerHTML = ''; // Clear content
+                }
+                
+                // 9. Reset map view to Korea center and clear all markers
+                if (window.mapInstance || window.displayMapInstance || window.displayMap) {
+                    console.log('🗺️ Resetting map view and clearing markers...');
+                    
+                    let map = null;
+                    if (window.mapInstance && typeof window.mapInstance.getMap === 'function') {
+                        map = window.mapInstance.getMap();
+                    } else if (window.displayMapInstance && typeof window.displayMapInstance.getMap === 'function') {
+                        map = window.displayMapInstance.getMap();
+                    } else if (window.displayMap && typeof window.displayMap.getMap === 'function') {
+                        map = window.displayMap.getMap();
+                    } else if (window.map) {
+                        map = window.map;
+                    }
+                    
+                    if (map) {
+                        // Reset view to Korea center
+                        map.setView([36.5, 127.5], 7);
+                        
+                        // Clear all markers
+                        if (window.hotelMarkers && Array.isArray(window.hotelMarkers)) {
+                            window.hotelMarkers.forEach(marker => {
+                                if (marker && typeof marker.remove === 'function') {
+                                    marker.remove();
+                                }
+                            });
+                            window.hotelMarkers = [];
+                        }
+                        
+                        if (window.attractionMarkers && Array.isArray(window.attractionMarkers)) {
+                            window.attractionMarkers.forEach(marker => {
+                                if (marker && typeof marker.remove === 'function') {
+                                    marker.remove();
+                                }
+                            });
+                            window.attractionMarkers = [];
+                        }
+                    }
+                }
+                
+                // 10. Close any open overlays and modals
+                console.log('🔒 Closing overlays and modals...');
+                const hotelOverlay = document.getElementById('horizontal-hotel-overlay');
+                if (hotelOverlay && hotelOverlay.style.display === 'block') {
+                    hotelOverlay.style.display = 'none';
+                }
+                
+                const attractionOverlay = document.getElementById('horizontal-attraction-overlay');
+                if (attractionOverlay && attractionOverlay.style.display === 'block') {
+                    attractionOverlay.style.display = 'none';
+                }
+                
+                // Close any open modals
+                const openModals = document.querySelectorAll('.modal.show, .modal-overlay.show');
+                openModals.forEach(modal => {
+                    modal.classList.remove('show');
+                    modal.style.display = 'none';
+                });
+                
+                // 11. Stop any active polling and then restart it
+                console.log('⏹️ Stopping active polling...');
+                if (typeof window.stopDisplayPolling === 'function') {
+                    window.stopDisplayPolling();
+                }
+                
+                // 12. Restart display polling for new selections
+                console.log('▶️ Restarting display polling for new selections...');
+                setTimeout(() => {
+                    if (typeof window.startDisplayPolling === 'function') {
+                        window.startDisplayPolling();
+                    }
+                    if (typeof window.updateAllSelectionDisplays === 'function') {
+                        window.updateAllSelectionDisplays();
+                    }
+                }, 500); // Small delay to ensure everything is cleared first
+                
+                console.log('✅ All selections cleared! Ready for new trip planning.');
+                
+                // Show success message
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'New Trip Started!',
+                        text: 'All previous selections have been cleared. Ready to plan your new trip!',
+                        timer: 2500,
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-end'
+                    });
+                } else {
+                    alert('✅ Ready to plan your new trip! Start by selecting a region and dates.');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error clearing selections:', error);
+                
+                // Show error message
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while clearing selections. Please refresh the page.',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    alert('An error occurred while clearing selections. Please refresh the page.');
+                }
+            }
+        }
+        
+        // Make function globally available
+        window.showNewTripModal = showNewTripModal;
+       
+    </script>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-text">
+                <p>&copy; Upsil Tourism Platform. Copyright UPSIL-PKNU 2025</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Dropdown population script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('continentCountryBtn');
+    var dropdown = document.getElementById('continentCountryMenu');
+    var searchInput = document.getElementById('countrySearch');
+    var countriesList = document.getElementById('countriesList');
+    let grouped = {};
+
+    // Toggle dropdown
+    if (btn && dropdown) {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            if (dropdown.style.display === 'block') {
+                searchInput.focus();
+            }
+        });
+        document.addEventListener('click', function(e) {
+            if (dropdown.style.display === 'block') dropdown.style.display = 'none';
+        });
+    }
+
+    // Fetch countries list from API
+    fetch("/tourism/api/countries_list/")
+        .then(response => response.json())
+        .then(data => {
+            grouped = {};
+            data.forEach(item => {
+                const continent = item.Continent.trim();
+                const country = item.Country.trim();
+                if (!grouped[continent]) {
+                    grouped[continent] = [];
+                }
+                grouped[continent].push(country);
+            });
+            renderCountries(grouped);
+        })
+        .catch(err => console.error("Failed to load countries:", err));
+
+    // Render grouped countries
+    function renderCountries(groupedData, filter="") {
+        let html = "";
+        for (const continent in groupedData) {
+            const countries = groupedData[continent].filter(c => 
+                c.toLowerCase().includes(filter.toLowerCase())
+            );
+            if (countries.length > 0) {
+                html += `<div style="padding:10px 14px;font-weight:bold;color:#2c3e50;border-bottom:1px solid #eee;">${continent}</div>`;
+                countries.forEach(country => {
+                    html += `<a href="#" class="country-option" 
+                                style="display:block;padding:8px 24px;color:#555;text-decoration:none;">${country}</a>`;
+                });
+            }
+        }
+        countriesList.innerHTML = html || "<div style='padding:10px;color:#999;'>No matches found</div>";
+
+        // Attach click handlers to new country links
+        document.querySelectorAll('.country-option').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Update button text with selected country
+                btn.querySelector('span').textContent = this.textContent;
+                // Close dropdown
+                dropdown.style.display = 'none';
+            });
+        });
+    }
+
+    // Autocomplete filter
+    searchInput.addEventListener('input', function() {
+        renderCountries(grouped, searchInput.value);
+    });
+});
+</script>
+
+
+</body>
+</html>
+

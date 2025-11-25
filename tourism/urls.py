@@ -31,5 +31,7 @@ urlpatterns = [
     path('api/hotels_list/', get_hotel_list, name='get_hotel_list'),
     path('api/attractions_list/', get_attraction_list, name='get_attraction_list'),
 
+    path('api/countries_list/', get_countries_list, name='get_countries_list'),
+
 
 ]

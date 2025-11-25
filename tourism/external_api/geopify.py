@@ -73,67 +73,81 @@ class GeopifyAPI:
         from tourism.optimization.genetic_algorithm import GA
         from tourism.optimization.ga_multi import GA_MultiOptimizer
         """Calculate distance matrix with timeout and error handling"""
+
         try:
             hotels_list = []
-            for hotel in data['hotels']:
-                name = hotel.get('name', 'Unknown Hotel')
-                coords = hotel.get('coordinates', {})
-                latitude = coords.get('latitude', None)
-                longitude = coords.get('longitude', None)
-                
-                # Skip hotels with invalid coordinates
+            for hotel in data.get('hotels', []):
+                name = hotel.get('name') or hotel.get('properties', {}).get('name', 'Unknown Hotel')
+
+                # Handle both {"coordinates": {"latitude":..,"longitude":..}} and GeoJSON {"geometry":{"coordinates":[lon,lat]}}
+                coords = hotel.get('coordinates')
+                if not coords:
+                    geo_coords = hotel.get('geometry', {}).get('coordinates', [])
+                    if len(geo_coords) == 2:
+                        longitude, latitude = geo_coords
+                    else:
+                        latitude = longitude = None
+                else:
+                    latitude = coords.get('latitude')
+                    longitude = coords.get('longitude')
+
                 if latitude is None or longitude is None or latitude == 'N/A' or longitude == 'N/A':
                     print(f"Skipping hotel {name} due to invalid coordinates")
                     continue
-                
-                # Ensure coordinates are floats
+
                 try:
                     latitude = float(latitude)
                     longitude = float(longitude)
                 except (ValueError, TypeError):
                     print(f"Skipping hotel {name} due to non-numeric coordinates")
                     continue
-                
+
                 hotel_booking = hotel.get('booking', {})
                 checkInDate = hotel_booking.get('checkInDate', 'N/A')
                 checkOutDate = hotel_booking.get('checkOutDate', 'N/A')
+
                 hotels_list.append({
-                    'Name': name, 
-                    'Latitude': latitude, 
-                    'Longitude': longitude, 
-                    'Type': 'Hotel', 
-                    'checkIn': checkInDate, 
+                    'Name': name,
+                    'Latitude': latitude,
+                    'Longitude': longitude,
+                    'Type': 'Hotel',
+                    'checkIn': checkInDate,
                     'checkOut': checkOutDate
                 })
 
             attractions_list = []
-            for attraction in data['attractions']:
-                name = attraction.get('name', 'Unknown Attraction')
-                coords = attraction.get('coordinates', {})
-                latitude = coords.get('latitude', None)
-                longitude = coords.get('longitude', None)
-                
-                # Skip attractions with invalid coordinates
+            for attraction in data.get('attractions', []):
+                name = attraction.get('name') or attraction.get('properties', {}).get('name', 'Unknown Attraction')
+
+                coords = attraction.get('coordinates')
+                if not coords:
+                    geo_coords = attraction.get('geometry', {}).get('coordinates', [])
+                    if len(geo_coords) == 2:
+                        longitude, latitude = geo_coords
+                    else:
+                        latitude = longitude = None
+                else:
+                    latitude = coords.get('latitude')
+                    longitude = coords.get('longitude')
+
                 if latitude is None or longitude is None or latitude == 'N/A' or longitude == 'N/A':
                     print(f"Skipping attraction {name} due to invalid coordinates")
                     continue
-                
-                # Ensure coordinates are floats
+
                 try:
                     latitude = float(latitude)
                     longitude = float(longitude)
                 except (ValueError, TypeError):
                     print(f"Skipping attraction {name} due to non-numeric coordinates")
                     continue
-                
+
                 attractions_list.append({
-                    'Name': name, 
-                    'Latitude': latitude, 
-                    'Longitude': longitude, 
+                    'Name': name,
+                    'Latitude': latitude,
+                    'Longitude': longitude,
                     'Type': 'Attraction'
                 })
 
-            # Check if we have enough valid locations
             if len(hotels_list) + len(attractions_list) < 2:
                 return {
                     'error': 'Insufficient valid locations',
@@ -142,47 +156,32 @@ class GeopifyAPI:
                 }
 
             all_locations_df = pd.DataFrame(hotels_list + attractions_list)
-            # Get coordinates from the DataFrame
             locations = all_locations_df[['Name', 'Latitude', 'Longitude']].to_records(index=False).tolist()
-            
-            # Create a list to store distance data
+
             distance_data = []
 
-            # Calculate distances between all pairs of locations
             for i in range(len(locations)):
                 for j in range(len(locations)):
                     source_name, source_lat, source_lon = locations[i]
                     destination_name, destination_lat, destination_lon = locations[j]
 
-                    # Format the URL properly using f-string
                     url_api = (
                         f"https://api.geoapify.com/v1/routing?"
                         f"waypoints={source_lat},{source_lon}|{destination_lat},{destination_lon}"
                         f"&mode=drive&traffic=approximated&apiKey={API_KEY}"
                     )
 
-                    # Make the request
                     response = requests.get(url_api)
 
-                    # Check and handle the response
                     if response.status_code == 200:
-                        data = response.json()
-                        # Extract distance (in meters) and duration (in seconds)
-                        if 'features' in data and len(data['features']) > 0:
-                            route = data['features'][0]['properties']
-                            path_line = data['features'][0]['geometry']['coordinates']
-                            
-                            # Safely extract distance and duration with fallback to large values
-                            distance = route.get('distance', 999999.0)
-                            duration = route.get('time', 999999.0)
-                            
-                            # Handle cases where API returns None, 'N/A', or empty values
-                            if distance is None or distance == 'N/A' or distance == '':
-                                distance = 999999.0
-                            if duration is None or duration == 'N/A' or duration == '':
-                                duration = 999999.0
-                            
-                            # Ensure they are numeric
+                        resp_data = response.json()
+                        if 'features' in resp_data and len(resp_data['features']) > 0:
+                            route = resp_data['features'][0]['properties']
+                            path_line = resp_data['features'][0]['geometry']['coordinates']
+
+                            distance = route.get('distance') or 999999.0
+                            duration = route.get('time') or 999999.0
+
                             try:
                                 distance = float(distance)
                                 duration = float(duration)
@@ -190,7 +189,7 @@ class GeopifyAPI:
                                 print(f"Warning: Invalid distance/duration format for {source_name} -> {destination_name}")
                                 distance = 999999.0
                                 duration = 999999.0
-                            
+
                             distance_data.append({
                                 'Source': source_name,
                                 'SourceCoordinates': (source_lat, source_lon),
@@ -202,35 +201,35 @@ class GeopifyAPI:
                             })
                         else:
                             print(f"No route found between {source_name} and {destination_name}")
-                            # Use large numeric values instead of 'N/A' for unreachable routes
                             distance_data.append({
                                 'Source': source_name,
                                 'Destination': destination_name,
                                 'SourceCoordinates': (source_lat, source_lon),
                                 'DestinationCoordinates': (destination_lat, destination_lon),
-                                'Distance (m)': 999999.0,  # Large distance for unreachable routes
-                                'Duration (s)': 999999.0,  # Large duration for unreachable routes
+                                'Distance (m)': 999999.0,
+                                'Duration (s)': 999999.0,
                                 'Path': []
                             })
                     else:
                         print(f"Error calculating distance from {source_name} to {destination_name}: {response.status_code}")
-                        print(response.text)
-                        # Use large numeric values instead of 'Error' string
                         distance_data.append({
                             'Source': source_name,
                             'Destination': destination_name,
                             'SourceCoordinates': (source_lat, source_lon),
                             'DestinationCoordinates': (destination_lat, destination_lon),
-                            'Distance (m)': 999999.0,  # Large distance for error cases
-                            'Duration (s)': 999999.0,  # Large duration for error cases
+                            'Distance (m)': 999999.0,
+                            'Duration (s)': 999999.0,
                             'Path': []
                         })
-
             df = pd.DataFrame(distance_data)
+            print("Distance Matrix DataFrame:\n", df.head(2))
+            print("All Locations DataFrame:\n", all_locations_df.head(2))
             ga_method = GA_MultiOptimizer(df, all_locations_df)
             ga_result = ga_method.main()
-            # Create a DataFrame from the distance data
             return ga_result
+
+        except Exception as e:
+            return {'error': str(e)}
             # distance_matrix_df = pd.DataFrame(distance_data)
 
             # # Display the distance matrix
