@@ -54,25 +54,27 @@
         .panel-toggle-btn:hover { background-color: #f0f0f0; color: #42b983; }
         .panel-toggle-btn.collapsed { left: 0; }
 
-        /* --- CONTENT --- */
+        /* --- AUTOCOMPLETE --- */
         .panel-content { padding: 20px; padding-bottom: 100px; }
         .panel-title { margin: 0 0 15px 0; font-size: 1.1rem; color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         
-        /* Autocomplete */
         .autocomplete-container { position: relative; width: 100%; margin-bottom: 15px; }
-        .autocomplete-input-wrapper { position: relative; display: flex; align-items: center; }
-        .autocomplete-input { width: 100%; padding: 12px 15px 12px 40px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); outline: none; transition: border 0.2s; cursor: pointer; background: white; }
+        .autocomplete-input-wrapper { position: relative; display: flex; align-items: center; cursor: pointer; }
+        .autocomplete-input { width: 100%; padding: 12px 15px 12px 40px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); outline: none; transition: border 0.2s; cursor: pointer; background: white; text-overflow: ellipsis; }
         .autocomplete-input:focus { border-color: #42b983; box-shadow: 0 2px 8px rgba(66, 185, 131, 0.2); }
         .autocomplete-input:disabled { background-color: #f5f5f5; cursor: not-allowed; color: #999; }
         .autocomplete-icon { position: absolute; left: 12px; color: #999; }
         .autocomplete-arrow { position: absolute; right: 12px; color: #999; font-size: 0.8rem; transition: transform 0.2s; }
         .autocomplete-arrow.open { transform: rotate(180deg); }
+
         .autocomplete-list { margin-top: 5px; background: white; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-height: 0; overflow: hidden; transition: max-height 0.3s ease-in-out, opacity 0.3s; opacity: 0; }
         .autocomplete-list.expanded { max-height: 400px; opacity: 1; overflow-y: auto; }
+        .inner-search-container { padding: 10px; border-bottom: 1px solid #eee; position: sticky; top: 0; background: white; z-index: 5; }
+        .inner-search-input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; outline: none; font-size: 0.9rem; }
         .ac-item { padding: 12px 15px; border-bottom: 1px solid #f9f9f9; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: #444; }
         .ac-item:hover { background-color: #f0fdf7; color: #42b983; }
 
-        /* Cards & Date */
+        /* CARDS & DATE */
         .date-section { margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; }
         .date-group { margin-bottom: 15px; }
         .date-label { display: block; font-size: 0.85rem; color: #666; margin-bottom: 5px; font-weight: 600; }
@@ -85,13 +87,13 @@
         .place-mini-info h4 { margin: 0 0 4px 0; font-size: 0.95rem; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .place-mini-info p { margin: 0; font-size: 0.8rem; color: #777; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-        /* Submit */
+        /* SUBMIT */
         .submit-section { position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px; background: white; border-top: 1px solid #ddd; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); box-sizing: border-box; }
         .submit-btn { width: 100%; padding: 12px; background: #2c3e50; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background 0.2s; display: flex; justify-content: center; align-items: center; gap: 10px; }
         .submit-btn:hover { background: #34495e; }
         .submit-btn:disabled { background: #bdc3c7; cursor: not-allowed; }
 
-        /* History Items */
+        /* HISTORY */
         .history-item { background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); transition: transform 0.1s; }
         .history-item:hover { border-color: #42b983; transform: translateY(-2px); }
         .h-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
@@ -103,13 +105,10 @@
         .h-actions { display: flex; gap: 5px; border-top: 1px solid #f0f0f0; padding-top: 10px; }
         .h-btn { flex: 1; padding: 6px; font-size: 0.8rem; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; color: #555; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.1s; }
         .h-btn:hover { background: #f9f9f9; color: #2c3e50; border-color: #bbb; }
-        .h-btn.view { background: #e0f2f1; color: #009688; border-color: #009688; }
-        .h-btn:hover.view { background: #b2dfdb; }
-        .h-btn.route:hover { background: #e3f2fd; color: #1976d2; border-color: #1976d2; }
-        .h-btn.schedule:hover { background: #f3e5f5; color: #8e44ad; border-color: #8e44ad; }
+        .h-btn.active { background: #e3f2fd; color: #1976d2; border-color: #1976d2; font-weight: bold; } /* Active Route State */
         .h-btn.edit:hover { background: #fff3e0; color: #e67e22; border-color: #e67e22; }
 
-        /* Detail Panel */
+        /* DETAIL PANEL */
         .panel-details { width: 0; background: white; border-right: 1px solid #ddd; overflow-y: auto; transition: width 0.3s ease; position: relative; z-index: 10; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
         .panel-details.open { width: 380px; }
         .detail-content { padding: 20px; width: 340px; }
@@ -140,7 +139,8 @@
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; font-weight: 600; margin-bottom: 5px; color: #555; }
         .modal-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
-        
+        .error-msg { color: #e74c3c; font-size: 0.85rem; margin-top: 5px; display: block; font-weight: 600; }
+
         /* Gantt */
         .gantt-container { display: flex; flex-direction: column; gap: 20px; }
         .gantt-day { border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
@@ -155,15 +155,7 @@
 
         /* MARKERS */
         #map { flex: 1; height: 100%; background: #e5e5e5; }
-        /* New Sequenced Marker Style */
-        .marker-seq {
-            background-color: white; border: 2px solid #333; color: #333;
-            border-radius: 50%; width: 28px; height: 28px;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            cursor: pointer; z-index: 10;
-        }
-        
+        .marker-seq { background-color: white; border: 2px solid #333; color: #333; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); cursor: pointer; z-index: 10; }
         .map-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; font-weight: bold; background: rgba(255,255,255,0.9); padding: 15px 25px; border-radius: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; }
     </style>
 </head>
@@ -214,29 +206,41 @@
         <div class="panel-list" :class="{ collapsed: !isListPanelOpen }">
             <div class="panel-content" v-if="currentView === 'planner'">
                 <h3 class="panel-title"><span v-if="selectedCountry">Trip to [[ selectedCountry.name ]]</span><span v-else>Trip Planner</span></h3>
+                
                 <label class="date-label">Select Destination</label>
                 <div class="autocomplete-container">
-                    <div class="autocomplete-input-wrapper" @click="toggleCityDropdown">
+                    <div class="autocomplete-input-wrapper" @click.stop="toggleCityDropdown">
                         <i class="fa-solid fa-search autocomplete-icon"></i>
                         <input type="text" class="autocomplete-input" v-model="placeSearchQuery" placeholder="Select a City..." readonly @focus="isCityDropdownOpen = true" @input="isCityDropdownOpen = true">
                         <i class="fa-solid fa-chevron-down autocomplete-arrow" :class="{ open: isCityDropdownOpen }"></i>
                     </div>
-                    <div class="autocomplete-list" :class="{ expanded: isCityDropdownOpen }">
-                        <div style="padding: 10px; border-bottom:1px solid #eee;"><input type="text" v-model="placeSearchQuery" placeholder="Type to filter..." style="width:100%; padding:8px; border:1px solid #eee; border-radius:4px;" @click.stop></div>
+                    <div class="autocomplete-list" :class="{ expanded: isCityDropdownOpen }" @click.stop>
+                        <div class="inner-search-container">
+                            <input type="text" v-model="placeSearchQuery" placeholder="Type to filter cities..." class="inner-search-input" @click.stop>
+                        </div>
                         <div v-for="place in filteredPlaces" :key="place.id" class="ac-item" @click="selectPlace(place)">
                             <i :class="getIcon(place.properties.category)"></i><span>[[ place.properties.name ]]</span>
                         </div>
                     </div>
                 </div>
+
                 <div class="date-section">
                     <div class="date-group"><label class="date-label">Start Date</label><input type="datetime-local" v-model="startDate" class="date-input"></div>
                     <div class="date-group"><label class="date-label">End Date</label><input type="datetime-local" v-model="endDate" class="date-input"></div>
                 </div>
+
                 <div class="date-section">
                     <label class="date-label">Find Hotels</label>
                     <div class="autocomplete-container">
-                        <div class="autocomplete-input-wrapper" @click="openHotelDropdown"><i class="fa-solid fa-bed autocomplete-icon"></i><input type="text" class="autocomplete-input" v-model="hotelSearchQuery" placeholder="Search hotels..." :disabled="!selectedPlace || !startDate || !endDate" @focus="openHotelDropdown" @input="isHotelDropdownOpen = true"><i class="fa-solid fa-chevron-down autocomplete-arrow" :class="{ open: isHotelDropdownOpen }"></i></div>
-                        <div class="autocomplete-list" :class="{ expanded: isHotelDropdownOpen }">
+                        <div class="autocomplete-input-wrapper" @click.stop="openHotelDropdown">
+                            <i class="fa-solid fa-bed autocomplete-icon"></i>
+                            <input type="text" class="autocomplete-input" placeholder="Find & Select Hotels..." readonly :disabled="!selectedPlace || !startDate || !endDate" @focus="openHotelDropdown">
+                            <i class="fa-solid fa-chevron-down autocomplete-arrow" :class="{ open: isHotelDropdownOpen }"></i>
+                        </div>
+                        <div class="autocomplete-list" :class="{ expanded: isHotelDropdownOpen }" @click.stop>
+                            <div class="inner-search-container">
+                                <input type="text" v-model="hotelSearchQuery" placeholder="Filter hotels..." class="inner-search-input" @click.stop>
+                            </div>
                             <div v-if="isLoadingHotels" style="padding: 15px; text-align:center; color:#42b983;"><i class="fa-solid fa-spinner fa-spin"></i> Searching...</div>
                             <div v-for="hotel in filteredHotels" :key="hotel.properties.place_id" class="place-card-small" @click="selectHotel(hotel)">
                                 <img v-if="hotel.properties.wiki_and_media && hotel.properties.wiki_and_media.image" :src="hotel.properties.wiki_and_media.image" class="place-thumb" @error="$event.target.style.display='none'"><div class="place-placeholder" v-else><i class="fa-solid fa-hotel"></i></div>
@@ -245,11 +249,19 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="date-section">
                     <label class="date-label">Find Attractions</label>
                     <div class="autocomplete-container">
-                        <div class="autocomplete-input-wrapper" @click="openAttractionDropdown"><i class="fa-solid fa-camera autocomplete-icon"></i><input type="text" class="autocomplete-input" v-model="attractionSearchQuery" placeholder="Search attractions..." :disabled="!selectedPlace" @focus="openAttractionDropdown" @input="isAttractionDropdownOpen = true"><i class="fa-solid fa-chevron-down autocomplete-arrow" :class="{ open: isAttractionDropdownOpen }"></i></div>
-                        <div class="autocomplete-list" :class="{ expanded: isAttractionDropdownOpen }">
+                        <div class="autocomplete-input-wrapper" @click.stop="openAttractionDropdown">
+                            <i class="fa-solid fa-camera autocomplete-icon"></i>
+                            <input type="text" class="autocomplete-input" placeholder="Find Attractions..." readonly :disabled="!selectedPlace" @focus="openAttractionDropdown">
+                            <i class="fa-solid fa-chevron-down autocomplete-arrow" :class="{ open: isAttractionDropdownOpen }"></i>
+                        </div>
+                        <div class="autocomplete-list" :class="{ expanded: isAttractionDropdownOpen }" @click.stop>
+                            <div class="inner-search-container">
+                                <input type="text" v-model="attractionSearchQuery" placeholder="Filter attractions..." class="inner-search-input" @click.stop>
+                            </div>
                             <div v-if="isLoadingAttractions" style="padding: 15px; text-align:center; color:#9b59b6;"><i class="fa-solid fa-spinner fa-spin"></i> Searching...</div>
                             <div v-for="attr in filteredAttractions" :key="attr.properties.place_id" class="place-card-small" @click="selectAttraction(attr)">
                                 <img v-if="attr.properties.wiki_and_media && attr.properties.wiki_and_media.image" :src="attr.properties.wiki_and_media.image" class="place-thumb" @error="$event.target.style.display='none'"><div class="place-placeholder" v-else><i class="fa-solid fa-camera"></i></div>
@@ -258,6 +270,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="submit-section">
                     <button class="submit-btn" :disabled="!selectedPlace || !startDate || !endDate || isSubmitting" @click="submitItinerary"><i class="fa-solid fa-paper-plane" v-if="!isSubmitting"></i><i class="fa-solid fa-spinner fa-spin" v-else></i> [[ isSubmitting ? 'Processing...' : 'Process Itinerary' ]]</button>
                 </div>
@@ -276,7 +289,11 @@
                     <div class="h-dates"><i class="fa-regular fa-calendar"></i> [[ trip.dates.start_date ]] <i class="fa-solid fa-arrow-right" style="font-size:0.7em;"></i> [[ trip.dates.end_date ]]</div>
                     <div class="h-actions">
                         <div class="h-btn edit" v-if="!isTripPast(trip.dates.end_date)" @click="editHistoryTrip(trip)"><i class="fa-solid fa-pen-to-square"></i> Edit</div>
-                        <div class="h-btn route" @click="showHistoryRoutes(trip)"><i class="fa-solid fa-route"></i> Routes</div>
+                        <div class="h-btn route" 
+                             :class="{ active: activeRouteTripId === trip._id }"
+                             @click="showHistoryRoutes(trip)">
+                             <i class="fa-solid fa-route"></i> Routes
+                        </div>
                         <div class="h-btn schedule" @click="showHistorySchedule(trip)"><i class="fa-solid fa-list-check"></i> Schedule</div>
                         <div class="h-btn view" @click="viewHistoryTrip(trip)"><i class="fa-solid fa-eye"></i> View</div>
                     </div>
@@ -293,12 +310,21 @@
                     <img v-else :src="`https://placehold.co/600x400?text=${encodeURIComponent(selectedDetailPlace.properties.name)}`" class="detail-image">
                     <h2>[[ selectedDetailPlace.properties.name ]]</h2>
                     <p>[[ selectedDetailPlace.properties.address_line2 || 'Details unavailable' ]]</p>
-                    
                     <div v-if="currentView === 'planner' && isHotel(selectedDetailPlace)">
                         <button style="width:100%; padding:10px; background:#42b983; color:white; border:none; cursor:pointer; border-radius:4px;" @click="openBookingModal(selectedDetailPlace, 'add')" :disabled="daysRemaining <= 0"><i class="fa-solid fa-bed"></i> Book Stay</button>
                     </div>
                     <div v-else-if="currentView === 'planner' && isAttraction(selectedDetailPlace)">
                         <button style="width:100%; padding:10px; background:#9b59b6; color:white; border:none; cursor:pointer; border-radius:4px;" @click="addAttractionToItinerary(selectedDetailPlace)"><i class="fa-solid fa-plus"></i> Add to Visits</button>
+                    </div>
+                </div>
+
+                <div v-if="currentView === 'planner' && (selectedCountry || startDate)" class="summary-card">
+                    <div class="summary-header"><span>Current Draft</span><span v-if="selectedCountry" class="summary-tag">[[ selectedCountry.country_code.toUpperCase() ]]</span></div>
+                    <div class="summary-row"><span>Dest:</span><span>[[ selectedPlace ? selectedPlace.properties.name : '...' ]]</span></div>
+                    <div class="summary-row"><span>Dates:</span><span>[[ startDate ? startDate.split('T')[0] : '...' ]] to [[ endDate ? endDate.split('T')[0] : '...' ]]</span></div>
+                    <div class="summary-row" style="border-top:1px solid #eee; margin-top:8px; padding-top:8px;">
+                        <span><strong>Itinerary:</strong></span>
+                        <span>[[ bookedHotels.length ]] Hotels, [[ selectedAttractions.length ]] Attr.</span>
                     </div>
                 </div>
 
@@ -316,7 +342,7 @@
                     <div v-for="(item, index) in bookedHotels" :key="index" class="booked-item" :class="{ 'selected-item-highlight': selectedDetailPlace && selectedDetailPlace.properties.place_id === item.hotel.properties.place_id }">
                         <div class="booked-info" @click="selectHotel(item.hotel)">
                             <span class="booked-name">[[ item.hotel.properties.name ]]</span>
-                            <div class="booked-meta">[[ item.hotel.properties.city ]] <span class="booked-duration-badge">[[ item.duration ]] Days</span></div>
+                            <div class="booked-meta">[[ item.hotel.properties.city ]] <span class="booked-duration-badge">[[ item.duration ]]d</span></div>
                         </div>
                         <div class="booked-actions" v-if="isEditable && currentView === 'planner'">
                             <i class="fa-solid fa-pen action-btn-icon edit" @click="openBookingModal(item.hotel, 'edit', index)"></i>
@@ -395,6 +421,8 @@
                 markers: [], hotelMarkers: [], attractionMarkers: [], routeMarkers: [], isLoadingHotels: false, isLoadingAttractions: false,
                 historyTrips: [], selectedHistoryTrip: null, isEditable: true, showGanttModal: false, ganttData: {},
                 isBookingModalOpen: false, selectedHotelForBooking: null, bookingDuration: 1, maxStayDuration: 1, currentMaxAllowed: 1, isEditing: false, editingIndex: -1,
+                
+                activeRouteTripId: null // Tracks which trip's route is currently shown
             }
         },
         computed: {
@@ -406,7 +434,7 @@
             },
             daysBooked() { return this.bookedHotels.reduce((sum, item) => sum + item.duration, 0); },
             daysRemaining() { return Math.max(0, this.totalTripDays - this.daysBooked); },
-            showDetailsPanel() { return !!this.selectedDetailPlace || (this.currentView === 'history' && !!this.selectedHistoryTrip); },
+            showDetailsPanel() { return !!this.selectedDetailPlace || (this.currentView === 'history' && !!this.selectedHistoryTrip) || (this.currentView === 'planner' && this.selectedPlace); },
             filteredPlaces() { if (!this.placeSearchQuery) return this.places; return this.places.filter(p => (p.properties.name || '').toLowerCase().includes(this.placeSearchQuery.toLowerCase())); },
             filteredHotels() { if (!this.hotelSearchQuery) return this.hotels; return this.hotels.filter(h => (h.properties.name || '').toLowerCase().includes(this.hotelSearchQuery.toLowerCase())); },
             filteredAttractions() { if (!this.attractionSearchQuery) return this.attractions; return this.attractions.filter(a => (a.properties.name || '').toLowerCase().includes(this.attractionSearchQuery.toLowerCase())); },
@@ -416,14 +444,23 @@
         unmounted() { window.removeEventListener('click', this.closeMenus); },
         methods: {
             switchView(view) {
-                this.currentView = view; this.isListPanelOpen = true; this.clearRouteLayers();
+                this.currentView = view; this.isListPanelOpen = true; 
+                this.clearRouteLayers(); // Always clear routes when switching views
                 if (view === 'history') { this.fetchHistory(); this.resetPlanner(); }
             },
             resetPlanner() { this.selectedDetailPlace = null; this.bookedHotels = []; this.selectedAttractions = []; this.markers.forEach(m=>m.remove()); this.hotelMarkers.forEach(m=>m.remove()); this.attractionMarkers.forEach(m=>m.remove()); this.markers = []; this.hotelMarkers = []; this.attractionMarkers = []; },
             clearRouteLayers() {
-                const layers = this.map.getStyle().layers; layers.forEach(l => { if (l.id.startsWith('route-layer-') || l.id.startsWith('route-label-')) this.map.removeLayer(l.id); });
-                const sources = Object.keys(this.map.getStyle().sources); sources.forEach(s => { if (s.startsWith('route-day-')) this.map.removeSource(s); });
-                this.routeMarkers.forEach(m => m.remove()); this.routeMarkers = [];
+                // 1. Remove Layers first
+                const layers = this.map.getStyle().layers; 
+                layers.forEach(l => { if (l.id.startsWith('route-layer-') || l.id.startsWith('route-label-')) this.map.removeLayer(l.id); });
+                // 2. Remove Sources
+                const sources = Object.keys(this.map.getStyle().sources); 
+                sources.forEach(s => { if (s.startsWith('route-day-')) this.map.removeSource(s); });
+                // 3. Remove Markers
+                const markerDivs = document.getElementsByClassName('marker-seq');
+                while(markerDivs.length > 0) { markerDivs[0].parentNode.removeChild(markerDivs[0]); }
+                
+                this.activeRouteTripId = null; // Reset tracking
             },
             
             async fetchHistory() {
@@ -437,18 +474,14 @@
                 this.currentView = 'planner'; this.isListPanelOpen = true; this.clearRouteLayers();
                 this.selectedCountry = { name: trip.destination.country, country_code: trip.destination.country_code };
                 this.countrySearchQuery = trip.destination.country;
-                
                 let cityLon = 0, cityLat = 0;
                 if (Array.isArray(trip.destination.city_coordinates)) { cityLon = trip.destination.city_coordinates[1]; cityLat = trip.destination.city_coordinates[0]; }
-                
                 this.selectedPlace = { type: 'Feature', geometry: { type: 'Point', coordinates: [cityLon, cityLat] }, properties: { name: trip.destination.city, place_id: trip.destination.city_place_id, category: 'administrative.boundary' } };
                 this.placeSearchQuery = trip.destination.city;
                 this.startDate = `${trip.dates.start_date}T${trip.dates.start_time || '00:00'}`;
                 this.endDate = `${trip.dates.end_date}T${trip.dates.end_time || '23:59'}`;
-                
                 this.bookedHotels = trip.hotels.map(h => ({ hotel: h, duration: h.user_stay_duration || 1 }));
                 this.selectedAttractions = trip.attractions.map(a => a);
-
                 this.map.flyTo({ center: this.selectedPlace.geometry.coordinates, zoom: 10 });
                 this.hotelMarkers.forEach(m => m.remove()); this.hotelMarkers = []; this.attractionMarkers.forEach(m => m.remove()); this.attractionMarkers = [];
                 this.bookedHotels.forEach(item => this.addSingleMarker(item.hotel, 'bed', '#3498db', this.hotelMarkers));
@@ -470,14 +503,11 @@
 
             viewHistoryTrip(trip) {
                 this.selectedHistoryTrip = trip; this.selectedDetailPlace = null; this.isEditable = !this.isTripPast(trip.dates.end_date);
-                
                 this.bookedHotels = trip.hotels.map(h => ({ hotel: h, duration: h.user_stay_duration || 1 }));
                 this.selectedAttractions = trip.attractions.map(a => a);
-
                 this.markers.forEach(m => m.remove()); this.hotelMarkers.forEach(m => m.remove()); this.attractionMarkers.forEach(m => m.remove());
                 this.hotelMarkers = []; this.attractionMarkers = [];
                 const bounds = new maplibregl.LngLatBounds();
-
                 trip.hotels.forEach(h => {
                     let coords = h.geometry ? h.geometry.coordinates : (h.coordinates ? (h.coordinates.longitude ? [h.coordinates.longitude, h.coordinates.latitude] : [h.coordinates[1], h.coordinates[0]]) : null);
                     if (coords) {
@@ -496,10 +526,20 @@
             },
 
             showHistoryRoutes(trip) {
+                // TOGGLE LOGIC: If already showing this trip, clear and return (toggle off)
+                if (this.activeRouteTripId === trip._id) {
+                    this.clearRouteLayers();
+                    return;
+                }
+
+                // New trip selected: Clear previous routes first
                 this.clearRouteLayers();
+                this.activeRouteTripId = trip._id; // Set active
+
                 let result = trip.optimize_result;
                 if (typeof result === 'string') { try { result = JSON.parse(result); } catch(e) { return; } }
                 if (!result) return;
+                
                 const nDays = result.n_days || 1;
                 const colors = ['#e74c3c', '#f1c40f', '#2ecc71', '#3498db', '#9b59b6'];
                 let globalSequence = 1;
@@ -534,11 +574,9 @@
                                 const a = trip.attractions.find(a => a.name === event.location || (a.properties && a.properties.name === event.location));
                                 if(a) coords = a.geometry ? a.geometry.coordinates : (a.coordinates ? [a.coordinates.longitude || a.coordinates[1], a.coordinates.latitude || a.coordinates[0]] : null);
                             }
-                            
                             if (coords) {
                                 const el = document.createElement('div'); el.className = 'marker-seq'; el.innerText = globalSequence++; el.style.borderColor = colors[(i-1)%colors.length]; el.style.color = colors[(i-1)%colors.length];
                                 const m = new maplibregl.Marker({ element: el }).setLngLat(coords).setPopup(new maplibregl.Popup({ offset: 25 }).setHTML(`<b>Day ${i}</b><br>${event.activity}`)).addTo(this.map);
-                                this.routeMarkers.push(m);
                             }
                         });
                     }
@@ -563,13 +601,13 @@
             openAttractionDropdown() { if(!this.selectedPlace) { alert("Please select a City first."); return; } this.isAttractionDropdownOpen = true; if(this.attractions.length === 0) this.fetchAttractions(); },
             async fetchAttractions() { this.isLoadingAttractions = true; this.attractionMarkers.forEach(m => m.remove()); this.attractionMarkers = []; const cityPlaceId = this.selectedPlace.properties.place_id; const url = `https://api.geoapify.com/v2/places?categories=tourism.attraction&filter=place:${cityPlaceId}&limit=100&apiKey=${this.apiKey}`; try { const response = await fetch(url); const data = await response.json(); if(data.features) { this.attractions = data.features; this.addAttractionMarkers(); } } catch (error) { console.error(error); } finally { this.isLoadingAttractions = false; } },
             addAttractionMarkers() { this.attractions.forEach(attr => { const el = document.createElement('div'); el.className = 'marker'; el.style.width = '24px'; el.style.height = '24px'; el.style.backgroundImage = 'url(https://api.geoapify.com/v1/icon/?type=awesome&color=%239b59b6&size=small&icon=camera&apiKey=' + this.apiKey + ')'; el.style.backgroundSize = 'contain'; el.style.cursor = 'pointer'; el.addEventListener('click', (e) => { e.stopPropagation(); this.selectAttraction(attr); }); const marker = new maplibregl.Marker(el).setLngLat(attr.geometry.coordinates).addTo(this.map); this.attractionMarkers.push(marker); }); },
-            selectAttraction(attr) { this.selectedDetailPlace = attr; if(!attr.properties.category) attr.properties.category = 'tourism.attraction'; this.map.flyTo({ center: attr.geometry.coordinates, zoom: 16, pitch: 45 }); this.isAttractionDropdownOpen = false; },
+            selectAttraction(attr) { this.selectedDetailPlace = attr; if(!attr.properties.category) attr.properties.category = 'tourism.attraction'; this.map.flyTo({ center: attr.geometry.coordinates, zoom: 16, pitch: 45 }); /* REMOVED AUTO CLOSE */ },
             addAttractionToItinerary(attr) { if(!this.selectedAttractions.find(a => a.properties.place_id === attr.properties.place_id)) { this.selectedAttractions.push(attr); } },
             removeAttraction(index) { this.selectedAttractions.splice(index, 1); },
             openHotelDropdown() { if(!this.selectedPlace || !this.startDate || !this.endDate) { alert("Select City and Dates first."); return; } this.isHotelDropdownOpen = true; if(this.hotels.length === 0) this.fetchHotels(); },
             async fetchHotels() { this.isLoadingHotels = true; this.hotelMarkers.forEach(m => m.remove()); this.hotelMarkers = []; const cityPlaceId = this.selectedPlace.properties.place_id; const url = `https://api.geoapify.com/v2/places?categories=accommodation.hotel&filter=place:${cityPlaceId}&limit=50&apiKey=${this.apiKey}`; try { const response = await fetch(url); const data = await response.json(); if(data.features) { this.hotels = data.features; this.addHotelMarkers(); } } catch (error) { console.error(error); } finally { this.isLoadingHotels = false; } },
             addHotelMarkers() { this.hotels.forEach(hotel => { const el = document.createElement('div'); el.className = 'marker'; el.style.width = '24px'; el.style.height = '24px'; el.style.backgroundImage = 'url(https://api.geoapify.com/v1/icon/?type=awesome&color=%233498db&size=small&icon=bed&apiKey=' + this.apiKey + ')'; el.style.backgroundSize = 'contain'; el.style.cursor = 'pointer'; el.addEventListener('click', (e) => { e.stopPropagation(); this.selectHotel(hotel); }); const marker = new maplibregl.Marker(el).setLngLat(hotel.geometry.coordinates).addTo(this.map); this.hotelMarkers.push(marker); }); },
-            selectHotel(hotel) { this.selectedDetailPlace = hotel; if(!hotel.properties.category) hotel.properties.category = 'accommodation.hotel'; this.map.flyTo({ center: hotel.geometry.coordinates, zoom: 16, pitch: 45 }); this.isHotelDropdownOpen = false; this.hotelSearchQuery = hotel.properties.name; },
+            selectHotel(hotel) { this.selectedDetailPlace = hotel; if(!hotel.properties.category) hotel.properties.category = 'accommodation.hotel'; this.map.flyTo({ center: hotel.geometry.coordinates, zoom: 16, pitch: 45 }); /* REMOVED AUTO CLOSE */ this.hotelSearchQuery = hotel.properties.name; },
             openBookingModal(hotel, mode = 'add', index = -1) { this.selectedHotelForBooking = hotel; this.isEditing = (mode === 'edit'); this.editingIndex = index; if(!this.startDate || !this.endDate) { alert("Dates required."); return; } let usedDays = this.daysBooked; if (this.isEditing) usedDays -= this.bookedHotels[index].duration; this.currentMaxAllowed = this.totalTripDays - usedDays; if (this.currentMaxAllowed <= 0) { alert("No days remaining!"); return; } this.bookingDuration = this.isEditing ? this.bookedHotels[index].duration : 1; if (this.bookingDuration > this.currentMaxAllowed) this.bookingDuration = this.currentMaxAllowed; this.isBookingModalOpen = true; },
             enforceMaxDuration() { if (this.bookingDuration > this.currentMaxAllowed) this.bookingDuration = this.currentMaxAllowed; if (this.bookingDuration < 1) this.bookingDuration = 1; },
             closeBookingModal() { this.isBookingModalOpen = false; this.selectedHotelForBooking = null; },
@@ -591,7 +629,7 @@
             toggleUserMenu() { this.isUserMenuOpen = !this.isUserMenuOpen; this.isCountryMenuOpen = false; this.isCityDropdownOpen = false;},
             closeMenus() { this.isUserMenuOpen = false; this.isCountryMenuOpen = false; this.isHotelDropdownOpen = false; this.isAttractionDropdownOpen = false; },
             closeDetails() { this.selectedDetailPlace = null; this.selectedHistoryTrip = null; },
-            async fetchCountryList() { try { const response = await fetch('/tourism/api/countries_list/'); if (response.ok) { const data = await response.json(); if (Array.isArray(data) && data.length > 0) { this.countriesList = data.map(item => ({ id: item.id || Math.random(), name: item.Country || item.country_name || 'Unknown Country', continent: item.Continent || 'Other' })); } } } catch (error) { this.countriesList = [ { id: 1, name: 'France', continent: 'Europe' }, { id: 2, name: 'South Korea', continent: 'Asia' }, { id: 3, name: 'Japan', continent: 'Asia' }, { id: 4, name: 'United States', continent: 'North America' } ]; } },
+            async fetchCountryList() { try { const response = await fetch('/tourism/api/countries_list/'); if (response.ok) { const data = await response.json(); if (Array.isArray(data) && data.length > 0) { this.countriesList = data.map(item => ({ id: item.id || Math.random(), name: item.Country || item.country_name || 'Unknown Country', Continent: item.continent || 'Other' })); } } } catch (error) { this.countriesList = [ { id: 1, name: 'France', continent: 'Europe' }, { id: 2, name: 'South Korea', continent: 'Asia' }, { id: 3, name: 'Japan', continent: 'Asia' }, { id: 4, name: 'United States', continent: 'North America' } ]; } },
             initMap() { this.map = new maplibregl.Map({ container: 'map', style: `https://maps.geoapify.com/v1/styles/osm-bright/style.json?apiKey=${this.apiKey}`, center: [2.2945, 48.8584], zoom: 4 }); this.map.addControl(new maplibregl.NavigationControl()); this.map.on('load', () => { this.map.addSource('boundaries', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } }); this.map.addLayer({ id: 'boundary-fill', type: 'fill', source: 'boundaries', paint: { 'fill-color': '#42b983', 'fill-opacity': 0.15, 'fill-outline-color': '#42b983' } }); this.map.addLayer({ id: 'boundary-line', type: 'line', source: 'boundaries', paint: { 'line-color': '#2c3e50', 'line-width': 1 } }); this.map.on('click', 'boundary-fill', (e) => { if(e.features.length > 0) { const placeId = e.features[0].properties.place_id; const place = this.places.find(p => p.properties.place_id === placeId); if(place) this.selectPlace(place); } }); this.map.on('mouseenter', 'boundary-fill', () => { this.map.getCanvas().style.cursor = 'pointer'; }); this.map.on('mouseleave', 'boundary-fill', () => { this.map.getCanvas().style.cursor = ''; }); }); }
         }
     }).mount('#app');
