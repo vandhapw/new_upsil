@@ -28,7 +28,7 @@ def get_jember_tourism_villages(request):
     if request.method != 'GET':
         return JsonResponse({'message': 'Method not allowed'}, status=405)
     
-    villages = list(tourism_village_collection.find({}, {'_id': 0}))
+    villages = list(tourism_village_collection.find({"approval_display": True}, {'_id': 0}))
     return JsonResponse(villages, safe=False)
 
 @csrf_exempt
