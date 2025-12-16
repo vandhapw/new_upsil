@@ -5,9 +5,7 @@ from urllib3.util.retry import Retry
 import time
 
 
-# API_KEY = "a5edd953082d4f209e8ef29fdeedb0a1"
-# API_KEY = "decf3faeabb744a09a99a7a4ce8579ad"
-API_KEY = "7987d19900864cf6a41cb30cb02a27fd"
+API_KEY = "API_KEY"
 
 
 class GeopifyAPI:

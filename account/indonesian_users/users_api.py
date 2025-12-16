@@ -1,9 +1,8 @@
 from django.shortcuts import render, redirect
-from .forms import *
-from .models import User, UserLog
 from datetime import timedelta
 import time
 import json, datetime
+from bson import ObjectId
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import check_password, make_password
@@ -20,7 +19,7 @@ from production.utils import get_mongo_client
 from pymongo import MongoClient
 from django.http import JsonResponse
 import uuid
-from .tokens import generate_verification_link
+from ..tokens import idn_generate_verification_link
 from django.core.mail import send_mail
 
 from django.utils.http import urlsafe_base64_decode
@@ -29,98 +28,11 @@ from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import redirect
 from django.contrib import messages
 
+
 client = get_mongo_client()
-db = client['server_db']
-user_collection = db['user']
-user_log_collection = db['userlog']
-
-# @csrf_exempt
-# def login_function(request):
-#     if request.method == 'POST':
-#         data = json.loads(request.body)
-#         username = data.get('username')
-#         password = data.get('password')
-
-#         print(f"Received login attempt for username: {username}")        
-
-#         if not username or not password:
-#             return JsonResponse({'error': 'Username and password are required'}, status=400)
-
-#         user = user_collection.find_one({'username': username})
-#         if not user:
-#             return JsonResponse({'error': 'User not found'}, status=404)
-
-#         if check_password(password, user['password']):
-#             request.session['user'] = username
-#             return JsonResponse({'message': 'success'})
-#         else:
-#             return JsonResponse({'error': 'Incorrect password'}, status=401)
-#     else:
-#         return JsonResponse({'error': 'Invalid request method'}, status=405)
-    
-# @csrf_exempt
-# def logout_function(request):
-#     if request.method == 'POST':
-#         if 'user' in request.session:
-#             del request.session['user']
-#             return JsonResponse({'message': 'Logout successful'})
-#         else:
-#             return JsonResponse({'error': 'No user is logged in'}, status=400)
-#     else:
-#         return JsonResponse({'error': 'Invalid request method'}, status=405)
-
-def test_mongo_connection(request):
-    try:
-        client = MongoClient('mongodb://superUser:superUpsil!@localhost:27019/server_db?authSource=admin')
-        db = client['server_db']
-        # Coba akses koleksi
-        collections = db.list_collection_names()
-        return JsonResponse({'status': 'connected', 'collections': collections})
-    except Exception as e:
-        return JsonResponse({'status': 'error', 'message': str(e)})
-
-def login_page(request):
-    id = request.session.get('id')
-    if id:
-        return redirect('/dashboard/kaidashboard/')
-    
-    return render(request, 'landingPage/landingPage.html')
-    # return JsonResponse(mongo_data)
-
-# @login_required
-def testing_dashboard(request):
-    username = request.session.get('username')
-    id = request.session.get('id')
-    print('Session username:', username)  # Debugging line
-    print('Session id:', id)  # Debugging line
-    if username:
-        user_data = user_collection.find_one({'id': id})
-        print(user_data)
-        if user_data and user_data.get('is_active'):
-            mongo_status = test_mongo_connection(request)
-            # If you want to show the status on the landing page, pass it to the template
-            if hasattr(mongo_status, 'content'):
-                mongo_data = json.loads(mongo_status.content)
-            else:
-                mongo_data = {"Error": "Could not connect to MongoDB"}
-            return render(request, 'dashboard/kaiadmin/index.html', {'mongo_status': mongo_data, 'user_data': user_data})
-        else:
-            messages.error(request, 'Your account is not activated. Please verify your email.')
-            return redirect('/')
-    else:
-        messages.error(request, 'You need to log in to access the dashboard.')
-        return redirect('/')
-
-# @login_required
-# def check_page(request):
-#     return render(request,'check.html')
-
-# def dashboard_page(request):
-#     context = {}
-    
-#     return render(request,'dashboard/kaiadmin/index.html', context)
-        
-    
+db = client['indonesia_db']
+user_collection = db['users']
+user_log_collection = db['user_logs']
 
 
 @csrf_exempt
@@ -152,6 +64,18 @@ def login_api(request):
             return JsonResponse({'error': 'An error occurred while fetching user information', 'user': username, 'payload': data}, status=500)
 
         request.session['id'] = userinfo['id']
+        if userinfo:
+            # ubah ObjectId ke string
+            userinfo['_id'] = str(userinfo['_id'])
+
+        user_data = {
+            'id': userinfo['id'],
+            'username': userinfo['username'],
+            'email': userinfo['email'],
+            'photo': userinfo['photo'],
+            'user_group': userinfo['user_group'],
+        }
+
         if check_password(password, userinfo['password']):
             visit_count = userinfo.get('visitcount', 0) + 1
             userLog = user_log_collection.find_one({'id': userinfo['id']})
@@ -177,7 +101,7 @@ def login_api(request):
                     }
                 }
                 )
-            return JsonResponse({'message': 'Login successful', 'redirect_url':'/tourism/korean-tourism/'})
+            return JsonResponse({'message': 'Login successful', 'userinfo':user_data})
         else:
             return JsonResponse({'message': 'Username and password are required'}, status=400)
        
@@ -261,7 +185,7 @@ def register_api(request):
                     result = user_collection.insert_one(user_data)
                     # result = user_data
 
-                    verification_link = generate_verification_link(user_data, request)
+                    verification_link = idn_generate_verification_link(user_data, request)
 
                     send_mail(
                         'Verify your email',
@@ -272,7 +196,7 @@ def register_api(request):
                     )
 
                     if result:
-                        return JsonResponse({'message': 'Register successful! Please Check your email to verify your account.!', 'redirect_url':'account/verification_page/'})
+                        return JsonResponse({'message': 'Register successful! Please Check your email to verify your account.!', 'redirect_url':'account/idn/verification_page/'})
                     else:
                         return JsonResponse({'error': 'User registration failed'}, status=500)
 
@@ -313,7 +237,8 @@ def verify_email(request, uidb64, token):
             request.session['username'] = user.get('username')
             request.session['id'] = user.get('id')
             messages.success(request, 'Email verified successfully! You can now log in.')
-            return redirect('/tourism/korean-tourism/')
+            # return redirect('/tourism/korean-tourism/')
+            return JsonResponse({'message': 'Email verified successfully! You can now log in.', 'redirect_url':'/tourism/korean-tourism/'})
             # })
         else:
             return JsonResponse({'error': 'Verification link is invalid or expired!'}, status=400)

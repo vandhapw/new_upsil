@@ -24,6 +24,7 @@ from django.conf.urls.static import static
 from account.views import testing_dashboard
 from tourism.views import *
 from production.views import *
+from indonesian_app.desa_wisata.jember import *
 
 # from klaen.views import *
 # from monitoringapps.views import *
@@ -35,6 +36,7 @@ urlpatterns = [
     path('', new_login_page, name='login'),
     path('account/', include('account.urls')),
     path('tourism/', include('tourism.urls')),
+    path('idn/', include('indonesian_app.urls')),
     # path('dashboard/', dashboard_page, name='dashboard'),
     path('dashboard/kaidashboard/',testing_dashboard, name='kaidashboard' ),
     # path('klaen/', include('klaen.urls')),

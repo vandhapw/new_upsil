@@ -22,7 +22,7 @@ trip_optimization_collection = db["trip_optimization"]
 graph_ml_collection = db["map_graph_ml"]
 country_list_collection = db["countries"]
 
-geopify_api_key = "a5edd953082d4f209e8ef29fdeedb0a1"
+geopify_api_key = "API_KEY"
 limit = 100
 categories = "accommodation.hotel"
 geopify_api_url = f"https://api.geoapify.com/v2/places?categories={categories}&filter=rect:${{bounds.minLng}},${{bounds.minLat}},${{bounds.maxLng}},${{bounds.maxLat}}&limit={limit}&apiKey={geopify_api_key}"
