@@ -108,18 +108,30 @@ def login_api(request):
         
 @csrf_exempt
 def logout_api(request):
-    if request.method == 'POST':
-        username = request.session.get('username')
-        if username:
-            try:
-                userLog = user_log_collection.find_one({'id': request.session.get('id')})
-                if userLog:
-                    userLog['logout_at'] = datetime.datetime.now()
-                    user_log_collection.update_one({'id': userLog['id']}, {'$set': userLog})
-            except UserLog.DoesNotExist:
-                pass  # Handle the case where the UserLog does not exist
-            logout(request)
-        return JsonResponse({'message': 'Logout successful', 'redirect_url':'/'})
+    if request.method != 'POST':
+        return JsonResponse(
+            {'error': 'Method not allowed'},
+            status=405
+        )
+
+    user_id = request.session.get('id')  # atau request.user.id
+
+    if user_id:
+        # PyMongo: find_one TIDAK throw exception
+        user_log = user_log_collection.find_one({'id': user_id})
+
+        if user_log:
+            user_log_collection.update_one(
+                {'id': user_id},
+                {'$set': {'logout_at': datetime.utcnow()}}
+            )
+
+    logout(request)
+
+    return JsonResponse({
+        'message': 'Logout successful',
+        'redirect_url': '/'
+    })
         
     
     

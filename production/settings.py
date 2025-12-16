@@ -72,8 +72,15 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://localhost:8100",
     "http://127.0.0.1:8100",
+    "https://desa-wisata-jember.vercel.app",
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://desa-wisata-jember.vercel.app",
+    "https://asyqar.biz.id",
+]
 
 ROOT_URLCONF = 'production.urls'
 
@@ -97,51 +104,11 @@ WSGI_APPLICATION = 'production.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.dummy',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
-def is_server():
-    hostname = socket.gethostname()
-    server_indicators = ["vps", "server", "host", "node"]
-    return any(indicator in hostname.lower() for indicator in server_indicators)
-
-server = is_server()
-
-if server:
-    DATABASES['default'] = {
-        'ENGINE': 'djongo',
-        'NAME': 'server_db',
-        'CLIENT': {
-            'host': '127.0.0.1',
-            'port': 27019,
-            'authSource': 'admin',
-        }
-    }
-else:
-
-    client = MongoClient('mongodb://localhost:27017')  # Adjust the URL and port as needed
-
-    try:
-        # Ping the MongoDB server
-        client.admin.command('ping')  # This command checks if the connection is successful
-        print("MongoDB connection successful!")
-        DATABASES['default'] = {
-            'ENGINE': 'djongo',
-            'NAME': 'server_db',
-            'CLIENT': {
-                'host': '127.0.0.1',
-                'port': 27017,
-                'authSource': 'admin',
-            }
-        }
-    except Exception as e:
-        print(f"No local database detected: {e}. Falling back to SQLite.")
-        DATABASES['default'] = {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    
 LOGIN_URL = '/account/login/'
 
 # DATABASES = {

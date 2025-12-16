@@ -42,7 +42,7 @@ urlpatterns = [
     # path('klaen/', include('klaen.urls')),
     # path('dashboard/kaidashboard/monitoringapps/', include('monitoringapps.urls'))
     # path('/api/login/', partial(login_api, running=None), name='api-login')
-    path('dashboard/kaidashboard/tourism/', include('tourism.urls')),
+    # path('dashboard/kaidashboard/tourism/', include('tourism.urls')),
 
     path('testing_page/', new_login_page, name='testing_page' ),
 
