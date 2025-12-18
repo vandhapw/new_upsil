@@ -23,6 +23,7 @@ def get_mongo_client():
             return client
         else:
             print("Running in 'local' environment. Connecting to MongoDB.")
+            print("Connecting to MongoDB at localhost:27017...")
             client = pymongo.MongoClient("mongodb://superUser:superUpsil!@localhost:27017/server_db?authSource=server_db")
             return client
     except Exception as e:

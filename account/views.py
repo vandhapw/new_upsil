@@ -33,6 +33,7 @@ client = get_mongo_client()
 db = client['server_db']
 user_collection = db['user']
 user_log_collection = db['userlog']
+user_group_collection = db['user_group']
 
 # @csrf_exempt
 # def login_function(request):
@@ -143,7 +144,14 @@ def login_api(request):
                 {'username': username},
                 {'email': email}
             ]
+            
         })
+            datauser = {
+                'username': userinfo['username'],
+                'user_group': userinfo['user_group'],
+                'email': userinfo['email'],
+                'user_category': userinfo['user_category']
+            }
 
             if not userinfo:
                 return JsonResponse({'message': 'User not found'}, status=404)
@@ -177,7 +185,7 @@ def login_api(request):
                     }
                 }
                 )
-            return JsonResponse({'message': 'Login successful', 'redirect_url':'/tourism/korean-tourism/'})
+            return JsonResponse({'message': 'Login successful', 'redirect_url':'/tourism/korean-tourism/', 'data':datauser})
         else:
             return JsonResponse({'message': 'Username and password are required'}, status=400)
        
