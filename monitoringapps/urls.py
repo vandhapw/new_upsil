@@ -2,6 +2,7 @@ from django.urls import path
 
 from .views import *
 from functools import partial
+from .analysis import *
 
 app_name = 'monitoringapps'
 urlpatterns = [
@@ -11,6 +12,24 @@ urlpatterns = [
     path('api/plalion-sensor-data/', plalion_sensor_data_view, name='plalion-sensor-data'),
     path('api/latest-sensor-data/', get_latest_sensor_data, name='latest-sensor-data'),
     path('api/under-construction/', under_construction, name='under-construction'),
+    path('api/iaq/realtime/', iaq_realtime_view),
+    path('api/iaq/index/', iaq_index_view),
+    path('api/iaq/trends/', iaq_trends_view),
+    path('api/iaq/latest/', iaq_latest_table_view),
+    path('api/iaq/data/', iaq_filtered_data),
+    path('api/iaq/data/export/', iaq_export_csv),
+   
+    # Analysis API
+    path('api/iaq/analysis/summary/', iaq_summary),
+    path('api/iaq/analysis/trend/', iaq_trend),
+    path('api/iaq/analysis/safe-trend/', iaq_trend_safe),
+    path('api/iaq/analysis/distribution/', iaq_distribution),
+    path('api/iaq/analysis/correlation/', iaq_correlation),
+    path('api/iaq/analysis/data-quality/', iaq_data_quality),
+    path('api/iaq/analysis/autocorrelation/', iaq_autocorrelation),
+    path('api/iaq/analysis/seasonal-decompose/', iaq_seasonal_decompose),
+    
+    
     #  path('api/indoor-buildthing-updated/', indoorBuildthingUpdated, name='indoor-buildthing-updated'),
     #  path('api/data-capacity/', dataCapacity, name='data-capacity'),
     # path('api/eda-index/', eda_index, name='eda-index'),

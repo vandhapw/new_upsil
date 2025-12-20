@@ -27,7 +27,7 @@ from production.views import *
 from indonesian_app.desa_wisata.jember import *
 
 # from klaen.views import *
-# from monitoringapps.views import *
+from monitoringapps.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -43,6 +43,7 @@ urlpatterns = [
     # path('dashboard/kaidashboard/monitoringapps/', include('monitoringapps.urls'))
     # path('/api/login/', partial(login_api, running=None), name='api-login')
     path('dashboard/kaidashboard/tourism/', include('tourism.urls')),
+    path('monitoringapps/', include('monitoringapps.urls')),
 
     path('testing_page/', new_login_page, name='testing_page' ),
 

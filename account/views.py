@@ -34,7 +34,67 @@ db = client['server_db']
 user_collection = db['user']
 user_log_collection = db['userlog']
 user_group_collection = db['user_group']
+paper_collection = db['upsil_papers']
 
+def serialize_paper(doc):
+    """
+    Convert MongoDB document into JSON-serializable dict
+    """
+    return {
+        "id": str(doc.get("_id")),
+        "title": doc.get("title"),
+        "journal_name": doc.get("journal_name"),
+        "year": doc.get("year"),
+        "citation_count": doc.get("citation_count", 0),
+        "cited_count": doc.get("cited_count", 0),
+    }
+
+
+def getAllPapers(request):
+    if request.method != 'GET':
+        return JsonResponse(
+            {"error": "Method not allowed"},
+            status=405
+        )
+
+    try:
+        # Optional pagination
+        page = int(request.GET.get("page", 1))
+        page_size = int(request.GET.get("page_size", 20))
+
+        if page < 1:
+            page = 1
+
+        skip = (page - 1) * page_size
+
+        cursor = (
+            paper_collection
+            .find({})
+            .sort("year", -1)   # latest first
+            .skip(skip)
+            .limit(page_size)
+        )
+
+        papers = [serialize_paper(doc) for doc in cursor]
+        total = paper_collection.count_documents({})
+
+        return JsonResponse(
+            {
+                "results": papers,
+                "pagination": {
+                    "page": page,
+                    "page_size": page_size,
+                    "total": total,
+                }
+            },
+            safe=False
+        )
+
+    except Exception as e:
+        return JsonResponse(
+            {"error": str(e)},
+            status=500
+        )
 # @csrf_exempt
 # def login_function(request):
 #     if request.method == 'POST':

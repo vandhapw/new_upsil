@@ -16,6 +16,8 @@ urlpatterns = [
     path('api/register/', register_api, name='register_api'),
     path('api/verify_email/<str:uidb64>/<str:token>/', verify_email, name='verify_email'),
     path('verification_page/', verification_page, name='verification_page'),
+    
+    path('api/papers/', getAllPapers, name='get_all_papers'),
 
     # Indonesian User APIs
     path('api/idn/login/', idn.login_api, name='idn_login_api'),
@@ -23,6 +25,8 @@ urlpatterns = [
     path('api/idn/register/', idn.register_api, name='idn_register_api'),
     path('api/idn/verify_email/<str:uidb64>/<str:token>/', idn.verify_email, name='idn_verify_email'),
     path('idn/verification_page/', idn.verification_page, name='idn_verification_page'),
+    
+    
     
     # path('api/dashboard_page/', dashboard_page, name='dashboard_page'),
 ]
