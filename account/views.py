@@ -188,68 +188,61 @@ def testing_dashboard(request):
 
 @csrf_exempt
 def login_api(request):
-   
-   if request.method == 'POST':
-       
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST only'}, status=405)
+
+    try:
         data = json.loads(request.body)
-       
         username = data.get('username')
-        email = data.get('username')
         password = data.get('password')
-       
-        request.session['username'] = username
-        print(f"Received login attempt for username: {username}")
-        
-        try:
-            userinfo = user_collection.find_one({
-            '$or': [
-                {'username': username},
-                {'email': email}
-            ]
-            
+
+        if not username or not password:
+            return JsonResponse({'error': 'Username and password are required'}, status=400)
+
+        userinfo = user_collection.find_one({
+            '$or': [{'username': username}, {'email': username}]
         })
-            datauser = {
-                'username': userinfo['username'],
-                'user_group': userinfo['user_group'],
-                'email': userinfo['email'],
-                'user_category': userinfo['user_category']
-            }
 
-            if not userinfo:
-                return JsonResponse({'message': 'User not found'}, status=404)
-        except Exception as e:
-            logging.error(f"Error fetching user info: {e}")
-            return JsonResponse({'error': 'An error occurred while fetching user information', 'user': username, 'payload': data}, status=500)
+        if not userinfo:
+            return JsonResponse({'error': 'User not found'}, status=404)
 
-        request.session['id'] = userinfo['id']
-        if check_password(password, userinfo['password']):
-            visit_count = userinfo.get('visitcount', 0) + 1
-            userLog = user_log_collection.find_one({'id': userinfo['id']})
-            if not userLog:
-                new_log = {
-                    'id': userinfo['id'],
-                    'visitcount': 1,
+        if not check_password(password, userinfo['password']):
+            return JsonResponse({'error': 'Invalid password'}, status=401)
+
+        # optional: session (not recommended for SPA)
+        request.session['user_id'] = userinfo['id']
+
+        # logging
+        user_log_collection.update_one(
+            {'id': userinfo['id']},
+            {
+                '$set': {
                     'activity': 'login',
-                    'time_at': datetime.datetime.now(),
-                    'logout_at': None
-                }
-                user_log_collection.insert_one(new_log)
-            else:
-                visit_count = userLog['visitcount'] + 1
-                user_log_collection.update_one(
-                {'username': username},
-                {
-                    '$set': {
-                    'visitcount': visit_count,
-                    'activity': 'login',
-                    'time_at': datetime.datetime.now(),
-                    # 'login_at': datetime.datetime.now()
-                    }
-                }
-                )
-            return JsonResponse({'message': 'Login successful', 'redirect_url':'/tourism/korean-tourism/', 'data':datauser})
-        else:
-            return JsonResponse({'message': 'Username and password are required'}, status=400)
+                    'time_at': datetime.datetime.now()
+                },
+                '$inc': {'visitcount': 1}
+            },
+            upsert=True
+        )
+
+        datauser = {
+            'username': userinfo['username'],
+            'user_group': userinfo['user_group'],
+            'email': userinfo['email'],
+            'user_category': userinfo.get('user_category'),
+            'photo': userinfo.get('photo')
+        }
+
+        return JsonResponse({
+            'message': 'Login successful',
+            'redirect_url': '/tourism/korean-tourism/',
+            'data': datauser
+        })
+
+    except Exception as e:
+        logging.exception("Login error")
+        return JsonResponse({'error': 'Internal server error'}, status=500)
+
        
         
 @csrf_exempt
@@ -271,88 +264,59 @@ def logout_api(request):
     
 @csrf_exempt
 def register_api(request):
-    if request.method == 'POST':
-        try:
-            # Parse the incoming JSON data
-            data = json.loads(request.body)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST only'}, status=405)
 
-            # print("Received registration data:", data)  # Debugging line
+    try:
+        data = json.loads(request.body)
 
-            firstName = data.get('firstName')
-            lastName = data.get('lastName')
-            username = data.get('username')  # This can also be used as the email
-            email = data.get('email')
-            password = data.get('password')
-            re_password = data.get('re_password')
-            
-            res_data = {}
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
+        confirm = data.get('confirmPassword')
 
-            # Validate input fields
-            if not (username and password and re_password and email):
-                res_data['error'] = '모든 값을 입력해야 합니다.'  # "All fields must be filled"
-                return JsonResponse({'error': res_data['error']}, status=400)
-            elif password != re_password:
-                res_data['error'] = '비밀번호가 다릅니다.'  # "Passwords do not match"
-                return JsonResponse({'error': res_data['error']}, status=400)
-            else:
-                # Connect to MongoDB
-                # Check if the username or email already exists in the database
-                if user_collection.find_one({'username': username}):
-                    res_data['error'] = 'Username already exists.'
-                    return JsonResponse({'error': res_data['error']}, status=400)
-                elif user_collection.find_one({'email': email}):
-                    res_data['error'] = 'Email already registered.'
-                    return JsonResponse({'error': res_data['error']}, status=400)
-                else:
-                    
-                    # Hash the password for security
-                    hash_password = make_password(password)
+        if not all([username, email, password, confirm]):
+            return JsonResponse({'error': 'All fields are required'}, status=400)
 
-                    # Prepare the data to be inserted
-                    user_data = {
-                        'id': str(uuid.uuid4()),
-                        'firstName': firstName,
-                        'lastName': lastName,
-                        'username': username,
-                        'password': hash_password,
-                        'email': email,
-                        'photo': "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIf4R5qPKHPNMyAqV-FjS_OTBB8pfUV29Phg&s",
-                        'user_group': 'guest',
-                        'type':'manual',
-                        'is_active': False,
-                        'verification_token': None,
-                        'created_at': datetime.datetime.now(),
-                        'updated_at': datetime.datetime.now(),
-                        'registered_at': datetime.datetime.now()
-                    }
+        if password != confirm:
+            return JsonResponse({'error': 'Passwords do not match'}, status=400)
 
-                    # print(user_data)
+        if len(password) < 8:
+            return JsonResponse({'error': 'Password too short'}, status=400)
 
-                    # Insert data into MongoDB
-                    result = user_collection.insert_one(user_data)
-                    # result = user_data
+        if user_collection.find_one({'$or': [{'username': username}, {'email': email}]}):
+            return JsonResponse({'error': 'Username or email already exists'}, status=400)
 
-                    verification_link = generate_verification_link(user_data, request)
+        user_data = {
+            'id': str(uuid.uuid4()),
+            'username': username,
+            'email': email,
+            'password': make_password(password),
+            'user_group': 'guest',
+            'is_active': False,
+            'verification_token': str(uuid.uuid4()),
+            'created_at': datetime.datetime.utcnow()
+        }
 
-                    send_mail(
-                        'Verify your email',
-                        f'Please click the following link to verify your email: {verification_link}',
-                        'upsil@mail.com',
-                        [email],
-                        fail_silently=False,
-                    )
+        user_collection.insert_one(user_data)
 
-                    if result:
-                        return JsonResponse({'message': 'Register successful! Please Check your email to verify your account.!', 'redirect_url':'account/verification_page/'})
-                    else:
-                        return JsonResponse({'error': 'User registration failed'}, status=500)
+        verification_link = generate_verification_link(user_data, request)
 
-        except Exception as e:
-            # Handle any exceptions and provide error details
-            return JsonResponse({'error': f'Error occurred : {str(e)}'}, status=500)
+        send_mail(
+            'Verify your email',
+            f'Click to verify: {verification_link}',
+            'upsil@mail.com',
+            [email],
+            fail_silently=False
+        )
 
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=400)
+        return JsonResponse({
+            'message': 'Registration successful. Please verify your email.'
+        })
+
+    except Exception as e:
+        logging.exception("Register error")
+        return JsonResponse({'error': 'Internal server error'}, status=500)
     
 
 def verify_email(request, uidb64, token):
