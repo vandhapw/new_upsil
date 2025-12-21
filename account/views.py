@@ -28,6 +28,8 @@ from django.contrib.auth.tokens import default_token_generator
 
 from django.shortcuts import redirect
 from django.contrib import messages
+import bson 
+from .utils import serialize_user
 
 client = get_mongo_client()
 db = client['server_db']
@@ -315,9 +317,10 @@ def register_api(request):
                         'password': hash_password,
                         'email': email,
                         'photo': "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIf4R5qPKHPNMyAqV-FjS_OTBB8pfUV29Phg&s",
-                        'user_group': 'user',
+                        'user_group': 'guest',
                         'type':'manual',
                         'is_active': False,
+                        'verification_token': None,
                         'created_at': datetime.datetime.now(),
                         'updated_at': datetime.datetime.now(),
                         'registered_at': datetime.datetime.now()
@@ -380,8 +383,18 @@ def verify_email(request, uidb64, token):
 
             request.session['username'] = user.get('username')
             request.session['id'] = user.get('id')
-            messages.success(request, 'Email verified successfully! You can now log in.')
-            return redirect('/tourism/korean-tourism/')
+            # return JsonResponse({
+            #     "message": 'Email verified successfully! You can now log in.',
+            #     "status": 'Success'            
+            # })
+            
+            return redirect('/verification', {
+                "message": 'Email verified successfully! You can now log in.',
+                "status": 'Success' 
+            })
+            
+            
+            # return redirect('/tourism/korean-tourism/')
             # })
         else:
             return JsonResponse({'error': 'Verification link is invalid or expired!'}, status=400)
@@ -391,6 +404,7 @@ def verify_email(request, uidb64, token):
 
 def verification_page(request):
     return render(request, 'landingPage/verification_page.html')
+
 
 
 

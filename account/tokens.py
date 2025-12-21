@@ -25,7 +25,7 @@ def generate_verification_link(user_data, request):
     print('Generated Token:', token)  # Debugging line
     
     verification_url = request.build_absolute_uri(
-        reverse('account:idn_verify_email', kwargs={'uidb64': uid, 'token': token})
+        reverse('account:verify_email', kwargs={'uidb64': uid, 'token': token})
     )
 
     print("Verification URL:", verification_url)  # Debugging line

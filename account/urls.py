@@ -4,6 +4,7 @@ from django.urls import path
 from .views import *
 from functools import partial
 from .indonesian_users import users_api as idn
+from .crud import *
 
 app_name = 'account'
 urlpatterns = [
@@ -26,6 +27,12 @@ urlpatterns = [
     path('api/idn/verify_email/<str:uidb64>/<str:token>/', idn.verify_email, name='idn_verify_email'),
     path('idn/verification_page/', idn.verification_page, name='idn_verification_page'),
     
+    # CRUD Users
+    path('api/users/read/', getUsers, name='get_users'),
+    path('api/users/create/', createUser, name='create_users'),
+    path('api/users/<str:user_id>/', getUserById),
+    path('api/users/update/<str:user_id>/', updateUser),
+    path('api/users/delete/<str:user_id>/', deleteUser),
     
     
     # path('api/dashboard_page/', dashboard_page, name='dashboard_page'),

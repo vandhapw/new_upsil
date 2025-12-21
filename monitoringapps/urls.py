@@ -3,6 +3,7 @@ from django.urls import path
 from .views import *
 from functools import partial
 from .analysis import *
+from .sn_sensors import getAllSensors
 
 app_name = 'monitoringapps'
 urlpatterns = [
@@ -28,6 +29,10 @@ urlpatterns = [
     path('api/iaq/analysis/data-quality/', iaq_data_quality),
     path('api/iaq/analysis/autocorrelation/', iaq_autocorrelation),
     path('api/iaq/analysis/seasonal-decompose/', iaq_seasonal_decompose),
+    
+    # Sensor Serial Number
+    path('api/iaq/sns/read/', getAllSensors),
+    
     
     
     #  path('api/indoor-buildthing-updated/', indoorBuildthingUpdated, name='indoor-buildthing-updated'),
