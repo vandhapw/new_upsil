@@ -33,19 +33,19 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('testing/',print_example, name='testing' ),
     # path('', login_page, name='login'),
-    path('', new_login_page, name='login'),
-    path('account/', include('account.urls')),
-    path('tourism/', include('tourism.urls')),
-    path('idn/', include('indonesian_app.urls')),
+    path('backend/', new_login_page, name='login'),
+    path('backend/account/', include('account.urls')),
+    path('backend/tourism/', include('tourism.urls')),
+    path('backend/idn/', include('indonesian_app.urls')),
     # path('dashboard/', dashboard_page, name='dashboard'),
-    path('dashboard/kaidashboard/',testing_dashboard, name='kaidashboard' ),
+    path('backend/dashboard/kaidashboard/',testing_dashboard, name='kaidashboard' ),
     # path('klaen/', include('klaen.urls')),
     # path('dashboard/kaidashboard/monitoringapps/', include('monitoringapps.urls'))
     # path('/api/login/', partial(login_api, running=None), name='api-login')
-    path('dashboard/kaidashboard/tourism/', include('tourism.urls')),
-    path('monitoringapps/', include('monitoringapps.urls')),
+    path('backend/dashboard/kaidashboard/tourism/', include('tourism.urls')),
+    path('backend/monitoringapps/', include('monitoringapps.urls')),
 
-    path('testing_page/', new_login_page, name='testing_page' ),
+    path('backend/testing_page/', new_login_page, name='testing_page' ),
 
 ]
 
