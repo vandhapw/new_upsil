@@ -12,7 +12,7 @@ from production.utils import get_mongo_client
 
 client = get_mongo_client()
 db = client['server_db']
-sns_collection = db['lighting_plalionsensorcompanydata']
+sns_collection = db['plalion_company_sensor']
 
 def getAllSensors(request):
     if request.method != 'GET':

@@ -39,7 +39,7 @@ urlpatterns = [
     path('backend/idn/', include('indonesian_app.urls')),
     # path('dashboard/', dashboard_page, name='dashboard'),
     path('backend/dashboard/kaidashboard/',testing_dashboard, name='kaidashboard' ),
-    # path('klaen/', include('klaen.urls')),
+    path('backend/klaen/', include('klaen.urls')),
     # path('dashboard/kaidashboard/monitoringapps/', include('monitoringapps.urls'))
     # path('/api/login/', partial(login_api, running=None), name='api-login')
     path('backend/dashboard/kaidashboard/tourism/', include('tourism.urls')),
