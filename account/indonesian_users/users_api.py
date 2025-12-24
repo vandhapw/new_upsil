@@ -37,9 +37,8 @@ user_log_collection = db['user_logs']
 
 @csrf_exempt
 def login_api(request):
-
-    # ✅ HANDLE PREFLIGHT (INI KUNCI UTAMA)
-    if request.method == "OPTIONS":
+    
+   if request.method == "OPTIONS":
         response = JsonResponse({}, status=200)
         origin = request.headers.get("Origin")
 
@@ -49,76 +48,73 @@ def login_api(request):
         response["Access-Control-Allow-Credentials"] = "true"
 
         return response
-
-    # ✅ HANDLE LOGIN
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-        except Exception:
-            return JsonResponse({'error': 'Invalid JSON'}, status=400)
-
+   
+   if request.method == 'POST':
+       
+        data = json.loads(request.body)
+       
         username = data.get('username')
         email = data.get('username')
         password = data.get('password')
-
-        if not username or not password:
-            return JsonResponse({'message': 'Username and password are required'}, status=400)
-
+       
         request.session['username'] = username
-        logging.info(f"Received login attempt for username: {username}")
-
+        print(f"Received login attempt for username: {username}")
+        
         try:
             userinfo = user_collection.find_one({
-                '$or': [
-                    {'username': username},
-                    {'email': email}
-                ]
-            })
+            '$or': [
+                {'username': username},
+                {'email': email}
+            ]
+        })
+
+            if not userinfo:
+                return JsonResponse({'message': 'User not found'}, status=404)
         except Exception as e:
             logging.error(f"Error fetching user info: {e}")
-            return JsonResponse(
-                {'error': 'Database error'},
-                status=500
-            )
+            return JsonResponse({'error': 'An error occurred while fetching user information', 'user': username, 'payload': data}, status=500)
 
-        if not userinfo:
-            return JsonResponse({'message': 'User not found'}, status=404)
-
-        # password check
-        if not check_password(password, userinfo['password']):
-            return JsonResponse({'message': 'Invalid credentials'}, status=401)
-
-        # update session
         request.session['id'] = userinfo['id']
-
-        # log user activity
-        user_log_collection.update_one(
-            {'id': userinfo['id']},
-            {
-                '$set': {
-                    'activity': 'login',
-                    'time_at': datetime.datetime.now()
-                },
-                '$inc': {'visitcount': 1}
-            },
-            upsert=True
-        )
+        if userinfo:
+            # ubah ObjectId ke string
+            userinfo['_id'] = str(userinfo['_id'])
 
         user_data = {
             'id': userinfo['id'],
             'username': userinfo['username'],
             'email': userinfo['email'],
-            'photo': userinfo.get('photo'),
-            'user_group': userinfo.get('user_group'),
+            'photo': userinfo['photo'],
+            'user_group': userinfo['user_group'],
         }
 
-        return JsonResponse(
-            {'message': 'Login successful', 'userinfo': user_data},
-            status=200
-        )
-
-    # ❌ METHOD TIDAK DIIZINKAN
-    return JsonResponse({'error': 'Method not allowed'}, status=405)
+        if check_password(password, userinfo['password']):
+            visit_count = userinfo.get('visitcount', 0) + 1
+            userLog = user_log_collection.find_one({'id': userinfo['id']})
+            if not userLog:
+                new_log = {
+                    'id': userinfo['id'],
+                    'visitcount': 1,
+                    'activity': 'login',
+                    'time_at': datetime.datetime.now(),
+                    'logout_at': None
+                }
+                user_log_collection.insert_one(new_log)
+            else:
+                visit_count = userLog['visitcount'] + 1
+                user_log_collection.update_one(
+                {'username': username},
+                {
+                    '$set': {
+                    'visitcount': visit_count,
+                    'activity': 'login',
+                    'time_at': datetime.datetime.now(),
+                    # 'login_at': datetime.datetime.now()
+                    }
+                }
+                )
+            return JsonResponse({'message': 'Login successful', 'userinfo':user_data})
+        else:
+            return JsonResponse({'message': 'Username and password are required'}, status=400)
        
         
 @csrf_exempt
