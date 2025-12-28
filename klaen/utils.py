@@ -12,6 +12,7 @@ bus_klaen_status_collection = db['bus_klaen_status']
 bus_klaen_time_schedule_collection = db['bus_klaen_time_schedule']
 bus_klaen_mqtt = db['klaen_mqtt']
 bus_klaen_logs = db['klaen_logs']
+register_plalion_sensor = db['plalion_serial_number']
 
 jungrok_url = "http://54.180.153.12:3000/plalion/"
 

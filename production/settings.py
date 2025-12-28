@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'monitoringapps.apps.MonitoringappsConfig',
     'corsheaders',
     'account',
     'frontend',
@@ -72,8 +73,10 @@ CORS_ALLOWED_ORIGINS = [
     "https://desa-wisata-jember.vercel.app",
     "https://asyqar.biz.id",
     "http://localhost:8000",
+    "http://localhost:8005",
     "http://localhost:8100",
     "http://127.0.0.1:8100",   
+    "http://localhost:5174",
     "http://localhost:5173",
 ]
 
@@ -128,7 +131,7 @@ DATABASES = {
     }
 }
 
-LOGIN_URL = '/account/login/'
+LOGIN_URL = 'backend/account/login/'
 
 # DATABASES = {
 #     'default': {

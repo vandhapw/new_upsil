@@ -235,7 +235,7 @@ def login_api(request):
 
         return JsonResponse({
             'message': 'Login successful',
-            'redirect_url': '/tourism/korean-tourism/',
+            'redirect_url': '/backend/tourism/korean-tourism/',
             'data': datauser
         })
 

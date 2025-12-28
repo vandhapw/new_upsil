@@ -2,7 +2,7 @@
 function performLogin(username, password) {
   showLoading('Logging in...', autoclose=false);
   $.ajax({
-    url: '/account/api/login/',
+    url: '/backend/account/api/login/',
     type: 'POST',
     contentType: 'application/json',
     data: JSON.stringify({ username: username, password: password }),
@@ -39,7 +39,7 @@ function performRegister(firstName, lastName, username, email, password, confirm
   }
   showLoading('Registering...', autoclose=false);
   $.ajax({
-    url: '/account/api/register/',
+    url: '/backend/account/api/register/',
     type: 'POST',
     contentType: 'application/json',
     data: JSON.stringify({ firstName: firstName, lastName: lastName, username: username, email: email, password: password, re_password: confirmPassword }),
@@ -66,7 +66,7 @@ function performRegister(firstName, lastName, username, email, password, confirm
       console.log('Attempting login for user:', username);
       
       $.ajax({
-        url: '/account/api/login/',
+        url: '/backend/account/api/login/',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({ username: username, password: password}),
@@ -97,7 +97,7 @@ function performRegister(firstName, lastName, username, email, password, confirm
         showLoading('Log out...', autoclose=false);
         
         $.ajax({
-          url: '/account/api/logout/',
+          url: '/backend/account/api/logout/',
           type: 'POST',
           contentType: 'application/json',
           headers: {
@@ -143,7 +143,7 @@ function performRegister(firstName, lastName, username, email, password, confirm
       }
       showLoading('Loading...', autoclose=false);
       $.ajax({
-        url: '/account/api/register/',
+        url: '/backend/account/api/register/',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({ firstName: firstName, lastName: lastName, username: username, email: email, password: password, re_password: confirmPassword}),

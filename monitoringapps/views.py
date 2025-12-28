@@ -8,6 +8,7 @@ import math
 from django.utils.dateparse import parse_datetime
 import csv
 from django.http import StreamingHttpResponse 
+from klaen.utils import plalion_company_data_collection
 
 client = get_mongo_client()
 db = client['server_db']
@@ -39,27 +40,49 @@ def under_construction(request):
     return render(request, 'dashboard/kaiadmin/partials/under_construction.html')
 
 
-def iaq_realtime_view(request):
-    doc = collection.find_one(
-        {},
-        sort=[('timestamp', -1)],
-        projection={'_id': 0}
-    )
+def iaq_realtime_view(request, serial_number):
+    if not serial_number:
+        doc = collection.find_one(
+            {},
+            sort=[('timestamp', -1)],
+            projection={'_id': 0}
+        )
 
-    if not doc:
-        return JsonResponse({'data': None})
+        if not doc:
+            return JsonResponse({'data': None})
 
-    return JsonResponse({
-        'data': {
-            'co2': doc['co2'],
-            'voc': doc['voc'],
-            'temperature': doc['temperature'],
-            'humidity': doc['humidity'],
-            'dust': doc['dust'],
-            'ozone': doc['ozone'],
-            'timestamp': doc['timestamp'],
-        }
-    })
+        return JsonResponse({
+            'data': {
+                'co2': doc['co2'],
+                'voc': doc['voc'],
+                'temperature': doc['temperature'],
+                'humidity': doc['humidity'],
+                'dust': doc['dust'],
+                'ozone': doc['ozone'],
+                'timestamp': doc['timestamp'],
+            }
+        })
+    else:
+        doc = plalion_company_data_collection.find_one(
+            {'serial_number': serial_number},
+            sort=[('timestamp', -1)],
+            projection={'_id': 0}
+        )
+
+        if not doc:
+            return JsonResponse({'data': None})
+
+        return JsonResponse({
+            'data': {
+                'co2': doc['co2'],
+                'voc': doc['voc'],
+                'temperature': doc['temperature'],
+                'humidity': doc['humidity'],
+                'dust': doc['dust'],
+                'ozone': doc['ozone'],
+                'timestamp': doc['timestamp'],
+            }
+        })
 
 def calculate_iaq(doc):
     """
@@ -83,19 +106,35 @@ def calculate_iaq(doc):
     return max(int(round(score)), 0)
 
 
-def iaq_index_view(request):
+def iaq_index_view(request, serial_number=None):
+    
     now = datetime.utcnow()
     one_hour_ago = now - timedelta(hours=1)
+    
+    if not serial_number:
 
-    latest = collection.find_one(
-        {},
-        sort=[('timestamp', -1)]
-    )
+        latest = collection.find_one(
+            {},
+            sort=[('timestamp', -1)]
+        )
 
-    prev = collection.find_one(
-        {'timestamp': {'$lte': one_hour_ago}},
-        sort=[('timestamp', -1)]
-    )
+        prev = collection.find_one(
+            {'timestamp': {'$lte': one_hour_ago}},
+            sort=[('timestamp', -1)]
+        )
+    else:
+        latest = plalion_company_data_collection.find_one(
+            {'serial_number': serial_number},
+            sort=[('timestamp', -1)]
+        )
+
+        prev = plalion_company_data_collection.find_one(
+            {
+                'serial_number': serial_number,
+                'timestamp': {'$lte': one_hour_ago}
+            },
+            sort=[('timestamp', -1)]
+        )
 
     if not latest:
         return JsonResponse({'data': None})
@@ -117,45 +156,81 @@ def iaq_index_view(request):
         }
     })
 
-def iaq_trends_view(request):
+def iaq_trends_view(request, serial_number=None):
     hours = int(request.GET.get('hours', 24))
     since = datetime.utcnow() - timedelta(hours=hours)
-
-    pipeline = [
-        {'$match': {'timestamp': {'$gte': since}}},
-        {
-            '$group': {
-                '_id': {
-                    '$dateToString': {
-                        'format': '%Y-%m-%d %H:%M',
-                        'date': '$timestamp'
-                    }
-                },
-                'co2': {'$avg': '$co2'},
-                'voc': {'$avg': '$voc'},
-                'temperature': {'$avg': '$temperature'},
-                'humidity': {'$avg': '$humidity'},
-                'dust': {'$avg': '$dust'},
-                'ozone': {'$avg': '$ozone'},
-            }
-        },
-        {'$sort': {'_id': 1}},
-        {'$limit': 500}
-    ]
+    
+    if not serial_number:    
+        pipeline = [
+            {'$match': {'timestamp': {'$gte': since}}},
+            {
+                '$group': {
+                    '_id': {
+                        '$dateToString': {
+                            'format': '%Y-%m-%d %H:%M',
+                            'date': '$timestamp'
+                        }
+                    },
+                    'co2': {'$avg': '$co2'},
+                    'voc': {'$avg': '$voc'},
+                    'temperature': {'$avg': '$temperature'},
+                    'humidity': {'$avg': '$humidity'},
+                    'dust': {'$avg': '$dust'},
+                    'ozone': {'$avg': '$ozone'},
+                }
+            },
+            {'$sort': {'_id': 1}},
+            {'$limit': 500}
+        ]
+    else:
+        pipeline = [
+            {
+                '$match': {
+                    'serial_number': serial_number,
+                    'timestamp': {'$gte': since}
+                }
+            },
+            {
+                '$group': {
+                    '_id': {
+                        '$dateToString': {
+                            'format': '%Y-%m-%d %H:%M',
+                            'date': '$timestamp'
+                        }
+                    },
+                    'co2': {'$avg': '$co2'},
+                    'voc': {'$avg': '$voc'},
+                    'temperature': {'$avg': '$temperature'},
+                    'humidity': {'$avg': '$humidity'},
+                    'dust': {'$avg': '$dust'},
+                    'ozone': {'$avg': '$ozone'},
+                }
+            },
+            {'$sort': {'_id': 1}},
+            {'$limit': 500}
+        ]
 
     data = list(collection.aggregate(pipeline))
 
     return JsonResponse({'data': data})
     
-def iaq_latest_table_view(request):
+def iaq_latest_table_view(request, serial_number=None):
     limit = int(request.GET.get('limit', 50))
-
-    cursor = (
-        collection
-        .find({}, {'_id': 0})
-        .sort('timestamp', -1)
-        .limit(limit)
-    )
+    
+    if not serial_number:
+        cursor = (
+            collection
+            .find({}, {'_id': 0})
+            .sort('timestamp', -1)
+            .limit(limit)
+        )
+    else:
+        cursor = (
+            plalion_company_data_collection
+            .find({'serial_number': serial_number}, {'_id': 0})
+            .sort('timestamp', -1)
+            .limit(limit)
+        )
 
     data = []
     for doc in cursor:
@@ -179,7 +254,7 @@ def iaq_latest_table_view(request):
 
     return JsonResponse({'data': data})
 
-def iaq_filtered_data(request):
+def iaq_filtered_data(request, serial_number=None):
     # ---- Query params ----
     start = request.GET.get("start")
     end = request.GET.get("end")
@@ -192,24 +267,43 @@ def iaq_filtered_data(request):
     if start and end:
         start_dt = datetime.fromisoformat(start)
         end_dt = datetime.fromisoformat(end)
-        query["timestamp"] = {
-            "$gte": start_dt,
-            "$lte": end_dt
-        }
+        if not serial_number:
+            query["timestamp"] = {
+                "$gte": start_dt,
+                "$lte": end_dt
+            }
+        else:
+            query["serial_number"] = serial_number
+            query["timestamp"] = {
+                "$gte": start_dt,
+                "$lte": end_dt
+            }
 
     # ---- Pagination ----
     skip = (page - 1) * page_size
 
-    cursor = (
-        collection
-        .find(query, {"_id": 0})
-        .sort("timestamp", -1)
-        .skip(skip)
-        .limit(page_size)
-    )
-
-    data = list(cursor)
-    total = collection.count_documents(query)
+    if not serial_number:       
+        cursor = (
+            collection
+            .find(query, {"_id": 0})
+            .sort("timestamp", -1)
+            .skip(skip)
+            .limit(page_size)
+        )
+        data = list(cursor)
+        total = collection.count_documents(query)
+        print('a')
+    else:
+        cursor = (
+            plalion_company_data_collection
+            .find(query, {"_id": 0})
+            .sort("timestamp", -1)
+            .skip(skip)
+            .limit(page_size)
+        )
+        data = list(cursor)
+        total = plalion_company_data_collection.count_documents(query)
+        print('b')
 
     return JsonResponse({
         "meta": {
@@ -221,7 +315,7 @@ def iaq_filtered_data(request):
         "data": data
     })
 
-def iaq_export_csv(request):
+def iaq_export_csv(request, serial_number=None):
     
     start = request.GET.get("start")
     end = request.GET.get("end")
@@ -231,16 +325,30 @@ def iaq_export_csv(request):
     if start and end:
         start_dt = datetime.fromisoformat(start)
         end_dt = datetime.fromisoformat(end)
-        query["timestamp"] = {
-            "$gte": start_dt,
-            "$lte": end_dt
-        }
+        if not serial_number:
+            query["timestamp"] = {
+                "$gte": start_dt,
+                "$lte": end_dt
+            }
+        else:
+            query["serial_number"] = serial_number
+            query["timestamp"] = {
+                "$gte": start_dt,
+                "$lte": end_dt
+            }
 
-    cursor = (
-        collection
-        .find(query, {"_id": 0})
-        .sort("timestamp", 1)
-    )
+    if not serial_number:
+        cursor = (
+            collection
+            .find(query, {"_id": 0})
+            .sort("timestamp", 1)
+        )
+    else:
+        cursor = (
+            plalion_company_data_collection
+            .find(query, {"_id": 0})
+            .sort("timestamp", 1)
+        )
 
     def csv_generator():
         header_written = False
